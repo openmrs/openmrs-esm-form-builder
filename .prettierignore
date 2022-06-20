@@ -1,0 +1,14 @@
+# directories
+.husky/
+dist/
+node_modules/
+
+# dotfiles and generated
+.*
+yarn.lock
+
+# by file type
+**/*.css
+**/*.scss
+**/*.md
+**/*.json
