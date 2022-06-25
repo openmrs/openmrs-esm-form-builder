@@ -16,69 +16,70 @@ import {
   Button,
   Tag,
 } from "carbon-components-react";
-// import IconButton from
-// import { Edit } from '@carbon/react/icons';
 import styles from "./dashboard.css";
 import { Download, Edit } from "@carbon/icons-react/next";
-
-const headers = [
-  {
-    header: "Name",
-    key: "name",
-  },
-  {
-    header: "Version",
-    key: "version",
-  },
-  {
-    header: "Published",
-    key: "published",
-  },
-  {
-    header: "Retired",
-    key: "retired",
-  },
-  {
-    header: "Actions",
-    key: "actions",
-  },
-];
-
-const rows = [
-  {
-    id: "a",
-    name: "POC Vitals",
-    version: "1.0",
-    published: (
-      <Tag type="green" size="sm" title="Clear Filter">
-        {"Yes"}
-      </Tag>
-    ),
-    retired: (
-      <Tag type="green" size="sm" title="Clear Filter">
-        {"No"}
-      </Tag>
-    ),
-    actions: (
-      <>
-        <Button
-          renderIcon={Edit}
-          kind={"ghost"}
-          iconDescription="Edit Form"
-          hasIconOnly
-        />
-        <Button
-          renderIcon={Download}
-          kind={"ghost"}
-          iconDescription="Download"
-          hasIconOnly
-        />
-      </>
-    ),
-  },
-];
+import { useTranslation } from "react-i18next";
 
 const Dashboard: React.FC = () => {
+  const { t } = useTranslation();
+
+  const headers = [
+    {
+      header: t("name", "Name"),
+      key: "name",
+    },
+    {
+      header: t("version", "Version"),
+      key: "version",
+    },
+    {
+      header: t("published", "Published"),
+      key: "published",
+    },
+    {
+      header: t("retired", "Retired"),
+      key: "retired",
+    },
+    {
+      header: t("actions", "Actions"),
+      key: "actions",
+    },
+  ];
+
+  const rows = [
+    {
+      id: "a",
+      name: "POC Vitals",
+      version: "1.0",
+      published: (
+        <Tag type="green" size="sm" title="Clear Filter">
+          {t("yes", "Yes")}
+        </Tag>
+      ),
+      retired: (
+        <Tag type="green" size="sm" title="Clear Filter">
+          {t("no", "No")}
+        </Tag>
+      ),
+      actions: (
+        <>
+          <Button
+            renderIcon={Edit}
+            kind={"ghost"}
+            iconDescription={t("editForm", "Edit Form")}
+            hasIconOnly
+          />
+          <Button
+            renderIcon={Download}
+            kind={"ghost"}
+            iconDescription={t("download", "Download")}
+            hasIconOnly
+          />
+        </>
+      ),
+    },
+  ];
+
   return (
     <div>
       <DataTable rows={rows} headers={headers}>
@@ -92,7 +93,10 @@ const Dashboard: React.FC = () => {
           onInputChange,
           getTableContainerProps,
         }) => (
-          <TableContainer title="Form Builder" {...getTableContainerProps()}>
+          <TableContainer
+            title={t("formBuilder", "Form builder")}
+            {...getTableContainerProps()}
+          >
             <div className={styles.toolbar}>
               <TableToolbar
                 {...getToolbarProps()}

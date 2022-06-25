@@ -1,4 +1,12 @@
 {
-  "casualGreeting": "hey",
-  "formalGreeting": "hello"
+  "name": "Name",
+  "version": "Version",
+  "published": "Published",
+  "retired": "Retired",
+  "actions": "Test",
+  "no": "No",
+  "yes": "Yes",
+  "editForm": "Edit Form",
+  "download": "Download",
+  "formBuilder": "Form Builder"
 }
