@@ -1,4 +1,5 @@
 import React from "react";
+import { getPocForms } from "../../api/hooks";
 import {
   DataTable,
   Table,
@@ -17,12 +18,70 @@ import {
   Tag,
 } from "carbon-components-react";
 import styles from "./dashboard.css";
-import { Download, Edit } from "@carbon/icons-react/next";
+import { Download, Edit, DocumentImport } from "@carbon/icons-react/next";
 import { useTranslation } from "react-i18next";
+
+function getTableRows(t) {
+  const tableRows = [];
+  const { data } = getPocForms();
+  data?.forEach((row, key) =>
+    tableRows.push({
+      id: key,
+      name: row.name,
+      version: row.version,
+      published: row.published ? (
+        <Tag type="green" size="sm" title="Clear Filter">
+          {t("yes", "Yes")}
+        </Tag>
+      ) : (
+        <Tag type="red" size="sm" title="Clear Filter">
+          {t("no", "No")}
+        </Tag>
+      ),
+      retired: row.retried ? (
+        <Tag type="red" size="sm" title="Clear Filter">
+          {t("yes", "No")}
+        </Tag>
+      ) : (
+        <Tag type="green" size="sm" title="Clear Filter">
+          {t("no", "No")}
+        </Tag>
+      ),
+      actions:
+        row.resources.length == 0 || !row.resources[0] ? (
+          <Button
+            className={styles.importButton}
+            renderIcon={DocumentImport}
+            kind={"ghost"}
+            iconDescription={t("import", "Import")}
+            hasIconOnly
+          />
+        ) : (
+          <>
+            <Button
+              className={styles.editButton}
+              renderIcon={Edit}
+              kind={"ghost"}
+              iconDescription={t("editForm", "Edit Form")}
+              hasIconOnly
+            />
+            <Button
+              className={styles.downloadButton}
+              renderIcon={Download}
+              kind={"ghost"}
+              iconDescription={t("download", "Download")}
+              hasIconOnly
+            />
+          </>
+        ),
+    })
+  );
+  return tableRows;
+}
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation();
-
+  const rows = getTableRows(t);
   const headers = [
     {
       header: t("name", "Name"),
@@ -43,40 +102,6 @@ const Dashboard: React.FC = () => {
     {
       header: t("actions", "Actions"),
       key: "actions",
-    },
-  ];
-
-  const rows = [
-    {
-      id: "a",
-      name: "POC Vitals",
-      version: "1.0",
-      published: (
-        <Tag type="green" size="sm" title="Clear Filter">
-          {t("yes", "Yes")}
-        </Tag>
-      ),
-      retired: (
-        <Tag type="green" size="sm" title="Clear Filter">
-          {t("no", "No")}
-        </Tag>
-      ),
-      actions: (
-        <>
-          <Button
-            renderIcon={Edit}
-            kind={"ghost"}
-            iconDescription={t("editForm", "Edit Form")}
-            hasIconOnly
-          />
-          <Button
-            renderIcon={Download}
-            kind={"ghost"}
-            iconDescription={t("download", "Download")}
-            hasIconOnly
-          />
-        </>
-      ),
     },
   ];
 
