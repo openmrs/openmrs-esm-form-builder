@@ -1,5 +1,5 @@
 import React from "react";
-import { getPocForms } from "../../api/hooks";
+import { GetPocForms } from "../../api/hooks";
 import {
   DataTable,
   Table,
@@ -23,7 +23,7 @@ import { useTranslation } from "react-i18next";
 
 function getTableRows(t) {
   const tableRows = [];
-  const { data } = getPocForms();
+  const { data } = GetPocForms();
   data?.forEach((row, key) =>
     tableRows.push({
       id: key,
