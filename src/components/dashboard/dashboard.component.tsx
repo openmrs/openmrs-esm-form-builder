@@ -1,5 +1,4 @@
 import React from "react";
-import { GetPocForms } from "../../api/hooks";
 import {
   DataTable,
   Table,
@@ -17,14 +16,14 @@ import {
   Button,
   Tag,
 } from "carbon-components-react";
-import styles from "./dashboard.css";
 import { Download, Edit, DocumentImport } from "@carbon/icons-react/next";
+import styles from "./dashboard.css";
+import { usePOCForms } from "../../api/usePOCForms";
 import { useTranslation } from "react-i18next";
 
-function getTableRows(t) {
+function getTableRows(t, data) {
   const tableRows = [];
-  const { data } = GetPocForms();
-  data?.forEach((row, key) =>
+  data?.map((row, key) =>
     tableRows.push({
       id: key,
       name: row.name,
@@ -81,7 +80,8 @@ function getTableRows(t) {
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation();
-  const rows = getTableRows(t);
+  const { data } = usePOCForms();
+  const rows = getTableRows(t, data);
   const headers = [
     {
       header: t("name", "Name"),
