@@ -4,7 +4,7 @@ export interface Form {
   encounterType: EncounterType;
   version: string;
   published: boolean;
-  retried: boolean;
+  retired: boolean;
   resources: Array<Resources>;
 }
 

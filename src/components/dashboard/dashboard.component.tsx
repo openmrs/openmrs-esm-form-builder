@@ -17,18 +17,20 @@ import {
   Tag,
 } from "carbon-components-react";
 import { Download, Edit, DocumentImport } from "@carbon/icons-react/next";
-import styles from "./dashboard.css";
-import { usePOCForms } from "../../api/usePOCForms";
 import { useTranslation } from "react-i18next";
+import { usePOCForms } from "../../api/usePOCForms";
+import styles from "./dashboard.css";
 
-function getTableRows(t, data) {
-  const tableRows = [];
-  data?.map((row, key) =>
-    tableRows.push({
+const Dashboard: React.FC = () => {
+  const { t } = useTranslation();
+  const { forms } = usePOCForms();
+  const rows = [];
+  forms?.map((form, key) =>
+    rows.push({
       id: key,
-      name: row.name,
-      version: row.version,
-      published: row.published ? (
+      name: form.name,
+      version: form.version,
+      published: form.published ? (
         <Tag type="green" size="sm" title="Clear Filter">
           {t("yes", "Yes")}
         </Tag>
@@ -37,9 +39,9 @@ function getTableRows(t, data) {
           {t("no", "No")}
         </Tag>
       ),
-      retired: row.retried ? (
+      retired: form.retired ? (
         <Tag type="red" size="sm" title="Clear Filter">
-          {t("yes", "No")}
+          {t("yes", "Yes")}
         </Tag>
       ) : (
         <Tag type="green" size="sm" title="Clear Filter">
@@ -47,7 +49,7 @@ function getTableRows(t, data) {
         </Tag>
       ),
       actions:
-        row.resources.length == 0 || !row.resources[0] ? (
+        form.resources.length == 0 || !form.resources[0] ? (
           <Button
             className={styles.importButton}
             renderIcon={DocumentImport}
@@ -75,13 +77,7 @@ function getTableRows(t, data) {
         ),
     })
   );
-  return tableRows;
-}
 
-const Dashboard: React.FC = () => {
-  const { t } = useTranslation();
-  const { data } = usePOCForms();
-  const rows = getTableRows(t, data);
   const headers = [
     {
       header: t("name", "Name"),

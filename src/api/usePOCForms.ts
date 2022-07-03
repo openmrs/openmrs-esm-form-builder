@@ -9,5 +9,5 @@ export function usePOCForms() {
     { data: { results: Array<Form> } },
     Error
   >(url, openmrsFetch);
-  return { ...usePOCForms, data: data?.data?.results };
+  return { forms: data?.data?.results ?? [] };
 }
