@@ -5,7 +5,7 @@ export interface Form {
   version: string;
   published: boolean;
   retired: boolean;
-  resources: Array<Resources>;
+  resources: Array<Resource>;
 }
 
 export interface EncounterType {
@@ -13,7 +13,7 @@ export interface EncounterType {
   name: string;
 }
 
-export interface Resources {
+export interface Resource {
   uuid: string;
   name: string;
   dataType: string;
