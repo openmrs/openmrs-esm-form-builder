@@ -68,3 +68,5 @@ dist/
 
 # EditorConfig
 .editorconfig
+
+.idea

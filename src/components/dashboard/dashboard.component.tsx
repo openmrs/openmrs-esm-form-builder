@@ -16,12 +16,67 @@ import {
   Button,
   Tag,
 } from "carbon-components-react";
-import styles from "./dashboard.css";
-import { Download, Edit } from "@carbon/icons-react/next";
+import { Download, Edit, DocumentImport } from "@carbon/icons-react/next";
 import { useTranslation } from "react-i18next";
+import { usePOCForms } from "../../api/usePOCForms";
+import styles from "./dashboard.css";
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation();
+  const { forms } = usePOCForms();
+  const rows = [];
+  forms?.map((form, key) =>
+    rows.push({
+      id: key,
+      name: form.name,
+      version: form.version,
+      published: form.published ? (
+        <Tag type="green" size="sm" title="Clear Filter">
+          {t("yes", "Yes")}
+        </Tag>
+      ) : (
+        <Tag type="red" size="sm" title="Clear Filter">
+          {t("no", "No")}
+        </Tag>
+      ),
+      retired: form.retired ? (
+        <Tag type="red" size="sm" title="Clear Filter">
+          {t("yes", "Yes")}
+        </Tag>
+      ) : (
+        <Tag type="green" size="sm" title="Clear Filter">
+          {t("no", "No")}
+        </Tag>
+      ),
+      actions:
+        form.resources.length == 0 || !form.resources[0] ? (
+          <Button
+            className={styles.importButton}
+            renderIcon={DocumentImport}
+            kind={"ghost"}
+            iconDescription={t("import", "Import")}
+            hasIconOnly
+          />
+        ) : (
+          <>
+            <Button
+              className={styles.editButton}
+              renderIcon={Edit}
+              kind={"ghost"}
+              iconDescription={t("editForm", "Edit Form")}
+              hasIconOnly
+            />
+            <Button
+              className={styles.downloadButton}
+              renderIcon={Download}
+              kind={"ghost"}
+              iconDescription={t("download", "Download")}
+              hasIconOnly
+            />
+          </>
+        ),
+    })
+  );
 
   const headers = [
     {
@@ -43,40 +98,6 @@ const Dashboard: React.FC = () => {
     {
       header: t("actions", "Actions"),
       key: "actions",
-    },
-  ];
-
-  const rows = [
-    {
-      id: "a",
-      name: "POC Vitals",
-      version: "1.0",
-      published: (
-        <Tag type="green" size="sm" title="Clear Filter">
-          {t("yes", "Yes")}
-        </Tag>
-      ),
-      retired: (
-        <Tag type="green" size="sm" title="Clear Filter">
-          {t("no", "No")}
-        </Tag>
-      ),
-      actions: (
-        <>
-          <Button
-            renderIcon={Edit}
-            kind={"ghost"}
-            iconDescription={t("editForm", "Edit Form")}
-            hasIconOnly
-          />
-          <Button
-            renderIcon={Download}
-            kind={"ghost"}
-            iconDescription={t("download", "Download")}
-            hasIconOnly
-          />
-        </>
-      ),
     },
   ];
 
