@@ -19,3 +19,11 @@ export interface Resource {
   dataType: string;
   valueReference: string;
 }
+
+export interface Schema {
+  name: string;
+  pages: any;
+  processor: string;
+  uuid: string;
+  referencedForms: any;
+}

@@ -16,6 +16,7 @@ import {
   Button,
   Tag,
 } from "carbon-components-react";
+import { navigate } from "@openmrs/esm-framework";
 import { Download, Edit, DocumentImport } from "@carbon/icons-react/next";
 import { useTranslation } from "react-i18next";
 import { usePOCForms } from "../../api/usePOCForms";
@@ -53,6 +54,7 @@ const Dashboard: React.FC = () => {
           <Button
             className={styles.importButton}
             renderIcon={DocumentImport}
+            onClick={() => navigate({ to: `form-builder/edit/${form.uuid}` })}
             kind={"ghost"}
             iconDescription={t("import", "Import")}
             hasIconOnly
@@ -62,6 +64,11 @@ const Dashboard: React.FC = () => {
             <Button
               className={styles.editButton}
               renderIcon={Edit}
+              onClick={() =>
+                navigate({
+                  to: `${window.spaBase}/form-builder/edit/${form.uuid}`,
+                })
+              }
               kind={"ghost"}
               iconDescription={t("editForm", "Edit Form")}
               hasIconOnly
@@ -128,7 +135,15 @@ const Dashboard: React.FC = () => {
                   <TableToolbarMenu>
                     <TableToolbarAction>POC</TableToolbarAction>
                   </TableToolbarMenu>
-                  <Button>Create New</Button>
+                  <Button
+                    onClick={() =>
+                      navigate({
+                        to: `${window.spaBase}/form-builder/edit/new`,
+                      })
+                    }
+                  >
+                    {t("createNew", "Create New")}
+                  </Button>
                 </TableToolbarContent>
               </TableToolbar>
             </div>
