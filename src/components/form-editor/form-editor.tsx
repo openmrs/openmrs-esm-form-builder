@@ -8,38 +8,56 @@ import { useParams } from "react-router-dom";
 import { useFormSchema, useFormMetadata } from "../../api/fetchFormDetail";
 import { Form, Schema } from "../../api/types";
 
-const GetFormMetaData = (formUUID: string) => {
-  const { formMetaData, formMetaDataError } = useFormMetadata(formUUID);
-  if (formMetaDataError) {
-    console.error(formMetaData);
-  }
-  return formMetaData;
-};
-
-const GetFormSchema = (form: Form) => {
-  const { formSchemaData, formSchemaError } = useFormSchema(form);
-  if (formSchemaError) {
-    console.error(formSchemaError);
-  }
-  return formSchemaData;
-};
-
-const GetRawSchema = () => {
-  const schema: Schema = {
-    name: "",
-    pages: [],
-    processor: "EncounterFormProcessor",
-    uuid: "xxx",
-    referencedForms: [],
-  };
-  return schema;
-};
-
 const FormEditor: React.FC = () => {
-  const { t } = useTranslation();
-  const { uuid } = useParams<State>();
   type State = {
     uuid: string;
+  };
+  const { t } = useTranslation();
+  const { uuid } = useParams<State>();
+
+  const GetFormMetaData = (formUUID: string) => {
+    const { formMetaData, formMetaDataError } = useFormMetadata(formUUID);
+    if (formMetaDataError) {
+      showToast({
+        title: t("error", "Error"),
+        kind: "error",
+        critical: true,
+        description: `${formMetaDataError?.message}`,
+      });
+    }
+    return formMetaData;
+  };
+
+  const GetFormSchema = (form: Form) => {
+    const { formSchemaData, isSchemaLoading, formSchemaError } =
+      useFormSchema(form);
+    if (form?.resources.length !== 0) {
+      if (formSchemaError) {
+        showToast({
+          title: t("error", "Error"),
+          kind: "error",
+          critical: true,
+          description: `${formSchemaError?.message}`,
+        });
+      }
+      if (isSchemaLoading) {
+        return "Loading...";
+      }
+      return formSchemaData;
+    } else {
+      return GetRawSchema();
+    }
+  };
+
+  const GetRawSchema = () => {
+    const schema: Schema = {
+      name: "",
+      pages: [],
+      processor: "EncounterFormProcessor",
+      uuid: "xxx",
+      referencedForms: [],
+    };
+    return schema;
   };
 
   const formData = uuid == "new" ? null : GetFormMetaData(uuid);
