@@ -1,38 +1,43 @@
-import React from "react";
-import { showToast } from "@openmrs/esm-framework";
-import { Button, Loading } from "carbon-components-react";
+import React, { useCallback, useEffect, useState } from "react";
+import { Button } from "carbon-components-react";
 import styles from "./schema-editor.scss";
 import AceEditor from "react-ace";
 import { useTranslation } from "react-i18next";
 
-interface SchemaParameters {
+interface SchemaEditorProps {
   schema: any;
 }
 
-const SchemaEditorComponent: React.FC<SchemaParameters> = (schema) => {
+const SchemaEditorComponent: React.FC<SchemaEditorProps> = ({ schema }) => {
   const { t } = useTranslation();
-  let formSchema: string;
+  const [formSchema, setFormSchema] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const updateFormJson = (value) => {
-    formSchema = value;
-  };
+  const updateFormJson = useCallback(
+    (value) => {
+      setFormSchema(value);
+    },
+    [setFormSchema]
+  );
 
-  const render = () => {
+  const render = useCallback(() => {
+    setErrorMessage("");
     try {
-      typeof formSchema == "string" ? JSON.parse(formSchema) : formSchema;
+      let parsedJson = JSON.parse(formSchema);
+      setFormSchema(JSON.stringify(parsedJson, null, 2));
     } catch (error) {
-      showToast({
-        title: t("error", "Error"),
-        kind: "error",
-        critical: true,
-        description: `${error}`,
-      });
+      setErrorMessage(error.message);
     }
-  };
+  }, [formSchema]);
+
+  useEffect(() => {
+    setFormSchema(JSON.stringify(schema, null, 2));
+  }, [schema]);
 
   return (
     <div>
       <h4>{t("schemaEditor", "Schema Editor")}</h4>
+      <div className={styles.inputErrorMessage}>{errorMessage}</div>
       <AceEditor
         placeholder="Schema"
         mode="json"
@@ -43,7 +48,7 @@ const SchemaEditorComponent: React.FC<SchemaParameters> = (schema) => {
         showPrintMargin={true}
         showGutter={true}
         highlightActiveLine={true}
-        value={JSON.stringify(schema?.schema, null, "\t")}
+        value={formSchema}
         setOptions={{
           enableBasicAutocompletion: false,
           enableLiveAutocompletion: false,
