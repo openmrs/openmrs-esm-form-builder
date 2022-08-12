@@ -14,13 +14,6 @@ const SchemaEditorComponent: React.FC<SchemaEditorProps> = ({ schema }) => {
   const [formSchema, setFormSchema] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const updateFormJson = useCallback(
-    (value) => {
-      setFormSchema(value);
-    },
-    [setFormSchema]
-  );
-
   const render = useCallback(() => {
     setErrorMessage("");
     try {
@@ -44,7 +37,7 @@ const SchemaEditorComponent: React.FC<SchemaEditorProps> = ({ schema }) => {
         mode="json"
         theme="github"
         name="schemaEditor"
-        onChange={updateFormJson}
+        onChange={(value) => setFormSchema(value)}
         fontSize={14}
         showPrintMargin={true}
         showGutter={true}
