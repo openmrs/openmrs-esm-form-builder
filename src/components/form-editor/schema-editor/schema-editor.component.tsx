@@ -3,9 +3,10 @@ import { Button } from "carbon-components-react";
 import styles from "./schema-editor.scss";
 import AceEditor from "react-ace";
 import { useTranslation } from "react-i18next";
+import { Schema } from "../../../api/types";
 
 interface SchemaEditorProps {
-  schema: any;
+  schema: Schema;
 }
 
 const SchemaEditorComponent: React.FC<SchemaEditorProps> = ({ schema }) => {

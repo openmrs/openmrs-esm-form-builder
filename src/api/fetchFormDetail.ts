@@ -1,21 +1,40 @@
 import useSWRImmutable from "swr/immutable";
-import { openmrsFetch } from "@openmrs/esm-framework";
+import { openmrsFetch, showToast } from "@openmrs/esm-framework";
 import { Form, Schema } from "../api/types";
 
 export const useFormMetadata = (uuid: string) => {
-  const url = `/ws/rest/v1/form/${uuid}?v=full`;
+  const url = uuid == "new" ? null : `/ws/rest/v1/form/${uuid}?v=full`;
   const { data, error } = useSWRImmutable<{ data: Form }, Error>(
     url,
     openmrsFetch
   );
-  return {
-    formMetaData: data?.data,
-    isFormMetaDataLoading: !error && !data,
-    formMetaDataError: error,
-  };
+  if (error) {
+    showToast({
+      title: "Error",
+      kind: "error",
+      critical: true,
+      description: `${error.message}`,
+    });
+  }
+  if (uuid == "new") {
+    return {
+      formMetaData: null,
+    };
+  } else {
+    return {
+      formMetaData: data?.data,
+    };
+  }
 };
 
-export const useFormSchema = (form: Form) => {
+export const useFormSchema = (form?: Form) => {
+  const schema: Schema = {
+    name: "",
+    pages: [],
+    processor: "EncounterFormProcessor",
+    uuid: "xxx",
+    referencedForms: [],
+  };
   const url =
     form?.resources.length == 0 || !form?.resources[0]
       ? null
@@ -24,9 +43,21 @@ export const useFormSchema = (form: Form) => {
     url,
     openmrsFetch
   );
-  return {
-    formSchemaData: data?.data,
-    isSchemaLoading: !error && !data,
-    formSchemaError: error,
-  };
+  if (error) {
+    showToast({
+      title: "Error",
+      kind: "error",
+      critical: true,
+      description: `${error.message}`,
+    });
+  }
+  if (url == null) {
+    return {
+      formSchemaData: schema,
+    };
+  } else {
+    return {
+      formSchemaData: data?.data,
+    };
+  }
 };
