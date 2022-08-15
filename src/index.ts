@@ -14,6 +14,7 @@ const backendDependencies = {
 
 function setupOpenMRS() {
   const moduleName = "@openmrs/esm-form-builder";
+  const spaBasePath = `${window.spaBase}/form-builder`;
 
   const options = {
     featureName: "form-builder",
@@ -23,7 +24,7 @@ function setupOpenMRS() {
   return {
     pages: [
       {
-        load: getAsyncLifecycle(() => import("./form-builder"), options),
+        load: getAsyncLifecycle(() => import("./root.component"), options),
         route: "form-builder",
       },
     ],

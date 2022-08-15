@@ -9,5 +9,10 @@
   "editForm": "Edit Form",
   "download": "Download",
   "import": "Import",
-  "formBuilder": "Form Builder"
+  "formBuilder": "Form Builder",
+  "schemaEditor": "Schema Editor",
+  "interactiveBuilder": "Interactive Builder",
+  "formViewer": "Form Viewer",
+  "createNew": "Create New",
+  "render": "Render"
 }
