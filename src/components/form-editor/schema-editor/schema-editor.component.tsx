@@ -1,16 +1,13 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { Button } from "carbon-components-react";
 import styles from "./schema-editor.scss";
 import AceEditor from "react-ace";
 import { useTranslation } from "react-i18next";
-import { Schema } from "../../../api/types";
+import { SchemaContext } from "../../../context/context";
 
-interface SchemaEditorProps {
-  schema: Schema;
-}
-
-const SchemaEditorComponent: React.FC<SchemaEditorProps> = ({ schema }) => {
+const SchemaEditorComponent: React.FC = () => {
   const { t } = useTranslation();
+  const { schema, setSchema } = useContext(SchemaContext);
   const [formSchema, setFormSchema] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -19,10 +16,11 @@ const SchemaEditorComponent: React.FC<SchemaEditorProps> = ({ schema }) => {
     try {
       let parsedJson = JSON.parse(formSchema);
       setFormSchema(JSON.stringify(parsedJson, null, 2));
+      setSchema(parsedJson);
     } catch (error) {
       setErrorMessage(error.message);
     }
-  }, [formSchema]);
+  }, [formSchema, setSchema]);
 
   useEffect(() => {
     setFormSchema(JSON.stringify(schema, null, 2));
@@ -33,6 +31,7 @@ const SchemaEditorComponent: React.FC<SchemaEditorProps> = ({ schema }) => {
       <h4>{t("schemaEditor", "Schema Editor")}</h4>
       <div className={styles.inputErrorMessage}>{errorMessage}</div>
       <AceEditor
+        className={styles.aceEditor}
         placeholder="Schema"
         mode="json"
         theme="github"
@@ -52,7 +51,7 @@ const SchemaEditorComponent: React.FC<SchemaEditorProps> = ({ schema }) => {
           tabSize: 2,
         }}
       />
-      <Button className={styles.renderButton} onClick={render}>
+      <Button kind="tertiary" className={styles.renderButton} onClick={render}>
         {t("render", "Render")}
       </Button>
     </div>

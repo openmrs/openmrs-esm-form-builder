@@ -3,6 +3,7 @@ export interface Form {
   name: string;
   encounterType: EncounterType;
   version: string;
+  description: string;
   published: boolean;
   retired: boolean;
   resources: Array<Resource>;
@@ -26,4 +27,12 @@ export interface Schema {
   processor: string;
   uuid: string;
   referencedForms: any;
+}
+
+export interface ClobResponse {
+  body: any;
+  data: any;
+  headers: any;
+  statusText: any;
+  status: any;
 }
