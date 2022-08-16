@@ -34,7 +34,7 @@ export const uploadSchema = async (schema: any) => {
     "Content-Type": undefined,
   };
   const request = axios
-    .post(`http://localhost:8080/openmrs/ws/rest/v1/clobdata`, body, {
+    .post(`https://dev3.openmrs.org/openmrs/ws/rest/v1/clobdata`, body, {
       headers: headers,
     })
     .then((response) => {
@@ -80,7 +80,7 @@ export const saveNewForm = async (
     "Content-Type": "application/json",
   };
   const request = axios
-    .post(`http://localhost:8080/openmrs/ws/rest/v1/form`, body, {
+    .post(`https://dev3.openmrs.org/openmrs/ws/rest/v1/form`, body, {
       headers: headers,
     })
     .then((response) => {
