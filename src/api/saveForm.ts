@@ -34,7 +34,7 @@ export const uploadSchema = async (schema: any) => {
     "Content-Type": undefined,
   };
   const request = axios
-    .post(`https://dev3.openmrs.org/openmrs/ws/rest/v1/clobdata`, body, {
+    .post(`${window.origin}/openmrs/ws/rest/v1/clobdata`, body, {
       headers: headers,
     })
     .then((response) => {
@@ -67,6 +67,8 @@ export const saveNewForm = async (
   description?: any,
   encounterType?: any
 ) => {
+  const abortController = new AbortController();
+
   const body = {
     name: name,
     version: version,
@@ -79,14 +81,15 @@ export const saveNewForm = async (
   const headers = {
     "Content-Type": "application/json",
   };
-  const request = axios
-    .post(`https://dev3.openmrs.org/openmrs/ws/rest/v1/form`, body, {
-      headers: headers,
-    })
-    .then((response) => {
-      return response.data;
-    });
-  return request;
+
+  const response: FetchResponse = await openmrsFetch(`/ws/rest/v1/form`, {
+    method: "POST",
+    headers: headers,
+    body: body,
+    signal: abortController.signal,
+  });
+
+  return response.data;
 };
 
 export const publish = async (uuid) => {
