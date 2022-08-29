@@ -36,3 +36,8 @@ export interface ClobResponse {
   statusText: any;
   status: any;
 }
+
+export interface SchemaContextType {
+  schema: Schema;
+  setSchema: any;
+}
