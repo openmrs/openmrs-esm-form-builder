@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./../form-editor.scss";
 import {
@@ -51,7 +51,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form }) => {
   const [saveState, setSaveState] = useState("");
   const { schema, setSchema } = useContext(SchemaContext);
 
-  const openModal = (option) => {
+  const openModal = useCallback((option) => {
     if (option === "newVersion") {
       setSaveState("newVersion");
       setOpenConfirmSaveModal(false);
@@ -64,7 +64,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form }) => {
       setOpenConfirmSaveModal(false);
       setOpenSaveFormModal(true);
     }
-  };
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
