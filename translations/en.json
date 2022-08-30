@@ -6,6 +6,8 @@
   "actions": "Test",
   "no": "No",
   "yes": "Yes",
+  "error": "Error",
+  "success": "Success!",
   "editForm": "Edit Form",
   "download": "Download",
   "import": "Import",
@@ -14,5 +16,17 @@
   "interactiveBuilder": "Interactive Builder",
   "formViewer": "Form Viewer",
   "createNew": "Create New",
-  "render": "Render"
+  "render": "Render",
+  "referenceForm": "Reference Form",
+  "publishForm": "Publish Form",
+  "unpublishForm": "Unpublish Form",
+  "publishedSuccess": "Form Published",
+  "unpublishedSuccess": "Form Unpublished",
+  "saveAsModal": "Would you want to update the form or save as a new version?",
+  "updateCurrentForm": "Update current version",
+  "saveAsNewForm": "Save as a new version",
+  "saveForm": "Save Form",
+  "confirmSave": "Confirm Save",
+  "close": "Close",
+  "save": "Save"
 }

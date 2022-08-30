@@ -1,6 +1,6 @@
 import useSWRImmutable from "swr/immutable";
 import { openmrsFetch, showToast } from "@openmrs/esm-framework";
-import { Form, Schema } from "../api/types";
+import { Form, Schema, EncounterType } from "../api/types";
 
 export const useFormMetadata = (uuid: string) => {
   const url = uuid == "new" ? null : `/ws/rest/v1/form/${uuid}?v=full`;
@@ -54,10 +54,25 @@ export const useFormSchema = (form?: Form) => {
   if (url == null) {
     return {
       formSchemaData: schema,
+      isLoading: !schema && !error,
     };
   } else {
     return {
       formSchemaData: data?.data,
+      isLoading: !data && !error,
     };
   }
+};
+
+export const useEncounterType = () => {
+  const url = `/ws/rest/v1/encountertype?v=custom:(uuid,name)`;
+  const { data, error } = useSWRImmutable<
+    { data: { results: Array<EncounterType> } },
+    Error
+  >(url, openmrsFetch);
+  return {
+    encounterTypes: data?.data?.results ?? [],
+    isEncounterTypesLoading: !error && !data,
+    encounterTypesError: error,
+  };
 };
