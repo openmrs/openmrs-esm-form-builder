@@ -11,7 +11,7 @@ on:
 
 env:
   ESM_NAME: "@openmrs/esm-form-builder-app"
-  JS_NAME: "openmrs/esm-form-builder-app.js"
+  JS_NAME: "openmrs-esm-form-builder-app.js"
 
 jobs:
   build:
@@ -34,6 +34,7 @@ jobs:
           name: dist
           path: |
             dist
+
   pre_release:
     runs-on: ubuntu-latest
 
