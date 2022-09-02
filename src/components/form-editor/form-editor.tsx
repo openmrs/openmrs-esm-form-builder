@@ -9,6 +9,7 @@ import SaveForm from "./modals/save-form";
 import { SchemaContext } from "../../context/context";
 import { publish, unpublish } from "../../api/saveForm";
 import { showToast } from "@openmrs/esm-framework";
+import ElementEditor from "./element-editor/element-editor";
 
 const FormEditor: React.FC = () => {
   type Route = {
@@ -108,7 +109,7 @@ const FormEditor: React.FC = () => {
                 className={styles.componentTab}
                 label={t("interactiveBuilder", "Interactive Builder")}
               >
-                {t("interactiveBuilder", "Interactive Builder")}
+                <ElementEditor />
               </Tab>
             </Tabs>
           </Column>

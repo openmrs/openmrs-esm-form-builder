@@ -28,5 +28,14 @@
   "saveForm": "Save Form",
   "confirmSave": "Confirm Save",
   "close": "Close",
-  "save": "Save"
+  "save": "Save",
+  "pages": "Pages",
+  "questions": "Questions",
+  "sections": "Sections",
+  "createQuestionSuccess": "Question Created",
+  "createSectionSuccess": "Section Created",
+  "createPageSuccess": "Page Created",
+  "createQuestion": "Create Question",
+  "createSection": "Create Section",
+  "createPage": "Create Page"
 }
