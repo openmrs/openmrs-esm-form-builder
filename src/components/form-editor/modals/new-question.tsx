@@ -30,6 +30,8 @@ const CreateQuestion: React.FC<CreateQuestionModalProps> = ({ questions }) => {
   const { concepts } = useConcepts();
   const { schema, setSchema } = useContext(SchemaContext);
   const [openCreateQuestionModal, setOpenCreateQuestionModal] = useState(false);
+  const [isCustomRenderElement, setIsCustomRenderElement] = useState(false);
+  const [isCustomQuestionType, setIsCustomQuestionType] = useState(false);
   const [questionLabel, setQuestionLabel] = useState("");
   const [questionType, setQuestionType] = useState("");
   const [questionId, setQuestionId] = useState("");
@@ -263,56 +265,132 @@ const CreateQuestion: React.FC<CreateQuestionModalProps> = ({ questions }) => {
                   onChange={(event) => setQuestionLabel(event.target.value)}
                   required
                 />
-                <Select
-                  value={questionType}
-                  onChange={(event) => setQuestionType(event.target.value)}
-                  id="type"
-                  invalidText="A valid value is required"
-                  labelText="Type"
-                  disabled={false}
-                  inline={false}
-                  invalid={false}
-                  required
-                >
-                  <SelectItem
-                    text="Choose an option"
-                    value="placeholder-item"
-                    disabled
-                    hidden
-                  />
-                  {types.map((type) => (
-                    <SelectItem
-                      text={type.value}
-                      value={type.value}
-                      key={type.key}
+                {!isCustomQuestionType ? (
+                  <>
+                    <Select
+                      value={questionType}
+                      onChange={(event) => setQuestionType(event.target.value)}
+                      id="type"
+                      invalidText="A valid value is required"
+                      labelText="Type"
+                      disabled={false}
+                      inline={false}
+                      invalid={false}
+                      required
+                    >
+                      <SelectItem
+                        text="Choose an option"
+                        value="placeholder-item"
+                        disabled
+                        hidden
+                      />
+                      {types.map((type) => (
+                        <SelectItem
+                          text={type.value}
+                          value={type.value}
+                          key={type.key}
+                        />
+                      ))}
+                    </Select>
+                    <Button
+                      className={styles.addElementButton}
+                      size="sm"
+                      renderIcon={Add}
+                      iconDescription="Add Type"
+                      kind="ghost"
+                      onClick={() => {
+                        setIsCustomQuestionType(true);
+                        setQuestionType("placeholder-item");
+                      }}
+                    >
+                      Use Custom Type
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <TextInput
+                      id="customQuestionType"
+                      labelText="Type"
+                      defaultValue={""}
+                      onChange={(event) => setQuestionType(event.target.value)}
+                      required
                     />
-                  ))}
-                </Select>
-                <Select
-                  value={renderElement}
-                  onChange={(event) => setRenderElement(event.target.value)}
-                  id="rendering"
-                  invalidText="A valid value is required"
-                  labelText="Rendering"
-                  disabled={false}
-                  inline={false}
-                  invalid={false}
-                  required
-                >
-                  <SelectItem
-                    text="Choose an option"
-                    value="placeholder-item"
-                    disabled
-                    hidden
-                  />
-                  {renderElements.map((element) => (
-                    <SelectItem
-                      text={element.value}
-                      value={element.value}
-                      key={element.key}
+                    <Button
+                      className={styles.addElementButton}
+                      size="sm"
+                      kind="ghost"
+                      onClick={() => {
+                        setIsCustomQuestionType(false);
+                        setQuestionType("placeholder-item");
+                      }}
+                    >
+                      Use Default Types
+                    </Button>
+                  </>
+                )}
+                {!isCustomRenderElement ? (
+                  <>
+                    <Select
+                      value={renderElement}
+                      onChange={(event) => setRenderElement(event.target.value)}
+                      id="rendering"
+                      invalidText="A valid value is required"
+                      labelText="Rendering"
+                      disabled={false}
+                      inline={false}
+                      invalid={false}
+                      required
+                    >
+                      <SelectItem
+                        text="Choose an option"
+                        value="placeholder-item"
+                        disabled
+                        hidden
+                      />
+                      {renderElements.map((element) => (
+                        <SelectItem
+                          text={element.value}
+                          value={element.value}
+                          key={element.key}
+                        />
+                      ))}
+                    </Select>
+                    <Button
+                      className={styles.addElementButton}
+                      size="sm"
+                      renderIcon={Add}
+                      iconDescription="Add Element"
+                      kind="ghost"
+                      onClick={() => {
+                        setIsCustomRenderElement(true);
+                        setRenderElement("placeholder-item");
+                      }}
+                    >
+                      Use Custom Element
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <TextInput
+                      id="customRenderElement"
+                      labelText="Rendering"
+                      defaultValue={""}
+                      onChange={(event) => setRenderElement(event.target.value)}
+                      required
                     />
-                  ))}
-                </Select>
+                    <Button
+                      className={styles.addElementButton}
+                      size="sm"
+                      kind="ghost"
+                      onClick={() => {
+                        setIsCustomRenderElement(false);
+                        setRenderElement("placeholder-item");
+                      }}
+                    >
+                      Use Default Elements
+                    </Button>
+                  </>
+                )}
                 {renderElement === "number" ? (
                   <>
                     <TextInput
@@ -385,7 +463,7 @@ const CreateQuestion: React.FC<CreateQuestionModalProps> = ({ questions }) => {
         kind="tertiary"
         size="small"
         hasIconOnly
-        iconDescription="New Section"
+        iconDescription="New Question"
         onClick={() => {
           setOpenCreateQuestionModal(true);
         }}
