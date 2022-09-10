@@ -18,7 +18,7 @@ import { Answer, Concept, ConceptMapping, Question } from "../../../api/types";
 import { Add, Edit, TrashCan } from "@carbon/icons-react/next";
 import { SchemaContext } from "../../../context/context";
 import { showToast } from "@openmrs/esm-framework";
-import { useConcepts } from "../../../api/concept";
+import { useSearchConcept } from "../../../api/concept";
 import styles from "./modals.scss";
 
 interface EditQuestionModalProps {
@@ -27,7 +27,8 @@ interface EditQuestionModalProps {
 
 const EditQuestion: React.FC<EditQuestionModalProps> = ({ question }) => {
   const { t } = useTranslation();
-  const { concepts } = useConcepts();
+  const [searchConcept, setSearchConcept] = useState("");
+  const { concepts } = useSearchConcept(searchConcept);
   const { schema, setSchema } = useContext(SchemaContext);
   const [openEditQuestionModal, setOpenEditQuestionModal] = useState(false);
   const [isCustomRenderElement, setIsCustomRenderElement] = useState(false);
@@ -148,33 +149,12 @@ const EditQuestion: React.FC<EditQuestionModalProps> = ({ question }) => {
       value: "problem",
     },
   ];
-  const check = () => {
-    let renderElementAvailable: Boolean = false;
-    let questionType: Boolean = false;
-    renderElements.some((element) => {
-      if (element.value === question.questionOptions.rendering) {
-        renderElementAvailable = true;
-      }
-    });
-    types.some((type) => {
-      if (type.value === question.type) {
-        questionType = true;
-      }
-    });
-    if (renderElementAvailable == false) {
-      setIsCustomRenderElement(true);
-      setCustomRenderElement(question.questionOptions.rendering);
-    }
-    if (questionType == false) {
-      setIsCustomQuestionType(true);
-      setCustomQuestionType(question.type);
-    }
-  };
+
   useEffect(() => {
     setQuestionLabel(question.label);
     setQuestionType(question.type);
     setQuestionId(question.id);
-    check();
+    getCustomValues();
     // Question Options
     setRenderElement(question.questionOptions.rendering);
     setConceptMappings(question.questionOptions.conceptMappings);
@@ -219,7 +199,7 @@ const EditQuestion: React.FC<EditQuestionModalProps> = ({ question }) => {
     delete question.questionOptions.answers;
   };
 
-  const onConceptChange = (concept: Concept) => {
+  const onConceptChange = useCallback((concept: Concept) => {
     question.questionOptions.answers = concept.answers.map((answer) => {
       return { label: answer.display, concept: answer.uuid };
     });
@@ -228,7 +208,30 @@ const EditQuestion: React.FC<EditQuestionModalProps> = ({ question }) => {
       let data = map.display.split(": ");
       return { type: data[0], value: data[1] };
     });
-  };
+  }, []);
+
+  const getCustomValues = useCallback(() => {
+    let renderElementAvailable: Boolean = false;
+    let questionType: Boolean = false;
+    renderElements.some((element) => {
+      if (element.value === question.questionOptions.rendering) {
+        renderElementAvailable = true;
+      }
+    });
+    types.some((type) => {
+      if (type.value === question.type) {
+        questionType = true;
+      }
+    });
+    if (renderElementAvailable == false) {
+      setIsCustomRenderElement(true);
+      setCustomRenderElement(question.questionOptions.rendering);
+    }
+    if (questionType == false) {
+      setIsCustomQuestionType(true);
+      setCustomQuestionType(question.type);
+    }
+  }, []);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -362,7 +365,11 @@ const EditQuestion: React.FC<EditQuestionModalProps> = ({ question }) => {
         >
           <ModalHeader title={t("editQuestion", "Edit Question")} />
           <Form onSubmit={handleSubmit}>
-            <ModalBody>
+            <ModalBody
+              hasScrollingContent
+              aria-label="edit-question"
+              className={styles.modalContent}
+            >
               <FormGroup legendText={""}>
                 <TextInput
                   id="questionLabel"
@@ -545,6 +552,9 @@ const EditQuestion: React.FC<EditQuestionModalProps> = ({ question }) => {
                           : null;
                       }}
                       id="concepts"
+                      onInputChange={(event) => {
+                        setSearchConcept(event);
+                      }}
                       items={concepts}
                       itemToString={(concept) =>
                         concept ? concept?.display : ""

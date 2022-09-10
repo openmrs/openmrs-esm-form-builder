@@ -9,7 +9,6 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
-  Row,
   Select,
   SelectItem,
   TextInput,
@@ -18,7 +17,7 @@ import { Answer, Concept, ConceptMapping, Question } from "../../../api/types";
 import { Add } from "@carbon/icons-react/next";
 import { SchemaContext } from "../../../context/context";
 import { showToast } from "@openmrs/esm-framework";
-import { useConcepts } from "../../../api/concept";
+import { useSearchConcept } from "../../../api/concept";
 import styles from "./modals.scss";
 
 interface CreateQuestionModalProps {
@@ -27,7 +26,8 @@ interface CreateQuestionModalProps {
 
 const CreateQuestion: React.FC<CreateQuestionModalProps> = ({ questions }) => {
   const { t } = useTranslation();
-  const { concepts } = useConcepts();
+  const [searchConcept, setSearchConcept] = useState("");
+  const { concepts } = useSearchConcept(searchConcept);
   const { schema, setSchema } = useContext(SchemaContext);
   const [openCreateQuestionModal, setOpenCreateQuestionModal] = useState(false);
   const [isCustomRenderElement, setIsCustomRenderElement] = useState(false);
@@ -256,7 +256,11 @@ const CreateQuestion: React.FC<CreateQuestionModalProps> = ({ questions }) => {
         >
           <ModalHeader title={t("createQuestion", "Create Question")} />
           <Form onSubmit={handleSubmit}>
-            <ModalBody>
+            <ModalBody
+              hasScrollingContent
+              aria-label="new-question"
+              className={styles.modalContent}
+            >
               <FormGroup legendText={""}>
                 <TextInput
                   id="questionLabel"
@@ -432,6 +436,9 @@ const CreateQuestion: React.FC<CreateQuestionModalProps> = ({ questions }) => {
                         : null;
                     }}
                     id="concepts"
+                    onInputChange={(event) => {
+                      setSearchConcept(event);
+                    }}
                     items={concepts}
                     itemToString={(concept) =>
                       concept ? concept?.display : ""
