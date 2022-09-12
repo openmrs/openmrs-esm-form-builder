@@ -17,7 +17,7 @@ import {
 import { Answer, Concept, ConceptMapping, Question } from "../../../api/types";
 import { Add, Edit, TrashCan } from "@carbon/icons-react/next";
 import { SchemaContext } from "../../../context/context";
-import { showToast } from "@openmrs/esm-framework";
+import { showToast, useConfig } from "@openmrs/esm-framework";
 import { useSearchConcept } from "../../../api/concept";
 import styles from "./modals.scss";
 
@@ -30,11 +30,9 @@ const EditQuestion: React.FC<EditQuestionModalProps> = ({ question }) => {
   const [searchConcept, setSearchConcept] = useState("");
   const { concepts } = useSearchConcept(searchConcept);
   const { schema, setSchema } = useContext(SchemaContext);
+  const { questionTypes } = useConfig();
+  const { renderElements } = useConfig();
   const [openEditQuestionModal, setOpenEditQuestionModal] = useState(false);
-  const [isCustomRenderElement, setIsCustomRenderElement] = useState(false);
-  const [customRenderElement, setCustomRenderElement] = useState("");
-  const [isCustomQuestionType, setIsCustomQuestionType] = useState(false);
-  const [customQuestionType, setCustomQuestionType] = useState("");
   const [questionLabel, setQuestionLabel] = useState("");
   const [questionType, setQuestionType] = useState("");
   const [questionId, setQuestionId] = useState("");
@@ -52,109 +50,10 @@ const EditQuestion: React.FC<EditQuestionModalProps> = ({ question }) => {
   const [orderType, setOrderType] = useState("");
   const [selectableOrders, setSelectableOrders] = useState<Answer[]>([]);
 
-  const types = [
-    {
-      key: "obs",
-      value: "obs",
-    },
-    {
-      key: "obsGroup",
-      value: "obsGroup",
-    },
-    {
-      key: "testOrder",
-      value: "testOrder",
-    },
-    {
-      key: "control",
-      value: "control",
-    },
-    {
-      key: "complex-obs",
-      value: "complex-obs",
-    },
-    {
-      key: "encounterDatetime",
-      value: "encounterDatetime",
-    },
-    {
-      key: "encounterProvider",
-      value: "encounterProvider",
-    },
-    {
-      key: "encounterLocation",
-      value: "encounterLocation",
-    },
-    {
-      key: "personAttribute",
-      value: "personAttribute",
-    },
-  ];
-
-  const renderElements = [
-    {
-      key: "text",
-      value: "text",
-    },
-    {
-      key: "number",
-      value: "number",
-    },
-    {
-      key: "select",
-      value: "select",
-    },
-    {
-      key: "date",
-      value: "date",
-    },
-    {
-      key: "multiCheckbox",
-      value: "multiCheckbox",
-    },
-    {
-      key: "textarea",
-      value: "textarea",
-    },
-    {
-      key: "radio",
-      value: "radio",
-    },
-    {
-      key: "ui-select-extended",
-      value: "ui-select-extended",
-    },
-    {
-      key: "group",
-      value: "group",
-    },
-    {
-      key: "repeating",
-      value: "repeating",
-    },
-    {
-      key: "drug",
-      value: "drug",
-    },
-    {
-      key: "file",
-      value: "file",
-    },
-    {
-      key: "field-set",
-      value: "field-set",
-    },
-    {
-      key: "problem",
-      value: "problem",
-    },
-  ];
-
   useEffect(() => {
     setQuestionLabel(question.label);
     setQuestionType(question.type);
     setQuestionId(question.id);
-    getCustomValues();
     // Question Options
     setRenderElement(question.questionOptions.rendering);
     setConceptMappings(question.questionOptions.conceptMappings);
@@ -208,29 +107,6 @@ const EditQuestion: React.FC<EditQuestionModalProps> = ({ question }) => {
       let data = map.display.split(": ");
       return { type: data[0], value: data[1] };
     });
-  }, []);
-
-  const getCustomValues = useCallback(() => {
-    let renderElementAvailable: Boolean = false;
-    let questionType: Boolean = false;
-    renderElements.some((element) => {
-      if (element.value === question.questionOptions.rendering) {
-        renderElementAvailable = true;
-      }
-    });
-    types.some((type) => {
-      if (type.value === question.type) {
-        questionType = true;
-      }
-    });
-    if (renderElementAvailable == false) {
-      setIsCustomRenderElement(true);
-      setCustomRenderElement(question.questionOptions.rendering);
-    }
-    if (questionType == false) {
-      setIsCustomQuestionType(true);
-      setCustomQuestionType(question.type);
-    }
   }, []);
 
   const handleSubmit = (event) => {
@@ -378,138 +254,48 @@ const EditQuestion: React.FC<EditQuestionModalProps> = ({ question }) => {
                   onChange={(event) => setQuestionLabel(event.target.value)}
                   required
                 />
-                {!isCustomQuestionType ? (
-                  <>
-                    <Select
-                      value={questionType}
-                      onChange={(event) => setQuestionType(event.target.value)}
-                      id="type"
-                      invalidText="A valid value is required"
-                      labelText="Type"
-                      disabled={false}
-                      inline={false}
-                      invalid={false}
-                      required
-                    >
-                      <SelectItem
-                        text="Choose an option"
-                        value="placeholder-item"
-                        disabled
-                        hidden
-                      />
-                      {types.map((type) => (
-                        <SelectItem
-                          text={type.value}
-                          value={type.value}
-                          key={type.key}
-                        />
-                      ))}
-                    </Select>
-                    <Button
-                      className={styles.addElementButton}
-                      size="sm"
-                      renderIcon={Add}
-                      iconDescription="Add Type"
-                      kind="ghost"
-                      onClick={() => {
-                        setIsCustomQuestionType(true);
-                        setQuestionType("placeholder-item");
-                      }}
-                    >
-                      Use Custom Type
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <TextInput
-                      id="customQuestionType"
-                      labelText="Type"
-                      value={customQuestionType || ""}
-                      onChange={(event) => {
-                        setQuestionType(event.target.value);
-                        setCustomQuestionType(event.target.value);
-                      }}
-                      required
-                    />
-                    <Button
-                      className={styles.addElementButton}
-                      size="sm"
-                      kind="ghost"
-                      onClick={() => {
-                        setIsCustomQuestionType(false);
-                        setQuestionType("placeholder-item");
-                      }}
-                    >
-                      Use Default Types
-                    </Button>
-                  </>
-                )}
-                {!isCustomRenderElement ? (
-                  <>
-                    <Select
-                      value={renderElement}
-                      onChange={(event) => setRenderElement(event.target.value)}
-                      id="rendering"
-                      invalidText="A valid value is required"
-                      labelText="Rendering"
-                      disabled={false}
-                      inline={false}
-                      invalid={false}
-                      required
-                    >
-                      <SelectItem
-                        text="Choose an option"
-                        value="placeholder-item"
-                        disabled
-                        hidden
-                      />
-                      {renderElements.map((element) => (
-                        <SelectItem
-                          text={element.value}
-                          value={element.value}
-                          key={element.key}
-                        />
-                      ))}
-                    </Select>
-                    <Button
-                      className={styles.addElementButton}
-                      size="sm"
-                      renderIcon={Add}
-                      iconDescription="Add Element"
-                      kind="ghost"
-                      onClick={() => {
-                        setIsCustomRenderElement(true);
-                        setRenderElement("placeholder-item");
-                      }}
-                    >
-                      Use Custom Element
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <TextInput
-                      id="customRenderElement"
-                      labelText="Rendering"
-                      value={customRenderElement || ""}
-                      onChange={(event) => {
-                        setRenderElement(event.target.value);
-                        setCustomRenderElement(event.target.value);
-                      }}
-                      required
-                    />
-                    <Button
-                      className={styles.addElementButton}
-                      size="sm"
-                      kind="ghost"
-                      onClick={() => {
-                        setIsCustomRenderElement(false);
-                        setRenderElement("placeholder-item");
-                      }}
-                    >
-                      Use Default Elements
-                    </Button>
-                  </>
-                )}
+                <Select
+                  value={questionType}
+                  onChange={(event) => setQuestionType(event.target.value)}
+                  id="type"
+                  invalidText="A valid value is required"
+                  labelText="Type"
+                  disabled={false}
+                  inline={false}
+                  invalid={false}
+                  required
+                >
+                  <SelectItem
+                    text="Choose an option"
+                    value="placeholder-item"
+                    disabled
+                    hidden
+                  />
+                  {questionTypes.map((type, key) => (
+                    <SelectItem text={type} value={type} key={key} />
+                  ))}
+                </Select>
+                <Select
+                  value={renderElement}
+                  onChange={(event) => setRenderElement(event.target.value)}
+                  id="rendering"
+                  invalidText="A valid value is required"
+                  labelText="Rendering"
+                  disabled={false}
+                  inline={false}
+                  invalid={false}
+                  required
+                >
+                  <SelectItem
+                    text="Choose an option"
+                    value="placeholder-item"
+                    disabled
+                    hidden
+                  />
+                  {renderElements.map((element, key) => (
+                    <SelectItem text={element} value={element} key={key} />
+                  ))}
+                </Select>
                 {renderElement === "number" ? (
                   <>
                     <TextInput
