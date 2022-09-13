@@ -14,7 +14,7 @@ const backendDependencies = {
 };
 
 function setupOpenMRS() {
-  const moduleName = "@openmrs/esm-form-builder";
+  const moduleName = "@openmrs/esm-form-builder-app";
   const spaBasePath = `${window.spaBase}/form-builder`;
 
   const options = {
