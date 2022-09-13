@@ -41,3 +41,63 @@ export interface SchemaContextType {
   schema: Schema;
   setSchema: any;
 }
+
+export interface Page {
+  label: string;
+  sections: Array<Section>;
+}
+
+export interface Section {
+  label: string;
+  questions: Array<Question>;
+  isExpanded: string | boolean;
+}
+
+export interface Question {
+  label: string;
+  id: string;
+  type: string;
+  questionOptions: QuestionOption;
+}
+
+export interface QuestionOption {
+  rendering: string;
+  answers: Array<Answer>;
+  max: string;
+  min: string;
+  concept: string;
+  conceptMappings: Array<ConceptMapping>;
+  weekList: [];
+  attributeType: string;
+  calculate: any;
+  rows: string;
+  orderSettingUuid: string;
+  orderType: string;
+  selectableOrders: Array<Answer>;
+}
+
+export interface Answer {
+  concept: string;
+  label: string;
+}
+
+export interface ConceptMapping {
+  type: string;
+  value: string;
+}
+
+export interface Concept {
+  uuid: string;
+  display: string;
+  mappings: Array<Mappings>;
+  answers: Array<ConceptAnswer>;
+}
+
+export interface ConceptAnswer {
+  uuid: string;
+  display: string;
+}
+
+export interface Mappings {
+  display: string;
+}

@@ -1,4 +1,5 @@
-import { getAsyncLifecycle } from "@openmrs/esm-framework";
+import { getAsyncLifecycle, defineConfigSchema } from "@openmrs/esm-framework";
+import { configSchema } from "./config-schema";
 
 const importTranslation = require.context(
   "../translations",
@@ -13,13 +14,15 @@ const backendDependencies = {
 };
 
 function setupOpenMRS() {
-  const moduleName = "@openmrs/esm-form-builder";
+  const moduleName = "@openmrs/esm-form-builder-app";
   const spaBasePath = `${window.spaBase}/form-builder`;
 
   const options = {
     featureName: "form-builder",
     moduleName,
   };
+
+  defineConfigSchema(moduleName, configSchema);
 
   return {
     pages: [

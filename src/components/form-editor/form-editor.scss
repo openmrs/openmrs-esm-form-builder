@@ -40,3 +40,7 @@
 :global(.bx--tabs--scrollable__nav-link) {
   width: 100%!important;
 }
+
+:global(.bx--tabs--scrollable__nav-link:focus) {
+  outline: none!important;
+}

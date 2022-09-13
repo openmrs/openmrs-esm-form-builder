@@ -28,7 +28,7 @@ const Dashboard: React.FC = () => {
   const rows = [];
   forms?.map((form, key) =>
     rows.push({
-      id: key,
+      id: `${key}`,
       name: form.name,
       version: form.version,
       published: form.published ? (
@@ -133,7 +133,9 @@ const Dashboard: React.FC = () => {
                 <TableToolbarContent>
                   <TableToolbarSearch onChange={onInputChange} />
                   <TableToolbarMenu>
-                    <TableToolbarAction>POC</TableToolbarAction>
+                    <TableToolbarAction onClick={() => {}}>
+                      POC
+                    </TableToolbarAction>
                   </TableToolbarMenu>
                   <Button
                     onClick={() =>

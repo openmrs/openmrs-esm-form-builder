@@ -1,0 +1,53 @@
+.accordion {
+  background-color: white;
+  margin-bottom: 8px;
+  max-width: 100%;
+}
+
+.sectionWrap {
+  margin-left: 1rem;
+  margin-bottom: 2rem;
+}
+
+.sectionRow {
+  padding: 10px 0 10px 0;
+  margin-bottom: 10px;
+}
+
+.questionWrap {
+  margin-left: 3rem;
+  margin-bottom: 20px;
+}
+
+.questionRow {
+  margin-left: 1rem;
+  margin-bottom: 10px;
+  padding: 10px 0 10px 0;
+}
+
+.pageElementColumn {
+  padding-right: 0;
+}
+
+.pageOptionsColumn {
+  padding-right: 0;
+}
+
+
+:global(.bx--accordion__content) {
+  @media screen and (min-width: 640px) {
+    padding-right: 15%;
+  }
+}
+
+.questionLabel {
+  line-height: 20px;
+  font-size: 15px;
+}
+
+.sectionsTitle {
+  font-size: 1.25rem;
+  font-weight: 501;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
