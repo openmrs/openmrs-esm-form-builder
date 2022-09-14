@@ -33,6 +33,7 @@ export const useFormSchema = (form?: Form) => {
     pages: [],
     processor: "EncounterFormProcessor",
     uuid: "xxx",
+    encounterType: "",
     referencedForms: [],
   };
   const url =

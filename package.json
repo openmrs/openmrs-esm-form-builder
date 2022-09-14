@@ -44,7 +44,9 @@
   },
   "dependencies": {
     "@carbon/icons-react": "^10.18.0",
+    "@ohri/openmrs-ohri-form-engine-lib": "^0.1.11-1",
     "carbon-components-react": "^7.25.0",
+    "file-loader": "^6.2.0",
     "lodash-es": "^4.17.15",
     "react-ace": "^10.1.0"
   },

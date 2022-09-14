@@ -26,6 +26,7 @@ export interface Schema {
   pages: any;
   processor: string;
   uuid: string;
+  encounterType: string;
   referencedForms: any;
 }
 
