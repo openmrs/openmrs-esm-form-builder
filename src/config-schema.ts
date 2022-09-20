@@ -37,4 +37,9 @@ export const configSchema = {
       "problem",
     ],
   },
+  patientUuidConfig: {
+    _type: "String",
+    _default: "b280078a-c0ce-443b-9997-3c66c63ec2f8",
+    _description: "Patient UUID used to render form preview",
+  },
 };

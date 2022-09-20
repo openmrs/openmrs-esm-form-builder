@@ -44,3 +44,10 @@
 :global(.bx--tabs--scrollable__nav-link:focus) {
   outline: none!important;
 }
+
+.renderComponent {
+  height: 75vh;
+  background-color: white;
+  padding: 1rem;
+  overflow-y: scroll;
+}

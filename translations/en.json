@@ -37,5 +37,9 @@
   "createPageSuccess": "Page Created",
   "createQuestion": "Create Question",
   "createSection": "Create Section",
-  "createPage": "Create Page"
+  "createPage": "Create Page",
+  "editPage": "Edit Page",
+  "editQuestion": "Edit Question",
+  "updatePage": "Page Updated",
+  "updateQuestion": "Question Updated"
 }

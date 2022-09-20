@@ -10,6 +10,7 @@ import { SchemaContext } from "../../context/context";
 import { publish, unpublish } from "../../api/saveForm";
 import { showToast } from "@openmrs/esm-framework";
 import ElementEditor from "./element-editor/element-editor";
+import FormRenderer from "./form-renderer/form-renderer";
 
 const FormEditor: React.FC = () => {
   type Route = {
@@ -71,9 +72,10 @@ const FormEditor: React.FC = () => {
       <div className={styles.wrap}>
         <Row className={styles.optionRow}>
           <SaveForm form={formMetaData} />
-          <Button className={styles.optionButtons} kind="tertiary">
+          {/* TODO: Add reference form feature */}
+          {/* <Button className={styles.optionButtons} kind="tertiary">
             {t("referenceForm", "Reference Form")}
-          </Button>
+          </Button> */}
           {formMetaData?.published == true ? (
             <Button
               className={styles.optionButtons}
@@ -116,7 +118,9 @@ const FormEditor: React.FC = () => {
           <Column lg={6} md={6}>
             <Tabs>
               <Tab label={t("formViewer", "Form Viewer")}>
-                {t("formViewer", "Form Viewer")}
+                <div className={styles.renderComponent}>
+                  <FormRenderer />
+                </div>
               </Tab>
             </Tabs>
           </Column>
