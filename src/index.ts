@@ -15,7 +15,6 @@ const backendDependencies = {
 
 function setupOpenMRS() {
   const moduleName = "@openmrs/esm-form-builder-app";
-  const spaBasePath = `${window.spaBase}/form-builder`;
 
   const options = {
     featureName: "form-builder",
@@ -31,7 +30,15 @@ function setupOpenMRS() {
         route: "form-builder",
       },
     ],
-    extensions: [],
+    extensions: [
+      {
+        id: "form-builder-link",
+        slot: "app-menu-slot",
+        load: getAsyncLifecycle(() => import("./form-builder-link"), options),
+        online: true,
+        offline: true,
+      },
+    ],
   };
 }
 
