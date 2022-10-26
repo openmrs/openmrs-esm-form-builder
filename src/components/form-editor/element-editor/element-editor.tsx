@@ -1,16 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  Accordion,
-  Button,
-  Column,
-  Row,
-  TextInput,
-} from "carbon-components-react";
+import { Accordion, Button, Column, Row, TextInput } from "@carbon/react";
 import { Schema } from "../../../api/types";
 import { SchemaContext } from "../../../context/context";
 import PageElement from "./elements/page";
 import styles from "./element-editor.scss";
-import { Checkmark } from "@carbon/icons-react/next";
+import { Checkmark } from "@carbon/react/icons";
 import CreatePage from "../modals/new-page";
 import { useTranslation } from "react-i18next";
 

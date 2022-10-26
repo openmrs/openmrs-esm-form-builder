@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { Button } from "carbon-components-react";
+import { Button } from "@carbon/react";
 import styles from "./schema-editor.scss";
 import AceEditor from "react-ace";
 import "ace-builds/webpack-resolver";

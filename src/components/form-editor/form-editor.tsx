@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Column, Row, Tabs, Tab, Button } from "carbon-components-react";
+import {
+  Column,
+  Row,
+  Grid,
+  Tabs,
+  Tab,
+  TabList,
+  TabPanels,
+  TabPanel,
+  Button,
+} from "@carbon/react";
 import { useTranslation } from "react-i18next";
 import SchemaEditorComponent from "./schema-editor/schema-editor.component";
 import styles from "./form-editor.scss";
@@ -98,33 +108,38 @@ const FormEditor: React.FC = () => {
             </Button>
           )}
         </Row>
-        <Row>
-          <Column lg={6} md={6} className={styles.grid}>
-            <Tabs className={styles.componentTabs}>
-              <Tab
-                className={styles.componentTab}
-                label={t("schemaEditor", "Schema Editor")}
-              >
-                <SchemaEditorComponent />
-              </Tab>
-              <Tab
-                className={styles.componentTab}
-                label={t("interactiveBuilder", "Interactive Builder")}
-              >
-                <ElementEditor />
-              </Tab>
-            </Tabs>
-          </Column>
-          <Column lg={6} md={6}>
+        <Grid className={styles.grid}>
+          <Column lg={8} md={8} className={styles.column}>
             <Tabs>
-              <Tab label={t("formViewer", "Form Viewer")}>
-                <div className={styles.renderComponent}>
-                  <FormRenderer />
-                </div>
-              </Tab>
+              <TabList>
+                <Tab>{t("schemaEditor", "Schema Editor")}</Tab>
+                <Tab>{t("interactiveBuilder", "Interactive Builder")}</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel>
+                  <SchemaEditorComponent />
+                </TabPanel>
+                <TabPanel>
+                  <ElementEditor />
+                </TabPanel>
+              </TabPanels>
             </Tabs>
           </Column>
-        </Row>
+          <Column lg={8} md={8} className={styles.column}>
+            <Tabs>
+              <TabList>
+                <Tab>{t("formViewer", "Form Viewer")}</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel>
+                  <div className={styles.renderComponent}>
+                    <FormRenderer />
+                  </div>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          </Column>
+        </Grid>
       </div>
     </SchemaContext.Provider>
   );

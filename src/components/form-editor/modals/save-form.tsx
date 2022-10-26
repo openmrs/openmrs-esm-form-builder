@@ -13,7 +13,7 @@ import {
   SelectItem,
   TextArea,
   TextInput,
-} from "carbon-components-react";
+} from "@carbon/react";
 import { EncounterType, Resource } from "../../../api/types";
 import { useEncounterType } from "../../../api/fetchFormDetail";
 import {

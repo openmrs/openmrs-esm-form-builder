@@ -15,9 +15,9 @@ import {
   TableToolbarContent,
   Button,
   Tag,
-} from "carbon-components-react";
+} from "@carbon/react";
 import { navigate } from "@openmrs/esm-framework";
-import { Download, Edit, DocumentImport } from "@carbon/icons-react/next";
+import { Download, Edit, DocumentImport } from "@carbon/react/icons";
 import { useTranslation } from "react-i18next";
 import { usePOCForms } from "../../api/usePOCForms";
 import styles from "./dashboard.css";

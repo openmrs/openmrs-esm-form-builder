@@ -12,9 +12,9 @@ import {
   Select,
   SelectItem,
   TextInput,
-} from "carbon-components-react";
+} from "@carbon/react";
 import { Answer, Concept, ConceptMapping, Question } from "../../../api/types";
-import { Add } from "@carbon/icons-react/next";
+import { Add } from "@carbon/react/icons";
 import { SchemaContext } from "../../../context/context";
 import { showToast, useConfig } from "@openmrs/esm-framework";
 import { useSearchConcept } from "../../../api/concept";
