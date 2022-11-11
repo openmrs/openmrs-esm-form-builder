@@ -15,6 +15,7 @@ import {
   TableToolbarContent,
   Button,
   Tag,
+  Link,
 } from "@carbon/react";
 import { navigate } from "@openmrs/esm-framework";
 import { Download, Edit, DocumentImport } from "@carbon/react/icons";
@@ -160,13 +161,28 @@ const Dashboard: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.map((row) => (
-                  <TableRow {...getRowProps({ row })}>
-                    {row.cells.map((cell) => (
-                      <TableCell key={cell.id}>{cell.value}</TableCell>
-                    ))}
-                  </TableRow>
-                ))}
+                {rows.length > 0 ? (
+                  rows.map((row) => (
+                    <TableRow {...getRowProps({ row })}>
+                      {row.cells.map((cell) => (
+                        <TableCell key={cell.id}>{cell.value}</TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <div className={styles.emptyContainer}>
+                    There are No forms found.
+                    <Link
+                      onClick={() =>
+                        navigate({
+                          to: `${window.spaBase}/form-builder/edit/new`,
+                        })
+                      }
+                    >
+                      {t("createNew", "Create New")}
+                    </Link>
+                  </div>
+                )}
               </TableBody>
             </Table>
           </TableContainer>

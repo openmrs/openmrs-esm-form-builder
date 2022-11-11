@@ -14,11 +14,15 @@
   margin-right: 0;
 }
 
-.wrap {
+.wrapContainer {
   margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
 }
 
-.optionRow {
+.actionsContainer {
+  display: flex;
+  flex-direction: row;
   justify-content: flex-end;
   margin-right: 0px;
 }

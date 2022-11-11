@@ -1,6 +1,6 @@
 {
   "name": "@openmrs/esm-form-builder-app",
-  "version": "3.0.0",
+  "version": "1.0.0",
   "license": "MPL-2.0",
   "description": "OpenMRS ESM Form Builder App",
   "browser": "dist/openmrs-esm-form-builder-app.js",
@@ -29,7 +29,9 @@
   ],
   "keywords": [
     "openmrs",
-    "microfrontends"
+    "microfrontends",
+    "formbuilder",
+    "form builder"
   ],
   "repository": {
     "type": "git",
@@ -59,14 +61,7 @@
     "rxjs": "6.x"
   },
   "devDependencies": {
-    "@babel/core": "^7.18.5",
-    "@babel/plugin-proposal-class-properties": "^7.17.12",
-    "@babel/preset-env": "^7.18.2",
-    "@babel/preset-react": "^7.17.12",
-    "@babel/preset-typescript": "^7.17.12",
-    "@babel/runtime": "^7.18.3",
-    "@carbon/react": "^1.9.0",
-    "@openmrs/esm-framework": "4.0.1-pre.232",
+    "@openmrs/esm-framework": "^4.0.3-pre.401",
     "@swc/cli": "^0.1.57",
     "@swc/core": "^1.2.203",
     "@swc/jest": "^0.2.22",
@@ -79,9 +74,6 @@
     "@types/react-dom": "^18.0.6",
     "@types/webpack-env": "^1.16.0",
     "@typescript-eslint/parser": "^5.28.0",
-    "babel-eslint": "^10.1.0",
-    "babel-jest": "^28.1.1",
-    "babel-preset-minify": "^0.5.2",
     "concurrently": "^6.2.0",
     "css-loader": "^6.7.1",
     "eslint": "^7.27.0",
@@ -92,7 +84,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.0.4",
     "jest-cli": "^27.0.4",
-    "openmrs": "4.0.1-pre.232",
+    "openmrs": "^4.0.3-pre.401",
     "prettier": "^2.3.0",
     "pretty-quick": "^3.1.0",
     "react": "^18.2.0",
@@ -105,6 +97,6 @@
     "webpack-cli": "^4.10.0"
   },
   "resolutions": {
-    "**/@types/react": "^16.13.1"
+    "**/@types/react": "^18.0.14"
   }
 }

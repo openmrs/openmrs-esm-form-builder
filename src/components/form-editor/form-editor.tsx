@@ -79,13 +79,9 @@ const FormEditor: React.FC = () => {
 
   return (
     <SchemaContext.Provider value={{ schema, setSchema }}>
-      <div className={styles.wrap}>
-        <Row className={styles.optionRow}>
+      <div className={styles.wrapContainer}>
+        <div className={styles.actionsContainer}>
           <SaveForm form={formMetaData} />
-          {/* TODO: Add reference form feature */}
-          {/* <Button className={styles.optionButtons} kind="tertiary">
-            {t("referenceForm", "Reference Form")}
-          </Button> */}
           {formMetaData?.published == true ? (
             <Button
               className={styles.optionButtons}
@@ -107,7 +103,7 @@ const FormEditor: React.FC = () => {
               {t("publishForm", "Publish form")}
             </Button>
           )}
-        </Row>
+        </div>
         <Grid className={styles.grid}>
           <Column lg={8} md={8} className={styles.column}>
             <Tabs>

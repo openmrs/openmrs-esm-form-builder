@@ -32,10 +32,9 @@ const ElementEditor: React.FC = () => {
 
   return (
     <div className={styles.tabContentWrap}>
-      <Row>
-        <Column>
+      <div className={styles.formNameContainer}>
+        <div className={styles.textInput}>
           <TextInput
-            className={styles.textInput}
             id="schema-name"
             type="text"
             labelText="Form Name"
@@ -44,21 +43,19 @@ const ElementEditor: React.FC = () => {
               setSchemaName(event.target.value);
             }}
           />
-        </Column>
-        <Column>
-          <Button
-            className={styles.setSchemaNameButton}
-            renderIcon={Checkmark}
-            iconDescription="Save Name"
-            size="small"
-            hasIconOnly
-            kind="tertiary"
-            onClick={() => {
-              updateSchemaName();
-            }}
-          />
-        </Column>
-      </Row>
+        </div>
+        <Button
+          className={styles.setSchemaNameButton}
+          renderIcon={Checkmark}
+          iconDescription="Save Name"
+          size="md"
+          hasIconOnly
+          kind="tertiary"
+          onClick={() => {
+            updateSchemaName();
+          }}
+        />
+      </div>
       <h5>{t("pages", "Pages")}</h5>
       <CreatePage pages={pages} />
       <Accordion>
