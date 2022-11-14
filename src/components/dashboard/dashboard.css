@@ -12,3 +12,7 @@
   width: 100%;
   padding: 1rem;
 }
+
+:global(.cds--data-table-container) {
+  border: 1px solid #e0e0e0;
+}

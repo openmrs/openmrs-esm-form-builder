@@ -111,7 +111,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div>
-      <DataTable rows={rows} headers={headers}>
+      <DataTable rows={rows} headers={headers} className={styles.wrapContainer}>
         {({
           rows,
           headers,
