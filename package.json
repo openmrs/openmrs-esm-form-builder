@@ -1,6 +1,6 @@
 {
   "name": "@openmrs/esm-form-builder-app",
-  "version": "3.0.0",
+  "version": "1.0.0",
   "license": "MPL-2.0",
   "description": "OpenMRS ESM Form Builder App",
   "browser": "dist/openmrs-esm-form-builder-app.js",
@@ -29,7 +29,9 @@
   ],
   "keywords": [
     "openmrs",
-    "microfrontends"
+    "microfrontends",
+    "formbuilder",
+    "form builder"
   ],
   "repository": {
     "type": "git",
@@ -43,51 +45,37 @@
     "url": "https://github.com/openmrs/openmrs-esm-form-builder/issues"
   },
   "dependencies": {
-    "@carbon/icons-react": "^10.18.0",
-    "@ohri/openmrs-ohri-form-engine-lib": "^0.1.11-1",
-    "carbon-components-react": "^7.25.0",
+    "@carbon/react": "^1.15.0",
+    "@ohri/openmrs-ohri-form-engine-lib": "next",
     "file-loader": "^6.2.0",
     "lodash-es": "^4.17.15",
-    "react-ace": "^10.1.0"
+    "react-ace": "^10.1.0",
+    "sass": "^1.55.0"
   },
   "peerDependencies": {
-    "@openmrs/esm-framework": "^3.14.0-pre",
-    "carbon-components": "10.x",
-    "carbon-icons": "7.x",
+    "@openmrs/esm-framework": "4.x",
     "dayjs": "1.x",
-    "react": "16.x",
+    "react": "18.x",
+    "react-dom": "18.x",
     "react-i18next": "11.x",
-    "react-router-dom": "5.x",
     "rxjs": "6.x"
   },
   "devDependencies": {
-    "@babel/core": "^7.18.5",
-    "@babel/plugin-proposal-class-properties": "^7.17.12",
-    "@babel/preset-env": "^7.18.2",
-    "@babel/preset-react": "^7.17.12",
-    "@babel/preset-typescript": "^7.17.12",
-    "@babel/runtime": "^7.18.3",
-    "@openmrs/esm-framework": "next",
+    "@openmrs/esm-framework": "^4.0.3-pre.401",
     "@swc/cli": "^0.1.57",
     "@swc/core": "^1.2.203",
-    "@swc/jest": "^0.2.21",
+    "@swc/jest": "^0.2.22",
     "@testing-library/dom": "^7.31.2",
     "@testing-library/jest-dom": "^5.13.0",
-    "@testing-library/react": "^11.2.7",
-    "@testing-library/user-event": "^13.1.9",
-    "@types/carbon-components-react": "^7.34.0",
-    "@types/carbon__icons-react": "^10.31.0",
-    "@types/jest": "^26.0.23",
-    "@types/react": "^16.13.1",
-    "@types/react-dom": "^16.9.14",
-    "@types/react-router": "^5.1.14",
-    "@types/react-router-dom": "^5.1.7",
+    "@testing-library/react": "^13.3.0",
+    "@testing-library/user-event": "^14.4.3",
+    "@types/jest": "^28.1.7",
+    "@types/react": "^18.0.21",
+    "@types/react-dom": "^18.0.6",
     "@types/webpack-env": "^1.16.0",
     "@typescript-eslint/parser": "^5.28.0",
-    "babel-eslint": "^10.1.0",
-    "babel-jest": "^28.1.1",
-    "babel-preset-minify": "^0.5.2",
     "concurrently": "^6.2.0",
+    "css-loader": "^6.7.1",
     "eslint": "^7.27.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-ts-react-important-stuff": "^3.0.0",
@@ -96,13 +84,12 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.0.4",
     "jest-cli": "^27.0.4",
-    "openmrs": "next",
+    "openmrs": "^4.0.3-pre.401",
     "prettier": "^2.3.0",
     "pretty-quick": "^3.1.0",
-    "react": "^16.13.1",
-    "react-dom": "^16.14.0",
-    "react-i18next": "^11.7.0",
-    "react-router-dom": "^5.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-i18next": "^11.18.4",
     "rxjs": "^6.5.4",
     "swc-loader": "^0.2.3",
     "typescript": "^4.3.2",
@@ -110,6 +97,6 @@
     "webpack-cli": "^4.10.0"
   },
   "resolutions": {
-    "**/@types/react": "^16.13.1"
+    "**/@types/react": "^18.0.14"
   }
 }

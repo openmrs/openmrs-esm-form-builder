@@ -1,16 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  Accordion,
-  Button,
-  Column,
-  Row,
-  TextInput,
-} from "carbon-components-react";
+import { Accordion, Button, Column, Row, TextInput } from "@carbon/react";
 import { Schema } from "../../../api/types";
 import { SchemaContext } from "../../../context/context";
 import PageElement from "./elements/page";
 import styles from "./element-editor.scss";
-import { Checkmark } from "@carbon/icons-react/next";
+import { Checkmark } from "@carbon/react/icons";
 import CreatePage from "../modals/new-page";
 import { useTranslation } from "react-i18next";
 
@@ -38,10 +32,9 @@ const ElementEditor: React.FC = () => {
 
   return (
     <div className={styles.tabContentWrap}>
-      <Row>
-        <Column>
+      <div className={styles.formNameContainer}>
+        <div className={styles.textInput}>
           <TextInput
-            className={styles.textInput}
             id="schema-name"
             type="text"
             labelText="Form Name"
@@ -50,21 +43,19 @@ const ElementEditor: React.FC = () => {
               setSchemaName(event.target.value);
             }}
           />
-        </Column>
-        <Column>
-          <Button
-            className={styles.setSchemaNameButton}
-            renderIcon={Checkmark}
-            iconDescription="Save Name"
-            size="small"
-            hasIconOnly
-            kind="tertiary"
-            onClick={() => {
-              updateSchemaName();
-            }}
-          />
-        </Column>
-      </Row>
+        </div>
+        <Button
+          className={styles.setSchemaNameButton}
+          renderIcon={Checkmark}
+          iconDescription="Save Name"
+          size="md"
+          hasIconOnly
+          kind="tertiary"
+          onClick={() => {
+            updateSchemaName();
+          }}
+        />
+      </div>
       <h5>{t("pages", "Pages")}</h5>
       <CreatePage pages={pages} />
       <Accordion>

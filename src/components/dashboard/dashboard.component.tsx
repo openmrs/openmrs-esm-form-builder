@@ -15,9 +15,10 @@ import {
   TableToolbarContent,
   Button,
   Tag,
-} from "carbon-components-react";
+  Link,
+} from "@carbon/react";
 import { navigate } from "@openmrs/esm-framework";
-import { Download, Edit, DocumentImport } from "@carbon/icons-react/next";
+import { Download, Edit, DocumentImport } from "@carbon/react/icons";
 import { useTranslation } from "react-i18next";
 import { usePOCForms } from "../../api/usePOCForms";
 import styles from "./dashboard.css";
@@ -110,7 +111,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div>
-      <DataTable rows={rows} headers={headers}>
+      <DataTable rows={rows} headers={headers} className={styles.wrapContainer}>
         {({
           rows,
           headers,
@@ -160,13 +161,30 @@ const Dashboard: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.map((row) => (
-                  <TableRow {...getRowProps({ row })}>
-                    {row.cells.map((cell) => (
-                      <TableCell key={cell.id}>{cell.value}</TableCell>
-                    ))}
+                {rows.length > 0 ? (
+                  rows.map((row) => (
+                    <TableRow {...getRowProps({ row })}>
+                      {row.cells.map((cell) => (
+                        <TableCell key={cell.id}>{cell.value}</TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow className={styles.emptyContainer}>
+                    <TableCell>
+                      There are No forms found.
+                      <Link
+                        onClick={() =>
+                          navigate({
+                            to: `${window.spaBase}/form-builder/edit/new`,
+                          })
+                        }
+                      >
+                        {t("createNew", "Create New")}
+                      </Link>
+                    </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </TableContainer>

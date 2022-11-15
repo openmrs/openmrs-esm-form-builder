@@ -9,9 +9,9 @@ import {
   ModalFooter,
   ModalHeader,
   TextInput,
-} from "carbon-components-react";
+} from "@carbon/react";
 import { Page } from "../../../api/types";
-import { Add } from "@carbon/icons-react/next";
+import { Add } from "@carbon/react/icons";
 import { SchemaContext } from "../../../context/context";
 import { showToast } from "@openmrs/esm-framework";
 import styles from "./modals.scss";

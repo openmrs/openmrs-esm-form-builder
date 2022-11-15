@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
-import { AccordionItem, Button, Column, Row } from "carbon-components-react";
+import { AccordionItem, Button, Column, Row } from "@carbon/react";
 import { Page } from "../../../../api/types";
 import SectionElement from "./section";
 import styles from "./elements.scss";
-import { TrashCan } from "@carbon/icons-react/next";
+import { TrashCan } from "@carbon/react/icons";
 import { SchemaContext } from "../../../../context/context";
 import { useTranslation } from "react-i18next";
 import EditPage from "../../modals/edit-page";

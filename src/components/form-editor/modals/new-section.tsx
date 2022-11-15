@@ -11,9 +11,9 @@ import {
   Select,
   SelectItem,
   TextInput,
-} from "carbon-components-react";
+} from "@carbon/react";
 import { Section } from "../../../api/types";
-import { Add } from "@carbon/icons-react/next";
+import { Add } from "@carbon/react/icons";
 import { SchemaContext } from "../../../context/context";
 import { showToast } from "@openmrs/esm-framework";
 

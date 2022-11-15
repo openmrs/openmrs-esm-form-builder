@@ -2,10 +2,19 @@
   margin-top: 2rem;
 }
 
-.textInput {
-  max-width: 400px;
-  background-color: white;
+.formNameContainer {
+  display: flex;
+  flex-direction: row;
   margin-bottom: 1rem;
+}
+
+.textInput {
+  margin-right: 1rem;
+
+  input {
+    width: 400px;
+    background-color: white;
+  }
 }
 
 .setSchemaNameButton {

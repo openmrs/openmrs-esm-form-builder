@@ -1,6 +1,6 @@
 import React from "react";
-import { TrashCan } from "@carbon/icons-react/next";
-import { Button, Column, Row } from "carbon-components-react";
+import { TrashCan } from "@carbon/react/icons";
+import { Button, Column, Row } from "@carbon/react";
 import { Question } from "../../../../api/types";
 import EditQuestion from "../../modals/edit-question";
 import styles from "./elements.scss";

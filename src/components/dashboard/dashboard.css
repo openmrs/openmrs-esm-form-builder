@@ -3,4 +3,16 @@
   display: flex;
   width: 100%;
   min-height: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.emptyContainer {
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 1rem;
+}
+
+:global(.cds--data-table-container) {
+  border: 1px solid #e0e0e0;
 }
