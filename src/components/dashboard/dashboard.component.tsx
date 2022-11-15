@@ -170,18 +170,20 @@ const Dashboard: React.FC = () => {
                     </TableRow>
                   ))
                 ) : (
-                  <div className={styles.emptyContainer}>
-                    There are No forms found.
-                    <Link
-                      onClick={() =>
-                        navigate({
-                          to: `${window.spaBase}/form-builder/edit/new`,
-                        })
-                      }
-                    >
-                      {t("createNew", "Create New")}
-                    </Link>
-                  </div>
+                  <TableRow className={styles.emptyContainer}>
+                    <TableCell>
+                      There are No forms found.
+                      <Link
+                        onClick={() =>
+                          navigate({
+                            to: `${window.spaBase}/form-builder/edit/new`,
+                          })
+                        }
+                      >
+                        {t("createNew", "Create New")}
+                      </Link>
+                    </TableCell>
+                  </TableRow>
                 )}
               </TableBody>
             </Table>
