@@ -53,7 +53,6 @@
     "sass": "^1.55.0"
   },
   "peerDependencies": {
-    "@openmrs/esm-framework": "4.x",
     "dayjs": "1.x",
     "react": "18.x",
     "react-dom": "18.x",
@@ -61,7 +60,8 @@
     "rxjs": "6.x"
   },
   "devDependencies": {
-    "@openmrs/esm-framework": "^4.0.3-pre.401",
+    "@openmrs/esm-framework": "next",
+    "@openmrs/esm-styleguide": "next",
     "@swc/cli": "^0.1.57",
     "@swc/core": "^1.2.203",
     "@swc/jest": "^0.2.22",
@@ -85,7 +85,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.0.4",
     "jest-cli": "^27.0.4",
-    "openmrs": "^4.0.3-pre.401",
+    "openmrs": "next",
     "prettier": "^2.3.0",
     "pretty-quick": "^3.1.0",
     "react": "^18.2.0",
