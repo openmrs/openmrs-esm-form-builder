@@ -16,7 +16,7 @@
     "typescript": "tsc",
     "test": "jest --config jest.config.json",
     "verify": "concurrently 'yarn:lint' 'yarn:test' 'yarn:typescript'",
-    "coverage": "yarn test -- --coverage",
+    "coverage": "yarn test --coverage",
     "prepare": "husky install"
   },
   "husky": {
