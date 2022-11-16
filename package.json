@@ -73,6 +73,7 @@
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
     "@types/webpack-env": "^1.16.0",
+    "@typescript-eslint/eslint-plugin": "^5.43.0",
     "@typescript-eslint/parser": "^5.28.0",
     "concurrently": "^6.2.0",
     "css-loader": "^6.7.1",
