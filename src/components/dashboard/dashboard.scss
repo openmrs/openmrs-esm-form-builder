@@ -1,0 +1,108 @@
+@use '@carbon/styles/scss/type';
+@use '@carbon/styles/scss/spacing';
+@import '~@openmrs/esm-styleguide/src/vars';
+
+.container {
+  padding-bottom: 2rem;
+  background-color: $ui-01;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: spacing.$spacing-05;
+}
+
+.table tr:last-of-type {
+  td {
+    border-bottom: none;
+  }
+}
+
+.heading {
+  margin-bottom: 1.5rem;
+}
+
+.toolbar {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.search {
+  max-width: 16rem;
+
+  input {
+    background-color: $ui-02 !important;
+    height: 2rem !important;
+  }
+}
+
+.emptyContainer {
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 1rem;
+}
+
+.tableContainer {
+  padding: 0;
+
+  :global(.cds--data-table-content) {
+    border: 1px solid $ui-03;
+    border-bottom: none;
+    overflow: visible;
+  }
+
+  :global(.cds--data-table-header) {
+    padding: 0;
+  }
+
+  :global(.cds--table-toolbar) {
+    position: relative;
+    height: 2rem;
+    min-height: 0rem;
+    overflow: visible;
+    top: 0;
+  }
+
+  &:global(.cds--data-table-container) {
+    background: none !important;
+  }
+
+  :global(.cds--toolbar-content),
+  :global(.cds--toolbar-search-container-expandable) {
+    height: 2rem;
+    margin-bottom: 0.25rem;
+  }
+
+  :global(.cds--toolbar-search-container-expandable.cds--search .cds--search-close) {
+    height: 2rem;
+    width: 2rem;
+  }
+}
+
+.content {
+  @include type.type-style('heading-compact-02');
+  color: $text-02;
+  margin-bottom: 0.5rem;
+}
+
+.tileContainer {
+  background-color: $ui-02;
+  border-top: 1px solid $ui-03;
+  padding: 5rem 0;
+}
+
+.tile {
+  margin: auto;
+  width: fit-content;
+}
+
+.tileContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
