@@ -21,7 +21,7 @@ import {
 import { Add, DocumentImport, Download, Edit } from "@carbon/react/icons";
 import { navigate, useLayoutType } from "@openmrs/esm-framework";
 
-import { usePOCForms } from "../../api/usePOCForms";
+import { usePocForms } from "../../hooks/usePocForms";
 import EmptyState from "../empty-state/empty-state.component";
 import ErrorState from "../error-state/error-state.component";
 import styles from "./dashboard.scss";
@@ -81,7 +81,7 @@ function ActionButtons({ form }) {
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation();
-  const { error, forms, isLoading, isValidating } = usePOCForms();
+  const { error, forms, isLoading, isValidating } = usePocForms();
   const isTablet = useLayoutType() === "tablet";
 
   const tableHeaders = [

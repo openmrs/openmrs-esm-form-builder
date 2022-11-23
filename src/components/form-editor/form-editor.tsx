@@ -14,11 +14,12 @@ import { useTranslation } from "react-i18next";
 import SchemaEditorComponent from "./schema-editor/schema-editor.component";
 import styles from "./form-editor.scss";
 import { useParams } from "react-router-dom";
-import { useFormSchema, useFormMetadata } from "../../api/fetchFormDetail";
 import SaveForm from "./modals/save-form";
-import { SchemaContext } from "../../context/context";
-import { publish, unpublish } from "../../api/saveForm";
 import { showToast } from "@openmrs/esm-framework";
+import { SchemaContext } from "../../context/context";
+import { useFormClobdata } from "../../hooks/useFormClobdata";
+import { useFormMetadata } from "../../hooks/useFormMetadata";
+import { publish, unpublish } from "../../forms.resource";
 import ElementEditor from "./element-editor/element-editor";
 import FormRenderer from "./form-renderer/form-renderer";
 
@@ -29,7 +30,7 @@ const FormEditor: React.FC = () => {
   const { t } = useTranslation();
   const { uuid } = useParams<Route>();
   const { formMetaData } = useFormMetadata(uuid);
-  const { formSchemaData, isLoading } = useFormSchema(formMetaData);
+  const { formSchemaData, isLoading } = useFormClobdata(formMetaData);
   const [schema, setSchema] = useState<any>();
 
   const handlePublishState = async (option) => {

@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { TrashCan } from "@carbon/react/icons";
 import { Button, Column, Row } from "@carbon/react";
-import { Section } from "../../../../api/types";
+import { Section } from "../../../../types";
 import { SchemaContext } from "../../../../context/context";
 import EditSection from "../../modals/edit-section";
 import CreateQuestion from "../../modals/new-question";

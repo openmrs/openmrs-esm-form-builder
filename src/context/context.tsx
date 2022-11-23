@@ -1,4 +1,4 @@
 import { createContext } from "react";
-import { SchemaContextType } from "../api/types";
+import { SchemaContextType } from "../types";
 
 export const SchemaContext = createContext<SchemaContextType>(null);

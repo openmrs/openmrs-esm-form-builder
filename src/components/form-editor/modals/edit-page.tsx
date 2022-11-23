@@ -10,7 +10,7 @@ import {
   ModalHeader,
   TextInput,
 } from "@carbon/react";
-import { Page } from "../../../api/types";
+import { Page } from "../../../types";
 import { Edit } from "@carbon/react/icons";
 import { SchemaContext } from "../../../context/context";
 import { showToast } from "@openmrs/esm-framework";

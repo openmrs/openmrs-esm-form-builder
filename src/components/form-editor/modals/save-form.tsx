@@ -14,8 +14,8 @@ import {
   TextArea,
   TextInput,
 } from "@carbon/react";
-import { EncounterType, Resource } from "../../../api/types";
-import { useEncounterType } from "../../../api/fetchFormDetail";
+import { EncounterType, Resource } from "../../../types";
+import { useEncounterTypes } from "../../../hooks/useEncounterTypes";
 import {
   uploadSchema,
   saveNewForm,
@@ -26,7 +26,7 @@ import {
   deleteClobData,
   deleteResource,
   updateEncounterType,
-} from "../../../api/saveForm";
+} from "../../../forms.resource";
 import { showToast } from "@openmrs/esm-framework";
 import { SchemaContext } from "../../../context/context";
 
@@ -45,7 +45,7 @@ interface FormGroupData {
 
 const SaveForm: React.FC<SaveFormModalProps> = ({ form }) => {
   const { t } = useTranslation();
-  const { encounterTypes, encounterTypesError } = useEncounterType();
+  const { encounterTypes, encounterTypesError } = useEncounterTypes();
   const [openSaveFormModal, setOpenSaveFormModal] = useState(false);
   const [openConfirmSaveModal, setOpenConfirmSaveModal] = useState(false);
   const [saveState, setSaveState] = useState("");
