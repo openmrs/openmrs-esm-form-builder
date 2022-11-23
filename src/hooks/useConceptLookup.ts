@@ -1,21 +1,18 @@
 import useSWR from "swr";
-import { openmrsFetch, showToast } from "@openmrs/esm-framework";
+import { openmrsFetch } from "@openmrs/esm-framework";
 import { Concept } from "../types";
 
-export function useConceptLookup(conceptID) {
-  const url =
-    conceptID != "" ? `/ws/rest/v1/concept?q=${conceptID}&v=full` : null;
+export function useConceptLookup(conceptId: string) {
+  const url = `/ws/rest/v1/concept?q=${conceptId}&v=full`;
+
   const { data, error } = useSWR<{ data: { results: Array<Concept> } }, Error>(
-    url,
+    conceptId ? url : null,
     openmrsFetch
   );
-  if (error) {
-    showToast({
-      title: "Error",
-      kind: "error",
-      critical: true,
-      description: `${error.message}`,
-    });
-  }
-  return { concepts: data?.data?.results ?? [] };
+
+  return {
+    concepts: data?.data?.results ?? [],
+    error: error,
+    isLoading: !data && !error,
+  };
 }

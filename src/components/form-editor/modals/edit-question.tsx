@@ -6,6 +6,7 @@ import {
   ComposedModal,
   Form,
   FormGroup,
+  InlineNotification,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -28,7 +29,7 @@ interface EditQuestionModalProps {
 const EditQuestion: React.FC<EditQuestionModalProps> = ({ question }) => {
   const { t } = useTranslation();
   const [searchConcept, setSearchConcept] = useState("");
-  const { concepts } = useConceptLookup(searchConcept);
+  const { concepts, error } = useConceptLookup(searchConcept);
   const { schema, setSchema } = useContext(SchemaContext);
   const { questionTypes } = useConfig();
   const { renderElements } = useConfig();
@@ -329,6 +330,19 @@ const EditQuestion: React.FC<EditQuestionModalProps> = ({ question }) => {
                   onChange={(event) => setQuestionId(event.target.value)}
                   required
                 />
+                {error ? (
+                  <InlineNotification
+                    style={{
+                      minWidth: "100%",
+                      margin: "0rem",
+                      padding: "0rem",
+                    }}
+                    kind={"error"}
+                    lowContrast
+                    subtitle={t("searchError", `${error?.message}`)}
+                    title={t("searchError", "Error searching for concepts")}
+                  />
+                ) : null}
                 {renderElement !== "ui-select-extended" ? (
                   concept === null ? (
                     <ComboBox
