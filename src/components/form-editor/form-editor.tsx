@@ -23,20 +23,21 @@ import { publish, unpublish } from "../../forms.resource";
 import ElementEditor from "./element-editor/element-editor";
 import FormRenderer from "./form-renderer/form-renderer";
 
+type Route = {
+  uuid: string;
+};
+
 const FormEditor: React.FC = () => {
-  type Route = {
-    uuid: string;
-  };
   const { t } = useTranslation();
   const { uuid } = useParams<Route>();
-  const { formMetaData } = useFormMetadata(uuid);
-  const { formSchemaData, isLoading } = useFormClobdata(formMetaData);
+  const { metadata } = useFormMetadata(uuid);
+  const { formSchemaData, isLoading } = useFormClobdata(metadata);
   const [schema, setSchema] = useState<any>();
 
   const handlePublishState = async (option) => {
     if (option == "publish") {
       try {
-        await publish(formMetaData?.uuid);
+        await publish(metadata?.uuid);
         showToast({
           title: t("success", "Success!"),
           kind: "success",
@@ -53,7 +54,7 @@ const FormEditor: React.FC = () => {
       }
     } else if (option == "unpublish") {
       try {
-        await unpublish(formMetaData?.uuid);
+        await unpublish(metadata?.uuid);
         showToast({
           title: t("success", "Success!"),
           kind: "success",
@@ -82,8 +83,8 @@ const FormEditor: React.FC = () => {
     <SchemaContext.Provider value={{ schema, setSchema }}>
       <div className={styles.wrapContainer}>
         <div className={styles.actionsContainer}>
-          <SaveForm form={formMetaData} />
-          {formMetaData?.published == true ? (
+          <SaveForm form={metadata} />
+          {metadata?.published == true ? (
             <Button
               className={styles.optionButtons}
               onClick={() => handlePublishState("unpublish")}
@@ -91,7 +92,7 @@ const FormEditor: React.FC = () => {
             >
               {t("unpublishForm", "Unpublish form")}
             </Button>
-          ) : formMetaData?.published == false ? (
+          ) : metadata?.published == false ? (
             <Button
               className={styles.optionButtons}
               onClick={() => handlePublishState("publish")}
