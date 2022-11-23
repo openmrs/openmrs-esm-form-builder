@@ -13,7 +13,7 @@ import {
   TextInput,
   Toggle,
 } from "@carbon/react";
-import { Section } from "../../../api/types";
+import { Section } from "../../../types";
 import { Edit } from "@carbon/react/icons";
 import { SchemaContext } from "../../../context/context";
 import { showToast } from "@openmrs/esm-framework";

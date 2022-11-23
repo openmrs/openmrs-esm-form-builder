@@ -13,11 +13,11 @@ import {
   SelectItem,
   TextInput,
 } from "@carbon/react";
-import { Answer, Concept, ConceptMapping, Question } from "../../../api/types";
+import { Answer, Concept, ConceptMapping, Question } from "../../../types";
 import { Add } from "@carbon/react/icons";
 import { SchemaContext } from "../../../context/context";
 import { showToast, useConfig } from "@openmrs/esm-framework";
-import { useSearchConcept } from "../../../api/concept";
+import { useConceptLookup } from "../../../hooks/useConceptLookup";
 import styles from "./modals.scss";
 
 interface CreateQuestionModalProps {
@@ -27,7 +27,7 @@ interface CreateQuestionModalProps {
 const CreateQuestion: React.FC<CreateQuestionModalProps> = ({ questions }) => {
   const { t } = useTranslation();
   const [searchConcept, setSearchConcept] = useState("");
-  const { concepts } = useSearchConcept(searchConcept);
+  const { concepts } = useConceptLookup(searchConcept);
   const { schema, setSchema } = useContext(SchemaContext);
   const { questionTypes } = useConfig();
   const { renderElements } = useConfig();

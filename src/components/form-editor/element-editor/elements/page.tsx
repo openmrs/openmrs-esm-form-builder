@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { AccordionItem, Button, Column, Row } from "@carbon/react";
-import { Page } from "../../../../api/types";
+import { Page } from "../../../../types";
 import SectionElement from "./section";
 import styles from "./elements.scss";
 import { TrashCan } from "@carbon/react/icons";

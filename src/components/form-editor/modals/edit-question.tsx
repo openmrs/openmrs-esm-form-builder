@@ -14,11 +14,11 @@ import {
   SelectItem,
   TextInput,
 } from "@carbon/react";
-import { Answer, Concept, ConceptMapping, Question } from "../../../api/types";
-import { Add, Edit, TrashCan } from "@carbon/react/icons";
-import { SchemaContext } from "../../../context/context";
+import { Edit, TrashCan } from "@carbon/react/icons";
 import { showToast, useConfig } from "@openmrs/esm-framework";
-import { useSearchConcept } from "../../../api/concept";
+import { SchemaContext } from "../../../context/context";
+import { Answer, Concept, ConceptMapping, Question } from "../../../types";
+import { useConceptLookup } from "../../../hooks/useConceptLookup";
 import styles from "./modals.scss";
 
 interface EditQuestionModalProps {
@@ -28,7 +28,7 @@ interface EditQuestionModalProps {
 const EditQuestion: React.FC<EditQuestionModalProps> = ({ question }) => {
   const { t } = useTranslation();
   const [searchConcept, setSearchConcept] = useState("");
-  const { concepts } = useSearchConcept(searchConcept);
+  const { concepts } = useConceptLookup(searchConcept);
   const { schema, setSchema } = useContext(SchemaContext);
   const { questionTypes } = useConfig();
   const { renderElements } = useConfig();
