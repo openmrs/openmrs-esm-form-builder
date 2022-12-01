@@ -1,8 +1,8 @@
 import React from "react";
 import { TrashCan } from "@carbon/react/icons";
 import { Button, Column, Row } from "@carbon/react";
-import { Question, Schema } from "../../../../types";
-import EditQuestion from "../../modals/edit-question";
+import { Question, Schema } from "../../types";
+import EditQuestion from "../modals/edit-question.component";
 import styles from "./elements.scss";
 
 interface QuestionElementProps {

@@ -1,12 +1,12 @@
 import React from "react";
 import { TrashCan } from "@carbon/react/icons";
 import { Button, Column, Row } from "@carbon/react";
-import { Section, Schema } from "../../../../types";
-import EditSection from "../../modals/edit-section";
-import CreateQuestion from "../../modals/new-question";
-import styles from "./elements.scss";
-import QuestionElement from "./question";
+import { Section, Schema } from "../../types";
 import { useTranslation } from "react-i18next";
+import EditSection from "../modals/edit-section.component";
+import CreateQuestion from "../modals/new-question.component";
+import QuestionElement from "./question.component";
+import styles from "./elements.scss";
 
 interface SectionElementProps {
   section: Section;

@@ -4,7 +4,7 @@ import styles from "./schema-editor.scss";
 import AceEditor from "react-ace";
 import "ace-builds/webpack-resolver";
 import { useTranslation } from "react-i18next";
-import { Schema } from "../../../types";
+import { Schema } from "../../types";
 
 type SchemaEditorProps = {
   isLoading: boolean;

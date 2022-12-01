@@ -11,16 +11,16 @@ import {
   Button,
 } from "@carbon/react";
 import { useTranslation } from "react-i18next";
-import SchemaEditorComponent from "./schema-editor/schema-editor.component";
+import SchemaEditorComponent from "../schema-editor/schema-editor.component";
 import styles from "./form-editor.scss";
 import { useParams } from "react-router-dom";
-import SaveForm from "./modals/save-form";
+import SaveForm from "../modals/save-form.component";
 import { showToast, ExtensionSlot } from "@openmrs/esm-framework";
 import { useClobdata } from "../../hooks/useClobdata";
 import { useForm } from "../../hooks/useForm";
 import { publish, unpublish } from "../../forms.resource";
-import ElementEditor from "./element-editor/element-editor";
-import FormRenderer from "./form-renderer/form-renderer";
+import FormRenderer from "../form-renderer/form-renderer.component";
+import ElementEditor from "../element-editor/element-editor.component";
 import { Schema } from "../../types";
 
 type Route = {

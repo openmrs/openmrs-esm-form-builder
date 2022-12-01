@@ -57,7 +57,7 @@ function setupOpenMRS() {
         id: "form-builder-app-menu-link",
         slot: "app-menu-slot",
         load: getAsyncLifecycle(
-          () => import("./form-builder-app-menu-link"),
+          () => import("./form-builder-app-menu-link.component"),
           options
         ),
         online: true,
