@@ -1,14 +1,16 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import FormBuilder from "./form-builder";
+
+import Dashboard from "./components/dashboard/dashboard.component";
 import FormEditor from "./components/form-editor/form-editor";
 
 const RootComponent: React.FC = () => {
   return (
     <BrowserRouter basename={`${window.spaBase}/form-builder`}>
       <Routes>
-        <Route path="/" element={<FormBuilder />} />
-        <Route path="/edit/:uuid" element={<FormEditor />} />
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/new" element={<FormEditor />} />
+        <Route path="/edit/:formUuid" element={<FormEditor />} />
       </Routes>
     </BrowserRouter>
   );

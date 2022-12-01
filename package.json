@@ -16,7 +16,7 @@
     "typescript": "tsc",
     "test": "jest --config jest.config.json",
     "verify": "turbo lint typescript coverage",
-    "coverage": "yarn run test --coverage",
+    "coverage": "yarn test --coverage --passWithNoTests",
     "prepare": "husky install"
   },
   "husky": {
