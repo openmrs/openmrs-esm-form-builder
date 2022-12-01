@@ -18,7 +18,7 @@ import SaveForm from "./modals/save-form";
 import { showToast } from "@openmrs/esm-framework";
 import { SchemaContext } from "../../context/context";
 import { useClobdata } from "../../hooks/useClobdata";
-import { useFormMetadata } from "../../hooks/useFormMetadata";
+import { useForm } from "../../hooks/useForm";
 import { publish, unpublish } from "../../forms.resource";
 import ElementEditor from "./element-editor/element-editor";
 import FormRenderer from "./form-renderer/form-renderer";
@@ -46,14 +46,14 @@ const Error = ({ error, title }) => {
 const FormEditor: React.FC = () => {
   const { t } = useTranslation();
   const { uuid } = useParams<Route>();
-  const { metadata } = useFormMetadata(uuid);
-  const { clobdata, clobdataError, isLoadingClobdata } = useClobdata(metadata);
+  const { form, formError, isLoadingForm } = useForm(uuid);
+  const { clobdata, clobdataError, isLoadingClobdata } = useClobdata(form);
   const [schema, setSchema] = useState<any>();
 
   const handlePublishState = async (option) => {
     if (option == "publish") {
       try {
-        await publish(metadata?.uuid);
+        await publish(form?.uuid);
         showToast({
           title: t("success", "Success!"),
           kind: "success",
@@ -70,7 +70,7 @@ const FormEditor: React.FC = () => {
       }
     } else if (option == "unpublish") {
       try {
-        await unpublish(metadata?.uuid);
+        await unpublish(form?.uuid);
         showToast({
           title: t("success", "Success!"),
           kind: "success",
@@ -99,8 +99,8 @@ const FormEditor: React.FC = () => {
     <SchemaContext.Provider value={{ schema, setSchema }}>
       <div className={styles.wrapContainer}>
         <div className={styles.actionsContainer}>
-          <SaveForm form={metadata} />
-          {metadata?.published == true ? (
+          <SaveForm form={form} />
+          {form?.published == true ? (
             <Button
               className={styles.optionButtons}
               onClick={() => handlePublishState("unpublish")}
@@ -108,7 +108,7 @@ const FormEditor: React.FC = () => {
             >
               {t("unpublishForm", "Unpublish form")}
             </Button>
-          ) : metadata?.published == false ? (
+          ) : form?.published == false ? (
             <Button
               className={styles.optionButtons}
               onClick={() => handlePublishState("publish")}
@@ -132,6 +132,12 @@ const FormEditor: React.FC = () => {
               <TabPanels>
                 <TabPanel>
                   <>
+                    {formError ? (
+                      <Error
+                        error={formError}
+                        title={t("formError", "Error loading form metadata")}
+                      />
+                    ) : null}
                     {clobdataError ? (
                       <Error
                         error={clobdataError}
