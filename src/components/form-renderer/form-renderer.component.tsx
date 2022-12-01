@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   SessionMode,
   OHRIFormSchema,
@@ -18,6 +19,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({
   onSchemaUpdate,
   schema,
 }) => {
+  const { t } = useTranslation();
   const { patientUuid } = useConfig();
 
   const dummySchema: OHRIFormSchema = {
@@ -70,10 +72,14 @@ const FormRenderer: React.FC<FormRendererProps> = ({
         />
       ) : (
         <Tile className={styles.emptyStateTile}>
-          <h4 className={styles.heading}>No schema loaded</h4>
+          <h4 className={styles.heading}>
+            {t("noSchemaLoaded", "No schema loaded")}
+          </h4>
           <p className={styles.helperText}>
-            Load a form schema in the Schema Editor to the left to see it
-            rendered here by the Form Engine.
+            {t(
+              "formRendererHelperText",
+              "Load a form schema in the Schema Editor to the left to see it rendered here by the Form Engine."
+            )}
           </p>
         </Tile>
       )}
