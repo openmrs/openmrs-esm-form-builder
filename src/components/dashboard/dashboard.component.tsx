@@ -1,10 +1,11 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
   DataTable,
   DataTableSkeleton,
-  Layer,
+  Dropdown,
+  InlineLoading,
   Table,
   TableBody,
   TableCell,
@@ -21,6 +22,8 @@ import {
 import { Add, DocumentImport, Download, Edit } from "@carbon/react/icons";
 import { navigate, useLayoutType } from "@openmrs/esm-framework";
 
+import { FilterProps, Form } from "../../types";
+import { useClobdata } from "../../hooks/useClobdata";
 import { usePocForms } from "../../hooks/usePocForms";
 import EmptyState from "../empty-state/empty-state.component";
 import ErrorState from "../error-state/error-state.component";
@@ -42,6 +45,10 @@ function CustomTag({ condition }) {
 
 function ActionButtons({ form }) {
   const { t } = useTranslation();
+  const { clobdata } = useClobdata(form);
+  const downloadableSchema = new Blob([JSON.stringify(clobdata, null, 2)], {
+    type: "application/json",
+  });
 
   return form?.resources?.length == 0 || !form?.resources?.[0] ? (
     <Button
@@ -64,23 +71,50 @@ function ActionButtons({ form }) {
           })
         }
         kind={"ghost"}
-        iconDescription={t("edit", "Edit")}
+        iconDescription={t("editSchema", "Edit schema")}
         hasIconOnly
+        tooltipAlignment="start"
       />
-      <Button
-        className={styles.downloadButton}
-        enterDelayMs={300}
-        renderIcon={Download}
-        kind={"ghost"}
-        iconDescription={t("download", "Download")}
-        hasIconOnly
-      />
+      <a
+        className={styles.downloadLink}
+        download={`${form?.name}.json`}
+        href={window.URL.createObjectURL(downloadableSchema)}
+      >
+        <Button
+          className={styles.downloadButton}
+          enterDelayMs={300}
+          renderIcon={Download}
+          kind={"ghost"}
+          iconDescription={t("downloadSchema", "Download schema")}
+          hasIconOnly
+          tooltipAlignment="start"
+        ></Button>
+      </a>
     </>
   );
 }
 
-const FormsList = ({ forms, isValidating, t }) => {
+function FormsList({ forms, isValidating, t }) {
   const isTablet = useLayoutType() === "tablet";
+  const [filteredRows, setFilteredRows] = useState<Array<Form>>([]);
+  const [filter, setFilter] = useState("");
+
+  useEffect(() => {
+    if (filter) {
+      setFilteredRows(
+        forms.filter((form) => {
+          if (filter === "Published") {
+            return form.published;
+          }
+
+          if (filter === "Unpublished") {
+            return !form.published;
+          }
+        })
+      );
+      setFilter("");
+    }
+  }, [filter, filteredRows, forms]);
 
   const tableHeaders = [
     {
@@ -107,38 +141,63 @@ const FormsList = ({ forms, isValidating, t }) => {
 
   const tableRows = useMemo(
     () =>
-      forms?.map((form) => ({
+      (filteredRows.length ? filteredRows : forms)?.map((form) => ({
         ...form,
         id: form.uuid,
         published: <CustomTag condition={form.published} />,
         retired: <CustomTag condition={form.retired} />,
         actions: <ActionButtons form={form} />,
       })),
-    [forms]
+    [filteredRows, forms]
   );
+
+  const handleStatusChange = ({ selectedItem }) => {
+    setFilter(selectedItem);
+  };
+
+  const handleFilter = ({
+    rowIds,
+    headers,
+    cellsById,
+    inputValue,
+    getCellId,
+  }: FilterProps): Array<string> => {
+    return rowIds.filter((rowId) =>
+      headers.some(({ key }) => {
+        const cellId = getCellId(rowId, key);
+        const filterableValue = cellsById[cellId].value;
+        const filterTerm = inputValue.toLowerCase();
+
+        return ("" + filterableValue).toLowerCase().includes(filterTerm);
+      })
+    );
+  };
 
   return (
     <>
-      <div className={styles.buttonContainer}>
-        <Button
-          size="md"
-          kind="secondary"
-          className={styles.createFormButton}
-          renderIcon={(props) => <Add size={16} {...props} />}
-          onClick={() =>
-            navigate({
-              to: `${window.spaBase}/form-builder/new`,
-            })
-          }
-          iconDescription={t("createNewForm", "Create new form")}
-        >
-          {t("createNewForm", "Create new form")}
-        </Button>
+      <div className={styles.flexContainer}>
+        <div className={styles.filterContainer}>
+          <Dropdown
+            id="publishStatusFilter"
+            initialSelectedItem={"All"}
+            label=""
+            titleText={
+              t("filterByPublishedStatus", "Filter by publish status") + ":"
+            }
+            type="inline"
+            items={["All", "Published", "Unpublished"]}
+            onChange={handleStatusChange}
+          />
+        </div>
+        <div className={styles.backgroundDataFetchingIndicator}>
+          <span>{isValidating ? <InlineLoading /> : null}</span>
+        </div>
       </div>
       <DataTable
+        filterRows={handleFilter}
         rows={tableRows}
         headers={tableHeaders}
-        size={isTablet ? "lg" : "xs"}
+        size={isTablet ? "sm" : "lg"}
         useZebraStyles
       >
         {({
@@ -147,27 +206,32 @@ const FormsList = ({ forms, isValidating, t }) => {
           getTableProps,
           getHeaderProps,
           getRowProps,
-          getToolbarProps,
           onInputChange,
         }) => (
           <>
-            <TableContainer
-              {...getToolbarProps()}
-              className={styles.tableContainer}
-            >
-              <TableToolbar>
-                <TableToolbarContent>
-                  <Layer>
+            <TableContainer className={styles.tableContainer}>
+              <div className={styles.toolbarWrapper}>
+                <TableToolbar className={styles.tableToolbar}>
+                  <TableToolbarContent>
                     <TableToolbarSearch
-                      className={styles.search}
-                      expanded
                       onChange={onInputChange}
                       placeholder={t("searchThisList", "Search this list")}
-                      size={isTablet ? "lg" : "sm"}
                     />
-                  </Layer>
-                </TableToolbarContent>
-              </TableToolbar>
+                    <Button
+                      kind="primary"
+                      iconDescription={t("createNewForm", "Create a new form")}
+                      renderIcon={(props) => <Add size={16} {...props} />}
+                      onClick={() =>
+                        navigate({
+                          to: `${window.spaBase}/form-builder/new`,
+                        })
+                      }
+                    >
+                      {t("createNewForm", "Create a new form")}
+                    </Button>
+                  </TableToolbarContent>
+                </TableToolbar>
+              </div>
               <Table {...getTableProps()} className={styles.table}>
                 <TableHead>
                   <TableRow>
@@ -211,7 +275,7 @@ const FormsList = ({ forms, isValidating, t }) => {
       </DataTable>
     </>
   );
-};
+}
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation();
