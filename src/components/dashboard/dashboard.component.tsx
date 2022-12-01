@@ -79,9 +79,7 @@ function ActionButtons({ form }) {
   );
 }
 
-const Dashboard: React.FC = () => {
-  const { t } = useTranslation();
-  const { error, forms, isLoading, isValidating } = usePocForms();
+const FormsList = ({ forms, isValidating, t }) => {
   const isTablet = useLayoutType() === "tablet";
 
   const tableHeaders = [
@@ -119,118 +117,124 @@ const Dashboard: React.FC = () => {
     [forms]
   );
 
-  if (error) {
-    return <ErrorState error={error} />;
-  }
-
-  if (isLoading) {
-    return <DataTableSkeleton role="progressbar" />;
-  }
-
-  if (forms.length === 0) {
-    return (
-      <>
-        <h3 className={styles.heading}>{t("formBuilder", "Form Builder")}</h3>
-        <EmptyState />
-      </>
-    );
-  }
-
   return (
-    <div>
-      <h3 className={styles.heading}>{t("formBuilder", "Form Builder")}</h3>
-      <div className={styles.container}>
-        <div className={styles.buttonContainer}>
-          <Button
-            size="md"
-            kind="secondary"
-            className={styles.createFormButton}
-            renderIcon={(props) => <Add size={16} {...props} />}
-            onClick={() =>
-              navigate({
-                to: `${window.spaBase}/form-builder/edit/new`,
-              })
-            }
-            iconDescription={t("createNewForm", "Create new form")}
-          >
-            {t("createNewForm", "Create new form")}
-          </Button>
-        </div>
-        <DataTable
-          rows={tableRows}
-          headers={tableHeaders}
-          size={isTablet ? "lg" : "xs"}
-          useZebraStyles
+    <>
+      <div className={styles.buttonContainer}>
+        <Button
+          size="md"
+          kind="secondary"
+          className={styles.createFormButton}
+          renderIcon={(props) => <Add size={16} {...props} />}
+          onClick={() =>
+            navigate({
+              to: `${window.spaBase}/form-builder/new`,
+            })
+          }
+          iconDescription={t("createNewForm", "Create new form")}
         >
-          {({
-            rows,
-            headers,
-            getTableProps,
-            getHeaderProps,
-            getRowProps,
-            getToolbarProps,
-            onInputChange,
-          }) => (
-            <>
-              <TableContainer
-                {...getToolbarProps()}
-                className={styles.tableContainer}
-              >
-                <TableToolbar>
-                  <TableToolbarContent>
-                    <Layer>
-                      <TableToolbarSearch
-                        className={styles.search}
-                        expanded
-                        onChange={onInputChange}
-                        placeholder={t("searchThisList", "Search this list")}
-                        size={isTablet ? "lg" : "sm"}
-                      />
-                    </Layer>
-                  </TableToolbarContent>
-                </TableToolbar>
-                <Table {...getTableProps()} className={styles.table}>
-                  <TableHead>
-                    <TableRow>
-                      {headers.map((header) => (
-                        <TableHeader {...getHeaderProps({ header })}>
-                          {header.header}
-                        </TableHeader>
+          {t("createNewForm", "Create new form")}
+        </Button>
+      </div>
+      <DataTable
+        rows={tableRows}
+        headers={tableHeaders}
+        size={isTablet ? "lg" : "xs"}
+        useZebraStyles
+      >
+        {({
+          rows,
+          headers,
+          getTableProps,
+          getHeaderProps,
+          getRowProps,
+          getToolbarProps,
+          onInputChange,
+        }) => (
+          <>
+            <TableContainer
+              {...getToolbarProps()}
+              className={styles.tableContainer}
+            >
+              <TableToolbar>
+                <TableToolbarContent>
+                  <Layer>
+                    <TableToolbarSearch
+                      className={styles.search}
+                      expanded
+                      onChange={onInputChange}
+                      placeholder={t("searchThisList", "Search this list")}
+                      size={isTablet ? "lg" : "sm"}
+                    />
+                  </Layer>
+                </TableToolbarContent>
+              </TableToolbar>
+              <Table {...getTableProps()} className={styles.table}>
+                <TableHead>
+                  <TableRow>
+                    {headers.map((header) => (
+                      <TableHeader {...getHeaderProps({ header })}>
+                        {header.header}
+                      </TableHeader>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.map((row) => (
+                    <TableRow {...getRowProps({ row })}>
+                      {row.cells.map((cell) => (
+                        <TableCell key={cell.id}>{cell.value}</TableCell>
                       ))}
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {rows.map((row) => (
-                      <TableRow {...getRowProps({ row })}>
-                        {row.cells.map((cell) => (
-                          <TableCell key={cell.id}>{cell.value}</TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              {rows.length === 0 ? (
-                <div className={styles.tileContainer}>
-                  <Tile className={styles.tile}>
-                    <div className={styles.tileContent}>
-                      <p className={styles.content}>
-                        {t(
-                          "noMatchingFormsToDisplay",
-                          "No matching forms to display"
-                        )}
-                      </p>
-                      <p className={styles.helper}>
-                        {t("checkFilters", "Check the filters above")}
-                      </p>
-                    </div>
-                  </Tile>
-                </div>
-              ) : null}
-            </>
-          )}
-        </DataTable>
-      </div>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            {rows.length === 0 ? (
+              <div className={styles.tileContainer}>
+                <Tile className={styles.tile}>
+                  <div className={styles.tileContent}>
+                    <p className={styles.content}>
+                      {t(
+                        "noMatchingFormsToDisplay",
+                        "No matching forms to display"
+                      )}
+                    </p>
+                    <p className={styles.helper}>
+                      {t("checkFilters", "Check the filters above")}
+                    </p>
+                  </div>
+                </Tile>
+              </div>
+            ) : null}
+          </>
+        )}
+      </DataTable>
+    </>
+  );
+};
+
+const Dashboard: React.FC = () => {
+  const { t } = useTranslation();
+  const { error, forms, isLoading, isValidating } = usePocForms();
+
+  return (
+    <div className={styles.container}>
+      <h3 className={styles.heading}>{t("formBuilder", "Form Builder")}</h3>
+      {(() => {
+        if (error) {
+          return <ErrorState error={error} />;
+        }
+
+        if (isLoading) {
+          return <DataTableSkeleton role="progressbar" />;
+        }
+
+        if (forms.length === 0) {
+          return <EmptyState />;
+        }
+
+        return <FormsList forms={forms} isValidating={isValidating} t={t} />;
+      })()}
     </div>
   );
 };

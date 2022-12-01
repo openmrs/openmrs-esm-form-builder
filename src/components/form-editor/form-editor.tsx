@@ -15,7 +15,7 @@ import SchemaEditorComponent from "./schema-editor/schema-editor.component";
 import styles from "./form-editor.scss";
 import { useParams } from "react-router-dom";
 import SaveForm from "./modals/save-form";
-import { showToast } from "@openmrs/esm-framework";
+import { showToast, ExtensionSlot } from "@openmrs/esm-framework";
 import { SchemaContext } from "../../context/context";
 import { useClobdata } from "../../hooks/useClobdata";
 import { useForm } from "../../hooks/useForm";
@@ -24,7 +24,7 @@ import ElementEditor from "./element-editor/element-editor";
 import FormRenderer from "./form-renderer/form-renderer";
 
 type Route = {
-  uuid: string;
+  formUuid: string;
 };
 
 const Error = ({ error, title }) => {
@@ -45,8 +45,8 @@ const Error = ({ error, title }) => {
 
 const FormEditor: React.FC = () => {
   const { t } = useTranslation();
-  const { uuid } = useParams<Route>();
-  const { form, formError, isLoadingForm } = useForm(uuid);
+  const { formUuid } = useParams<Route>();
+  const { form, formError } = useForm(formUuid);
   const { clobdata, clobdataError, isLoadingClobdata } = useClobdata(form);
   const [schema, setSchema] = useState<any>();
 
@@ -97,7 +97,10 @@ const FormEditor: React.FC = () => {
 
   return (
     <SchemaContext.Provider value={{ schema, setSchema }}>
-      <div className={styles.wrapContainer}>
+      <div className={styles.breadcrumbsContainer}>
+        <ExtensionSlot extensionSlotName="breadcrumbs-slot" />
+      </div>
+      <div className={styles.container}>
         <div className={styles.actionsContainer}>
           <SaveForm form={form} />
           {form?.published == true ? (

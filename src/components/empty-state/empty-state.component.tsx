@@ -26,11 +26,11 @@ function EmptyState() {
           <Link
             onClick={() =>
               navigate({
-                to: `${window.spaBase}/form-builder/edit/new`,
+                to: `${window.spaBase}/form-builder/new`,
               })
             }
           >
-            {t("createNewForm", "Create a new form")}
+            {t("createNewForm", "Create new form")}
           </Link>
         </p>
       </Tile>
