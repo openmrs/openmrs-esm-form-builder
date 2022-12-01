@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Column,
-  Row,
+  InlineNotification,
   Grid,
   Tabs,
   Tab,
@@ -15,29 +15,45 @@ import SchemaEditorComponent from "./schema-editor/schema-editor.component";
 import styles from "./form-editor.scss";
 import { useParams } from "react-router-dom";
 import SaveForm from "./modals/save-form";
-import { showToast } from "@openmrs/esm-framework";
+import { showToast, ExtensionSlot } from "@openmrs/esm-framework";
 import { SchemaContext } from "../../context/context";
-import { useFormClobdata } from "../../hooks/useFormClobdata";
-import { useFormMetadata } from "../../hooks/useFormMetadata";
+import { useClobdata } from "../../hooks/useClobdata";
+import { useForm } from "../../hooks/useForm";
 import { publish, unpublish } from "../../forms.resource";
 import ElementEditor from "./element-editor/element-editor";
 import FormRenderer from "./form-renderer/form-renderer";
 
 type Route = {
-  uuid: string;
+  formUuid: string;
+};
+
+const Error = ({ error, title }) => {
+  return (
+    <InlineNotification
+      style={{
+        minWidth: "100%",
+        margin: "0rem",
+        padding: "0rem",
+      }}
+      kind={"error"}
+      lowContrast
+      subtitle={error?.message}
+      title={title}
+    />
+  );
 };
 
 const FormEditor: React.FC = () => {
   const { t } = useTranslation();
-  const { uuid } = useParams<Route>();
-  const { metadata } = useFormMetadata(uuid);
-  const { formSchemaData, isLoading } = useFormClobdata(metadata);
+  const { formUuid } = useParams<Route>();
+  const { form, formError } = useForm(formUuid);
+  const { clobdata, clobdataError, isLoadingClobdata } = useClobdata(form);
   const [schema, setSchema] = useState<any>();
 
   const handlePublishState = async (option) => {
     if (option == "publish") {
       try {
-        await publish(metadata?.uuid);
+        await publish(form?.uuid);
         showToast({
           title: t("success", "Success!"),
           kind: "success",
@@ -54,7 +70,7 @@ const FormEditor: React.FC = () => {
       }
     } else if (option == "unpublish") {
       try {
-        await unpublish(metadata?.uuid);
+        await unpublish(form?.uuid);
         showToast({
           title: t("success", "Success!"),
           kind: "success",
@@ -74,17 +90,20 @@ const FormEditor: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!isLoading) {
-      setSchema(formSchemaData);
+    if (!isLoadingClobdata) {
+      setSchema(clobdata);
     }
-  }, [isLoading]);
+  }, [clobdata, isLoadingClobdata]);
 
   return (
     <SchemaContext.Provider value={{ schema, setSchema }}>
-      <div className={styles.wrapContainer}>
+      <div className={styles.breadcrumbsContainer}>
+        <ExtensionSlot extensionSlotName="breadcrumbs-slot" />
+      </div>
+      <div className={styles.container}>
         <div className={styles.actionsContainer}>
-          <SaveForm form={metadata} />
-          {metadata?.published == true ? (
+          <SaveForm form={form} />
+          {form?.published == true ? (
             <Button
               className={styles.optionButtons}
               onClick={() => handlePublishState("unpublish")}
@@ -92,7 +111,7 @@ const FormEditor: React.FC = () => {
             >
               {t("unpublishForm", "Unpublish form")}
             </Button>
-          ) : metadata?.published == false ? (
+          ) : form?.published == false ? (
             <Button
               className={styles.optionButtons}
               onClick={() => handlePublishState("publish")}
@@ -115,7 +134,21 @@ const FormEditor: React.FC = () => {
               </TabList>
               <TabPanels>
                 <TabPanel>
-                  <SchemaEditorComponent />
+                  <>
+                    {formError ? (
+                      <Error
+                        error={formError}
+                        title={t("formError", "Error loading form metadata")}
+                      />
+                    ) : null}
+                    {clobdataError ? (
+                      <Error
+                        error={clobdataError}
+                        title={t("schemaLoadError", "Error loading schema")}
+                      />
+                    ) : null}
+                    <SchemaEditorComponent />
+                  </>
                 </TabPanel>
                 <TabPanel>
                   <ElementEditor />

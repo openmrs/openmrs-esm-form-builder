@@ -1,5 +1,18 @@
 @use "@carbon/styles/scss/spacing";
 @use "@carbon/styles/scss/type";
+@import '~@openmrs/esm-styleguide/src/vars';
+
+.container {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.breadcrumbsContainer {
+  nav.breadcrumbs-container {
+    background-color: $ui-02;
+  }
+}
 
 .grid {
   margin-left: 0;
