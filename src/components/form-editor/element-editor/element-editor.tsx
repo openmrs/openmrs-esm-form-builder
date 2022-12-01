@@ -1,16 +1,22 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Accordion, Button, Column, Row, TextInput } from "@carbon/react";
+import React, { useEffect, useState } from "react";
+import { Accordion, Button, TextInput } from "@carbon/react";
 import { Schema } from "../../../types";
-import { SchemaContext } from "../../../context/context";
 import PageElement from "./elements/page";
 import styles from "./element-editor.scss";
 import { Checkmark } from "@carbon/react/icons";
 import CreatePage from "../modals/new-page";
 import { useTranslation } from "react-i18next";
 
-const ElementEditor: React.FC = () => {
+type ElementEditorProps = {
+  schema: Schema;
+  onSchemaUpdate: (schema: Schema) => void;
+};
+
+const ElementEditor: React.FC<ElementEditorProps> = ({
+  schema,
+  onSchemaUpdate,
+}) => {
   const { t } = useTranslation();
-  const { schema, setSchema } = useContext(SchemaContext);
   const [formSchema, setFormSchema] = useState<Schema>();
   const [schemaName, setSchemaName] = useState("");
 
@@ -19,15 +25,15 @@ const ElementEditor: React.FC = () => {
   useEffect(() => {
     setFormSchema(schema);
     setSchemaName(name);
-  }, [schema]);
+  }, [name, schema]);
 
   const deletePage = (index) => {
     pages.splice(index, 1);
-    setSchema({ ...schema });
+    onSchemaUpdate({ ...schema });
   };
 
   const updateSchemaName = () => {
-    setSchema({ ...schema, name: schemaName });
+    onSchemaUpdate({ ...schema, name: schemaName });
   };
 
   return (
@@ -57,15 +63,21 @@ const ElementEditor: React.FC = () => {
         />
       </div>
       <h5>{t("pages", "Pages")}</h5>
-      <CreatePage pages={pages} />
+      <CreatePage
+        pages={pages}
+        schema={schema}
+        onSchemaUpdate={onSchemaUpdate}
+      />
       <Accordion>
         {pages
           ? pages.map((page, key) => (
               <PageElement
+                key={key}
                 page={page}
                 index={key}
                 deletePage={deletePage}
-                key={key}
+                onSchemaUpdate={onSchemaUpdate}
+                schema={schema}
               />
             ))
           : null}

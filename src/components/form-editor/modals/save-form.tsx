@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./../form-editor.scss";
 import {
@@ -14,7 +14,7 @@ import {
   TextArea,
   TextInput,
 } from "@carbon/react";
-import { EncounterType, Resource } from "../../../types";
+import { EncounterType, Resource, Schema } from "../../../types";
 import { useEncounterTypes } from "../../../hooks/useEncounterTypes";
 import {
   uploadSchema,
@@ -28,10 +28,10 @@ import {
   updateEncounterType,
 } from "../../../forms.resource";
 import { showToast } from "@openmrs/esm-framework";
-import { SchemaContext } from "../../../context/context";
 
 interface SaveFormModalProps {
   form: FormGroupData;
+  schema: Schema;
 }
 
 interface FormGroupData {
@@ -43,13 +43,13 @@ interface FormGroupData {
   resources: Array<Resource>;
 }
 
-const SaveForm: React.FC<SaveFormModalProps> = ({ form }) => {
+const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
   const { t } = useTranslation();
   const { encounterTypes, encounterTypesError } = useEncounterTypes();
   const [openSaveFormModal, setOpenSaveFormModal] = useState(false);
   const [openConfirmSaveModal, setOpenConfirmSaveModal] = useState(false);
   const [saveState, setSaveState] = useState("");
-  const { schema, setSchema } = useContext(SchemaContext);
+  const [formSchema, setFormSchema] = useState<string>("");
 
   const openModal = useCallback((option) => {
     if (option === "newVersion") {

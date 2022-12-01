@@ -1,8 +1,7 @@
-import React, { useContext } from "react";
+import React from "react";
 import { TrashCan } from "@carbon/react/icons";
 import { Button, Column, Row } from "@carbon/react";
-import { Section } from "../../../../types";
-import { SchemaContext } from "../../../../context/context";
+import { Section, Schema } from "../../../../types";
 import EditSection from "../../modals/edit-section";
 import CreateQuestion from "../../modals/new-question";
 import styles from "./elements.scss";
@@ -13,19 +12,23 @@ interface SectionElementProps {
   section: Section;
   index: number;
   deleteSection: (index: number) => void;
+  schema: Schema;
+  onSchemaUpdate: (schema: Schema) => void;
 }
 
 const SectionElement: React.FC<SectionElementProps> = ({
   section,
   index,
   deleteSection,
+  schema,
+  onSchemaUpdate,
 }) => {
   const { t } = useTranslation();
-  const { schema, setSchema } = useContext(SchemaContext);
   const deleteQuestion = (index) => {
     section.questions.splice(index, 1);
-    setSchema({ ...schema });
+    onSchemaUpdate({ ...schema });
   };
+
   return (
     <div className={styles.sectionWrap}>
       <Row className={styles.sectionRow}>
@@ -33,7 +36,11 @@ const SectionElement: React.FC<SectionElementProps> = ({
           <h4>{section.label}</h4>
         </Column>
         <Column>
-          <EditSection section={section} />
+          <EditSection
+            section={section}
+            schema={schema}
+            onSchemaUpdate={onSchemaUpdate}
+          />
           <Button
             size="sm"
             renderIcon={TrashCan}
@@ -51,16 +58,22 @@ const SectionElement: React.FC<SectionElementProps> = ({
           <h5>{t("questions", "Questions")}</h5>
         </Column>
         <Column>
-          <CreateQuestion questions={section.questions} />
+          <CreateQuestion
+            questions={section.questions}
+            schema={schema}
+            onSchemaUpdate={onSchemaUpdate}
+          />
         </Column>
       </Row>
       {section.questions
         ? section.questions.map((question, key) => (
             <QuestionElement
+              key={key}
               question={question}
               index={key}
               deleteQuestion={deleteQuestion}
-              key={key}
+              schema={schema}
+              onSchemaUpdate={onSchemaUpdate}
             />
           ))
         : null}

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -11,20 +11,23 @@ import {
   Select,
   SelectItem,
   TextInput,
-  Toggle,
 } from "@carbon/react";
-import { Section } from "../../../types";
+import { Schema, Section } from "../../../types";
 import { Edit } from "@carbon/react/icons";
-import { SchemaContext } from "../../../context/context";
 import { showToast } from "@openmrs/esm-framework";
 
 interface EditSectionModalProps {
   section: Section;
+  schema: Schema;
+  onSchemaUpdate: (schema: Schema) => void;
 }
 
-const EditSection: React.FC<EditSectionModalProps> = ({ section }) => {
+const EditSection: React.FC<EditSectionModalProps> = ({
+  section,
+  schema,
+  onSchemaUpdate,
+}) => {
   const { t } = useTranslation();
-  const { schema, setSchema } = useContext(SchemaContext);
   const [openEditSectionModal, setOpenEditSectionModal] = useState(false);
   const [sectionName, setSectionName] = useState("");
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -43,7 +46,7 @@ const EditSection: React.FC<EditSectionModalProps> = ({ section }) => {
     try {
       section.label = sectionName;
       section.isExpanded = isExpanded ? "true" : "false";
-      setSchema({ ...schema });
+      onSchemaUpdate({ ...schema });
       showToast({
         title: t("success", "Success!"),
         kind: "success",

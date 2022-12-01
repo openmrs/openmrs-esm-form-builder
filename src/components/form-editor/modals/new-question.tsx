@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -14,22 +14,32 @@ import {
   SelectItem,
   TextInput,
 } from "@carbon/react";
-import { Answer, Concept, ConceptMapping, Question } from "../../../types";
+import {
+  Answer,
+  Concept,
+  ConceptMapping,
+  Question,
+  Schema,
+} from "../../../types";
 import { Add } from "@carbon/react/icons";
-import { SchemaContext } from "../../../context/context";
 import { showToast, useConfig } from "@openmrs/esm-framework";
 import { useConceptLookup } from "../../../hooks/useConceptLookup";
 import styles from "./modals.scss";
 
 interface CreateQuestionModalProps {
   questions: any;
+  schema: Schema;
+  onSchemaUpdate: (schema: Schema) => void;
 }
 
-const CreateQuestion: React.FC<CreateQuestionModalProps> = ({ questions }) => {
+const CreateQuestion: React.FC<CreateQuestionModalProps> = ({
+  questions,
+  schema,
+  onSchemaUpdate,
+}) => {
   const { t } = useTranslation();
   const [searchConcept, setSearchConcept] = useState("");
   const { concepts, error } = useConceptLookup(searchConcept);
-  const { schema, setSchema } = useContext(SchemaContext);
   const { questionTypes } = useConfig();
   const { renderElements } = useConfig();
   const [openCreateQuestionModal, setOpenCreateQuestionModal] = useState(false);
@@ -134,7 +144,7 @@ const CreateQuestion: React.FC<CreateQuestionModalProps> = ({ questions }) => {
           break;
       }
       questions.push(newQuestion);
-      setSchema({ ...schema });
+      onSchemaUpdate({ ...schema });
       showToast({
         title: t("success", "Success!"),
         kind: "success",

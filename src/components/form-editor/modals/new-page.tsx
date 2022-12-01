@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -10,19 +10,23 @@ import {
   ModalHeader,
   TextInput,
 } from "@carbon/react";
-import { Page } from "../../../types";
+import { Page, Schema } from "../../../types";
 import { Add } from "@carbon/react/icons";
-import { SchemaContext } from "../../../context/context";
 import { showToast } from "@openmrs/esm-framework";
 import styles from "./modals.scss";
 
 interface NewPageModalProps {
   pages: Array<Page>;
+  schema: Schema;
+  onSchemaUpdate: (schema: Schema) => void;
 }
 
-const CreatePage: React.FC<NewPageModalProps> = ({ pages }) => {
+const CreatePage: React.FC<NewPageModalProps> = ({
+  pages,
+  schema,
+  onSchemaUpdate,
+}) => {
   const { t } = useTranslation();
-  const { schema, setSchema } = useContext(SchemaContext);
   const [openCreatePageModal, setOpenCreatePageModal] = useState(false);
   const [pageName, setPageName] = useState("");
 
@@ -31,7 +35,7 @@ const CreatePage: React.FC<NewPageModalProps> = ({ pages }) => {
     const newPage: Page = { label: pageName, sections: [] };
     try {
       pages.push(newPage);
-      setSchema({ ...schema });
+      onSchemaUpdate({ ...schema });
       showToast({
         title: t("success", "Success!"),
         kind: "success",

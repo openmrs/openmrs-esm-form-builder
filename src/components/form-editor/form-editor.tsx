@@ -16,12 +16,12 @@ import styles from "./form-editor.scss";
 import { useParams } from "react-router-dom";
 import SaveForm from "./modals/save-form";
 import { showToast, ExtensionSlot } from "@openmrs/esm-framework";
-import { SchemaContext } from "../../context/context";
 import { useClobdata } from "../../hooks/useClobdata";
 import { useForm } from "../../hooks/useForm";
 import { publish, unpublish } from "../../forms.resource";
 import ElementEditor from "./element-editor/element-editor";
 import FormRenderer from "./form-renderer/form-renderer";
+import { Schema } from "../../types";
 
 type Route = {
   formUuid: string;
@@ -45,10 +45,14 @@ const Error = ({ error, title }) => {
 
 const FormEditor: React.FC = () => {
   const { t } = useTranslation();
+  const [schema, setSchema] = useState<Schema>(undefined);
   const { formUuid } = useParams<Route>();
-  const { form, formError } = useForm(formUuid);
+  const { form, formError, isLoadingForm } = useForm(formUuid);
   const { clobdata, clobdataError, isLoadingClobdata } = useClobdata(form);
-  const [schema, setSchema] = useState<any>();
+
+  const updateSchema = (updatedSchema) => {
+    setSchema(updatedSchema);
+  };
 
   const handlePublishState = async (option) => {
     if (option == "publish") {
@@ -96,13 +100,14 @@ const FormEditor: React.FC = () => {
   }, [clobdata, isLoadingClobdata]);
 
   return (
-    <SchemaContext.Provider value={{ schema, setSchema }}>
+    <>
       <div className={styles.breadcrumbsContainer}>
         <ExtensionSlot extensionSlotName="breadcrumbs-slot" />
       </div>
       <div className={styles.container}>
         <div className={styles.actionsContainer}>
-          <SaveForm form={form} />
+          <SaveForm form={form} schema={schema} />
+
           {form?.published == true ? (
             <Button
               className={styles.optionButtons}
@@ -147,11 +152,20 @@ const FormEditor: React.FC = () => {
                         title={t("schemaLoadError", "Error loading schema")}
                       />
                     ) : null}
-                    <SchemaEditorComponent />
+                    <SchemaEditorComponent
+                      schema={schema}
+                      onSchemaUpdate={updateSchema}
+                      isLoading={
+                        formUuid && (isLoadingClobdata || isLoadingForm)
+                      }
+                    />
                   </>
                 </TabPanel>
                 <TabPanel>
-                  <ElementEditor />
+                  <ElementEditor
+                    schema={schema}
+                    onSchemaUpdate={updateSchema}
+                  />
                 </TabPanel>
               </TabPanels>
             </Tabs>
@@ -164,7 +178,10 @@ const FormEditor: React.FC = () => {
               <TabPanels>
                 <TabPanel>
                   <div className={styles.renderComponent}>
-                    <FormRenderer />
+                    <FormRenderer
+                      schema={schema}
+                      onSchemaUpdate={updateSchema}
+                    />
                   </div>
                 </TabPanel>
               </TabPanels>
@@ -172,7 +189,7 @@ const FormEditor: React.FC = () => {
           </Column>
         </Grid>
       </div>
-    </SchemaContext.Provider>
+    </>
   );
 };
 
