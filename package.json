@@ -19,12 +19,6 @@
     "coverage": "yarn test --coverage --passWithNoTests",
     "prepare": "husky install"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "pretty-quick --staged",
-      "pre-push": "yarn verify"
-    }
-  },
   "browserslist": [
     "extends browserslist-config-openmrs"
   ],
