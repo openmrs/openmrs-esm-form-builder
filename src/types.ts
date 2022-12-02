@@ -9,6 +9,14 @@ export interface Form {
   resources: Array<Resource>;
 }
 
+export interface FilterProps {
+  rowIds: Array<string>;
+  headers: Array<Record<string, string>>;
+  cellsById: any;
+  inputValue: string;
+  getCellId: (row, key) => string;
+}
+
 export interface EncounterType {
   uuid: string;
   name: string;
