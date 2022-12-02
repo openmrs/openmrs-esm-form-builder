@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -10,18 +10,22 @@ import {
   ModalHeader,
   TextInput,
 } from "@carbon/react";
-import { Page } from "../../../types";
+import { Page, Schema } from "../../../types";
 import { Edit } from "@carbon/react/icons";
-import { SchemaContext } from "../../../context/context";
 import { showToast } from "@openmrs/esm-framework";
 
 interface EditPageModalProps {
   page: Page;
+  schema: Schema;
+  onSchemaUpdate: (schema: Schema) => void;
 }
 
-const EditPage: React.FC<EditPageModalProps> = ({ page }) => {
+const EditPage: React.FC<EditPageModalProps> = ({
+  page,
+  schema,
+  onSchemaUpdate,
+}) => {
   const { t } = useTranslation();
-  const { schema, setSchema } = useContext(SchemaContext);
   const [openEditPageModal, setOpenEditPageModal] = useState(false);
   const [pageName, setPageName] = useState("");
 
@@ -34,7 +38,7 @@ const EditPage: React.FC<EditPageModalProps> = ({ page }) => {
     let pageName = event.target.pageName.value;
     try {
       page.label = pageName == "" ? page.label : pageName;
-      setSchema({ ...schema });
+      onSchemaUpdate({ ...schema });
       showToast({
         title: t("success", "Success!"),
         kind: "success",

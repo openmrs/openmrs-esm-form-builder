@@ -1,31 +1,45 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Button } from "@carbon/react";
 import styles from "./schema-editor.scss";
 import AceEditor from "react-ace";
 import "ace-builds/webpack-resolver";
 import { useTranslation } from "react-i18next";
-import { SchemaContext } from "../../../context/context";
+import { Schema } from "../../../types";
 
-const SchemaEditorComponent: React.FC = () => {
+type SchemaEditorProps = {
+  isLoading: boolean;
+  onSchemaUpdate: (schema: Schema) => void;
+  schema: Schema;
+};
+
+const SchemaEditorComponent: React.FC<SchemaEditorProps> = ({
+  isLoading,
+  onSchemaUpdate,
+  schema,
+}) => {
   const { t } = useTranslation();
-  const { schema, setSchema } = useContext(SchemaContext);
   const [formSchema, setFormSchema] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    const stringifiedSchema = JSON.stringify(schema, null, 2);
+    setFormSchema(stringifiedSchema);
+  }, [schema]);
+
+  const handleSchemaChange = (updatedSchema: string) => {
+    setFormSchema(updatedSchema);
+  };
 
   const render = useCallback(() => {
     setErrorMessage("");
     try {
       let parsedJson = JSON.parse(formSchema);
+      onSchemaUpdate(parsedJson);
       setFormSchema(JSON.stringify(parsedJson, null, 2));
-      setSchema(parsedJson);
     } catch (error) {
       setErrorMessage(error.message);
     }
-  }, [formSchema, setSchema]);
-
-  useEffect(() => {
-    setFormSchema(JSON.stringify(schema, null, 2));
-  }, [schema]);
+  }, [formSchema, onSchemaUpdate]);
 
   return (
     <div>
@@ -37,7 +51,7 @@ const SchemaEditorComponent: React.FC = () => {
         mode="json"
         theme="github"
         name="schemaEditor"
-        onChange={(value) => setFormSchema(value)}
+        onChange={handleSchemaChange}
         fontSize={14}
         showPrintMargin={true}
         showGutter={true}

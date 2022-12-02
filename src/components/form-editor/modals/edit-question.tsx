@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -17,20 +17,30 @@ import {
 } from "@carbon/react";
 import { Edit, TrashCan } from "@carbon/react/icons";
 import { showToast, useConfig } from "@openmrs/esm-framework";
-import { SchemaContext } from "../../../context/context";
-import { Answer, Concept, ConceptMapping, Question } from "../../../types";
+import {
+  Answer,
+  Concept,
+  ConceptMapping,
+  Question,
+  Schema,
+} from "../../../types";
 import { useConceptLookup } from "../../../hooks/useConceptLookup";
 import styles from "./modals.scss";
 
 interface EditQuestionModalProps {
   question: Question;
+  schema: Schema;
+  onSchemaUpdate: (schema: Schema) => void;
 }
 
-const EditQuestion: React.FC<EditQuestionModalProps> = ({ question }) => {
+const EditQuestion: React.FC<EditQuestionModalProps> = ({
+  question,
+  schema,
+  onSchemaUpdate,
+}) => {
   const { t } = useTranslation();
   const [searchConcept, setSearchConcept] = useState("");
   const { concepts, error } = useConceptLookup(searchConcept);
-  const { schema, setSchema } = useContext(SchemaContext);
   const { questionTypes } = useConfig();
   const { renderElements } = useConfig();
   const [openEditQuestionModal, setOpenEditQuestionModal] = useState(false);
@@ -216,7 +226,7 @@ const EditQuestion: React.FC<EditQuestionModalProps> = ({ question }) => {
             break;
         }
       }
-      setSchema({ ...schema });
+      onSchemaUpdate({ ...schema });
       showToast({
         title: t("success", "Success!"),
         kind: "success",
