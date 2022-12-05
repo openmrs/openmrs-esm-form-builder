@@ -1,21 +1,22 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
-import styles from "./save-form.scss";
+import { useParams } from "react-router-dom";
 import {
   Button,
   ComposedModal,
   Form,
   FormGroup,
+  InlineLoading,
   ModalBody,
   ModalFooter,
   ModalHeader,
   Select,
   SelectItem,
+  Stack,
   TextArea,
   TextInput,
 } from "@carbon/react";
-import { EncounterType, Resource, Schema } from "../../types";
-import { useEncounterTypes } from "../../hooks/useEncounterTypes";
+import { showNotification, showToast } from "@openmrs/esm-framework";
 import {
   uploadSchema,
   saveNewForm,
@@ -27,29 +28,30 @@ import {
   deleteResource,
   updateEncounterType,
 } from "../../forms.resource";
-import { showToast } from "@openmrs/esm-framework";
+import { EncounterType, Resource, Schema } from "../../types";
+import { useEncounterTypes } from "../../hooks/useEncounterTypes";
+import styles from "./save-form.scss";
 
-interface SaveFormModalProps {
-  form: FormGroupData;
-  schema: Schema;
-}
-
-interface FormGroupData {
+type FormGroupData = {
   name: string;
   uuid: string;
   version: string;
   encounterType: EncounterType;
   description: string;
   resources: Array<Resource>;
-}
+};
+type Route = { formUuid: string };
+type SaveFormModalProps = { form: FormGroupData; schema: Schema };
 
 const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
   const { t } = useTranslation();
+  const { formUuid } = useParams<Route>();
+  const isSavingNewForm = !formUuid;
   const { encounterTypes, encounterTypesError } = useEncounterTypes();
   const [openSaveFormModal, setOpenSaveFormModal] = useState(false);
   const [openConfirmSaveModal, setOpenConfirmSaveModal] = useState(false);
   const [saveState, setSaveState] = useState("");
-  const [formSchema, setFormSchema] = useState<string>("");
+  const [isSavingForm, setIsSavingForm] = useState(false);
 
   const openModal = useCallback((option) => {
     if (option === "newVersion") {
@@ -68,11 +70,12 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    let name = event.target.name.value;
-    let version = event.target.version.value;
-    let encounterType = event.target.encounterType.value;
-    let encounterTypeUUID;
-    let description = event.target.description.value;
+    setIsSavingForm(true);
+    let name = event.target.name.value,
+      version = event.target.version.value,
+      encounterType = event.target.encounterType.value,
+      description = event.target.description.value,
+      encounterTypeUUID;
 
     if (encounterType == "undefined") {
       encounterTypeUUID = undefined;
@@ -96,14 +99,21 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
         const newValueReference = await uploadSchema(schema);
         await getResourceUUID(newForm.uuid, newValueReference.toString());
         showToast({
-          title: t("success", "Success!"),
+          title: t("formCreated", "Form created"),
           kind: "success",
           critical: true,
-          description: t("saveSuccess", "Form created"),
+          description:
+            name +
+            " " +
+            t(
+              "saveSuccess",
+              "was created successfully. It is now visible on the Forms dashboard."
+            ),
         });
+        setOpenSaveFormModal(false);
       } catch (error) {
-        showToast({
-          title: t("error", "Error"),
+        showNotification({
+          title: t("errorCreatingForm", "Error creating form"),
           kind: "error",
           critical: true,
           description: error?.message,
@@ -134,11 +144,13 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
           title: t("success", "Success!"),
           kind: "success",
           critical: true,
-          description: t("saveSuccess", "Form updated"),
+          description:
+            name + " " + t("saveSuccess", "was updated successfully"),
         });
+        setOpenSaveFormModal(false);
       } catch (error) {
-        showToast({
-          title: t("error", "Error"),
+        showNotification({
+          title: t("errorUpdatingForm", "Error updating form"),
           kind: "error",
           critical: true,
           description: error?.message,
@@ -146,128 +158,151 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
       }
     }
   };
+
   return (
     <div>
-      <ComposedModal
-        open={openConfirmSaveModal}
-        onClose={() => setOpenConfirmSaveModal(false)}
-      >
-        <ModalHeader title={t("confirmSave", "Confirm Save")} />
-        <ModalBody>
-          <p>
-            {t(
-              "saveAsModal",
-              "Would you want to update the form or save as a new version?"
-            )}
-          </p>
-        </ModalBody>
-        <ModalFooter>
-          <Button kind={"tertiary"} onClick={() => openModal("update")}>
-            {t("updateCurrentForm", "Update current version")}
-          </Button>
-          <Button kind={"primary"} onClick={() => openModal("newVersion")}>
-            {t("saveAsNewForm", "Save as a new version")}
-          </Button>
-          <Button
-            kind={"secondary"}
-            onClick={() => setOpenConfirmSaveModal(false)}
-          >
-            {t("close", "Close")}
-          </Button>
-        </ModalFooter>
-      </ComposedModal>
+      {!isSavingNewForm ? (
+        <ComposedModal
+          open={openConfirmSaveModal}
+          onClose={() => setOpenConfirmSaveModal(false)}
+        >
+          <ModalHeader title={t("saveConfirmation", "Save or Update form")} />
+          <ModalBody>
+            <p>
+              {t(
+                "saveAsModal",
+                "A version of the form you're working on already exists on the server. Do you want to update the form or to save it as a new version?"
+              )}
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <Button kind={"tertiary"} onClick={() => openModal("update")}>
+              {t("updateExistingForm", "Update existing version")}
+            </Button>
+            <Button kind={"primary"} onClick={() => openModal("newVersion")}>
+              {t("saveAsNewForm", "Save as a new")}
+            </Button>
+            <Button
+              kind={"secondary"}
+              onClick={() => setOpenConfirmSaveModal(false)}
+            >
+              {t("close", "Close")}
+            </Button>
+          </ModalFooter>
+        </ComposedModal>
+      ) : null}
 
       <ComposedModal
         open={openSaveFormModal}
         onClose={() => setOpenSaveFormModal(false)}
       >
-        <ModalHeader title={t("saveForm", "Save Form")} />
+        <ModalHeader
+          title={t("saveFormToServer", "Save form to server")}
+        ></ModalHeader>
         <Form onSubmit={handleSubmit}>
           <ModalBody>
+            <p>
+              {t(
+                "saveExplainerText",
+                "Clicking the Save button saves your form schema to the database. To see your form in your frontend, you first need to publish it. Click the Publish button to publish your form."
+              )}
+            </p>
             <FormGroup legendText={""}>
-              <TextInput
-                id="name"
-                labelText="Name"
-                defaultValue={saveState === "update" ? form?.name : ""}
-                required
-              />
-              {saveState === "update" ? (
+              <Stack gap={5}>
                 <TextInput
-                  id="uuid"
-                  labelText="UUID"
-                  readOnly
-                  defaultValue={saveState === "update" ? form?.uuid : ""}
+                  id="name"
+                  labelText={t("formName", "Form name")}
+                  defaultValue={saveState === "update" ? form?.name : ""}
+                  placeholder="e.g. OHRI Express Care Patient Encounter Form"
+                  required
                 />
-              ) : null}
-              <TextInput
-                id="version"
-                labelText="Version"
-                defaultValue={saveState === "update" ? form?.version : ""}
-                required
-              />
-              <Select
-                id="encounterType"
-                defaultValue={
-                  form?.encounterType ? form?.encounterType?.name : "undefined"
-                }
-                labelText="Encounter Type"
-                required
-              >
-                <SelectItem
-                  disabled
-                  hidden
-                  value={
+                {saveState === "update" ? (
+                  <TextInput
+                    id="uuid"
+                    labelText="UUID (auto-generated)"
+                    disabled
+                    defaultValue={saveState === "update" ? form?.uuid : ""}
+                  />
+                ) : null}
+                <TextInput
+                  id="version"
+                  labelText="Version"
+                  defaultValue={saveState === "update" ? form?.version : ""}
+                  placeholder="e.g. 1.0"
+                  required
+                />
+                <Select
+                  id="encounterType"
+                  defaultValue={
                     form?.encounterType
                       ? form?.encounterType?.name
                       : "undefined"
                   }
-                  text={
-                    form?.encounterType
-                      ? form?.encounterType.name
-                      : "Choose an option"
-                  }
-                />
-                {encounterTypes?.map((encounterType, key) => {
-                  return (
+                  labelText={t("encounterType", "Encounter Type")}
+                  required
+                >
+                  {!form?.encounterType ? (
+                    <SelectItem
+                      text={t(
+                        "chooseEncounterType",
+                        "Choose an encounter type to link your form to"
+                      )}
+                    />
+                  ) : null}
+                  {encounterTypes?.map((encounterType, key) => (
                     <SelectItem
                       key={key}
                       value={encounterType.name}
                       text={encounterType.name}
                     />
-                  );
-                })}
-              </Select>
-              <TextArea
-                labelText="Description"
-                defaultValue={saveState === "update" ? form?.description : ""}
-                cols={6}
-                rows={3}
-                id="description"
-                required
-              />
+                  ))}
+                </Select>
+                <TextArea
+                  labelText={t("description", "Description")}
+                  defaultValue={saveState === "update" ? form?.description : ""}
+                  cols={6}
+                  rows={3}
+                  id="description"
+                  placeholder={t(
+                    "descriptionPlaceholderText",
+                    "e.g. A form used to collect encounter data for clients in the Express Care program."
+                  )}
+                  required
+                />
+              </Stack>
             </FormGroup>
           </ModalBody>
           <ModalFooter>
-            <Button type={"submit"} kind={"primary"}>
-              {t("save", "Save")}
-            </Button>
             <Button
               kind={"secondary"}
               onClick={() => setOpenSaveFormModal(false)}
             >
               {t("close", "Close")}
             </Button>
+            <Button
+              disabled={isSavingForm}
+              className={styles.spinner}
+              type={"submit"}
+              kind={"primary"}
+            >
+              {isSavingForm ? (
+                <InlineLoading description={t("saving", "Saving") + "..."} />
+              ) : (
+                <span>{t("save", "Save")}</span>
+              )}
+            </Button>
           </ModalFooter>
         </Form>
       </ComposedModal>
+
       <Button
-        className={styles.saveOptionButton}
-        kind="ghost"
+        disabled={!schema}
+        kind="primary"
         onClick={() =>
-          form !== null ? setOpenConfirmSaveModal(true) : openModal("new")
+          isSavingNewForm ? openModal("new") : setOpenConfirmSaveModal(true)
         }
       >
-        {t("save", "Save")}
+        {t("saveForm", "Save form")}
       </Button>
     </div>
   );

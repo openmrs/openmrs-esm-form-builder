@@ -1,0 +1,5 @@
+.spinner {
+  &:global(.cds--inline-loading) {
+    min-height: 1rem;
+  }
+}
