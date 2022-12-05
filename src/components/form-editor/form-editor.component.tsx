@@ -15,23 +15,23 @@ import {
   TabPanel,
   Button,
 } from "@carbon/react";
-import { useTranslation } from "react-i18next";
-import { useSWRConfig } from "swr";
-import SchemaEditorComponent from "../schema-editor/schema-editor.component";
-import styles from "./form-editor.scss";
 import { useParams } from "react-router-dom";
+import { useSWRConfig } from "swr";
+import { useTranslation } from "react-i18next";
 import SaveForm from "../modals/save-form.component";
 import {
   showToast,
   ExtensionSlot,
   showNotification,
 } from "@openmrs/esm-framework";
+import { Schema } from "../../types";
 import { useClobdata } from "../../hooks/useClobdata";
 import { useForm } from "../../hooks/useForm";
 import { publishForm, unpublishForm } from "../../forms.resource";
-import FormRenderer from "../form-renderer/form-renderer.component";
 import ElementEditor from "../element-editor/element-editor.component";
-import { Schema } from "../../types";
+import FormRenderer from "../form-renderer/form-renderer.component";
+import SchemaEditorComponent from "../schema-editor/schema-editor.component";
+import styles from "./form-editor.scss";
 
 type Route = {
   formUuid: string;
@@ -152,82 +152,6 @@ const FormEditor: React.FC = () => {
         <ExtensionSlot extensionSlotName="breadcrumbs-slot" />
       </div>
       <div className={styles.container}>
-        <div className={styles.actionsContainer}>
-          <SaveForm form={form} schema={schema} />
-
-          <>
-            {form && !form.published ? (
-              <Button
-                kind="secondary"
-                onClick={handlePublish}
-                disabled={isPublishing}
-              >
-                {isPublishing && !form?.published ? (
-                  <InlineLoading
-                    className={styles.spinner}
-                    description={t("publishing", "Publishing") + "..."}
-                  />
-                ) : (
-                  <span>{t("publishForm", "Publish form")}</span>
-                )}
-              </Button>
-            ) : null}
-            {form && form.published ? (
-              <Button
-                kind="danger"
-                onClick={launchUnpublishModal}
-                disabled={isUnpublishing}
-              >
-                {t("unpublishForm", "Unpublish form")}
-              </Button>
-            ) : null}
-            {showUnpublishModal ? (
-              <ComposedModal
-                open={true}
-                onClose={() => setShowUnpublishModal(false)}
-              >
-                <ModalHeader
-                  title={t(
-                    "unpublishConfirmation",
-                    "Are you sure you want to unpublish this form?"
-                  )}
-                ></ModalHeader>
-                <ModalBody>
-                  <p>
-                    {t(
-                      "unpublishExplainerText",
-                      "Unpublishing a form means you can no longer access it from your frontend. Unpublishing forms does not delete their associated schemas, it only affects whether or not you can access them in your frontend."
-                    )}
-                  </p>
-                </ModalBody>
-                <ModalFooter>
-                  <Button
-                    kind="secondary"
-                    onClick={() => setShowUnpublishModal(false)}
-                  >
-                    {t("cancel", "Cancel")}
-                  </Button>
-                  <Button
-                    disabled={isUnpublishing}
-                    kind={isUnpublishing ? "secondary" : "danger"}
-                    onClick={handleUnpublish}
-                  >
-                    {isUnpublishing ? (
-                      <InlineLoading
-                        className={styles.spinner}
-                        description={t("unpublishing", "Unpublishing") + "..."}
-                      />
-                    ) : (
-                      <span>{t("unpublishForm", "Unpublish form")}</span>
-                    )}
-                  </Button>
-                </ModalFooter>
-              </ComposedModal>
-            ) : (
-              false
-            )}
-          </>
-        </div>
         <Grid className={styles.grid}>
           <Column lg={8} md={8} className={styles.column}>
             <Tabs>
@@ -271,16 +195,98 @@ const FormEditor: React.FC = () => {
           <Column lg={8} md={8} className={styles.column}>
             <Tabs>
               <TabList>
-                <Tab>{t("formViewer", "Form Viewer")}</Tab>
+                <Tab>{t("formRenderer", "Form Renderer")}</Tab>
               </TabList>
               <TabPanels>
                 <TabPanel>
-                  <div className={styles.renderComponent}>
+                  <>
+                    <div className={styles.actionButtons}>
+                      <SaveForm form={form} schema={schema} />
+
+                      <>
+                        {form && !form.published ? (
+                          <Button
+                            kind="secondary"
+                            onClick={handlePublish}
+                            disabled={isPublishing}
+                          >
+                            {isPublishing && !form?.published ? (
+                              <InlineLoading
+                                className={styles.spinner}
+                                description={
+                                  t("publishing", "Publishing") + "..."
+                                }
+                              />
+                            ) : (
+                              <span>{t("publishForm", "Publish form")}</span>
+                            )}
+                          </Button>
+                        ) : null}
+                        {form && form.published ? (
+                          <Button
+                            kind="danger"
+                            onClick={launchUnpublishModal}
+                            disabled={isUnpublishing}
+                          >
+                            {t("unpublishForm", "Unpublish form")}
+                          </Button>
+                        ) : null}
+                        {showUnpublishModal ? (
+                          <ComposedModal
+                            open={true}
+                            onClose={() => setShowUnpublishModal(false)}
+                          >
+                            <ModalHeader
+                              title={t(
+                                "unpublishConfirmation",
+                                "Are you sure you want to unpublish this form?"
+                              )}
+                            ></ModalHeader>
+                            <ModalBody>
+                              <p>
+                                {t(
+                                  "unpublishExplainerText",
+                                  "Unpublishing a form means you can no longer access it from your frontend. Unpublishing forms does not delete their associated schemas, it only affects whether or not you can access them in your frontend."
+                                )}
+                              </p>
+                            </ModalBody>
+                            <ModalFooter>
+                              <Button
+                                kind="secondary"
+                                onClick={() => setShowUnpublishModal(false)}
+                              >
+                                {t("cancel", "Cancel")}
+                              </Button>
+                              <Button
+                                disabled={isUnpublishing}
+                                kind={isUnpublishing ? "secondary" : "danger"}
+                                onClick={handleUnpublish}
+                              >
+                                {isUnpublishing ? (
+                                  <InlineLoading
+                                    className={styles.spinner}
+                                    description={
+                                      t("unpublishing", "Unpublishing") + "..."
+                                    }
+                                  />
+                                ) : (
+                                  <span>
+                                    {t("unpublishForm", "Unpublish form")}
+                                  </span>
+                                )}
+                              </Button>
+                            </ModalFooter>
+                          </ComposedModal>
+                        ) : (
+                          false
+                        )}
+                      </>
+                    </div>
                     <FormRenderer
                       schema={schema}
                       onSchemaUpdate={updateSchema}
                     />
-                  </div>
+                  </>
                 </TabPanel>
               </TabPanels>
             </Tabs>

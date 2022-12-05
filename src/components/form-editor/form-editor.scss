@@ -24,7 +24,7 @@
   :global(.cds--tabs__nav-item--selected) {
     border-bottom: 2px solid var(--cds-border-interactive, #005d5d);
     outline: none !important;
-  } 
+  }
 }
 
 .column {
@@ -41,19 +41,6 @@
   button {
     margin-left: 1rem
   }
-} 
-
-.wrapContainer {
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.actionsContainer {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  margin-right: 0px;
 }
 
 .spinner {
