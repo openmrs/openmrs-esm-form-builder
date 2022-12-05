@@ -92,7 +92,7 @@ export const saveNewForm = async (
   return response.data;
 };
 
-export const publish = async (uuid) => {
+export const publishForm = async (uuid) => {
   const body = { published: true };
   const request: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${uuid}`,
@@ -105,7 +105,7 @@ export const publish = async (uuid) => {
   return request;
 };
 
-export const unpublish = async (uuid) => {
+export const unpublishForm = async (uuid) => {
   const body = { published: false };
   const request: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${uuid}`,
