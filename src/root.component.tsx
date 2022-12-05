@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import Dashboard from "./components/dashboard/dashboard.component";
-import FormEditor from "./components/form-editor/form-editor";
+import FormEditor from "./components/form-editor/form-editor.component";
 
 const RootComponent: React.FC = () => {
   return (

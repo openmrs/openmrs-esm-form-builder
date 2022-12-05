@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { OHRIForm } from "@ohri/openmrs-ohri-form-engine-lib";
 import { OHRIFormSchema } from "@ohri/openmrs-ohri-form-engine-lib/src/api/types";
 import { useConfig } from "@openmrs/esm-framework";
-import { Schema } from "../../../types";
+import { Schema } from "../../types";
 
 type FormRendererProps = {
   onSchemaUpdate: (schema: Schema) => void;

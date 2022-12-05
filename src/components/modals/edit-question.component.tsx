@@ -17,14 +17,8 @@ import {
 } from "@carbon/react";
 import { Edit, TrashCan } from "@carbon/react/icons";
 import { showToast, useConfig } from "@openmrs/esm-framework";
-import {
-  Answer,
-  Concept,
-  ConceptMapping,
-  Question,
-  Schema,
-} from "../../../types";
-import { useConceptLookup } from "../../../hooks/useConceptLookup";
+import { Answer, Concept, ConceptMapping, Question, Schema } from "../../types";
+import { useConceptLookup } from "../../hooks/useConceptLookup";
 import styles from "./modals.scss";
 
 interface EditQuestionModalProps {

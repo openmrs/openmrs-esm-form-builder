@@ -10,39 +10,42 @@ import {
   ModalHeader,
   TextInput,
 } from "@carbon/react";
-import { Page, Schema } from "../../../types";
-import { Add } from "@carbon/react/icons";
+import { Page, Schema } from "../../types";
+import { Edit } from "@carbon/react/icons";
 import { showToast } from "@openmrs/esm-framework";
-import styles from "./modals.scss";
 
-interface NewPageModalProps {
-  pages: Array<Page>;
+interface EditPageModalProps {
+  page: Page;
   schema: Schema;
   onSchemaUpdate: (schema: Schema) => void;
 }
 
-const CreatePage: React.FC<NewPageModalProps> = ({
-  pages,
+const EditPage: React.FC<EditPageModalProps> = ({
+  page,
   schema,
   onSchemaUpdate,
 }) => {
   const { t } = useTranslation();
-  const [openCreatePageModal, setOpenCreatePageModal] = useState(false);
+  const [openEditPageModal, setOpenEditPageModal] = useState(false);
   const [pageName, setPageName] = useState("");
+
+  useEffect(() => {
+    setPageName(page.label);
+  }, [page]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const newPage: Page = { label: pageName, sections: [] };
+    let pageName = event.target.pageName.value;
     try {
-      pages.push(newPage);
+      page.label = pageName == "" ? page.label : pageName;
       onSchemaUpdate({ ...schema });
       showToast({
         title: t("success", "Success!"),
         kind: "success",
         critical: true,
-        description: t("createPageSuccess", "Page Created"),
+        description: t("updatePage", "Page Updated"),
       });
-      setOpenCreatePageModal(false);
+      setOpenEditPageModal(false);
     } catch (error) {
       showToast({
         title: t("error", "Error"),
@@ -52,19 +55,14 @@ const CreatePage: React.FC<NewPageModalProps> = ({
       });
     }
   };
-
-  useEffect(() => {
-    setPageName("");
-  }, [openCreatePageModal]);
-
   return (
     <>
       <div>
         <ComposedModal
-          open={openCreatePageModal}
-          onClose={() => setOpenCreatePageModal(false)}
+          open={openEditPageModal}
+          onClose={() => setOpenEditPageModal(false)}
         >
-          <ModalHeader title={t("createPage", "Create Page")} />
+          <ModalHeader title={t("editPage", "Edit Page")} />
           <Form onSubmit={handleSubmit}>
             <ModalBody>
               <FormGroup legendText={""}>
@@ -83,7 +81,7 @@ const CreatePage: React.FC<NewPageModalProps> = ({
               </Button>
               <Button
                 kind={"secondary"}
-                onClick={() => setOpenCreatePageModal(false)}
+                onClick={() => setOpenEditPageModal(false)}
               >
                 {t("close", "Close")}
               </Button>
@@ -92,17 +90,17 @@ const CreatePage: React.FC<NewPageModalProps> = ({
         </ComposedModal>
       </div>
       <Button
-        className={styles.CreatePageButton}
-        renderIcon={Add}
-        iconDescription="Create Page"
+        size="sm"
+        renderIcon={Edit}
+        iconDescription="Edit Page"
+        hasIconOnly
+        kind="ghost"
         onClick={() => {
-          setOpenCreatePageModal(true);
+          setOpenEditPageModal(true);
         }}
-      >
-        {t("createPage", "Create Page")}
-      </Button>
+      />
     </>
   );
 };
 
-export default CreatePage;
+export default EditPage;

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Accordion, Button, TextInput } from "@carbon/react";
-import { Schema } from "../../../types";
-import PageElement from "./elements/page";
+import { Schema } from "../../types";
 import styles from "./element-editor.scss";
 import { Checkmark } from "@carbon/react/icons";
-import CreatePage from "../modals/new-page";
+import CreatePage from "../modals/new-page.component";
+import PageElement from "./page.component";
 import { useTranslation } from "react-i18next";
 
 type ElementEditorProps = {

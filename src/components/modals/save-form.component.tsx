@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import styles from "./../form-editor.scss";
+import styles from "./save-form.scss";
 import {
   Button,
   ComposedModal,
@@ -14,8 +14,8 @@ import {
   TextArea,
   TextInput,
 } from "@carbon/react";
-import { EncounterType, Resource, Schema } from "../../../types";
-import { useEncounterTypes } from "../../../hooks/useEncounterTypes";
+import { EncounterType, Resource, Schema } from "../../types";
+import { useEncounterTypes } from "../../hooks/useEncounterTypes";
 import {
   uploadSchema,
   saveNewForm,
@@ -26,7 +26,7 @@ import {
   deleteClobData,
   deleteResource,
   updateEncounterType,
-} from "../../../forms.resource";
+} from "../../forms.resource";
 import { showToast } from "@openmrs/esm-framework";
 
 interface SaveFormModalProps {

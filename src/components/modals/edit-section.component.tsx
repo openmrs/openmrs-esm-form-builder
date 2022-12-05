@@ -12,43 +12,48 @@ import {
   SelectItem,
   TextInput,
 } from "@carbon/react";
-import { Section, Schema } from "../../../types";
-import { Add } from "@carbon/react/icons";
+import { Schema, Section } from "../../types";
+import { Edit } from "@carbon/react/icons";
 import { showToast } from "@openmrs/esm-framework";
 
-interface CreateSectionModalProps {
-  sections: Array<Section>;
+interface EditSectionModalProps {
+  section: Section;
   schema: Schema;
   onSchemaUpdate: (schema: Schema) => void;
 }
 
-const CreateSection: React.FC<CreateSectionModalProps> = ({
-  sections,
+const EditSection: React.FC<EditSectionModalProps> = ({
+  section,
   schema,
   onSchemaUpdate,
 }) => {
   const { t } = useTranslation();
-  const [openCreateSectionModal, setOpenCreateSectionModal] = useState(false);
+  const [openEditSectionModal, setOpenEditSectionModal] = useState(false);
   const [sectionName, setSectionName] = useState("");
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
+  useEffect(() => {
+    setSectionName(section.label);
+    if (section.isExpanded === "true") {
+      setIsExpanded(true);
+    } else {
+      setIsExpanded(false);
+    }
+  }, [section]);
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    const newSection: Section = {
-      label: sectionName,
-      isExpanded: isExpanded,
-      questions: [],
-    };
     try {
-      sections.push(newSection);
+      section.label = sectionName;
+      section.isExpanded = isExpanded ? "true" : "false";
       onSchemaUpdate({ ...schema });
       showToast({
         title: t("success", "Success!"),
         kind: "success",
         critical: true,
-        description: t("createSectionSuccess", "Section Created"),
+        description: t("updateSection", "Section Updated"),
       });
-      setOpenCreateSectionModal(false);
+      setOpenEditSectionModal(false);
     } catch (error) {
       showToast({
         title: t("error", "Error"),
@@ -58,20 +63,14 @@ const CreateSection: React.FC<CreateSectionModalProps> = ({
       });
     }
   };
-
-  useEffect(() => {
-    setSectionName("");
-    setIsExpanded(false);
-  }, [openCreateSectionModal]);
-
   return (
     <>
       <div>
         <ComposedModal
-          open={openCreateSectionModal}
-          onClose={() => setOpenCreateSectionModal(false)}
+          open={openEditSectionModal}
+          onClose={() => setOpenEditSectionModal(false)}
         >
-          <ModalHeader title={t("createSection", "Create Section")} />
+          <ModalHeader title={t("editSection", "Edit Section")} />
           <Form onSubmit={handleSubmit}>
             <ModalBody>
               <FormGroup legendText={""}>
@@ -93,7 +92,6 @@ const CreateSection: React.FC<CreateSectionModalProps> = ({
                   disabled={false}
                   inline={false}
                   invalid={false}
-                  required
                 >
                   <SelectItem text="Yes" value="Yes" hidden={false} />
                   <SelectItem text="No" value="No" hidden={false} />
@@ -106,7 +104,7 @@ const CreateSection: React.FC<CreateSectionModalProps> = ({
               </Button>
               <Button
                 kind={"secondary"}
-                onClick={() => setOpenCreateSectionModal(false)}
+                onClick={() => setOpenEditSectionModal(false)}
               >
                 {t("close", "Close")}
               </Button>
@@ -115,17 +113,17 @@ const CreateSection: React.FC<CreateSectionModalProps> = ({
         </ComposedModal>
       </div>
       <Button
-        renderIcon={Add}
-        kind="tertiary"
-        size="small"
+        size="sm"
+        renderIcon={Edit}
+        iconDescription="Edit Section"
         hasIconOnly
-        iconDescription="New Section"
+        kind="ghost"
         onClick={() => {
-          setOpenCreateSectionModal(true);
+          setOpenEditSectionModal(true);
         }}
       />
     </>
   );
 };
 
-export default CreateSection;
+export default EditSection;

@@ -1,12 +1,12 @@
 import React from "react";
 import { AccordionItem, Button, Column, Row } from "@carbon/react";
-import { Page, Schema } from "../../../../types";
-import SectionElement from "./section";
+import { Page, Schema } from "../../types";
+import SectionElement from "./section.component";
 import styles from "./elements.scss";
 import { TrashCan } from "@carbon/react/icons";
 import { useTranslation } from "react-i18next";
-import EditPage from "../../modals/edit-page";
-import CreateSection from "../../modals/new-section";
+import EditPage from "../modals/edit-page.component";
+import CreateSection from "../modals/new-section.component";
 
 interface PageElementProps {
   page: Page;
