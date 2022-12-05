@@ -1,0 +1,30 @@
+@use '@carbon/colors';
+@use '@carbon/styles/scss/spacing';
+@use '@carbon/styles/scss/type';
+
+.container {
+  background-color: white;
+  padding: 1rem;
+  overflow-y: scroll;
+}
+
+.emptyStateTile {
+  width: 80%;
+  margin: 1.25rem auto;
+  display: flex;
+  flex-flow: column wrap;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.heading {
+  @include type.type-style('heading-compact-02');
+  color: colors.$gray-100;
+}
+
+.helperText {
+  margin-top: 0.5rem;
+  @include type.type-style('body-01');
+  color: colors.$gray-90;
+}

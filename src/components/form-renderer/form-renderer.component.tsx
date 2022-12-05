@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { OHRIForm } from "@ohri/openmrs-ohri-form-engine-lib";
-import { OHRIFormSchema } from "@ohri/openmrs-ohri-form-engine-lib/src/api/types";
+import { useTranslation } from "react-i18next";
+import {
+  SessionMode,
+  OHRIFormSchema,
+  OHRIForm,
+} from "@ohri/openmrs-ohri-form-engine-lib";
+import { Tile } from "@carbon/react";
 import { useConfig } from "@openmrs/esm-framework";
 import { Schema } from "../../types";
+import styles from "./form-renderer.scss";
 
 type FormRendererProps = {
   onSchemaUpdate: (schema: Schema) => void;
@@ -13,35 +19,72 @@ const FormRenderer: React.FC<FormRendererProps> = ({
   onSchemaUpdate,
   schema,
 }) => {
-  const { patientUuidConfig } = useConfig();
-  const defaultSchema: OHRIFormSchema = {
-    name: "",
-    pages: [],
-    processor: "EncounterFormProcessor",
-    uuid: "xxx",
+  const { t } = useTranslation();
+  const { patientUuid } = useConfig();
+
+  const dummySchema: OHRIFormSchema = {
     encounterType: "",
+    name: "Test Form",
+    pages: [
+      {
+        label: "Test Page",
+        sections: [
+          {
+            label: "Test Section",
+            isExpanded: "true",
+            questions: [
+              {
+                label: "Test Question",
+                type: "obs",
+                questionOptions: {
+                  rendering: "text",
+                  concept: "xxxx",
+                },
+                id: "testQuestion",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    processor: "EncounterFormProcessor",
     referencedForms: [],
+    uuid: "xxx",
   };
-  const patientUUID = patientUuidConfig;
-  const [currentFormMode, setCurrentFormMode] = useState<any>("enter");
-  const [renderFormSchema, setRenderFormSchema] =
-    useState<OHRIFormSchema>(defaultSchema);
+
+  const [sessionMode, setSessionMode] = useState<SessionMode>("enter");
+  const [schemaToRender, setSchemaToRender] =
+    useState<OHRIFormSchema>(dummySchema);
+
   useEffect(() => {
-    if (schema != undefined) {
-      setRenderFormSchema(schema);
+    if (schema) {
+      setSchemaToRender(schema);
     }
   }, [schema]);
 
   return (
-    <div>
-      {schema == renderFormSchema ? (
+    <div className={styles.container}>
+      {schema === schemaToRender ? (
         <OHRIForm
-          formJson={renderFormSchema}
-          mode={currentFormMode}
-          patientUUID={patientUUID}
+          formJson={schemaToRender}
+          mode={sessionMode}
+          patientUUID={patientUuid}
         />
-      ) : null}
+      ) : (
+        <Tile className={styles.emptyStateTile}>
+          <h4 className={styles.heading}>
+            {t("noSchemaLoaded", "No schema loaded")}
+          </h4>
+          <p className={styles.helperText}>
+            {t(
+              "formRendererHelperText",
+              "Load a form schema in the Schema Editor to the left to see it rendered here by the Form Engine."
+            )}
+          </p>
+        </Tile>
+      )}
     </div>
   );
 };
+
 export default FormRenderer;
