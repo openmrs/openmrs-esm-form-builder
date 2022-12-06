@@ -1,24 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  SessionMode,
-  OHRIFormSchema,
-  OHRIForm,
-} from "@ohri/openmrs-ohri-form-engine-lib";
+import { OHRIFormSchema, OHRIForm } from "@ohri/openmrs-ohri-form-engine-lib";
 import { Tile } from "@carbon/react";
 import { useConfig } from "@openmrs/esm-framework";
-import { Schema } from "../../types";
 import styles from "./form-renderer.scss";
 
 type FormRendererProps = {
-  onSchemaUpdate: (schema: Schema) => void;
-  schema: Schema;
+  onSchemaUpdate?: (schema: OHRIFormSchema) => void;
+  schema: OHRIFormSchema;
 };
 
-const FormRenderer: React.FC<FormRendererProps> = ({
-  onSchemaUpdate,
-  schema,
-}) => {
+const FormRenderer: React.FC<FormRendererProps> = ({ schema }) => {
   const { t } = useTranslation();
   const { patientUuid } = useConfig();
 
@@ -52,7 +44,6 @@ const FormRenderer: React.FC<FormRendererProps> = ({
     uuid: "xxx",
   };
 
-  const [sessionMode, setSessionMode] = useState<SessionMode>("enter");
   const [schemaToRender, setSchemaToRender] =
     useState<OHRIFormSchema>(dummySchema);
 
@@ -64,13 +55,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({
 
   return (
     <div className={styles.container}>
-      {schema === schemaToRender ? (
-        <OHRIForm
-          formJson={schemaToRender}
-          mode={sessionMode}
-          patientUUID={patientUuid}
-        />
-      ) : (
+      {!schema && (
         <Tile className={styles.emptyStateTile}>
           <h4 className={styles.heading}>
             {t("noSchemaLoaded", "No schema loaded")}
@@ -82,6 +67,13 @@ const FormRenderer: React.FC<FormRendererProps> = ({
             )}
           </p>
         </Tile>
+      )}
+      {schema === schemaToRender && (
+        <OHRIForm
+          formJson={schemaToRender}
+          mode={"enter"}
+          patientUUID={patientUuid}
+        />
       )}
     </div>
   );

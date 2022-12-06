@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -22,7 +22,7 @@ import {
 import { Add, DocumentImport, Download, Edit } from "@carbon/react/icons";
 import { navigate, useLayoutType } from "@openmrs/esm-framework";
 
-import { FilterProps, Form } from "../../types";
+import { FilterProps } from "../../types";
 import { useClobdata } from "../../hooks/useClobdata";
 import { usePocForms } from "../../hooks/usePocForms";
 import EmptyState from "../empty-state/empty-state.component";
@@ -46,11 +46,17 @@ function CustomTag({ condition }) {
 function ActionButtons({ form }) {
   const { t } = useTranslation();
   const { clobdata } = useClobdata(form);
-  const downloadableSchema = new Blob([JSON.stringify(clobdata, null, 2)], {
-    type: "application/json",
-  });
+  const formResources = form?.resources;
 
-  return form?.resources?.length == 0 || !form?.resources?.[0] ? (
+  const downloadableSchema = useMemo(
+    () =>
+      new Blob([JSON.stringify(clobdata, null, 2)], {
+        type: "application/json",
+      }),
+    [clobdata]
+  );
+
+  return formResources.length == 0 || !form?.resources[0] ? (
     <Button
       className={styles.importButton}
       renderIcon={DocumentImport}
@@ -96,25 +102,23 @@ function ActionButtons({ form }) {
 
 function FormsList({ forms, isValidating, t }) {
   const isTablet = useLayoutType() === "tablet";
-  const [filteredRows, setFilteredRows] = useState<Array<Form>>([]);
   const [filter, setFilter] = useState("");
 
-  useEffect(() => {
-    if (filter) {
-      setFilteredRows(
-        forms.filter((form) => {
-          if (filter === "Published") {
-            return form.published;
-          }
-
-          if (filter === "Unpublished") {
-            return !form.published;
-          }
-        })
-      );
-      setFilter("");
+  const filteredRows = useMemo(() => {
+    if (!filter) {
+      return forms;
     }
-  }, [filter, filteredRows, forms]);
+
+    if (filter === "Published") {
+      return forms.filter((form) => form.published);
+    }
+
+    if (filter === "Unpublished") {
+      return forms.filter((form) => !form.published);
+    }
+
+    return forms;
+  }, [filter, forms]);
 
   const tableHeaders = [
     {

@@ -3,15 +3,16 @@ import { openmrsFetch } from "@openmrs/esm-framework";
 import { EncounterType } from "../types";
 
 export const useEncounterTypes = () => {
-  const url = `/ws/rest/v1/encountertype?v=custom:(uuid,name)`;
+  const ENCOUNTER_TYPES_URL = `/ws/rest/v1/encountertype?v=custom:(uuid,name)`;
+
   const { data, error } = useSWRImmutable<
     { data: { results: Array<EncounterType> } },
     Error
-  >(url, openmrsFetch);
+  >(ENCOUNTER_TYPES_URL, openmrsFetch);
 
   return {
     encounterTypes: data?.data?.results ?? [],
-    isEncounterTypesLoading: !error && !data,
-    encounterTypesError: error,
+    encounterTypesError: error || null,
+    isEncounterTypesLoading: (!data && !error) || false,
   };
 };

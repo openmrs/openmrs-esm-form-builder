@@ -92,7 +92,7 @@ const CreatePage: React.FC<NewPageModalProps> = ({
         </ComposedModal>
       </div>
       <Button
-        className={styles.CreatePageButton}
+        className={styles.createPageButton}
         renderIcon={Add}
         iconDescription="Create Page"
         onClick={() => {

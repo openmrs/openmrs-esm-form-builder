@@ -3,19 +3,18 @@ import { openmrsFetch } from "@openmrs/esm-framework";
 import { Form, Schema } from "../types";
 
 export const useClobdata = (form?: Form) => {
-  const valueReference = form?.resources?.[0]?.valueReference;
+  const valueReference = form?.resources?.[0].valueReference;
   const formHasResources = form?.resources.length > 0 && valueReference;
-
-  const url = `/ws/rest/v1/clobdata/${form?.resources[0].valueReference}`;
+  const CLOBDATA_URL = `/ws/rest/v1/clobdata/${valueReference}`;
 
   const { data, error } = useSWRImmutable<{ data: Schema }, Error>(
-    formHasResources ? url : null,
+    formHasResources ? CLOBDATA_URL : null,
     openmrsFetch
   );
 
   return {
     clobdata: data?.data,
-    clobdataError: error,
-    isLoadingClobdata: !data && !error,
+    clobdataError: error || null,
+    isLoadingClobdata: (!data && !error) || false,
   };
 };
