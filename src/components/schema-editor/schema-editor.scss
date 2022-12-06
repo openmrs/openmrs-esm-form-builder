@@ -1,12 +1,26 @@
-.renderButton {
-  margin-top: 1rem;
+@use '@carbon/styles/scss/colors';
+@use '@carbon/styles/scss/type';
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 1rem 0;
+
+  button {
+    margin-left: 1rem
+  }
 }
 
-.inputErrorMessage {
-  padding: 10px 0 15px 0;
-  color: red;
+.errorMessage {
+  @include type.type-style("label-02");
+  background-color: colors.$red-20;
+  color: colors.$red-70;
+  padding: 1.5rem;
+  margin: 1rem 0;
 }
 
-.aceEditor {
-  width: 100%!important;
+.heading {
+  @include type.type-style('heading-compact-02');
+  margin-bottom: 1rem;
 }

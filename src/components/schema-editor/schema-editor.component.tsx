@@ -1,11 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Button } from "@carbon/react";
-import styles from "./schema-editor.scss";
+import { useParams } from "react-router-dom";
 import AceEditor from "react-ace";
 import "ace-builds/webpack-resolver";
+import { Button, InlineLoading } from "@carbon/react";
 import { useTranslation } from "react-i18next";
+import { OHRIFormSchema } from "@ohri/openmrs-ohri-form-engine-lib";
 import { Schema } from "../../types";
+import styles from "./schema-editor.scss";
 
+type RouteParams = { formUuid: string };
 type SchemaEditorProps = {
   isLoading: boolean;
   onSchemaUpdate: (schema: Schema) => void;
@@ -18,42 +21,122 @@ const SchemaEditorComponent: React.FC<SchemaEditorProps> = ({
   schema,
 }) => {
   const { t } = useTranslation();
+  const { formUuid } = useParams<RouteParams>();
+  const isNewSchema = !formUuid;
   const [formSchema, setFormSchema] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [invalidJsonErrorMessage, setInvalidJsonErrorMessage] = useState("");
+  const [isRendering, setIsRendering] = useState(false);
 
   useEffect(() => {
     const stringifiedSchema = JSON.stringify(schema, null, 2);
     setFormSchema(stringifiedSchema);
   }, [schema]);
 
+  const resetErrorMessage = useCallback(() => {
+    setInvalidJsonErrorMessage("");
+  }, []);
+
   const handleSchemaChange = (updatedSchema: string) => {
     setFormSchema(updatedSchema);
   };
 
-  const render = useCallback(() => {
-    setErrorMessage("");
+  const inputDummySchema = useCallback(() => {
+    const dummySchema: OHRIFormSchema = {
+      encounterType: "",
+      name: "Test Form",
+      pages: [
+        {
+          label: "Test Page",
+          sections: [
+            {
+              label: "Test Section",
+              isExpanded: "true",
+              questions: [
+                {
+                  label: "Test Question",
+                  type: "obs",
+                  questionOptions: {
+                    rendering: "text",
+                    concept: "xxxx",
+                  },
+                  id: "testQuestion",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      processor: "EncounterFormProcessor",
+      referencedForms: [],
+      uuid: "xxx",
+    };
+
+    onSchemaUpdate(dummySchema);
+  }, [onSchemaUpdate]);
+
+  const renderSchemaChanges = useCallback(() => {
+    setIsRendering(true);
+    resetErrorMessage();
+
     try {
-      let parsedJson = JSON.parse(formSchema);
+      const parsedJson: Schema = JSON.parse(formSchema);
       onSchemaUpdate(parsedJson);
       setFormSchema(JSON.stringify(parsedJson, null, 2));
     } catch (error) {
-      setErrorMessage(error.message);
+      setInvalidJsonErrorMessage(error.message);
     }
-  }, [formSchema, onSchemaUpdate]);
+    setIsRendering(false);
+  }, [formSchema, onSchemaUpdate, resetErrorMessage]);
 
   return (
-    <div>
-      <h4>{t("schemaEditor", "Schema Editor")}</h4>
-      <div className={styles.inputErrorMessage}>{errorMessage}</div>
+    <>
+      <div className={styles.actionButtons}>
+        {isLoading ? (
+          <InlineLoading
+            description={t("loadingSchema", "Loading schema") + "..."}
+          />
+        ) : null}
+
+        {isNewSchema ? (
+          <Button kind="secondary" onClick={inputDummySchema}>
+            {t("inputDummySchema", "Input dummy schema")}
+          </Button>
+        ) : null}
+
+        <Button
+          disabled={isRendering}
+          kind="primary"
+          onClick={renderSchemaChanges}
+        >
+          {isRendering ? (
+            <InlineLoading
+              className={styles.spinner}
+              description={t("rendering", "Rendering") + "..."}
+            />
+          ) : (
+            <span>{t("renderChanges", "Render changes")}</span>
+          )}
+        </Button>
+      </div>
+
+      {invalidJsonErrorMessage ? (
+        <div className={styles.errorMessage}>
+          <p className={styles.heading}>
+            {t("schemaError", "There's an error in your schema.")}
+          </p>
+          <p>{invalidJsonErrorMessage}</p>
+        </div>
+      ) : null}
+
       <AceEditor
-        className={styles.aceEditor}
-        placeholder="Schema"
+        style={{ height: "100vh", width: "100%" }}
+        placeholder=""
         mode="json"
-        theme="github"
+        theme="textmate"
         name="schemaEditor"
         onChange={handleSchemaChange}
-        fontSize={14}
-        showPrintMargin={true}
+        fontSize={15}
+        showPrintMargin={false}
         showGutter={true}
         highlightActiveLine={true}
         value={formSchema}
@@ -66,10 +149,8 @@ const SchemaEditorComponent: React.FC<SchemaEditorProps> = ({
           tabSize: 2,
         }}
       />
-      <Button kind="tertiary" className={styles.renderButton} onClick={render}>
-        {t("render", "Render")}
-      </Button>
-    </div>
+    </>
   );
 };
+
 export default SchemaEditorComponent;
