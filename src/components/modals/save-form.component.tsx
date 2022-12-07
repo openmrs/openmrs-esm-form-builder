@@ -40,14 +40,14 @@ type FormGroupData = {
   description: string;
   resources: Array<Resource>;
 };
-type Route = { formUuid: string };
+type RouteParams = { formUuid: string };
 type SaveFormModalProps = { form: FormGroupData; schema: Schema };
 
 const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
   const { t } = useTranslation();
-  const { formUuid } = useParams<Route>();
+  const { formUuid } = useParams<RouteParams>();
   const isSavingNewForm = !formUuid;
-  const { encounterTypes, encounterTypesError } = useEncounterTypes();
+  const { encounterTypes } = useEncounterTypes();
   const [openSaveFormModal, setOpenSaveFormModal] = useState(false);
   const [openConfirmSaveModal, setOpenConfirmSaveModal] = useState(false);
   const [saveState, setSaveState] = useState("");

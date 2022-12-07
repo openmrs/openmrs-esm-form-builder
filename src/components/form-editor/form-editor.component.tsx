@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Column,
   ComposedModal,
@@ -33,7 +33,7 @@ import FormRenderer from "../form-renderer/form-renderer.component";
 import SchemaEditorComponent from "../schema-editor/schema-editor.component";
 import styles from "./form-editor.scss";
 
-type Route = {
+type RouteParams = {
   formUuid: string;
 };
 
@@ -55,7 +55,7 @@ const Error = ({ error, title }) => {
 
 const FormEditor: React.FC = () => {
   const { t } = useTranslation();
-  const { formUuid } = useParams<Route>();
+  const { formUuid } = useParams<RouteParams>();
   const [schema, setSchema] = useState<Schema>(undefined);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isUnpublishing, setIsUnpublishing] = useState(false);
@@ -70,9 +70,9 @@ const FormEditor: React.FC = () => {
     }
   }, [clobdata, setSchema]);
 
-  const updateSchema = (updatedSchema) => {
+  const updateSchema = useCallback((updatedSchema) => {
     setSchema(updatedSchema);
-  };
+  }, []);
 
   const revalidate = () => {
     const apiUrlPattern = new RegExp("\\/ws\\/rest\\/v1\\/form");
