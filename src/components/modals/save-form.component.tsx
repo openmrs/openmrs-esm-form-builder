@@ -28,7 +28,7 @@ import {
   deleteResource,
   updateEncounterType,
 } from "../../forms.resource";
-import { EncounterType, Resource, Schema } from "../../types";
+import { EncounterType, Resource, RouteParams, Schema } from "../../types";
 import { useEncounterTypes } from "../../hooks/useEncounterTypes";
 import styles from "./save-form.scss";
 
@@ -40,7 +40,6 @@ type FormGroupData = {
   description: string;
   resources: Array<Resource>;
 };
-type RouteParams = { formUuid: string };
 type SaveFormModalProps = { form: FormGroupData; schema: Schema };
 
 const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {

@@ -24,18 +24,14 @@ import {
   ExtensionSlot,
   showNotification,
 } from "@openmrs/esm-framework";
-import { Schema } from "../../types";
+import { Schema, RouteParams } from "../../types";
 import { useClobdata } from "../../hooks/useClobdata";
 import { useForm } from "../../hooks/useForm";
 import { publishForm, unpublishForm } from "../../forms.resource";
-import ElementEditor from "../element-editor/element-editor.component";
 import FormRenderer from "../form-renderer/form-renderer.component";
-import SchemaEditorComponent from "../schema-editor/schema-editor.component";
+import SchemaEditor from "../schema-editor/schema-editor.component";
 import styles from "./form-editor.scss";
-
-type RouteParams = {
-  formUuid: string;
-};
+import InteractiveBuilder from "../interactive-builder/interactive-builder.component";
 
 const Error = ({ error, title }) => {
   return (
@@ -174,9 +170,9 @@ const FormEditor: React.FC = () => {
                         title={t("schemaLoadError", "Error loading schema")}
                       />
                     ) : null}
-                    <SchemaEditorComponent
+                    <SchemaEditor
                       schema={schema}
-                      onSchemaUpdate={updateSchema}
+                      onSchemaChange={updateSchema}
                       isLoading={
                         formUuid && (isLoadingClobdata || isLoadingForm)
                       }
@@ -184,9 +180,10 @@ const FormEditor: React.FC = () => {
                   </>
                 </TabPanel>
                 <TabPanel>
-                  <ElementEditor
+                  <InteractiveBuilder
                     schema={schema}
-                    onSchemaUpdate={updateSchema}
+                    onSchemaChange={updateSchema}
+                    isLoading={formUuid && (isLoadingClobdata || isLoadingForm)}
                   />
                 </TabPanel>
               </TabPanels>
@@ -195,7 +192,7 @@ const FormEditor: React.FC = () => {
           <Column lg={8} md={8} className={styles.column}>
             <Tabs>
               <TabList>
-                <Tab>{t("formRenderer", "Form Renderer")}</Tab>
+                <Tab>{t("preview", "Preview")}</Tab>
               </TabList>
               <TabPanels>
                 <TabPanel>
@@ -284,7 +281,7 @@ const FormEditor: React.FC = () => {
                     </div>
                     <FormRenderer
                       schema={schema}
-                      onSchemaUpdate={updateSchema}
+                      onSchemaChange={updateSchema}
                     />
                   </>
                 </TabPanel>

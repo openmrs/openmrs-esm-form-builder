@@ -12,7 +12,7 @@ export function useConceptLookup(conceptId: string) {
 
   return {
     concepts: data?.data?.results ?? [],
-    error: error || null,
-    isLoading: (!data && !error) || false,
+    conceptLookupError: error || null,
+    isLoadingConcepts: (!data && !error) || false,
   };
 }

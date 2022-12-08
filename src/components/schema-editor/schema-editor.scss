@@ -12,12 +12,16 @@
   }
 }
 
-.errorMessage {
-  @include type.type-style("label-02");
+.errorContainer {
+  @include type.type-style("body-compact-02");
   background-color: colors.$red-20;
   color: colors.$red-70;
   padding: 1.5rem;
   margin: 1rem 0;
+}
+
+.errorMessage {
+  @include type.type-style('body-compact-01');
 }
 
 .heading {
