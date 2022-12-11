@@ -9,6 +9,8 @@ export interface Form {
   resources: Array<Resource>;
 }
 
+export type RouteParams = { formUuid: string };
+
 export interface FilterProps {
   rowIds: Array<string>;
   headers: Array<Record<string, string>>;

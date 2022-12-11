@@ -5,61 +5,91 @@ import "ace-builds/webpack-resolver";
 import { Button, InlineLoading } from "@carbon/react";
 import { useTranslation } from "react-i18next";
 import { OHRIFormSchema } from "@ohri/openmrs-ohri-form-engine-lib";
-import { Schema } from "../../types";
+import { RouteParams, Schema } from "../../types";
 import styles from "./schema-editor.scss";
 
-type RouteParams = { formUuid: string };
 type SchemaEditorProps = {
   isLoading: boolean;
-  onSchemaUpdate: (schema: Schema) => void;
+  onSchemaChange: (schema: Schema) => void;
   schema: Schema;
 };
 
-const SchemaEditorComponent: React.FC<SchemaEditorProps> = ({
+const SchemaEditor: React.FC<SchemaEditorProps> = ({
   isLoading,
-  onSchemaUpdate,
+  onSchemaChange,
   schema,
 }) => {
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
   const isNewSchema = !formUuid;
-  const [formSchema, setFormSchema] = useState<string>("");
+
+  const [stringifiedSchema, setStringifiedSchema] = useState(
+    schema ? JSON.stringify(schema, null, 2) : ""
+  );
   const [invalidJsonErrorMessage, setInvalidJsonErrorMessage] = useState("");
   const [isRendering, setIsRendering] = useState(false);
-
-  useEffect(() => {
-    const stringifiedSchema = JSON.stringify(schema, null, 2);
-    setFormSchema(stringifiedSchema);
-  }, [schema]);
 
   const resetErrorMessage = useCallback(() => {
     setInvalidJsonErrorMessage("");
   }, []);
 
   const handleSchemaChange = (updatedSchema: string) => {
-    setFormSchema(updatedSchema);
+    setStringifiedSchema(updatedSchema);
   };
 
   const inputDummySchema = useCallback(() => {
     const dummySchema: OHRIFormSchema = {
       encounterType: "",
-      name: "Test Form",
+      name: "Sample Form",
       pages: [
         {
-          label: "Test Page",
+          label: "First Page",
           sections: [
             {
-              label: "Test Section",
+              label: "A Section",
               isExpanded: "true",
               questions: [
                 {
-                  label: "Test Question",
+                  label: "A Question of type obs that renders a text input",
                   type: "obs",
                   questionOptions: {
                     rendering: "text",
-                    concept: "xxxx",
+                    concept: "a-system-defined-concept-uuid",
                   },
-                  id: "testQuestion",
+                  id: "sampleQuestion",
+                },
+              ],
+            },
+            {
+              label: "Another Section",
+              isExpanded: "true",
+              questions: [
+                {
+                  label:
+                    "Another Question of type obs whose answers get rendered as radio inputs",
+                  type: "obs",
+                  questionOptions: {
+                    rendering: "radio",
+                    concept: "system-defined-concept-uuid",
+                    answers: [
+                      {
+                        concept: "another-system-defined-concept-uuid",
+                        label: "Choice 1",
+                        conceptMappings: [],
+                      },
+                      {
+                        concept: "yet-another-system-defined-concept-uuid",
+                        label: "Choice 2",
+                        conceptMappings: [],
+                      },
+                      {
+                        concept: "yet-one-more-system-defined-concept-uuid",
+                        label: "Choice 3",
+                        conceptMappings: [],
+                      },
+                    ],
+                  },
+                  id: "anotherSampleQuestion",
                 },
               ],
             },
@@ -71,22 +101,27 @@ const SchemaEditorComponent: React.FC<SchemaEditorProps> = ({
       uuid: "xxx",
     };
 
-    onSchemaUpdate(dummySchema);
-  }, [onSchemaUpdate]);
+    setStringifiedSchema(JSON.stringify(dummySchema, null, 2));
+    onSchemaChange({ ...dummySchema });
+  }, [onSchemaChange]);
 
   const renderSchemaChanges = useCallback(() => {
     setIsRendering(true);
     resetErrorMessage();
 
     try {
-      const parsedJson: Schema = JSON.parse(formSchema);
-      onSchemaUpdate(parsedJson);
-      setFormSchema(JSON.stringify(parsedJson, null, 2));
+      const parsedJson: Schema = JSON.parse(stringifiedSchema);
+      onSchemaChange(parsedJson);
+      setStringifiedSchema(JSON.stringify(parsedJson, null, 2));
     } catch (error) {
       setInvalidJsonErrorMessage(error.message);
     }
     setIsRendering(false);
-  }, [formSchema, onSchemaUpdate, resetErrorMessage]);
+  }, [stringifiedSchema, onSchemaChange, resetErrorMessage]);
+
+  useEffect(() => {
+    setStringifiedSchema(JSON.stringify(schema, null, 2));
+  }, [schema]);
 
   return (
     <>
@@ -130,7 +165,6 @@ const SchemaEditorComponent: React.FC<SchemaEditorProps> = ({
 
       <AceEditor
         style={{ height: "100vh", width: "100%" }}
-        placeholder=""
         mode="json"
         theme="textmate"
         name="schemaEditor"
@@ -139,7 +173,7 @@ const SchemaEditorComponent: React.FC<SchemaEditorProps> = ({
         showPrintMargin={false}
         showGutter={true}
         highlightActiveLine={true}
-        value={formSchema}
+        value={stringifiedSchema}
         setOptions={{
           enableBasicAutocompletion: false,
           enableLiveAutocompletion: false,
@@ -153,4 +187,4 @@ const SchemaEditorComponent: React.FC<SchemaEditorProps> = ({
   );
 };
 
-export default SchemaEditorComponent;
+export default SchemaEditor;

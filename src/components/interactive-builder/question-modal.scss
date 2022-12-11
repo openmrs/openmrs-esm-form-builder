@@ -1,0 +1,35 @@
+@use '@carbon/styles/scss/type';
+@import '~@openmrs/esm-styleguide/src/vars';
+
+.label {
+  margin-bottom: 0.5rem;
+}
+
+.loader {
+  padding: 1rem 0.5rem;
+}
+
+.tag {
+  margin-right: 0.5rem;
+}
+
+.conceptList {
+  max-height: 14rem;
+  overflow-y: auto;
+  border: 1px solid $ui-03;
+  border-top: none;
+}
+
+.conceptList li:hover {
+  background-color: $ui-03;
+}
+
+.concept {
+  padding: 0.75rem;
+}
+
+.emptyResults {
+  @include type.type-style("body-compact-01");
+  color: $text-02;
+  min-height: 1rem;
+}

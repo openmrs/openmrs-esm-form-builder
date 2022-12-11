@@ -6,7 +6,7 @@ import { useConfig } from "@openmrs/esm-framework";
 import styles from "./form-renderer.scss";
 
 type FormRendererProps = {
-  onSchemaUpdate?: (schema: OHRIFormSchema) => void;
+  onSchemaChange?: (schema: OHRIFormSchema) => void;
   schema: OHRIFormSchema;
 };
 
