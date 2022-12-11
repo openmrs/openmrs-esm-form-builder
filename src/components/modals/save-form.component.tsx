@@ -98,14 +98,14 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
         const newValueReference = await uploadSchema(schema);
         await getResourceUUID(newForm.uuid, newValueReference.toString());
         showToast({
-          title: t("formCreated", "Form created"),
+          title: t("formCreated", "New form created"),
           kind: "success",
           critical: true,
           description:
             name +
             " " +
             t(
-              "saveSuccess",
+              "saveSuccessMessage",
               "was created successfully. It is now visible on the Forms dashboard."
             ),
         });

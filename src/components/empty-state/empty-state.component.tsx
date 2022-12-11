@@ -30,7 +30,7 @@ function EmptyState() {
               })
             }
           >
-            {t("createNewForm", "Create new form")}
+            {t("createNewForm", "Create a new form")}
           </Link>
         </p>
       </Tile>
