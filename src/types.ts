@@ -68,10 +68,11 @@ export interface Question {
   label: string;
   id: string;
   type: string;
-  questionOptions: QuestionOption;
+  questionOptions: QuestionOptions;
+  required: string;
 }
 
-export interface QuestionOption {
+export interface QuestionOptions {
   rendering: string;
   answers: Array<Answer>;
   max: string;
@@ -111,4 +112,21 @@ export interface ConceptAnswer {
 
 export interface Mappings {
   display: string;
+}
+
+export enum FieldTypes {
+  Date = "date",
+  Drug = "drug",
+  FieldSet = "field-set",
+  File = "file",
+  Group = "group",
+  MultiCheckbox = "multiCheckbox",
+  Number = "number",
+  Problem = "problem",
+  Radio = "radio",
+  Repeating = "repeating",
+  Select = "select",
+  Text = "text",
+  TextArea = "textarea",
+  UiSelectExtended = "ui-select-extended",
 }

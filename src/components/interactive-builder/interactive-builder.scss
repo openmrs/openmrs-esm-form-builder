@@ -5,6 +5,10 @@
   :global(.cds--modal-content:focus) {
     outline: none;
   }
+
+  :global(.cds--tooltip) {
+    z-index: 1;
+  }
 }
 
 .helperText {
@@ -40,28 +44,26 @@
   @include type.type-style('heading-02');
 }
 
-.accordion {
-  :global(.cds--accordion__content) {
-    background-color: $ui-02;
-  }
-}
-
-.accordionContainer {
-  margin: 1.5rem 0;
+.editableFieldsContainer {
+  margin: 1rem 0;
+  border-bottom: 1px solid $ui-03;
 }
 
 .addQuestionButton {
-  margin: 1.5rem 0;
+  margin: 0.75rem 0;
+}
+
+.sectionsContainer {
+  padding: 0 0.5rem; 
+  margin: 1rem 0;
 }
 
 .questionsContainer {
-  margin-top: 1.5rem;
-  width: 90%;
-}
+  padding: 0.5rem 0;
 
-.pageContainer {
-  border-bottom: 1px solid $ui-03;
-  padding: 1rem 0rem 2rem;
+  p {
+    padding: 0.5rem 0;
+  }
 }
 
 .header {
@@ -76,4 +78,19 @@
 
 .startButton {
   margin: 1rem 0;
+}
+
+.editorContainer {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.25rem 0;
+  align-items: center
+}
+
+.questionLabel {
+  @include type.type-style('body-01');
+}
+
+.addSectionButton {
+  margin-bottom: 1rem;
 }

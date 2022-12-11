@@ -1,21 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Accordion,
-  AccordionItem,
-  Button,
-  FormGroup,
-  InlineLoading,
-  TextInput,
-} from "@carbon/react";
-import { Add } from "@carbon/react/icons";
+import { Button, InlineLoading } from "@carbon/react";
+import { Add, Edit } from "@carbon/react/icons";
 import { useParams } from "react-router-dom";
 import { OHRIFormSchema } from "@ohri/openmrs-ohri-form-engine-lib";
+import { showToast, showNotification } from "@openmrs/esm-framework";
 import { RouteParams, Schema } from "../../types";
+import AddQuestionModal from "./add-question-modal.component";
+import EditQuestionModal from "./edit-question-modal.component";
+import EditableValue from "./editable-value.component";
 import NewFormModal from "./new-form-modal.component";
 import PageModal from "./page-modal.component";
 import SectionModal from "./section-modal.component";
-import QuestionModal from "./question-modal.component";
 import styles from "./interactive-builder.scss";
 
 type InteractiveBuilderProps = {
@@ -32,14 +28,18 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
   const isEditingExistingForm = !!formUuid;
+  const [formName, setFormName] = useState(schema ? schema.name : "");
+  const [pageName, setPageName] = useState("");
+  const [sectionName, setSectionName] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
   const [sectionIndex, setSectionIndex] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [questionLabel, setQuestionLabel] = useState("");
   const [showNewFormModal, setShowNewFormModal] = useState(false);
   const [showAddPageModal, setShowAddPageModal] = useState(false);
   const [showAddQuestionModal, setShowAddQuestionModal] = useState(false);
+  const [showEditQuestionModal, setShowEditQuestionModal] = useState(false);
   const [showAddSectionModal, setShowAddSectionModal] = useState(false);
+  const [questionToEdit, setQuestionToEdit] = useState(null);
 
   const initializeSchema = () => {
     const dummySchema: OHRIFormSchema = {
@@ -77,6 +77,87 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
   const addQuestion = () => {
     setShowAddQuestionModal(true);
+  };
+
+  const editQuestion = () => {
+    setShowEditQuestionModal(true);
+  };
+
+  const renameSchema = (value) => {
+    try {
+      if (value) {
+        schema.name = value;
+      } else {
+        schema.name = formName;
+      }
+
+      onSchemaChange({ ...schema });
+
+      showToast({
+        title: t("success", "Success!"),
+        kind: "success",
+        critical: true,
+        description: t("formRenamed", "Form renamed"),
+      });
+    } catch (error) {
+      showNotification({
+        title: t("errorRenamingForm", "Error renaming form"),
+        kind: "error",
+        critical: true,
+        description: error?.message,
+      });
+    }
+  };
+
+  const renamePage = (name, pageIndex) => {
+    try {
+      if (name) {
+        schema.pages[pageIndex].label = name;
+      } else if (pageName) {
+        schema.pages[pageIndex].label = pageName;
+      }
+
+      onSchemaChange({ ...schema });
+
+      showToast({
+        title: t("success", "Success!"),
+        kind: "success",
+        critical: true,
+        description: t("pageRenamed", "Page renamed"),
+      });
+    } catch (error) {
+      showNotification({
+        title: t("errorRenamingPage", "Error renaming page"),
+        kind: "error",
+        critical: true,
+        description: error?.message,
+      });
+    }
+  };
+
+  const renameSection = (name, pageIndex, sectionIndex) => {
+    try {
+      if (name) {
+        schema.pages[pageIndex].sections[sectionIndex].label = name;
+      }
+      onSchemaChange({ ...schema });
+
+      resetIndices();
+
+      showToast({
+        title: t("success", "Success!"),
+        kind: "success",
+        critical: true,
+        description: t("sectionRenamed", "Section renamed"),
+      });
+    } catch (error) {
+      showNotification({
+        title: t("errorRenamingSection", "Error renaming section"),
+        kind: "error",
+        critical: true,
+        description: error?.message,
+      });
+    }
   };
 
   return (
@@ -117,15 +198,32 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       ) : null}
 
       {showAddQuestionModal ? (
-        <QuestionModal
-          schema={schema}
+        <AddQuestionModal
+          onModalChange={setShowAddQuestionModal}
+          onQuestionEdit={setQuestionToEdit}
           onSchemaChange={onSchemaChange}
           pageIndex={pageIndex}
           sectionIndex={sectionIndex}
           questionIndex={questionIndex}
+          questionToEdit={questionToEdit}
           resetIndices={resetIndices}
+          schema={schema}
           showModal={showAddQuestionModal}
-          onModalChange={setShowAddQuestionModal}
+        />
+      ) : null}
+
+      {showEditQuestionModal ? (
+        <EditQuestionModal
+          onModalChange={setShowEditQuestionModal}
+          onQuestionEdit={setQuestionToEdit}
+          onSchemaChange={onSchemaChange}
+          pageIndex={pageIndex}
+          questionIndex={questionIndex}
+          questionToEdit={questionToEdit}
+          resetIndices={resetIndices}
+          schema={schema}
+          sectionIndex={sectionIndex}
+          showModal={showEditQuestionModal}
         />
       ) : null}
 
@@ -147,7 +245,15 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
               {t("addPage", "Add Page")}
             </Button>
           </div>
-          <h1 className={styles.heading}>{schema.name}</h1>
+          <div className={styles.editorContainer}>
+            <EditableValue
+              elementType="schema"
+              id="formNameInput"
+              value={schema?.name}
+              onChange={(event) => setFormName(event.target.value)}
+              onSave={(name) => renameSchema(name)}
+            />
+          </div>
         </>
       )}
 
@@ -172,9 +278,17 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
       {schema?.pages?.length
         ? schema.pages.map((page, pageIndex) => (
-            <div className={styles.pageContainer}>
-              <h2 className={styles.styledHeading}>{page.label}</h2>
-              <div className={styles.accordionContainer}>
+            <div className={styles.editableFieldsContainer}>
+              <div className={styles.editorContainer}>
+                <EditableValue
+                  elementType="page"
+                  id="pageNameInput"
+                  value={schema.pages[pageIndex].label}
+                  onChange={(event) => setPageName(event.target.value)}
+                  onSave={(name) => renamePage(name, pageIndex)}
+                />
+              </div>
+              <div>
                 {page?.sections?.length ? (
                   <p className={styles.explainer}>
                     {t(
@@ -185,22 +299,43 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                 ) : null}
                 {page?.sections?.length ? (
                   page.sections?.map((section, sectionIndex) => (
-                    <Accordion className={styles.accordion}>
-                      <AccordionItem title={section.label}>
+                    <div className={styles.sectionsContainer}>
+                      <div className={styles.editorContainer}>
+                        <EditableValue
+                          elementType="section"
+                          id="sectionNameInput"
+                          value={section.label}
+                          onChange={(event) =>
+                            setSectionName(event.target.value)
+                          }
+                          onSave={(name) =>
+                            renameSection(name, pageIndex, sectionIndex)
+                          }
+                        />
+                      </div>
+                      <div className={styles.questionsContainer}>
                         {section.questions?.length ? (
                           section.questions.map((question, questionIndex) => (
-                            <div className={styles.questionsContainer}>
-                              <FormGroup legendText={""}>
-                                <TextInput
-                                  id="questionLabel"
-                                  labelText={question.label}
-                                  value={""}
-                                  onChange={(event) =>
-                                    setQuestionLabel(event.target.value)
-                                  }
-                                  required
-                                />
-                              </FormGroup>
+                            <div className={styles.editorContainer}>
+                              <p className={styles.questionLabel}>
+                                {question.label}
+                              </p>
+                              <Button
+                                kind="ghost"
+                                size="sm"
+                                iconDescription={t("editNameButton", "Edit")}
+                                onClick={() => {
+                                  editQuestion();
+                                  setPageIndex(pageIndex);
+                                  setSectionIndex(sectionIndex);
+                                  setQuestionIndex(questionIndex);
+                                  setQuestionToEdit(question);
+                                }}
+                                renderIcon={(props) => (
+                                  <Edit size={16} {...props} />
+                                )}
+                                hasIconOnly
+                              />
                             </div>
                           ))
                         ) : (
@@ -225,8 +360,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                         >
                           {t("addQuestion", "Add Question")}
                         </Button>
-                      </AccordionItem>
-                    </Accordion>
+                      </div>
+                    </div>
                   ))
                 ) : (
                   <p className={styles.explainer}>
@@ -238,6 +373,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                 )}
               </div>
               <Button
+                className={styles.addSectionButton}
                 kind="primary"
                 renderIcon={Add}
                 onClick={() => {
@@ -254,4 +390,5 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     </div>
   );
 };
+
 export default InteractiveBuilder;
