@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, InlineLoading } from "@carbon/react";
+import { Accordion, AccordionItem, Button, InlineLoading } from "@carbon/react";
 import { Add, Edit } from "@carbon/react/icons";
 import { useParams } from "react-router-dom";
 import { OHRIFormSchema } from "@ohri/openmrs-ohri-form-engine-lib";
@@ -299,69 +299,78 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                 ) : null}
                 {page?.sections?.length ? (
                   page.sections?.map((section, sectionIndex) => (
-                    <div className={styles.sectionsContainer}>
-                      <div className={styles.editorContainer}>
-                        <EditableValue
-                          elementType="section"
-                          id="sectionNameInput"
-                          value={section.label}
-                          onChange={(event) =>
-                            setSectionName(event.target.value)
-                          }
-                          onSave={(name) =>
-                            renameSection(name, pageIndex, sectionIndex)
-                          }
-                        />
-                      </div>
-                      <div className={styles.questionsContainer}>
-                        {section.questions?.length ? (
-                          section.questions.map((question, questionIndex) => (
-                            <div className={styles.editorContainer}>
-                              <p className={styles.questionLabel}>
-                                {question.label}
-                              </p>
-                              <Button
-                                kind="ghost"
-                                size="sm"
-                                iconDescription={t("editNameButton", "Edit")}
-                                onClick={() => {
-                                  editQuestion();
-                                  setPageIndex(pageIndex);
-                                  setSectionIndex(sectionIndex);
-                                  setQuestionIndex(questionIndex);
-                                  setQuestionToEdit(question);
-                                }}
-                                renderIcon={(props) => (
-                                  <Edit size={16} {...props} />
+                    <Accordion>
+                      <AccordionItem title={section.label}>
+                        <>
+                          <div className={styles.editorContainer}>
+                            <EditableValue
+                              elementType="section"
+                              id="sectionNameInput"
+                              value={section.label}
+                              onChange={(event) =>
+                                setSectionName(event.target.value)
+                              }
+                              onSave={(name) =>
+                                renameSection(name, pageIndex, sectionIndex)
+                              }
+                            />
+                          </div>
+                          <div>
+                            {section.questions?.length ? (
+                              section.questions.map(
+                                (question, questionIndex) => (
+                                  <div className={styles.editorContainer}>
+                                    <p className={styles.questionLabel}>
+                                      {question.label}
+                                    </p>
+                                    <Button
+                                      kind="ghost"
+                                      size="sm"
+                                      iconDescription={t(
+                                        "editNameButton",
+                                        "Edit"
+                                      )}
+                                      onClick={() => {
+                                        editQuestion();
+                                        setPageIndex(pageIndex);
+                                        setSectionIndex(sectionIndex);
+                                        setQuestionIndex(questionIndex);
+                                        setQuestionToEdit(question);
+                                      }}
+                                      renderIcon={(props) => (
+                                        <Edit size={16} {...props} />
+                                      )}
+                                      hasIconOnly
+                                    />
+                                  </div>
+                                )
+                              )
+                            ) : (
+                              <p className={styles.explainer}>
+                                {t(
+                                  "sectionExplainer",
+                                  "A section will typically contain one or more questions. Click the button below to add a question to this section."
                                 )}
-                                hasIconOnly
-                              />
-                            </div>
-                          ))
-                        ) : (
-                          <p className={styles.explainer}>
-                            {t(
-                              "sectionExplainer",
-                              "A section will typically contain one or more questions. Click the button below to add a question to this section."
+                              </p>
                             )}
-                          </p>
-                        )}
-                        <Button
-                          className={styles.addQuestionButton}
-                          kind="primary"
-                          renderIcon={Add}
-                          onClick={() => {
-                            addQuestion();
-                            setQuestionIndex(questionIndex);
-                            setPageIndex(pageIndex);
-                            setSectionIndex(sectionIndex);
-                          }}
-                          iconDescription={t("addQuestion", "Add Question")}
-                        >
-                          {t("addQuestion", "Add Question")}
-                        </Button>
-                      </div>
-                    </div>
+                            <Button
+                              className={styles.addQuestionButton}
+                              kind="primary"
+                              renderIcon={Add}
+                              onClick={() => {
+                                addQuestion();
+                                setQuestionIndex(questionIndex);
+                                setPageIndex(pageIndex);
+                                setSectionIndex(sectionIndex);
+                              }}
+                              iconDescription={t("addQuestion", "Add Question")}
+                            >
+                              {t("addQuestion", "Add Question")}
+                            </Button>
+                          </div>
+                        </>
+                      </AccordionItem>
+                    </Accordion>
                   ))
                 ) : (
                   <p className={styles.explainer}>
