@@ -1,5 +1,6 @@
 import { openmrsFetch, FetchResponse } from "@openmrs/esm-framework";
 import axios from "axios";
+import { Schema } from "./types";
 
 export const deleteClobData = async (valueReference: string) => {
   const request: FetchResponse = await openmrsFetch(
@@ -12,7 +13,10 @@ export const deleteClobData = async (valueReference: string) => {
   return request;
 };
 
-export const deleteResource = async (formUUID: any, resourceUUID: any) => {
+export const deleteResource = async (
+  formUUID: string,
+  resourceUUID: string
+) => {
   const request: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${formUUID}/resource/${resourceUUID}`,
     {
@@ -23,7 +27,7 @@ export const deleteResource = async (formUUID: any, resourceUUID: any) => {
   return request;
 };
 
-export const uploadSchema = async (schema: any) => {
+export const uploadSchema = async (schema: Schema) => {
   const schemaBlob = new Blob([JSON.stringify(schema)], {
     type: "application/json",
   });
@@ -43,7 +47,10 @@ export const uploadSchema = async (schema: any) => {
   return request;
 };
 
-export const getResourceUUID = async (formUUID: any, valueReference: any) => {
+export const getResourceUUID = async (
+  formUUID: string,
+  valueReference: any
+) => {
   const body = {
     name: "JSON schema",
     dataType: "AmpathJsonSchema",

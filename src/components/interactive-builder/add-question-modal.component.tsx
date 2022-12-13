@@ -24,39 +24,31 @@ import {
 } from "@carbon/react";
 import flattenDeep from "lodash-es/flattenDeep";
 import { showNotification, showToast, useConfig } from "@openmrs/esm-framework";
-import { Answer, Concept, ConceptMapping, Schema } from "../../types";
+import {
+  Answer,
+  Concept,
+  ConceptMapping,
+  FieldTypes,
+  Question,
+  Schema,
+} from "../../types";
 import { useConceptLookup } from "../../hooks/useConceptLookup";
 import styles from "./question-modal.scss";
 
-enum FieldTypes {
-  Date = "date",
-  Drug = "drug",
-  FieldSet = "field-set",
-  File = "file",
-  Group = "group",
-  MultiCheckbox = "multiCheckbox",
-  Number = "number",
-  Problem = "problem",
-  Radio = "radio",
-  Repeating = "repeating",
-  Select = "select",
-  Text = "text",
-  TextArea = "textarea",
-  UiSelectExtended = "ui-select-extended",
-}
-
-type QuestionModalProps = {
-  schema: Schema;
+type AddQuestionModalProps = {
+  onModalChange: (showModal: boolean) => void;
+  onQuestionEdit: (question: Question) => void;
   onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
-  sectionIndex: number;
   questionIndex: number;
+  questionToEdit: Question;
   resetIndices: () => void;
+  schema: Schema;
+  sectionIndex: number;
   showModal: boolean;
-  onModalChange: (showModal: boolean) => void;
 };
 
-const QuestionModal: React.FC<QuestionModalProps> = ({
+const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   schema,
   onSchemaChange,
   pageIndex,
@@ -65,6 +57,8 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   resetIndices,
   showModal,
   onModalChange,
+  questionToEdit,
+  onQuestionEdit,
 }) => {
   const { t } = useTranslation();
   const { fieldTypes, questionTypes } = useConfig();
@@ -105,6 +99,10 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   };
 
   const questionIdExists = (idToTest) => {
+    if (questionToEdit?.id === idToTest) {
+      return false;
+    }
+
     const nestedIds = schema?.pages?.map((page) => {
       return page?.sections?.map((section) => {
         return section?.questions?.map((question) => {
@@ -118,12 +116,12 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
     return questionIds.includes(idToTest);
   };
 
-  const handleUpdatePageQuestions = () => {
-    updateQuestions();
+  const handleCreateQuestion = () => {
+    createQuestion();
     onModalChange(false);
   };
 
-  const updateQuestions = () => {
+  const createQuestion = () => {
     try {
       const computedQuestionId = `question-${questionIndex + 1}-section-${
         sectionIndex + 1
@@ -145,6 +143,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
         },
         validators: [],
       });
+
       onSchemaChange({ ...schema });
 
       resetIndices();
@@ -167,6 +166,69 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
     } catch (error) {
       showNotification({
         title: t("errorCreatingQuestion", "Error creating question"),
+        kind: "error",
+        critical: true,
+        description: error?.message,
+      });
+    }
+  };
+
+  const updateQuestion = (questionIndex) => {
+    try {
+      const mappedAnswers = selectedAnswers?.map((answer) => ({
+        concept: answer.id,
+        label: answer.text,
+      }));
+
+      const data = {
+        label: questionLabel ? questionLabel : questionToEdit.label,
+        type: questionType ? questionType : questionToEdit.type,
+        required: isQuestionRequired
+          ? isQuestionRequired
+          : /true/.test(questionToEdit?.required),
+        id: questionId ? questionId : questionToEdit.id,
+        questionOptions: {
+          rendering: fieldType
+            ? fieldType
+            : questionToEdit.questionOptions.rendering,
+          concept: selectedConcept?.uuid
+            ? selectedConcept.uuid
+            : questionToEdit.questionOptions.concept,
+          conceptMappings: conceptMappings.length
+            ? conceptMappings
+            : questionToEdit.questionOptions.conceptMappings,
+          answers: mappedAnswers.length
+            ? mappedAnswers
+            : questionToEdit.questionOptions.answers,
+        },
+      };
+
+      schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] =
+        data;
+
+      onSchemaChange({ ...schema });
+
+      resetIndices();
+      setQuestionLabel("");
+      setQuestionId("");
+      setIsQuestionRequired(false);
+      setQuestionType(null);
+      setFieldType(null);
+      setSelectedConcept(null);
+      setConceptMappings([]);
+      setAnswers([]);
+      setSelectedAnswers([]);
+      onQuestionEdit(null);
+
+      showToast({
+        title: t("success", "Success!"),
+        kind: "success",
+        critical: true,
+        description: t("questionCreated", "Question updated"),
+      });
+    } catch (error) {
+      showNotification({
+        title: t("errorUpdatingQuestion", "Error updating question"),
         kind: "error",
         critical: true,
         description: error?.message,
@@ -420,7 +482,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
             !fieldType ||
             (fieldType !== FieldTypes.UiSelectExtended && !selectedConcept)
           }
-          onClick={handleUpdatePageQuestions}
+          onClick={handleCreateQuestion}
         >
           <span>{t("save", "Save")}</span>
         </Button>
@@ -429,4 +491,4 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   );
 };
 
-export default QuestionModal;
+export default AddQuestionModal;
