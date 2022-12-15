@@ -4,6 +4,9 @@
     "build": {
       "outputs": [".next/**"]
     },
+    "extract-translations": {
+      "outputs": ["./translations/*"]
+    },
     "lint": {
       "outputs": []
     },

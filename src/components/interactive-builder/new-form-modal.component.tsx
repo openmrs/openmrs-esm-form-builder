@@ -58,7 +58,7 @@ const NewFormModal: React.FC<NewFormModalProps> = ({
           <FormGroup legendText={""}>
             <TextInput
               id="formName"
-              labelText={t("formName", "Form Name")}
+              labelText={t("formName", "Form name")}
               value={formName}
               onChange={(event) => setFormName(event.target.value)}
             />
