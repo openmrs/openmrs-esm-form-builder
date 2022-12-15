@@ -24,7 +24,7 @@ import { navigate, useLayoutType } from "@openmrs/esm-framework";
 
 import { FilterProps } from "../../types";
 import { useClobdata } from "../../hooks/useClobdata";
-import { usePocForms } from "../../hooks/usePocForms";
+import { useForms } from "../../hooks/useForms";
 import EmptyState from "../empty-state/empty-state.component";
 import ErrorState from "../error-state/error-state.component";
 import styles from "./dashboard.scss";
@@ -283,7 +283,7 @@ function FormsList({ forms, isValidating, t }) {
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation();
-  const { error, forms, isLoading, isValidating } = usePocForms();
+  const { error, forms, isLoading, isValidating } = useForms();
 
   return (
     <div className={styles.container}>
