@@ -90,7 +90,7 @@ jobs:
       - run: git add . && git commit -m "Prerelease version" --no-verify
       
       - name: Pre-release
-        run: yarn run ci:prepublish
+        run: yarn config set npmAuthToken "${NODE_AUTH_TOKEN}" && yarn npm publish --access public --tag next
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
@@ -126,6 +126,6 @@ jobs:
           node-version: "16.x"
           registry-url: 'https://registry.npmjs.org'
       - run: yarn
-      - run: yarn publish --access public
+      - run: yarn publish --access public --tag latest
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
