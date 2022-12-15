@@ -6,6 +6,9 @@
   "browser": "dist/openmrs-esm-form-builder-app.js",
   "main": "src/index.ts",
   "source": true,
+   "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "start": "openmrs develop",
     "serve": "webpack serve --mode=development",
