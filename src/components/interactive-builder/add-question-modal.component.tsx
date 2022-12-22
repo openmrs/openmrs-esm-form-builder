@@ -372,13 +372,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                       id="conceptLookup"
                       labelText={t("enterConceptName", "Enter concept name")}
                       placeholder={t("searchConcept", "Search concept")}
-                      onClear={() => {
-                        setSelectedConcept(null);
-                      }}
+                      onClear={() => setSelectedConcept(null)}
                       onChange={handleConceptChange}
-                      onInputChange={(event) => {
-                        setConceptToLookup(event);
-                      }}
                       value={(() => {
                         if (conceptToLookup) {
                           return conceptToLookup;
