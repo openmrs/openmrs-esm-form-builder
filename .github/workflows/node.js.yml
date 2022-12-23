@@ -34,11 +34,11 @@ jobs:
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-      
+
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: yarn
-      
+
       - name: Setup local cache server for Turborepo
         uses: felixmosh/turborepo-gh-artifacts@v1
         with:
@@ -47,16 +47,9 @@ jobs:
 
       - name: Run tests, lint and typechecking
         run: yarn turbo verify
-      
+
       - name: Run build
         run: yarn turbo build --color
-      
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: packages
-          path: |
-            packages/**/dist
 
   pre_release:
     runs-on: ubuntu-latest
@@ -83,16 +76,16 @@ jobs:
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: yarn install --immutable
-      
+
       - name: Version
         run: yarn version "$(node -e "console.log(require('semver').inc(require('./package.json').version, 'patch'))")-pre.${{ github.run_number }}"
-        
+
       - name: Build
         run: yarn turbo run build --color --concurrency=5
-      
+
       - run: git config user.email "info@openmrs.org" && git config user.name "OpenMRS CI"
       - run: git add . && git commit -m "Prerelease version" --no-verify
-      
+
       - name: Pre-release
         run: yarn config set npmAuthToken "${NODE_AUTH_TOKEN}" && yarn npm publish --access public --tag next
         env:
