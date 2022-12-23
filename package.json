@@ -20,6 +20,10 @@
     "prepare": "husky install",
     "extract-translations": "i18next 'src/**/*.component.tsx' --config ./i18next-parser.config.js"
   },
+  "files": [
+    "dist",
+    "src"
+  ],
   "browserslist": [
     "extends browserslist-config-openmrs"
   ],
