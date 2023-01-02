@@ -9,8 +9,8 @@
 }
 
 .breadcrumbsContainer {
-  & > .nav.breadcrumbs-container {
-    background-color: $ui-03;
+  nav {
+    background-color: $ui-02;
   }
 }
 
