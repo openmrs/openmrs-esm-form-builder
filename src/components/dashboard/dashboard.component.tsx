@@ -145,7 +145,7 @@ function FormsList({ forms, isValidating, t }) {
 
   const tableRows = useMemo(
     () =>
-      (filteredRows.length ? filteredRows : forms)?.map((form) => ({
+      (filteredRows ? filteredRows : forms)?.map((form) => ({
         ...form,
         id: form.uuid,
         published: <CustomTag condition={form.published} />,
