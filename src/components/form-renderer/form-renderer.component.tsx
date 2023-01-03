@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
-import { InlineLoading, Tile } from "@carbon/react";
+import { Button, InlineLoading, Tile } from "@carbon/react";
 import { OHRIFormSchema, OHRIForm } from "@ohri/openmrs-ohri-form-engine-lib";
 import { useConfig } from "@openmrs/esm-framework";
 
@@ -86,15 +87,37 @@ const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
           </Tile>
         )}
         {schema === schemaToRender && (
-          <OHRIForm
-            formJson={schemaToRender}
-            mode={"enter"}
-            patientUUID={patientUuid}
-          />
+          <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => {}}>
+            <OHRIForm
+              formJson={schemaToRender}
+              mode={"enter"}
+              patientUUID={patientUuid}
+            />
+          </ErrorBoundary>
         )}
       </div>
     </>
   );
 };
+
+function ErrorFallback({ error, resetErrorBoundary }) {
+  const { t } = useTranslation();
+  return (
+    <Tile className={styles.errorStateTile}>
+      <h4 className={styles.heading}>
+        {t(
+          "problemLoadingPreview",
+          "There was a problem loading the schema preview"
+        )}
+      </h4>
+      <p className={styles.helperText}>
+        <pre>{error.message}</pre>
+      </p>
+      <Button kind="primary" onClick={resetErrorBoundary}>
+        {t("tryAgain", "Try again")}
+      </Button>
+    </Tile>
+  );
+}
 
 export default FormRenderer;

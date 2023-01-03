@@ -33,6 +33,18 @@
   padding: 1.5rem;
 }
 
+.errorStateTile {
+  @extend .emptyStateTile;
+
+  .helperText {
+    margin: 0.75rem 0;
+  }
+
+  button {
+    margin-top: 0.25rem;
+  }
+}
+
 .heading {
   @include type.type-style('heading-compact-02');
   color: colors.$gray-100;
