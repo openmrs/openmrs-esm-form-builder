@@ -1,12 +1,26 @@
 @use '@carbon/styles/scss/colors';
 @use '@carbon/styles/scss/spacing';
 @use '@carbon/styles/scss/type';
+@import '~@openmrs/esm-styleguide/src/vars';
 
 .container {
   background-color: white;
   padding: 1rem;
   overflow-y: scroll;
   height: 100vh;
+}
+
+.loadingContainer {
+  @extend .container;
+  background-color: $ui-01;
+  margin-top: 5rem;
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: inherit;
 }
 
 .emptyStateTile {
