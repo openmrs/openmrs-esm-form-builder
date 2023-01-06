@@ -2,6 +2,10 @@
 
 OpenMRS esm form builder provides an interactive interface that allows OpenMRS to build schemas effortlessly including all features of Ampath Form Builder. Users can create schemas using the interactive form builder or by writing JSON in the Schema editor.
 
+## Form Builder User Guide
+See the thorough User Guide for the Form Builder here: https://ampath-forms.vercel.app/docs/quickstart
+Prerequisites & dependencies are covered here: https://ampath-forms.vercel.app/docs/developer-guide/run-form-engine-in-openmrs3#prerequisites 
+
 ## Running this code
 
 ```sh
