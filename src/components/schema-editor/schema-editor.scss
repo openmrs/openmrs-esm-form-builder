@@ -20,10 +20,6 @@
   margin: 1rem 0;
 }
 
-.errorMessage {
-  @include type.type-style('body-compact-01');
-}
-
 .heading {
   @include type.type-style('heading-compact-02');
   margin-bottom: 1rem;
