@@ -173,69 +173,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     }
   };
 
-  const updateQuestion = (questionIndex) => {
-    try {
-      const mappedAnswers = selectedAnswers?.map((answer) => ({
-        concept: answer.id,
-        label: answer.text,
-      }));
-
-      const data = {
-        label: questionLabel ? questionLabel : questionToEdit.label,
-        type: questionType ? questionType : questionToEdit.type,
-        required: isQuestionRequired
-          ? isQuestionRequired
-          : /true/.test(questionToEdit?.required),
-        id: questionId ? questionId : questionToEdit.id,
-        questionOptions: {
-          rendering: fieldType
-            ? fieldType
-            : questionToEdit.questionOptions.rendering,
-          concept: selectedConcept?.uuid
-            ? selectedConcept.uuid
-            : questionToEdit.questionOptions.concept,
-          conceptMappings: conceptMappings.length
-            ? conceptMappings
-            : questionToEdit.questionOptions.conceptMappings,
-          answers: mappedAnswers.length
-            ? mappedAnswers
-            : questionToEdit.questionOptions.answers,
-        },
-      };
-
-      schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] =
-        data;
-
-      onSchemaChange({ ...schema });
-
-      resetIndices();
-      setQuestionLabel("");
-      setQuestionId("");
-      setIsQuestionRequired(false);
-      setQuestionType(null);
-      setFieldType(null);
-      setSelectedConcept(null);
-      setConceptMappings([]);
-      setAnswers([]);
-      setSelectedAnswers([]);
-      onQuestionEdit(null);
-
-      showToast({
-        title: t("success", "Success!"),
-        kind: "success",
-        critical: true,
-        description: t("questionUpdated", "Question updated"),
-      });
-    } catch (error) {
-      showNotification({
-        title: t("errorUpdatingQuestion", "Error updating question"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-    }
-  };
-
   return (
     <ComposedModal open={showModal} onClose={() => onModalChange(false)}>
       <ModalHeader title={t("createNewQuestion", "Create a new question")} />

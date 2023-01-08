@@ -85,6 +85,12 @@
   width: 100%;
 }
 
+.buttonContainer {
+  span {
+    margin: 0rem 0.5rem;
+  }
+}
+
 .questionLabel {
   @include type.type-style('body-01');
 }
