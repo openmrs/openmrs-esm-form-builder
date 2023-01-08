@@ -172,7 +172,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
         title: t("success", "Success!"),
         kind: "success",
         critical: true,
-        description: t("questionCreated", "Question updated"),
+        description: t("questionUpdated", "Question updated"),
       });
     } catch (error) {
       showNotification({

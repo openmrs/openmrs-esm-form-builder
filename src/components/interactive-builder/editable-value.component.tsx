@@ -43,10 +43,13 @@ const EditableValue: React.FC<EditableValueProps> = ({
       ) : (
         <>
           <h1 className={styles[`${elementType}` + "Label"]}>{value}</h1>
+
           <Button
             kind="ghost"
             size="sm"
-            iconDescription={t("editNameButton", "Edit")}
+            iconDescription={t("editButton", "Edit {elementType}", {
+              elementType: elementType,
+            })}
             onClick={() => setEditing(true)}
             renderIcon={(props) => <Edit size={16} {...props} />}
             hasIconOnly
