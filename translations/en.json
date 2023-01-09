@@ -66,6 +66,7 @@
   "interactiveBuilderHelperText": "The Interactive Builder lets you build your form schema without writing JSON code. The Preview on the right automatically updates as you build your form. When done, click Save Form to save your form.",
   "isQuestionRequiredOrOptional": "Is this question a required or optional field? Required fields must be answered before the form can be submitted.",
   "labelPlaceholder": "e.g. Type of Anaesthesia",
+  "loading": "Loading",
   "loadingSchema": "Loading schema",
   "name": "Name",
   "no": "No",
@@ -83,7 +84,7 @@
   "publishForm": "Publish Form",
   "publishing": "Publishing",
   "questionCreated": "New question created",
-  "questionId": "Question ID",
+  "questionId": "Question ID (prefer camel-case for IDs)",
   "questionIdExists": "This question ID already exists in your schema",
   "questionIdPlaceholder": "Enter a unique ID e.g. \"anaesthesiaType\" for a question asking about the type of anaesthesia.",
   "questionLabel": "Label",
@@ -128,6 +129,7 @@
   "updateExistingForm": "Update existing version",
   "validFieldTypeRequired": "A valid field type value is required",
   "version": "Version",
-  "welcomeText": "Welcome to the Interactive Schema builder! Add pages, sections and questions to your form. The Preview on the right automatically updates as you build your form. When done, click Save Form to save your form.",
+  "welcomeExplainer": "Add pages, sections and questions to your form. The Preview tab automatically updates as you build your form. When finished, click Save Form to save your form.",
+  "welcomeHeading": "Interactive schema builder",
   "yes": "Yes"
 }

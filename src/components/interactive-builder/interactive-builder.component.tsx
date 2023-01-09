@@ -3,9 +3,11 @@ import { useTranslation } from "react-i18next";
 import { Accordion, AccordionItem, Button, InlineLoading } from "@carbon/react";
 import { Add, Edit, TrashCan } from "@carbon/react/icons";
 import { useParams } from "react-router-dom";
-import { OHRIFormSchema } from "@ohri/openmrs-ohri-form-engine-lib";
 import { showToast, showNotification } from "@openmrs/esm-framework";
+import { OHRIFormSchema } from "@ohri/openmrs-ohri-form-engine-lib";
+
 import { RouteParams, Schema } from "../../types";
+import ActionButtons from "../action-buttons/action-buttons.component";
 import AddQuestionModal from "./add-question-modal.component";
 import DeleteSectionModal from "./delete-section-modal.component";
 import DeletePageModal from "./delete-page-modal.component";
@@ -174,6 +176,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         />
       ) : null}
 
+      <ActionButtons schema={schema} t={t} />
+
       {showNewFormModal ? (
         <NewFormModal
           schema={schema}
@@ -272,12 +276,20 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       {schema?.name && (
         <>
           <div className={styles.header}>
-            <p className={styles.explainer}>
-              {t(
-                "welcomeText",
-                "Welcome to the Interactive Schema builder! Add pages, sections and questions to your form. The Preview on the right automatically updates as you build your form. When done, click Save Form to save your form."
-              )}
-            </p>
+            <div className={styles.explainer}>
+              <p>
+                {t(
+                  "welcomeHeading",
+                  "Welcome to the Interactive Schema builder"
+                )}
+              </p>
+              <p>
+                {t(
+                  "welcomeExplainer",
+                  "Add pages, sections and questions to your form. The Preview tab automatically updates as you build your form."
+                )}
+              </p>
+            </div>
             <Button
               kind="primary"
               renderIcon={Add}
@@ -345,7 +357,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
               </div>
               <div>
                 {page?.sections?.length ? (
-                  <p className={styles.explainer}>
+                  <p className={styles.sectionExplainer}>
                     {t(
                       "expandSectionExplainer",
                       "Below are the sections linked to this page. Expand each section to add questions to it."

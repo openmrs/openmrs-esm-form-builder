@@ -1,37 +1,24 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
   Column,
-  ComposedModal,
-  InlineLoading,
   InlineNotification,
   Grid,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
   Tabs,
   Tab,
   TabList,
   TabPanels,
   TabPanel,
-  Button,
 } from "@carbon/react";
 import { useParams } from "react-router-dom";
-import { useSWRConfig } from "swr";
 import { useTranslation } from "react-i18next";
-import SaveForm from "../modals/save-form.component";
-import {
-  showToast,
-  ExtensionSlot,
-  showNotification,
-} from "@openmrs/esm-framework";
+import { ExtensionSlot } from "@openmrs/esm-framework";
 import { Schema, RouteParams } from "../../types";
 import { useClobdata } from "../../hooks/useClobdata";
 import { useForm } from "../../hooks/useForm";
-import { publishForm, unpublishForm } from "../../forms.resource";
 import FormRenderer from "../form-renderer/form-renderer.component";
+import InteractiveBuilder from "../interactive-builder/interactive-builder.component";
 import SchemaEditor from "../schema-editor/schema-editor.component";
 import styles from "./form-editor.scss";
-import InteractiveBuilder from "../interactive-builder/interactive-builder.component";
 
 const Error = ({ error, title }) => {
   return (
@@ -52,95 +39,21 @@ const Error = ({ error, title }) => {
 const FormEditor: React.FC = () => {
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
-  const [schema, setSchema] = useState<Schema>(undefined);
-  const [isPublishing, setIsPublishing] = useState(false);
-  const [isUnpublishing, setIsUnpublishing] = useState(false);
-  const [showUnpublishModal, setShowUnpublishModal] = useState(false);
+  const [schema, setSchema] = useState<Schema>();
   const { form, formError, isLoadingForm } = useForm(formUuid);
   const { clobdata, clobdataError, isLoadingClobdata } = useClobdata(form);
-  const { cache, mutate }: { cache: any; mutate: Function } = useSWRConfig();
+  const isLoadingFormOrSchema =
+    formUuid && (isLoadingClobdata || isLoadingForm);
 
   useEffect(() => {
-    if (clobdata) {
+    if (!isLoadingClobdata && clobdata) {
       setSchema(clobdata);
     }
-  }, [clobdata, setSchema]);
+  }, [clobdata, isLoadingClobdata, setSchema]);
 
   const updateSchema = useCallback((updatedSchema) => {
     setSchema(updatedSchema);
   }, []);
-
-  const revalidate = () => {
-    const apiUrlPattern = new RegExp("\\/ws\\/rest\\/v1\\/form");
-
-    // Find matching keys from SWR's cache and broadcast a revalidation message to their pre-bound SWR hooks
-    Array.from(cache.keys())
-      .filter((url: string) => apiUrlPattern.test(url))
-      .forEach((url: string) => mutate(url));
-  };
-
-  const launchUnpublishModal = () => {
-    setShowUnpublishModal(true);
-  };
-
-  async function handlePublish() {
-    setIsPublishing(true);
-    try {
-      await publishForm(form.uuid);
-
-      showToast({
-        title: t("formPublished", "Form published"),
-        kind: "success",
-        critical: true,
-        description:
-          `${form.name} ` +
-          t("formPublishedSuccessfully", "form was published successfully"),
-      });
-
-      revalidate();
-    } catch (error) {
-      showNotification({
-        title: t("errorPublishingForm", "Error publishing form"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-    }
-    setIsPublishing(false);
-  }
-
-  async function handleUnpublish() {
-    setIsUnpublishing(true);
-    try {
-      await unpublishForm(form.uuid);
-
-      showToast({
-        title: t("formUnpublished", "Form unpublished"),
-        kind: "success",
-        critical: true,
-        description:
-          `${form.name} ` +
-          t("formUnpublishedSuccessfully", "form was unpublished successfully"),
-      });
-
-      revalidate();
-    } catch (error) {
-      showNotification({
-        title: t("errorUnpublishingForm", "Error unpublishing form"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-    }
-    setIsUnpublishing(false);
-    setShowUnpublishModal(false);
-  }
-
-  useEffect(() => {
-    if (!isLoadingClobdata) {
-      setSchema(clobdata);
-    }
-  }, [clobdata, isLoadingClobdata]);
 
   return (
     <>
@@ -153,7 +66,6 @@ const FormEditor: React.FC = () => {
             <Tabs>
               <TabList>
                 <Tab>{t("schemaEditor", "Schema Editor")}</Tab>
-                <Tab>{t("interactiveBuilder", "Interactive Builder")}</Tab>
               </TabList>
               <TabPanels>
                 <TabPanel>
@@ -173,18 +85,9 @@ const FormEditor: React.FC = () => {
                     <SchemaEditor
                       schema={schema}
                       onSchemaChange={updateSchema}
-                      isLoading={
-                        formUuid && (isLoadingClobdata || isLoadingForm)
-                      }
+                      isLoading={isLoadingFormOrSchema}
                     />
                   </>
-                </TabPanel>
-                <TabPanel>
-                  <InteractiveBuilder
-                    schema={schema}
-                    onSchemaChange={updateSchema}
-                    isLoading={formUuid && (isLoadingClobdata || isLoadingForm)}
-                  />
                 </TabPanel>
               </TabPanels>
             </Tabs>
@@ -193,97 +96,22 @@ const FormEditor: React.FC = () => {
             <Tabs>
               <TabList>
                 <Tab>{t("preview", "Preview")}</Tab>
+                <Tab>{t("interactiveBuilder", "Interactive Builder")}</Tab>
               </TabList>
               <TabPanels>
                 <TabPanel>
-                  <>
-                    <div className={styles.actionButtons}>
-                      <SaveForm form={form} schema={schema} />
-
-                      <>
-                        {form && !form.published ? (
-                          <Button
-                            kind="secondary"
-                            onClick={handlePublish}
-                            disabled={isPublishing}
-                          >
-                            {isPublishing && !form?.published ? (
-                              <InlineLoading
-                                className={styles.spinner}
-                                description={
-                                  t("publishing", "Publishing") + "..."
-                                }
-                              />
-                            ) : (
-                              <span>{t("publishForm", "Publish form")}</span>
-                            )}
-                          </Button>
-                        ) : null}
-                        {form && form.published ? (
-                          <Button
-                            kind="danger"
-                            onClick={launchUnpublishModal}
-                            disabled={isUnpublishing}
-                          >
-                            {t("unpublishForm", "Unpublish form")}
-                          </Button>
-                        ) : null}
-                        {showUnpublishModal ? (
-                          <ComposedModal
-                            open={true}
-                            onClose={() => setShowUnpublishModal(false)}
-                          >
-                            <ModalHeader
-                              title={t(
-                                "unpublishConfirmation",
-                                "Are you sure you want to unpublish this form?"
-                              )}
-                            ></ModalHeader>
-                            <ModalBody>
-                              <p>
-                                {t(
-                                  "unpublishExplainerText",
-                                  "Unpublishing a form means you can no longer access it from your frontend. Unpublishing forms does not delete their associated schemas, it only affects whether or not you can access them in your frontend."
-                                )}
-                              </p>
-                            </ModalBody>
-                            <ModalFooter>
-                              <Button
-                                kind="secondary"
-                                onClick={() => setShowUnpublishModal(false)}
-                              >
-                                {t("cancel", "Cancel")}
-                              </Button>
-                              <Button
-                                disabled={isUnpublishing}
-                                kind={isUnpublishing ? "secondary" : "danger"}
-                                onClick={handleUnpublish}
-                              >
-                                {isUnpublishing ? (
-                                  <InlineLoading
-                                    className={styles.spinner}
-                                    description={
-                                      t("unpublishing", "Unpublishing") + "..."
-                                    }
-                                  />
-                                ) : (
-                                  <span>
-                                    {t("unpublishForm", "Unpublish form")}
-                                  </span>
-                                )}
-                              </Button>
-                            </ModalFooter>
-                          </ComposedModal>
-                        ) : (
-                          false
-                        )}
-                      </>
-                    </div>
-                    <FormRenderer
-                      schema={schema}
-                      onSchemaChange={updateSchema}
-                    />
-                  </>
+                  <FormRenderer
+                    schema={schema}
+                    onSchemaChange={updateSchema}
+                    isLoading={isLoadingFormOrSchema}
+                  />
+                </TabPanel>
+                <TabPanel>
+                  <InteractiveBuilder
+                    schema={schema}
+                    onSchemaChange={updateSchema}
+                    isLoading={isLoadingFormOrSchema}
+                  />
                 </TabPanel>
               </TabPanels>
             </Tabs>

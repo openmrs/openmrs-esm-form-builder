@@ -350,7 +350,10 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   "questionIdExists",
                   "This question ID already exists in your schema"
                 )}
-                labelText={t("questionId", "Question ID")}
+                labelText={t(
+                  "questionId",
+                  "Question ID (prefer camel-case for IDs)"
+                )}
                 value={questionId}
                 onChange={(event) => {
                   setQuestionId(event.target.value);
@@ -366,26 +369,24 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   <FormLabel className={styles.label}>
                     {t("selectBackingConcept", "Select backing concept")}
                   </FormLabel>
-                  <Layer>
-                    <Search
-                      size="md"
-                      id="conceptLookup"
-                      labelText={t("enterConceptName", "Enter concept name")}
-                      placeholder={t("searchConcept", "Search concept")}
-                      onClear={() => setSelectedConcept(null)}
-                      onChange={handleConceptChange}
-                      value={(() => {
-                        if (conceptToLookup) {
-                          return conceptToLookup;
-                        }
-                        if (selectedConcept) {
-                          return selectedConcept.display;
-                        }
-                        return "";
-                      })()}
-                      required
-                    />
-                  </Layer>
+                  <Search
+                    size="md"
+                    id="conceptLookup"
+                    labelText={t("enterConceptName", "Enter concept name")}
+                    placeholder={t("searchConcept", "Search concept")}
+                    onClear={() => setSelectedConcept(null)}
+                    onChange={handleConceptChange}
+                    value={(() => {
+                      if (conceptToLookup) {
+                        return conceptToLookup;
+                      }
+                      if (selectedConcept) {
+                        return selectedConcept.display;
+                      }
+                      return "";
+                    })()}
+                    required
+                  />
                   {(() => {
                     if (!conceptToLookup) return null;
                     if (isLoadingConcepts)

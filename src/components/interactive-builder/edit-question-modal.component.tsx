@@ -33,6 +33,7 @@ import {
   Schema,
 } from "../../types";
 import { useConceptLookup } from "../../hooks/useConceptLookup";
+import { useConceptName } from "../../hooks/useConceptName";
 import styles from "./question-modal.scss";
 
 type EditQuestionModalProps = {
@@ -76,6 +77,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const [conceptToLookup, setConceptToLookup] = useState("");
   const [selectedAnswers, setSelectedAnswers] = useState([]);
   const { concepts, isLoadingConcepts } = useConceptLookup(conceptToLookup);
+  const { conceptName, isLoadingConceptName } = useConceptName(
+    questionToEdit.questionOptions.concept
+  );
 
   const handleConceptChange = (event) => {
     setConceptToLookup(event.target.value);
@@ -302,7 +306,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                   "questionIdExists",
                   "This question ID already exists in your schema"
                 )}
-                labelText={t("questionId", "Question ID")}
+                labelText={t(
+                  "questionId",
+                  "Question ID (prefer camel-case for IDs)"
+                )}
                 onChange={(event) => setQuestionId(event.target.value)}
                 placeholder={t(
                   "questionIdPlaceholder",
@@ -313,64 +320,75 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               {fieldType !== FieldTypes.UiSelectExtended && (
                 <div>
                   <FormLabel className={styles.label}>
-                    {t("selectBackingConcept", "Select backing concept")}
+                    {t(
+                      "selectBackingConcept",
+                      "Select a backing concept for this question"
+                    )}
                   </FormLabel>
-                  <Layer>
-                    <Search
-                      defaultValue={questionToEdit?.questionOptions?.concept}
-                      id="conceptLookup"
-                      labelText={t("enterConceptName", "Enter concept name")}
-                      placeholder={t("searchConcept", "Search concept")}
-                      onClear={() => {
-                        setSelectedConcept(null);
-                      }}
-                      onChange={handleConceptChange}
-                      onInputChange={(event) => {
-                        setConceptToLookup(event);
-                      }}
-                      required
-                      size="md"
+                  {isLoadingConceptName ? (
+                    <InlineLoading
+                      className={styles.loader}
+                      description={t("loading", "Loading") + "..."}
                     />
-                  </Layer>
-                  {(() => {
-                    if (!conceptToLookup) return null;
-                    if (isLoadingConcepts)
-                      return (
-                        <InlineLoading
-                          className={styles.loader}
-                          description={t("searching", "Searching") + "..."}
-                        />
-                      );
-                    if (concepts && concepts?.length && !isLoadingConcepts) {
-                      return (
-                        <ul className={styles.conceptList}>
-                          {concepts?.map((concept, index) => (
-                            <li
-                              role="menuitem"
-                              className={styles.concept}
-                              key={index}
-                              onClick={() => handleConceptSelect(concept)}
-                            >
-                              {concept.display}
-                            </li>
-                          ))}
-                        </ul>
-                      );
-                    }
-                    return (
-                      <Layer>
-                        <Tile className={styles.emptyResults}>
-                          <span>
-                            {t(
-                              "noMatchingConcepts",
-                              "No concepts were found that match"
-                            )}{" "}
-                            <strong>"{conceptToLookup}".</strong>
-                          </span>
-                        </Tile>
-                      </Layer>
-                    );
-                  })()}
+                  ) : (
+                    <>
+                      <Search
+                        defaultValue={conceptName}
+                        id="conceptLookup"
+                        labelText={t("enterConceptName", "Enter concept name")}
+                        placeholder={t("searchConcept", "Search concept")}
+                        onClear={() => setSelectedConcept(null)}
+                        onChange={handleConceptChange}
+                        onInputChange={(event) => setConceptToLookup(event)}
+                        required
+                        size="md"
+                        value={selectedConcept?.display}
+                      />
+                      {(() => {
+                        if (!conceptToLookup) return null;
+                        if (isLoadingConcepts)
+                          return (
+                            <InlineLoading
+                              className={styles.loader}
+                              description={t("searching", "Searching") + "..."}
+                            />
+                          );
+                        if (
+                          concepts &&
+                          concepts?.length &&
+                          !isLoadingConcepts
+                        ) {
+                          return (
+                            <ul className={styles.conceptList}>
+                              {concepts?.map((concept, index) => (
+                                <li
+                                  role="menuitem"
+                                  className={styles.concept}
+                                  key={index}
+                                  onClick={() => handleConceptSelect(concept)}
+                                >
+                                  {concept.display}
+                                </li>
+                              ))}
+                            </ul>
+                          );
+                        }
+                        return (
+                          <Layer>
+                            <Tile className={styles.emptyResults}>
+                              <span>
+                                {t(
+                                  "noMatchingConcepts",
+                                  "No concepts were found that match"
+                                )}{" "}
+                                <strong>"{conceptToLookup}".</strong>
+                              </span>
+                            </Tile>
+                          </Layer>
+                        );
+                      })()}
+                    </>
+                  )}
                 </div>
               )}
 

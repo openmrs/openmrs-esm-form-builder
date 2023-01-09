@@ -1,0 +1,16 @@
+.actionButtons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 1rem 0;
+
+  button {
+    margin-left: 1rem
+  }
+}
+
+.spinner {
+  &:global(.cds--inline-loading) {
+    min-height: 1rem;
+  }
+}
