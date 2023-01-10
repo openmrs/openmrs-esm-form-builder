@@ -156,7 +156,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
       </div>
 
       {invalidJsonErrorMessage ? (
-        <div className={styles.errorMessage}>
+        <div className={styles.errorContainer}>
           <p className={styles.heading}>
             {t("schemaError", "There's an error in your schema.")}
           </p>
