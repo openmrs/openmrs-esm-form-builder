@@ -178,7 +178,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
         setOptions={{
           enableBasicAutocompletion: false,
           enableLiveAutocompletion: false,
-          displayIndentGuides: false,
+          displayIndentGuides: true,
           enableSnippets: false,
           showLineNumbers: true,
           tabSize: 2,
