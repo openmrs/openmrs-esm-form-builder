@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Accordion, AccordionItem, Button, InlineLoading } from "@carbon/react";
-import { Add, Edit } from "@carbon/react/icons";
+import { Add, Edit, TrashCan } from "@carbon/react/icons";
 import { useParams } from "react-router-dom";
 import { showToast, showNotification } from "@openmrs/esm-framework";
 import { OHRIFormSchema } from "@ohri/openmrs-ohri-form-engine-lib";
@@ -9,6 +9,9 @@ import { OHRIFormSchema } from "@ohri/openmrs-ohri-form-engine-lib";
 import { RouteParams, Schema } from "../../types";
 import ActionButtons from "../action-buttons/action-buttons.component";
 import AddQuestionModal from "./add-question-modal.component";
+import DeleteSectionModal from "./delete-section-modal.component";
+import DeletePageModal from "./delete-page-modal.component";
+import DeleteQuestionModal from "./delete-question-modal.component";
 import EditQuestionModal from "./edit-question-modal.component";
 import EditableValue from "./editable-value.component";
 import NewFormModal from "./new-form-modal.component";
@@ -36,12 +39,15 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const [pageIndex, setPageIndex] = useState(0);
   const [sectionIndex, setSectionIndex] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
+  const [questionToEdit, setQuestionToEdit] = useState(null);
   const [showNewFormModal, setShowNewFormModal] = useState(false);
   const [showAddPageModal, setShowAddPageModal] = useState(false);
   const [showAddQuestionModal, setShowAddQuestionModal] = useState(false);
   const [showEditQuestionModal, setShowEditQuestionModal] = useState(false);
   const [showAddSectionModal, setShowAddSectionModal] = useState(false);
-  const [questionToEdit, setQuestionToEdit] = useState(null);
+  const [showDeletePageModal, setShowDeletePageModal] = useState(false);
+  const [showDeleteSectionModal, setShowDeleteSectionModal] = useState(false);
+  const [showDeleteQuestionModal, setShowDeleteQuestionModal] = useState(false);
 
   const initializeSchema = () => {
     const dummySchema: OHRIFormSchema = {
@@ -231,6 +237,42 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         />
       ) : null}
 
+      {showDeletePageModal ? (
+        <DeletePageModal
+          onModalChange={setShowDeletePageModal}
+          onSchemaChange={onSchemaChange}
+          resetIndices={resetIndices}
+          pageIndex={pageIndex}
+          schema={schema}
+          showModal={showDeletePageModal}
+        />
+      ) : null}
+
+      {showDeleteSectionModal ? (
+        <DeleteSectionModal
+          onModalChange={setShowDeleteSectionModal}
+          onSchemaChange={onSchemaChange}
+          resetIndices={resetIndices}
+          pageIndex={pageIndex}
+          sectionIndex={sectionIndex}
+          schema={schema}
+          showModal={showDeleteSectionModal}
+        />
+      ) : null}
+
+      {showDeleteQuestionModal ? (
+        <DeleteQuestionModal
+          onModalChange={setShowDeleteQuestionModal}
+          onSchemaChange={onSchemaChange}
+          resetIndices={resetIndices}
+          pageIndex={pageIndex}
+          sectionIndex={sectionIndex}
+          questionIndex={questionIndex}
+          schema={schema}
+          showModal={showDeleteQuestionModal}
+        />
+      ) : null}
+
       {schema?.name && (
         <>
           <div className={styles.header}>
@@ -291,13 +333,26 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       {schema?.pages?.length
         ? schema.pages.map((page, pageIndex) => (
             <div className={styles.editableFieldsContainer}>
-              <div className={styles.editorContainer}>
-                <EditableValue
-                  elementType="page"
-                  id="pageNameInput"
-                  value={schema.pages[pageIndex].label}
-                  onChange={(event) => setPageName(event.target.value)}
-                  onSave={(name) => renamePage(name, pageIndex)}
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <div className={styles.editorContainer}>
+                  <EditableValue
+                    elementType="page"
+                    id="pageNameInput"
+                    value={schema.pages[pageIndex].label}
+                    onChange={(event) => setPageName(event.target.value)}
+                    onSave={(name) => renamePage(name, pageIndex)}
+                  />
+                </div>
+                <Button
+                  hasIconOnly
+                  iconDescription={t("deletePage", "Delete page")}
+                  kind="ghost"
+                  onClick={() => {
+                    setPageIndex(pageIndex);
+                    setShowDeletePageModal(true);
+                  }}
+                  renderIcon={(props) => <TrashCan size={16} {...props} />}
+                  size="sm"
                 />
               </div>
               <div>
@@ -314,45 +369,91 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                     <Accordion>
                       <AccordionItem title={section.label}>
                         <>
-                          <div className={styles.editorContainer}>
-                            <EditableValue
-                              elementType="section"
-                              id="sectionNameInput"
-                              value={section.label}
-                              onChange={(event) =>
-                                setSectionName(event.target.value)
-                              }
-                              onSave={(name) =>
-                                renameSection(name, pageIndex, sectionIndex)
-                              }
+                          <div
+                            style={{ display: "flex", alignItems: "center" }}
+                          >
+                            <div className={styles.editorContainer}>
+                              <EditableValue
+                                elementType="section"
+                                id="sectionNameInput"
+                                value={section.label}
+                                onChange={(event) =>
+                                  setSectionName(event.target.value)
+                                }
+                                onSave={(name) =>
+                                  renameSection(name, pageIndex, sectionIndex)
+                                }
+                              />
+                            </div>
+                            <Button
+                              hasIconOnly
+                              iconDescription={t(
+                                "deleteSection",
+                                "Delete section"
+                              )}
+                              kind="ghost"
+                              onClick={() => {
+                                setPageIndex(pageIndex);
+                                setSectionIndex(sectionIndex);
+                                setShowDeleteSectionModal(true);
+                              }}
+                              renderIcon={(props) => (
+                                <TrashCan size={16} {...props} />
+                              )}
+                              size="sm"
                             />
                           </div>
                           <div>
                             {section.questions?.length ? (
                               section.questions.map(
                                 (question, questionIndex) => (
-                                  <div className={styles.editorContainer}>
-                                    <p className={styles.questionLabel}>
-                                      {question.label}
-                                    </p>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <div className={styles.editorContainer}>
+                                      <p className={styles.questionLabel}>
+                                        {question.label}
+                                      </p>
+                                      <Button
+                                        kind="ghost"
+                                        size="sm"
+                                        iconDescription={t(
+                                          "editQuestion",
+                                          "Edit question"
+                                        )}
+                                        onClick={() => {
+                                          editQuestion();
+                                          setPageIndex(pageIndex);
+                                          setSectionIndex(sectionIndex);
+                                          setQuestionIndex(questionIndex);
+                                          setQuestionToEdit(question);
+                                        }}
+                                        renderIcon={(props) => (
+                                          <Edit size={16} {...props} />
+                                        )}
+                                        hasIconOnly
+                                      />
+                                    </div>
                                     <Button
-                                      kind="ghost"
-                                      size="sm"
+                                      hasIconOnly
                                       iconDescription={t(
-                                        "editNameButton",
-                                        "Edit"
+                                        "deleteQuestion",
+                                        "Delete question"
                                       )}
+                                      kind="ghost"
                                       onClick={() => {
-                                        editQuestion();
                                         setPageIndex(pageIndex);
                                         setSectionIndex(sectionIndex);
                                         setQuestionIndex(questionIndex);
-                                        setQuestionToEdit(question);
+                                        setShowDeleteQuestionModal(true);
                                       }}
                                       renderIcon={(props) => (
-                                        <Edit size={16} {...props} />
+                                        <TrashCan size={16} {...props} />
                                       )}
-                                      hasIconOnly
+                                      size="sm"
                                     />
                                   </div>
                                 )

@@ -80,8 +80,9 @@
 .editorContainer {
   display: flex;
   justify-content: space-between;
-  margin: 0.25rem 0;
-  align-items: center
+  margin: 0.25rem 0.5rem;
+  align-items: center;
+  width: 100%;
 }
 
 .questionLabel {
