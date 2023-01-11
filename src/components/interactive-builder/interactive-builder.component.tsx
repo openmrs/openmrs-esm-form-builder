@@ -286,8 +286,15 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
               <p>
                 {t(
                   "welcomeExplainer",
-                  "Add pages, sections and questions to your form. The Preview tab automatically updates as you build your form."
-                )}
+                  "Add pages, sections and questions to your form. The Preview tab automatically updates as you build your form. For a detailed explanation of what constitutes an OpenMRS form schema, please read through the "
+                )}{" "}
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={"https://ampath-forms.vercel.app/docs/quickstart"}
+                >
+                  {t("formBuilderDocs", "form builder documentation")}.
+                </a>
               </p>
             </div>
             <Button
@@ -316,7 +323,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           <p className={styles.explainer}>
             {t(
               "interactiveBuilderHelperText",
-              "The Interactive Builder lets you build your form schema without writing JSON code. The Preview on the right automatically updates as you build your form. When done, click Save Form to save your form."
+              "The Interactive Builder lets you build your form schema without writing JSON code. The Preview tab automatically updates as you build your form. When done, click Save Form to save your form."
             )}
           </p>
 

@@ -33,3 +33,54 @@
   color: $text-02;
   min-height: 1rem;
 }
+
+.oclLauncherBanner {
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: $ui-04;
+
+  p {
+    color: $ui-02;
+  }
+}
+
+.oclLink {
+  color: $color-blue-10;
+  display: flex;
+  align-items: center;
+
+  svg {
+    margin-left: 0.25rem;
+  }
+}
+
+.table {
+  width: 100%;
+
+  tr {
+    background-color: $ui-02;
+    border: 1px solid $ui-03;
+  }
+  
+  td, th {
+    padding: 0.5rem;
+    border: 1px solid $ui-03;
+    max-width: 10rem;
+    text-align: left;
+  }  
+}
+
+.tableStriped {
+  @extend .table; 
+
+  thead {
+    font-weight: bold;
+  }
+
+  tbody > tr:nth-child(odd) {
+    background-color: $ui-01;
+  }
+}
+
