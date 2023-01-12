@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Accordion, AccordionItem, Button, InlineLoading } from "@carbon/react";
-import { Add, Edit, TrashCan } from "@carbon/react/icons";
+import { Add, Edit, Replicate, TrashCan } from "@carbon/react/icons";
 import { useParams } from "react-router-dom";
 import { showToast, showNotification } from "@openmrs/esm-framework";
 import { OHRIFormSchema } from "@ohri/openmrs-ohri-form-engine-lib";
@@ -161,6 +161,34 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     } catch (error) {
       showNotification({
         title: t("errorRenamingSection", "Error renaming section"),
+        kind: "error",
+        critical: true,
+        description: error?.message,
+      });
+    }
+  };
+
+  const duplicateQuestion = (question) => {
+    try {
+      const questionToDuplicate = JSON.parse(JSON.stringify(question));
+      questionToDuplicate.id = questionToDuplicate.id + "Duplicate";
+
+      schema.pages[pageIndex].sections[sectionIndex].questions.push(
+        questionToDuplicate
+      );
+
+      onSchemaChange({ ...schema });
+      resetIndices();
+
+      showToast({
+        title: t("success", "Success!"),
+        kind: "success",
+        critical: true,
+        description: t("questionDuplicated", "Question duplicated"),
+      });
+    } catch (error) {
+      showNotification({
+        title: t("errorDuplicatingQuestion", "Error duplicating question"),
         kind: "error",
         critical: true,
         description: error?.message,
@@ -345,6 +373,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                 </div>
                 <Button
                   hasIconOnly
+                  enterDelayMs={200}
                   iconDescription={t("deletePage", "Delete page")}
                   kind="ghost"
                   onClick={() => {
@@ -387,6 +416,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                             </div>
                             <Button
                               hasIconOnly
+                              enterDelayMs={200}
                               iconDescription={t(
                                 "deleteSection",
                                 "Delete section"
@@ -417,28 +447,51 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                       <p className={styles.questionLabel}>
                                         {question.label}
                                       </p>
-                                      <Button
-                                        kind="ghost"
-                                        size="sm"
-                                        iconDescription={t(
-                                          "editQuestion",
-                                          "Edit question"
-                                        )}
-                                        onClick={() => {
-                                          editQuestion();
-                                          setPageIndex(pageIndex);
-                                          setSectionIndex(sectionIndex);
-                                          setQuestionIndex(questionIndex);
-                                          setQuestionToEdit(question);
-                                        }}
-                                        renderIcon={(props) => (
-                                          <Edit size={16} {...props} />
-                                        )}
-                                        hasIconOnly
-                                      />
+                                      <div className={styles.buttonContainer}>
+                                        <Button
+                                          kind="ghost"
+                                          size="sm"
+                                          enterDelayMs={200}
+                                          iconDescription={t(
+                                            "duplicateQuestion",
+                                            "Duplicate question"
+                                          )}
+                                          onClick={() => {
+                                            duplicateQuestion(question);
+                                            setPageIndex(pageIndex);
+                                            setSectionIndex(sectionIndex);
+                                            setQuestionIndex(questionIndex);
+                                          }}
+                                          renderIcon={(props) => (
+                                            <Replicate size={16} {...props} />
+                                          )}
+                                          hasIconOnly
+                                        />
+                                        <Button
+                                          kind="ghost"
+                                          size="sm"
+                                          enterDelayMs={200}
+                                          iconDescription={t(
+                                            "editQuestion",
+                                            "Edit question"
+                                          )}
+                                          onClick={() => {
+                                            editQuestion();
+                                            setPageIndex(pageIndex);
+                                            setSectionIndex(sectionIndex);
+                                            setQuestionIndex(questionIndex);
+                                            setQuestionToEdit(question);
+                                          }}
+                                          renderIcon={(props) => (
+                                            <Edit size={16} {...props} />
+                                          )}
+                                          hasIconOnly
+                                        />
+                                      </div>
                                     </div>
                                     <Button
                                       hasIconOnly
+                                      enterDelayMs={200}
                                       iconDescription={t(
                                         "deleteQuestion",
                                         "Delete question"

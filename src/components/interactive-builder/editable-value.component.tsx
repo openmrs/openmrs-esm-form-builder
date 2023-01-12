@@ -47,6 +47,7 @@ const EditableValue: React.FC<EditableValueProps> = ({
           <Button
             kind="ghost"
             size="sm"
+            enterDelayMs={200}
             iconDescription={t("editButton", "Edit {elementType}", {
               elementType: elementType,
             })}
