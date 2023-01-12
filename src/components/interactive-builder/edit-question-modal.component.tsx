@@ -198,10 +198,13 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   return (
     <ComposedModal open={showModal} onClose={() => onModalChange(false)}>
       <ModalHeader title={t("editQuestion", "Edit question")} />
-      <Form onSubmit={(event) => event.preventDefault()}>
+      <Form
+        className={styles.form}
+        onSubmit={(event) => event.preventDefault()}
+      >
         <ModalBody hasScrollingContent>
           <FormGroup legendText={""}>
-            <Stack gap={6}>
+            <Stack gap={5}>
               <TextInput
                 defaultValue={questionToEdit.label}
                 id={questionToEdit.id}

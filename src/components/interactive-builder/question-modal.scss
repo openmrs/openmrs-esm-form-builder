@@ -13,6 +13,10 @@
   margin-right: 0.5rem;
 }
 
+.form {
+  overflow-y: scroll;
+}
+
 .conceptList {
   max-height: 14rem;
   overflow-y: auto;
@@ -65,7 +69,7 @@
   }
   
   td, th {
-    padding: 0.5rem;
+    padding: 0.25rem;
     border: 1px solid $ui-03;
     max-width: 10rem;
     text-align: left;
