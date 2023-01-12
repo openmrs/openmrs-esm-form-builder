@@ -108,7 +108,7 @@ jobs:
           node-version: "16.x"
           registry-url: 'https://registry.npmjs.org'
       - run: yarn
-      - run: yarn npm publish --access public --tag latest
+      - run: yarn config set npmAuthToken "${NODE_AUTH_TOKEN}" && yarn npm publish --access public --tag latest
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
