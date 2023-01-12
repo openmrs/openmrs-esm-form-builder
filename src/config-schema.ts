@@ -40,7 +40,7 @@ export const configSchema = {
   },
   patientUuid: {
     _type: "String",
-    _default: "88f1032f-adae-4ef2-9025-2c40b71dd897",
+    _default: "6e0c17ae-da79-4d48-93d9-396ff82b98d4",
     _description:
       "UUID of the test patient whose information gets rendered in a patient banner within the form renderer",
   },
