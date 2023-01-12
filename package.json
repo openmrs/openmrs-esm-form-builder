@@ -10,6 +10,7 @@
     "start": "openmrs develop",
     "serve": "webpack serve --mode=development",
     "build": "webpack --mode production",
+    "release": "lerna version --no-git-tag-version",
     "analyze": "webpack --mode=production --env.analyze=true",
     "lint": "TIMING=1 eslint src --ext js,jsx,ts,tsx",
     "prettier": "prettier --write \"src/**/*.{ts,tsx}\"",
