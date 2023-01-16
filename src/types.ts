@@ -96,12 +96,13 @@ export interface Answer {
 export interface ConceptMapping {
   type: string;
   value: string;
+  relationship: string;
 }
 
 export interface Concept {
   uuid: string;
   display: string;
-  mappings: Array<Mappings>;
+  mappings: Array<Mapping>;
   answers: Array<ConceptAnswer>;
 }
 
@@ -110,8 +111,11 @@ export interface ConceptAnswer {
   display: string;
 }
 
-export interface Mappings {
+export interface Mapping {
   display: string;
+  conceptMapType: {
+    display: string;
+  };
 }
 
 export enum FieldTypes {

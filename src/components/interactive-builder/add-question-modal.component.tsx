@@ -22,6 +22,7 @@ import {
   TextInput,
   Tile,
 } from "@carbon/react";
+import { ArrowUpRight } from "@carbon/react/icons";
 import flattenDeep from "lodash-es/flattenDeep";
 import { showNotification, showToast, useConfig } from "@openmrs/esm-framework";
 import {
@@ -58,7 +59,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   showModal,
   onModalChange,
   questionToEdit,
-  onQuestionEdit,
 }) => {
   const { t } = useTranslation();
   const { fieldTypes, questionTypes } = useConfig();
@@ -93,7 +93,11 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     setConceptMappings(
       concept?.mappings?.map((conceptMapping) => {
         let data = conceptMapping.display.split(": ");
-        return { type: data[0], value: data[1] };
+        return {
+          relationship: conceptMapping.conceptMapType.display,
+          type: data[0],
+          value: data[1],
+        };
       })
     );
   };
@@ -123,9 +127,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
   const createQuestion = () => {
     try {
-      const computedQuestionId = `question-${questionIndex + 1}-section-${
+      const computedQuestionId = `question${questionIndex + 1}Section${
         sectionIndex + 1
-      }-page-${pageIndex + 1}`;
+      }Page-${pageIndex + 1}`;
 
       schema.pages[pageIndex]?.sections?.[sectionIndex]?.questions?.push({
         label: questionLabel,
@@ -176,7 +180,10 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   return (
     <ComposedModal open={showModal} onClose={() => onModalChange(false)}>
       <ModalHeader title={t("createNewQuestion", "Create a new question")} />
-      <Form onSubmit={(event) => event.preventDefault()}>
+      <Form
+        className={styles.form}
+        onSubmit={(event) => event.preventDefault()}
+      >
         <ModalBody hasScrollingContent>
           <FormGroup legendText={""}>
             <Stack gap={5}>
@@ -280,39 +287,24 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   required
                 />
               ) : null}
-              <TextInput
-                id="questionId"
-                invalid={questionIdExists(questionId)}
-                invalidText={t(
-                  "questionIdExists",
-                  "This question ID already exists in your schema"
-                )}
-                labelText={t(
-                  "questionId",
-                  "Question ID (prefer camel-case for IDs)"
-                )}
-                value={questionId}
-                onChange={(event) => {
-                  setQuestionId(event.target.value);
-                }}
-                placeholder={t(
-                  "questionIdPlaceholder",
-                  'Enter a unique ID e.g. "anaesthesiaType" for a question asking about the type of anaesthesia.'
-                )}
-                required
-              />
+
               {fieldType !== FieldTypes.UiSelectExtended && (
                 <div>
                   <FormLabel className={styles.label}>
-                    {t("selectBackingConcept", "Select backing concept")}
+                    {t(
+                      "searchForBackingConcept",
+                      "Search for a backing concept"
+                    )}
                   </FormLabel>
                   <Search
                     size="md"
                     id="conceptLookup"
-                    labelText={t("enterConceptName", "Enter concept name")}
-                    placeholder={t("searchConcept", "Search concept")}
                     onClear={() => setSelectedConcept(null)}
                     onChange={handleConceptChange}
+                    placeholder={t(
+                      "searchConcept",
+                      "Search using a concept name or UUID"
+                    )}
                     value={(() => {
                       if (conceptToLookup) {
                         return conceptToLookup;
@@ -360,29 +352,58 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                             <strong>"{conceptToLookup}".</strong>
                           </span>
                         </Tile>
+
+                        <div className={styles.oclLauncherBanner}>
+                          {
+                            <p className={styles.bodyShort01}>
+                              {t(
+                                "conceptSearchHelpText",
+                                "Can't find a concept?"
+                              )}
+                            </p>
+                          }
+                          <a
+                            className={styles.oclLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href={"https://app.openconceptlab.org/"}
+                          >
+                            {t("searchInOCL", "Search in OCL")}
+                            <ArrowUpRight size={16} />
+                          </a>
+                        </div>
                       </Layer>
                     );
                   })()}
                 </div>
               )}
 
-              {/* Handle Concept Mappings */}
-              {/* {conceptMappings && conceptMappings.length ? (
-            <div>{JSON.stringify(conceptMappings)}</div>
-          ) : null} */}
-
-              {selectedAnswers.length ? (
-                <div>
-                  {selectedAnswers.map((answer) => (
-                    <Tag className={styles.tag} key={answer.id} type={"blue"}>
-                      {answer.text}
-                    </Tag>
-                  ))}
-                </div>
+              {conceptMappings && conceptMappings.length ? (
+                <>
+                  <table className={styles.tableStriped}>
+                    <thead>
+                      <tr>
+                        <th>{t("relationship", "Relationship")}</th>
+                        <th>{t("source", "Source")}</th>
+                        <th>{t("code", "Code")}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {conceptMappings.map((mapping, index) => (
+                        <tr key={`mapping-${index}`}>
+                          <td>{mapping.relationship}</td>
+                          <td>{mapping.type}</td>
+                          <td>{mapping.value}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
               ) : null}
 
               {answers && answers.length ? (
                 <MultiSelect
+                  direction="top"
                   id="selectAnswers"
                   itemToString={(item) => item.text}
                   items={answers.map((answer) => ({
@@ -399,6 +420,38 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   )}
                 />
               ) : null}
+
+              {selectedAnswers.length ? (
+                <div>
+                  {selectedAnswers.map((answer) => (
+                    <Tag className={styles.tag} key={answer.id} type={"blue"}>
+                      {answer.text}
+                    </Tag>
+                  ))}
+                </div>
+              ) : null}
+
+              <TextInput
+                id="questionId"
+                invalid={questionIdExists(questionId)}
+                invalidText={t(
+                  "questionIdExists",
+                  "This question ID already exists in your schema"
+                )}
+                labelText={t(
+                  "questionId",
+                  "Question ID (prefer camel-case for IDs)"
+                )}
+                value={questionId}
+                onChange={(event) => {
+                  setQuestionId(event.target.value);
+                }}
+                placeholder={t(
+                  "questionIdPlaceholder",
+                  'Enter a unique ID e.g. "anaesthesiaType" for a question asking about the type of anaesthesia.'
+                )}
+                required
+              />
             </Stack>
           </FormGroup>
         </ModalBody>
