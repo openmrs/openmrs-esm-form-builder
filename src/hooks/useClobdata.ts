@@ -3,9 +3,11 @@ import { openmrsFetch } from "@openmrs/esm-framework";
 import { Form, Schema } from "../types";
 
 export const useClobdata = (form?: Form) => {
-  const valueReference = form?.resources?.[0].valueReference;
-  const formHasResources = form?.resources.length > 0 && valueReference;
-  const CLOBDATA_URL = `/ws/rest/v1/clobdata/${valueReference}`;
+  const valueReferenceUuid = form?.resources?.find(
+    ({ name }) => name === "JSON schema"
+  )?.valueReference;
+  const formHasResources = form?.resources.length > 0 && valueReferenceUuid;
+  const CLOBDATA_URL = `/ws/rest/v1/clobdata/${valueReferenceUuid}`;
 
   const { data, error } = useSWRImmutable<{ data: Schema }, Error>(
     formHasResources ? CLOBDATA_URL : null,
