@@ -2641,10 +2641,9 @@ __metadata:
   linkType: hard
 
 "@ohri/openmrs-ohri-form-engine-lib@npm:next":
-  version: 1.0.1-pre.159
-  resolution: "@ohri/openmrs-ohri-form-engine-lib@npm:1.0.1-pre.159"
+  version: 1.0.1-pre.188
+  resolution: "@ohri/openmrs-ohri-form-engine-lib@npm:1.0.1-pre.188"
   dependencies:
-    "@carbon/react": ^1.12.0
     ace-builds: ^1.4.12
     enzyme: ^3.11.0
     enzyme-adapter-react-16: ^1.15.6
@@ -2661,12 +2660,13 @@ __metadata:
     systemjs-webpack-interop: ^2.3.2
     yup: ^0.29.1
   peerDependencies:
+    "@carbon/react": 1.x
     "@openmrs/esm-framework": 4.x
     dayjs: ^1.8.16
     react: ^18.2.0
     react-i18next: 11.x
     rxjs: 6.x
-  checksum: 7c80679763e8d94348625a382da51910d3f3644ec3767619f568cd292dbe0f030ee6e49e512cc9cf69cc719dc2ebf2b4594be368ed4c6bade3dd6f452d71acdf
+  checksum: 3319779875399145a4fac8cf5cb35463cce69c8cdda9ab317606f0d8d4fdc96a0f34beae361b4d64c5dd922eb589503cedb03c0e5e61691ea950382f58670836
   languageName: node
   linkType: hard
 
