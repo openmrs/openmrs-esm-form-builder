@@ -1433,7 +1433,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@carbon/icons-react@npm:^11.16.0":
+"@carbon/icons-react@npm:^11.15.0":
   version: 11.16.0
   resolution: "@carbon/icons-react@npm:11.16.0"
   dependencies:
@@ -1474,6 +1474,39 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@carbon/react@npm:1.21.0":
+  version: 1.21.0
+  resolution: "@carbon/react@npm:1.21.0"
+  dependencies:
+    "@babel/runtime": ^7.18.3
+    "@carbon/feature-flags": ^0.12.0
+    "@carbon/icons-react": ^11.15.0
+    "@carbon/layout": ^11.11.0
+    "@carbon/styles": ^1.21.0
+    "@carbon/telemetry": 0.1.0
+    classnames: 2.3.2
+    copy-to-clipboard: ^3.3.1
+    downshift: 5.2.1
+    flatpickr: 4.6.9
+    invariant: ^2.2.3
+    lodash.debounce: ^4.0.8
+    lodash.findlast: ^4.5.0
+    lodash.isequal: ^4.5.0
+    lodash.omit: ^4.5.0
+    lodash.throttle: ^4.1.1
+    prop-types: ^15.7.2
+    react-is: ^17.0.2
+    use-resize-observer: ^6.0.0
+    wicg-inert: ^3.1.1
+    window-or-global: ^1.0.1
+  peerDependencies:
+    react: ^16.8.6 || ^17.0.1
+    react-dom: ^16.8.6 || ^17.0.1
+    sass: ^1.33.0
+  checksum: a95ab340732c0cd4072b3a2328bbe943ca85fb7727ed630f4a7017c9798f45b3b021a36a52363e61fbe7acc555a4af4f7a2eae841336b9729e3edb119ae9307b
+  languageName: node
+  linkType: hard
+
 "@carbon/react@npm:^1.12.0":
   version: 1.17.0
   resolution: "@carbon/react@npm:1.17.0"
@@ -1507,39 +1540,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@carbon/react@npm:^1.22.0":
-  version: 1.22.0
-  resolution: "@carbon/react@npm:1.22.0"
-  dependencies:
-    "@babel/runtime": ^7.18.3
-    "@carbon/feature-flags": ^0.12.0
-    "@carbon/icons-react": ^11.16.0
-    "@carbon/layout": ^11.11.0
-    "@carbon/styles": ^1.22.0
-    "@carbon/telemetry": 0.1.0
-    classnames: 2.3.2
-    copy-to-clipboard: ^3.3.1
-    downshift: 5.2.1
-    flatpickr: 4.6.9
-    invariant: ^2.2.3
-    lodash.debounce: ^4.0.8
-    lodash.findlast: ^4.5.0
-    lodash.isequal: ^4.5.0
-    lodash.omit: ^4.5.0
-    lodash.throttle: ^4.1.1
-    prop-types: ^15.7.2
-    react-is: ^17.0.2
-    use-resize-observer: ^6.0.0
-    wicg-inert: ^3.1.1
-    window-or-global: ^1.0.1
-  peerDependencies:
-    react: ^16.8.6 || ^17.0.1
-    react-dom: ^16.8.6 || ^17.0.1
-    sass: ^1.33.0
-  checksum: ce6dc07406e101675ab826f8ed354cae5edec6924e679caf5a670752754e39a764acc334665805b7f0d03909235fe2879cf2e66c1d695893b30bcec714e17d5e
-  languageName: node
-  linkType: hard
-
 "@carbon/styles@npm:^1.17.0, @carbon/styles@npm:^1.4.0":
   version: 1.17.0
   resolution: "@carbon/styles@npm:1.17.0"
@@ -1558,7 +1558,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@carbon/styles@npm:^1.22.0":
+"@carbon/styles@npm:^1.21.0":
   version: 1.22.0
   resolution: "@carbon/styles@npm:1.22.0"
   dependencies:
@@ -2763,7 +2763,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@openmrs/esm-form-builder-app@workspace:."
   dependencies:
-    "@carbon/react": ^1.22.0
+    "@carbon/react": 1.21.0
     "@ohri/openmrs-ohri-form-engine-lib": next
     "@openmrs/esm-framework": next
     "@openmrs/esm-styleguide": next

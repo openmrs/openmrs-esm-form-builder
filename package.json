@@ -45,7 +45,7 @@
     "url": "https://github.com/openmrs/openmrs-esm-form-builder/issues"
   },
   "dependencies": {
-    "@carbon/react": "^1.22.0",
+    "@carbon/react": "1.21.0",
     "@ohri/openmrs-ohri-form-engine-lib": "next",
     "file-loader": "^6.2.0",
     "lodash-es": "^4.17.21",
