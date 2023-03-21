@@ -1,5 +1,4 @@
 import { openmrsFetch, FetchResponse } from "@openmrs/esm-framework";
-import axios from "axios";
 import { Schema } from "./types";
 
 export const deleteClobData = async (valueReference: string) => {
@@ -37,13 +36,15 @@ export const uploadSchema = async (schema: Schema) => {
     Accept: "application/json",
     "Content-Type": undefined,
   };
-  const request = axios
-    .post(`${window.origin}/openmrs/ws/rest/v1/clobdata`, body, {
-      headers: headers,
-    })
-    .then((response) => {
-      return response.data;
-    });
+
+  const request = await openmrsFetch(`/ws/rest/v1/clobdata`, {
+    body,
+    headers,
+    method: "POST",
+  }).then((response) => {
+    return response.data;
+  });
+
   return request;
 };
 
