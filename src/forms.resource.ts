@@ -32,18 +32,15 @@ export const uploadSchema = async (schema: Schema) => {
   });
   const body = new FormData();
   body.append("file", schemaBlob);
-  const headers = {
-    Accept: "application/json",
-    "Content-Type": "multipart/form-data",
-  };
 
-  const request = await openmrsFetch(`/ws/rest/v1/clobdata`, {
-    body,
-    headers,
-    method: "POST",
-  }).then((response) => {
-    return response.data;
-  });
+  const request = await window
+    .fetch(`${window.spaBase}/ws/rest/v1/clobdata`, {
+      body,
+      method: "POST",
+    })
+    .then((response) => {
+      return response.clone().text();
+    });
 
   return request;
 };
@@ -57,6 +54,7 @@ export const getResourceUUID = async (
     dataType: "AmpathJsonSchema",
     valueReference: valueReference,
   };
+
   const request: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${formUUID}/resource`,
     {
@@ -65,6 +63,7 @@ export const getResourceUUID = async (
       body: body,
     }
   );
+
   return request;
 };
 
