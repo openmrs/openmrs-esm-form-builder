@@ -34,7 +34,7 @@ export const uploadSchema = async (schema: Schema) => {
   body.append("file", schemaBlob);
   const headers = {
     Accept: "application/json",
-    "Content-Type": undefined,
+    "Content-Type": "multipart/form-data",
   };
 
   const request = await openmrsFetch(`/ws/rest/v1/clobdata`, {
