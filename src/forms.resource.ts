@@ -28,18 +28,18 @@ export const deleteResource = async (
 
 export const uploadSchema = async (schema: Schema) => {
   const schemaBlob = new Blob([JSON.stringify(schema)], {
-    type: "application/json",
+    type: undefined,
   });
   const body = new FormData();
   body.append("file", schemaBlob);
 
   const request = await window
-    .fetch(`${window.spaBase}/ws/rest/v1/clobdata`, {
+    .fetch(`${window.openmrsBase}/ws/rest/v1/clobdata`, {
       body,
       method: "POST",
     })
     .then((response) => {
-      return response.clone().text();
+      return response.text();
     });
 
   return request;
