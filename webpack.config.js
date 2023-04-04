@@ -12,8 +12,8 @@ config.overrides.resolve = {
       __dirname,
       "../esm-commons-lib/src/index"
     ),
-    "@ohri/openmrs-ohri-form-engine-lib":
-      "@ohri/openmrs-ohri-form-engine-lib/src/index",
+    "@openmrs/openmrs-form-engine-lib":
+      "@openmrs/openmrs-form-engine-lib/src/index",
   },
 };
 module.exports = config;
