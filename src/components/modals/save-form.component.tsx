@@ -24,7 +24,7 @@ import {
   updateVersion,
   updateDescription,
   getResourceUUID,
-  deleteClobData,
+  deleteClobdata,
   deleteResource,
   updateEncounterType,
 } from "../../forms.resource";
@@ -121,7 +121,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
     } else {
       try {
         if (form?.resources.length != 0) {
-          deleteClobData(form?.resources[0].valueReference);
+          deleteClobdata(form?.resources[0].valueReference);
           deleteResource(form?.uuid, form?.resources[0].uuid);
         }
         const newValueReference = await uploadSchema(schema);
