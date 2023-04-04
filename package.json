@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@carbon/react": "1.21.0",
-    "@ohri/openmrs-ohri-form-engine-lib": "next",
+    "@openmrs/openmrs-form-engine-lib": "next",
     "file-loader": "^6.2.0",
     "lodash-es": "^4.17.21",
     "react-ace": "^10.1.0",

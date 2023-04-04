@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
 import { Button, InlineLoading, Tile } from "@carbon/react";
-import { OHRIFormSchema, OHRIForm } from "@ohri/openmrs-ohri-form-engine-lib";
+import { OHRIFormSchema, OHRIForm } from "@openmrs/openmrs-form-engine-lib";
 import { useConfig } from "@openmrs/esm-framework";
 
 import ActionButtons from "../action-buttons/action-buttons.component";

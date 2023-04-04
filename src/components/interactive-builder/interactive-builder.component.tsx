@@ -4,7 +4,7 @@ import { Accordion, AccordionItem, Button, InlineLoading } from "@carbon/react";
 import { Add, Edit, Replicate, TrashCan } from "@carbon/react/icons";
 import { useParams } from "react-router-dom";
 import { showToast, showNotification } from "@openmrs/esm-framework";
-import { OHRIFormSchema } from "@ohri/openmrs-ohri-form-engine-lib";
+import { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
 
 import { RouteParams, Schema } from "../../types";
 import ActionButtons from "../action-buttons/action-buttons.component";

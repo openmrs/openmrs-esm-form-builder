@@ -5,7 +5,7 @@ import "ace-builds/webpack-resolver";
 import "ace-builds/src-noconflict/ext-language_tools";
 import { Button, InlineLoading } from "@carbon/react";
 import { useTranslation } from "react-i18next";
-import { OHRIFormSchema } from "@ohri/openmrs-ohri-form-engine-lib";
+import { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
 import { RouteParams, Schema } from "../../types";
 import styles from "./schema-editor.scss";
 
