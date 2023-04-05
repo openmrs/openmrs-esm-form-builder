@@ -184,7 +184,10 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         title: t("success", "Success!"),
         kind: "success",
         critical: true,
-        description: t("questionDuplicated", "Question duplicated"),
+        description: t(
+          "questionDuplicated",
+          "Question duplicated. Please change the duplicated question's ID to a unique, camelcased value"
+        ),
       });
     } catch (error) {
       showNotification({
