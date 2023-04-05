@@ -1,7 +1,7 @@
 import { openmrsFetch, FetchResponse } from "@openmrs/esm-framework";
 import { Schema } from "./types";
 
-export const deleteClobData = async (valueReference: string) => {
+export const deleteClobdata = async (valueReference: string) => {
   const request: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/clobdata/${valueReference}`,
     {
