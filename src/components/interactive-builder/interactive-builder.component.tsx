@@ -168,12 +168,12 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     }
   };
 
-  const duplicateQuestion = (question) => {
+  const duplicateQuestion = (question, pageId, sectionId) => {
     try {
       const questionToDuplicate = JSON.parse(JSON.stringify(question));
       questionToDuplicate.id = questionToDuplicate.id + "Duplicate";
 
-      schema.pages[pageIndex].sections[sectionIndex].questions.push(
+      schema.pages[pageId].sections[sectionId].questions.push(
         questionToDuplicate
       );
 
@@ -463,12 +463,13 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                             "duplicateQuestion",
                                             "Duplicate question"
                                           )}
-                                          onClick={() => {
-                                            duplicateQuestion(question);
-                                            setPageIndex(pageIndex);
-                                            setSectionIndex(sectionIndex);
-                                            setQuestionIndex(questionIndex);
-                                          }}
+                                          onClick={() =>
+                                            duplicateQuestion(
+                                              question,
+                                              pageIndex,
+                                              sectionIndex
+                                            )
+                                          }
                                           renderIcon={(props) => (
                                             <Replicate size={16} {...props} />
                                           )}
