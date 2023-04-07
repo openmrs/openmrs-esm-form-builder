@@ -13,11 +13,11 @@ export const deleteClobdata = async (valueReference: string) => {
 };
 
 export const deleteResource = async (
-  formUUID: string,
-  resourceUUID: string
+  formUuid: string,
+  resourceUuid: string
 ) => {
   const request: FetchResponse = await openmrsFetch(
-    `/ws/rest/v1/form/${formUUID}/resource/${resourceUUID}`,
+    `/ws/rest/v1/form/${formUuid}/resource/${resourceUuid}`,
     {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -45,8 +45,8 @@ export const uploadSchema = async (schema: Schema) => {
   return request;
 };
 
-export const getResourceUUID = async (
-  formUUID: string,
+export const getResourceUuid = async (
+  formUuid: string,
   valueReference: any
 ) => {
   const body = {
@@ -56,7 +56,7 @@ export const getResourceUUID = async (
   };
 
   const request: FetchResponse = await openmrsFetch(
-    `/ws/rest/v1/form/${formUUID}/resource`,
+    `/ws/rest/v1/form/${formUuid}/resource`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -68,11 +68,11 @@ export const getResourceUUID = async (
 };
 
 export const saveNewForm = async (
-  name: any,
-  version: any,
-  published?: any,
-  description?: any,
-  encounterType?: any
+  name: string,
+  version: string,
+  published?: boolean,
+  description?: string,
+  encounterType?: string
 ) => {
   const abortController = new AbortController();
 
@@ -164,10 +164,13 @@ export const updateDescription = async (description: string, uuid) => {
   return request;
 };
 
-export const updateEncounterType = async (encounterTypeUUID: any, uuid) => {
-  const body = { encounterType: encounterTypeUUID };
+export const updateEncounterType = async (
+  encounterTypeUuid: string,
+  formUuid: string
+) => {
+  const body = { encounterType: encounterTypeUuid };
   const request: FetchResponse = await openmrsFetch(
-    `/ws/rest/v1/form/${uuid}`,
+    `/ws/rest/v1/form/${formUuid}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

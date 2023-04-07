@@ -23,7 +23,7 @@ import {
   updateName,
   updateVersion,
   updateDescription,
-  getResourceUUID,
+  getResourceUuid,
   deleteClobdata,
   deleteResource,
   updateEncounterType,
@@ -70,17 +70,18 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsSavingForm(true);
+
     let name = event.target.name.value,
       version = event.target.version.value,
       encounterType = event.target.encounterType.value,
       description = event.target.description.value,
       encounterTypeUUID;
 
-    if (encounterType == "undefined") {
+    if (encounterType === "undefined") {
       encounterTypeUUID = undefined;
     } else {
       encounterTypes.forEach((encType) => {
-        if (encounterType == encType.name) {
+        if (encounterType === encType.name) {
           encounterTypeUUID = encType.uuid;
         }
       });
@@ -96,7 +97,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
           encounterTypeUUID
         );
         const newValueReference = await uploadSchema(schema);
-        await getResourceUUID(newForm.uuid, newValueReference.toString());
+        await getResourceUuid(newForm.uuid, newValueReference.toString());
         showToast({
           title: t("formCreated", "New form created"),
           kind: "success",
@@ -120,12 +121,27 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
       }
     } else {
       try {
-        if (form?.resources.length != 0) {
-          deleteClobdata(form?.resources[0].valueReference);
-          deleteResource(form?.uuid, form?.resources[0].uuid);
+        if (form?.resources?.length != 0) {
+          const valueReference = form?.resources[0].valueReference ?? "";
+
+          deleteClobdata(valueReference)
+            .catch((error) =>
+              console.error("Unable to delete clobdata: ", error)
+            )
+            .then(() => {
+              deleteResource(form?.uuid, form?.resources[0].uuid).then(() => {
+                uploadSchema(schema)
+                  .then((res) => {
+                    getResourceUuid(form?.uuid, res.toString).catch((error) =>
+                      console.error("Unable to get resource uuid: ", error)
+                    );
+                  })
+                  .catch((error) => {
+                    console.error("Unable to delete resource uuid: ", error);
+                  });
+              });
+            });
         }
-        const newValueReference = await uploadSchema(schema);
-        await getResourceUUID(form?.uuid, newValueReference.toString());
 
         if (name !== form?.name) {
           await updateName(name, form?.uuid);
@@ -139,6 +155,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
         if (description !== form?.description) {
           await updateDescription(description, form?.uuid);
         }
+
         showToast({
           title: t("success", "Success!"),
           kind: "success",
@@ -146,6 +163,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
           description:
             name + " " + t("saveSuccess", "was updated successfully"),
         });
+
         setOpenSaveFormModal(false);
       } catch (error) {
         showNotification({
@@ -156,6 +174,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
         });
       }
     }
+    setIsSavingForm(false);
   };
 
   return (
