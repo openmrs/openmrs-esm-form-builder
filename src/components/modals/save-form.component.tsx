@@ -138,6 +138,15 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                   })
                   .catch((error) => {
                     console.error("Unable to delete resource uuid: ", error);
+                    showNotification({
+                      title: t("errorSavingForm", "Unable to save form"),
+                      kind: "error",
+                      critical: true,
+                      description: t(
+                        "saveError",
+                        "There was a problem saving your form. Try saving again. To ensure you don’t lose your changes, copy them, reload the page and then paste them back into the editor."
+                      ),
+                    });
                   });
               });
             });
