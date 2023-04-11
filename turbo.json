@@ -7,20 +7,11 @@
     "extract-translations": {
       "outputs": ["./translations/*"]
     },
-    "lint": {
-      "outputs": []
-    },
-    "test": {
-      "outputs": []
-    },
+    "lint": {},
+    "test": {},
     "coverage": {
       "outputs": ["coverage/**"]
     },
-    "typescript": {
-      "outputs": []
-    },
-    "verify": {
-      "outputs": []
-    }
+    "typescript": {}
   }
 }

@@ -46,7 +46,7 @@ jobs:
           server-token: ${{ secrets.TURBO_SERVER_TOKEN }}
 
       - name: Run tests, lint and typechecking
-        run: yarn turbo verify
+        run: yarn verify
 
       - name: Run build
         run: yarn turbo build --color
@@ -81,7 +81,7 @@ jobs:
         run: yarn version "$(node -e "console.log(require('semver').inc(require('./package.json').version, 'patch'))")-pre.${{ github.run_number }}"
 
       - name: Build
-        run: yarn turbo run build --color --concurrency=5
+        run: yarn turbo build --color --concurrency=5
 
       - run: git config user.email "info@openmrs.org" && git config user.name "OpenMRS CI"
       - run: git add . && git commit -m "Prerelease version" --no-verify
