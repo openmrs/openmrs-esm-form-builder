@@ -15,6 +15,7 @@
     "prettier": "prettier --write \"src/**/*.{ts,tsx}\"",
     "typescript": "tsc",
     "test": "jest --config jest.config.json",
+    "test-e2e": "playwright test",
     "verify": "turbo lint typescript coverage",
     "coverage": "yarn test --coverage --passWithNoTests",
     "prepare": "husky install",
@@ -47,6 +48,7 @@
   "dependencies": {
     "@carbon/react": "1.21.0",
     "@openmrs/openmrs-form-engine-lib": "next",
+    "dotenv": "^16.0.3",
     "file-loader": "^6.2.0",
     "lodash-es": "^4.17.21",
     "react-ace": "^10.1.0",
@@ -63,6 +65,7 @@
   "devDependencies": {
     "@openmrs/esm-framework": "next",
     "@openmrs/esm-styleguide": "next",
+    "@playwright/test": "^1.32.3",
     "@swc/cli": "^0.1.61",
     "@swc/core": "^1.3.34",
     "@swc/jest": "^0.2.24",
