@@ -15,5 +15,8 @@
   "setupFilesAfterEnv": [
     "<rootDir>/src/setup-tests.ts"
   ],
-  "testEnvironment": "jsdom"
+  "testEnvironment": "jsdom",
+  "testPathIgnorePatterns" : [
+    "<rootDir>/e2e"
+  ]
 }
