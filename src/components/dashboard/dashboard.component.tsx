@@ -21,7 +21,7 @@ import {
   Tile,
 } from "@carbon/react";
 import { Add, DocumentImport, Download, Edit } from "@carbon/react/icons";
-import { navigate, useLayoutType } from "@openmrs/esm-framework";
+import { navigate, useConfig, useLayoutType } from "@openmrs/esm-framework";
 
 import { FilterProps } from "../../types";
 import { useClobdata } from "../../hooks/useClobdata";
@@ -104,6 +104,7 @@ function ActionButtons({ form }) {
 function FormsList({ forms, isValidating, t }) {
   const isTablet = useLayoutType() === "tablet";
   const [filter, setFilter] = useState("");
+  const config = useConfig();
 
   const filteredRows = useMemo(() => {
     if (!filter) {
@@ -179,16 +180,17 @@ function FormsList({ forms, isValidating, t }) {
 
   return (
     <>
-      <InlineNotification
-        className={styles.warningMessage}
-        kind="info"
-        lowContrast
-        subtitle={t()}
-        title={t(
-          "schemaSaveWarningMessage",
-          "The dev3 server is ephemeral at best and can't be relied upon to save your schemas permanently. To avoid losing your work, please save your schemas to your local machine. Alternatively, upload your schema to the distro repo to have it persisted across server resets."
-        )}
-      />
+      {config.showSchemaSaveWarning && (
+        <InlineNotification
+          className={styles.warningMessage}
+          kind="info"
+          lowContrast
+          title={t(
+            "schemaSaveWarningMessage",
+            "The dev3 server is ephemeral at best and can't be relied upon to save your schemas permanently. To avoid losing your work, please save your schemas to your local machine. Alternatively, upload your schema to the distro repo to have it persisted across server resets."
+          )}
+        />
+      )}
       <div className={styles.flexContainer}>
         <div className={styles.filterContainer}>
           <Dropdown
