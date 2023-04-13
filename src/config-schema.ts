@@ -44,4 +44,10 @@ export const configSchema = {
     _description:
       "UUID of the test patient whose information gets rendered in a patient banner within the form renderer",
   },
+  showSchemaSaveWarning: {
+    _type: Type.Boolean,
+    _default: true,
+    _description:
+      "Whether to show a warning about possibly losing data in the forms dashboard",
+  },
 };
