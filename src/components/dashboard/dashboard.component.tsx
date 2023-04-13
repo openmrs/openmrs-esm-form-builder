@@ -6,6 +6,7 @@ import {
   DataTableSkeleton,
   Dropdown,
   InlineLoading,
+  InlineNotification,
   Table,
   TableBody,
   TableCell,
@@ -178,6 +179,16 @@ function FormsList({ forms, isValidating, t }) {
 
   return (
     <>
+      <InlineNotification
+        className={styles.warningMessage}
+        kind="info"
+        lowContrast
+        subtitle={t()}
+        title={t(
+          "schemaSaveWarningMessage",
+          "The dev3 server is ephemeral at best and can't be relied upon to save your schemas permanently. To avoid losing your work, please save your schemas to your local machine. Alternatively, upload your schema to the distro repo to have it persisted across server resets."
+        )}
+      />
       <div className={styles.flexContainer}>
         <div className={styles.filterContainer}>
           <Dropdown
