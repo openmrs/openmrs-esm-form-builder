@@ -15,6 +15,11 @@ yarn start
 Then, in a separate terminal, run:
 
 ```sh
+# Creates a .env file: Do this once!
+cp example.env .env
+```
+
+```sh
 yarn test-e2e --headed
 ```
 
