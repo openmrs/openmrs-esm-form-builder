@@ -62,7 +62,11 @@ const PageModal: React.FC<PageModalProps> = ({
   };
 
   return (
-    <ComposedModal open={showModal} onClose={() => onModalChange(false)}>
+    <ComposedModal
+      open={showModal}
+      onClose={() => onModalChange(false)}
+      preventCloseOnClickOutside
+    >
       <ModalHeader title={t("createNewPage", "Create a new page")} />
       <Form onSubmit={(event) => event.preventDefault()}>
         <ModalBody>

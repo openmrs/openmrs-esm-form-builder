@@ -196,7 +196,11 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   };
 
   return (
-    <ComposedModal open={showModal} onClose={() => onModalChange(false)}>
+    <ComposedModal
+      open={showModal}
+      onClose={() => onModalChange(false)}
+      preventCloseOnClickOutside
+    >
       <ModalHeader title={t("editQuestion", "Edit question")} />
       <Form
         className={styles.form}

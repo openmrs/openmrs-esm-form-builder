@@ -178,7 +178,11 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   };
 
   return (
-    <ComposedModal open={showModal} onClose={() => onModalChange(false)}>
+    <ComposedModal
+      open={showModal}
+      onClose={() => onModalChange(false)}
+      preventCloseOnClickOutside
+    >
       <ModalHeader title={t("createNewQuestion", "Create a new question")} />
       <Form
         className={styles.form}

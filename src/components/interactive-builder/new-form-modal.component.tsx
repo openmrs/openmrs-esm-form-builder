@@ -51,7 +51,11 @@ const NewFormModal: React.FC<NewFormModalProps> = ({
   };
 
   return (
-    <ComposedModal open={showModal} onClose={() => onModalChange(false)}>
+    <ComposedModal
+      open={showModal}
+      onClose={() => onModalChange(false)}
+      preventCloseOnClickOutside
+    >
       <ModalHeader title={t("createNewForm", "Create a new form")} />
       <Form onSubmit={(event) => event.preventDefault()}>
         <ModalBody>

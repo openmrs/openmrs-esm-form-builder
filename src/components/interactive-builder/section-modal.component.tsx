@@ -66,7 +66,11 @@ const SectionModal: React.FC<SectionModalProps> = ({
   };
 
   return (
-    <ComposedModal open={showModal} onClose={() => onModalChange(false)}>
+    <ComposedModal
+      open={showModal}
+      onClose={() => onModalChange(false)}
+      preventCloseOnClickOutside
+    >
       <ModalHeader title={t("createNewSection", "Create a new section")} />
       <Form onSubmit={(event) => event.preventDefault()}>
         <ModalBody>
