@@ -100,9 +100,13 @@ function ActionButtons({ schema, t }) {
     setShowUnpublishModal(false);
   }
 
+  function handleMutate() {
+    revalidate();
+  }
+
   return (
     <div className={styles.actionButtons}>
-      <SaveForm form={form} schema={schema} />
+      <SaveForm onMutate={handleMutate} form={form} schema={schema} />
 
       <>
         {form && !form.published ? (
