@@ -40,9 +40,13 @@ type FormGroupData = {
   description: string;
   resources: Array<Resource>;
 };
-type SaveFormModalProps = { form: FormGroupData; schema: Schema };
+type SaveFormModalProps = {
+  form: FormGroupData;
+  schema: Schema;
+  onMutate: () => void;
+};
 
-const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
+const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
   const isSavingNewForm = !formUuid;
@@ -122,33 +126,55 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
     } else {
       try {
         if (form?.resources?.length != 0) {
-          const valueReference = form?.resources[0].valueReference ?? "";
+          const existingValueReferenceUuid = form?.resources?.find(
+            ({ name }) => name === "JSON schema"
+          )?.valueReference;
 
-          deleteClobdata(valueReference)
+          deleteClobdata(existingValueReferenceUuid)
             .catch((error) =>
               console.error("Unable to delete clobdata: ", error)
             )
             .then(() => {
-              deleteResource(form?.uuid, form?.resources[0].uuid).then(() => {
-                uploadSchema(schema)
-                  .then((res) => {
-                    getResourceUuid(form?.uuid, res.toString).catch((error) =>
-                      console.error("Unable to get resource uuid: ", error)
+              const resourceUuidToDelete = form?.resources?.find(
+                ({ name }) => name === "JSON schema"
+              )?.uuid;
+
+              deleteResource(form?.uuid, resourceUuidToDelete)
+                .then(() => {
+                  uploadSchema(schema)
+                    .then((result) => {
+                      getResourceUuid(form?.uuid, result.toString()).catch(
+                        (err) => {
+                          console.error(
+                            "Error associating form with new schema: ",
+                            err
+                          );
+
+                          showNotification({
+                            title: t("errorSavingForm", "Unable to save form"),
+                            kind: "error",
+                            critical: true,
+                            description: t(
+                              "saveError",
+                              "There was a problem saving your form. Try saving again. To ensure you don’t lose your changes, copy them, reload the page and then paste them back into the editor."
+                            ),
+                          });
+                        }
+                      );
+                    })
+                    .catch((err) =>
+                      console.error("Error uploading new schema: ", err)
                     );
-                  })
-                  .catch((error) => {
-                    console.error("Unable to delete resource uuid: ", error);
-                    showNotification({
-                      title: t("errorSavingForm", "Unable to save form"),
-                      kind: "error",
-                      critical: true,
-                      description: t(
-                        "saveError",
-                        "There was a problem saving your form. Try saving again. To ensure you don’t lose your changes, copy them, reload the page and then paste them back into the editor."
-                      ),
-                    });
-                  });
-              });
+                })
+                .catch((error) =>
+                  console.error(
+                    "Unable to create new clobdata resource: ",
+                    error
+                  )
+                );
+            })
+            .finally(() => {
+              onMutate();
             });
         }
 
