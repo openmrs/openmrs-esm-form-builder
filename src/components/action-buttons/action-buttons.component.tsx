@@ -140,6 +140,7 @@ function ActionButtons({ schema, t }) {
           <ComposedModal
             open={true}
             onClose={() => setShowUnpublishModal(false)}
+            preventCloseOnClickOutside
           >
             <ModalHeader
               title={t(

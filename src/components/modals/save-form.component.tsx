@@ -218,6 +218,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
         <ComposedModal
           open={openConfirmSaveModal}
           onClose={() => setOpenConfirmSaveModal(false)}
+          preventCloseOnClickOutside
         >
           <ModalHeader title={t("saveConfirmation", "Save or Update form")} />
           <ModalBody>

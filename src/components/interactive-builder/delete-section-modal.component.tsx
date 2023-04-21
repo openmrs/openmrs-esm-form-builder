@@ -55,7 +55,11 @@ const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
   };
 
   return (
-    <ComposedModal open={showModal} onClose={() => onModalChange(false)}>
+    <ComposedModal
+      open={showModal}
+      onClose={() => onModalChange(false)}
+      preventCloseOnClickOutside
+    >
       <ModalHeader
         title={t(
           "deleteSectionConfirmation",

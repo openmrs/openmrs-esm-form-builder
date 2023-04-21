@@ -53,7 +53,11 @@ const DeletePageModal: React.FC<DeletePageModalProps> = ({
   };
 
   return (
-    <ComposedModal open={showModal} onClose={() => onModalChange(false)}>
+    <ComposedModal
+      open={showModal}
+      onClose={() => onModalChange(false)}
+      preventCloseOnClickOutside
+    >
       <ModalHeader
         title={t(
           "deletePageConfirmation",
