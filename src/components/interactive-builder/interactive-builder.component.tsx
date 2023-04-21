@@ -322,7 +322,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                 <a
                   target="_blank"
                   rel="noopener noreferrer"
-                  href={"https://ampath-forms.vercel.app/docs/quickstart"}
+                  href={"https://ohri-docs.globalhealthapp.net/"}
                 >
                   {t("formBuilderDocs", "form builder documentation")}.
                 </a>
