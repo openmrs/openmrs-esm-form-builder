@@ -46,6 +46,8 @@ type SaveFormModalProps = {
   onMutate: () => void;
 };
 
+const clearDraftFormSchema = () => localStorage.removeItem("formSchema");
+
 const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
@@ -114,6 +116,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
               "was created successfully. It is now visible on the Forms dashboard."
             ),
         });
+        clearDraftFormSchema();
         setOpenSaveFormModal(false);
       } catch (error) {
         showNotification({
