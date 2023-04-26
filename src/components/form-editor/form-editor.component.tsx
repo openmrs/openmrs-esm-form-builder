@@ -48,11 +48,16 @@ const FormEditor: React.FC = () => {
   useEffect(() => {
     if (!isLoadingClobdata && clobdata) {
       setSchema(clobdata);
+      localStorage.setItem("formJSON", JSON.stringify(clobdata));
+    } else {
+      const draftJSON = localStorage.getItem("formJSON");
+      setSchema(JSON.parse(draftJSON));
     }
   }, [clobdata, isLoadingClobdata, setSchema]);
 
   const updateSchema = useCallback((updatedSchema) => {
     setSchema(updatedSchema);
+    localStorage.setItem("formJSON", JSON.stringify(updatedSchema));
   }, []);
 
   return (
