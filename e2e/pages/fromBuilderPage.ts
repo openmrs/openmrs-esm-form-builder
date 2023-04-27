@@ -1,6 +1,6 @@
 import { Page } from "@playwright/test";
 
-export class HomePage {
+export class FromBuilderPage {
   constructor(readonly page: Page) {}
 
   async gotoFormBuilder() {
