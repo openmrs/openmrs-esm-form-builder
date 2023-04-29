@@ -57,12 +57,12 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
   const [openConfirmSaveModal, setOpenConfirmSaveModal] = useState(false);
   const [saveState, setSaveState] = useState("");
   const [isSavingForm, setIsSavingForm] = useState(false);
-  const [hasValidVersion, setHasValidVersion] = useState(false);
+  const [isInvalidVersion, setIsInvalidVersion] = useState(false);
 
-  const isVersionValid = (version: string) => {
-    if (version === "") return setHasValidVersion(false);
-    const versionRegex = new RegExp(/^[0-9]/);
-    setHasValidVersion(Boolean(!versionRegex.test(version)));
+  const checkVersionValidity = (version: string) => {
+    if (!version) return setIsInvalidVersion(false);
+
+    setIsInvalidVersion(!/^[0-9]/.test(version));
   };
 
   const openModal = useCallback((option) => {
@@ -295,11 +295,11 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
                   defaultValue={saveState === "update" ? form?.version : ""}
                   placeholder="e.g. 1.0"
                   required
-                  onChange={(event) => isVersionValid(event.target.value)}
-                  invalid={hasValidVersion}
+                  onChange={(event) => checkVersionValidity(event.target.value)}
+                  invalid={isInvalidVersion}
                   invalidText={t(
-                    "versionErrorMessages",
-                    "Version cannot start with letters ensure valid version e.g 1.0"
+                    "invalidVersionWarning",
+                    "Version can only start with with a number"
                   )}
                 />
                 <Select
@@ -351,7 +351,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
               {t("close", "Close")}
             </Button>
             <Button
-              disabled={isSavingForm || hasValidVersion}
+              disabled={isSavingForm || isInvalidVersion}
               className={styles.spinner}
               type={"submit"}
               kind={"primary"}
