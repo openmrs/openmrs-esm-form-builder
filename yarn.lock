@@ -2941,8 +2941,8 @@ __metadata:
   linkType: hard
 
 "@openmrs/openmrs-form-engine-lib@npm:next":
-  version: 1.0.0-pre.149
-  resolution: "@openmrs/openmrs-form-engine-lib@npm:1.0.0-pre.149"
+  version: 1.0.0-pre.204
+  resolution: "@openmrs/openmrs-form-engine-lib@npm:1.0.0-pre.204"
   dependencies:
     ace-builds: ^1.4.12
     enzyme: ^3.11.0
@@ -2950,7 +2950,6 @@ __metadata:
     formik: ^2.2.6
     jest-coverage-badges: ^1.0.0
     lodash-es: ^4.17.15
-    moment: ^2.29.1
     react-anchor-link-smooth-scroll: ^1.0.12
     react-error-boundary: ^4.0.3
     react-markdown: ^7.1.0
@@ -2962,11 +2961,10 @@ __metadata:
   peerDependencies:
     "@carbon/react": 1.x
     "@openmrs/esm-framework": 4.x
-    dayjs: ^1.8.16
     react: ^18.2.0
     react-i18next: 11.x
     rxjs: 6.x
-  checksum: 5f4eb9bb151ff6ca5cce8ec16c0ecf4bdf6aea593a40a9c98d2383b0bfd3ba630945b57082fbe39f17967227b03363e8e6ec8425f781ee72423508888a461a37
+  checksum: 1e64f2a61ec8bb21156ce6ccb4f917e8f7c518c65967d6593d52dcdec639116edb5aacc5c48b51d32fbc9f5b12c1319b2118bbe2f4d714e1d319cedf0bc83654
   languageName: node
   linkType: hard
 
@@ -12420,13 +12418,6 @@ __metadata:
   version: 0.4.0
   resolution: "mktemp@npm:0.4.0"
   checksum: f67d8b1ed599807a4ec154efc6a50d61b28f4183fa740c4fe3bd75ce8442d84a3b8fca382fb3cb4e20bb883cb14478a7fe549c4eab6135cd213163ca5083f0fe
-  languageName: node
-  linkType: hard
-
-"moment@npm:^2.29.1":
-  version: 2.29.4
-  resolution: "moment@npm:2.29.4"
-  checksum: 0ec3f9c2bcba38dc2451b1daed5daded747f17610b92427bebe1d08d48d8b7bdd8d9197500b072d14e326dd0ccf3e326b9e3d07c5895d3d49e39b6803b76e80e
   languageName: node
   linkType: hard
 
