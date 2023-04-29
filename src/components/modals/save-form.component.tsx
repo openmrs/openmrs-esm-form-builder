@@ -57,6 +57,13 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
   const [openConfirmSaveModal, setOpenConfirmSaveModal] = useState(false);
   const [saveState, setSaveState] = useState("");
   const [isSavingForm, setIsSavingForm] = useState(false);
+  const [isInvalidVersion, setIsInvalidVersion] = useState(false);
+
+  const checkVersionValidity = (version: string) => {
+    if (!version) return setIsInvalidVersion(false);
+
+    setIsInvalidVersion(!/^[0-9]/.test(version));
+  };
 
   const openModal = useCallback((option) => {
     if (option === "newVersion") {
@@ -250,6 +257,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
       ) : null}
 
       <ComposedModal
+        preventCloseOnClickOutside
         open={openSaveFormModal}
         onClose={() => setOpenSaveFormModal(false)}
       >
@@ -287,6 +295,12 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
                   defaultValue={saveState === "update" ? form?.version : ""}
                   placeholder="e.g. 1.0"
                   required
+                  onChange={(event) => checkVersionValidity(event.target.value)}
+                  invalid={isInvalidVersion}
+                  invalidText={t(
+                    "invalidVersionWarning",
+                    "Version can only start with with a number"
+                  )}
                 />
                 <Select
                   id="encounterType"
@@ -337,7 +351,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
               {t("close", "Close")}
             </Button>
             <Button
-              disabled={isSavingForm}
+              disabled={isSavingForm || isInvalidVersion}
               className={styles.spinner}
               type={"submit"}
               kind={"primary"}
