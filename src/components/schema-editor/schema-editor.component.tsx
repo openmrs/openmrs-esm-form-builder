@@ -40,8 +40,12 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
 
   const inputDummySchema = useCallback(() => {
     const dummySchema: OHRIFormSchema = {
-      encounterType: "",
+      encounterType: "Test",
       name: "Sample Form",
+      processor: "EncounterFormProcessor",
+      referencedForms: [],
+      uuid: "f7a2a8f3-2ba9-49fb-a0d8-aaab0edbc1f0",
+      version: "1.0",
       pages: [
         {
           label: "First Page",
@@ -97,9 +101,6 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
           ],
         },
       ],
-      processor: "EncounterFormProcessor",
-      referencedForms: [],
-      uuid: "xxx",
     };
 
     setStringifiedSchema(JSON.stringify(dummySchema, null, 2));

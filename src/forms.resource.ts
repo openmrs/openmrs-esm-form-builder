@@ -67,6 +67,36 @@ export const getResourceUuid = async (
   return request;
 };
 
+export const updateForm = async (
+  formUuid,
+  name,
+  version,
+  description,
+  encounterTypeUuid
+) => {
+  const abortController = new AbortController();
+  const body = {
+    name: name,
+    version: version,
+    description: description,
+    encounterType: {
+      uuid: encounterTypeUuid,
+    },
+  };
+
+  const request: FetchResponse = await openmrsFetch(
+    `/ws/rest/v1/form/${formUuid}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: body,
+      signal: abortController.signal,
+    }
+  );
+
+  return request;
+};
+
 export const saveNewForm = async (
   name: string,
   version: string,
@@ -116,61 +146,6 @@ export const unpublishForm = async (uuid) => {
   const body = { published: false };
   const request: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${uuid}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: body,
-    }
-  );
-  return request;
-};
-
-export const updateName = async (name: string, uuid) => {
-  const body = { name: name };
-  const request: FetchResponse = await openmrsFetch(
-    `/ws/rest/v1/form/${uuid}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: body,
-    }
-  );
-  return request;
-};
-
-export const updateVersion = async (version: string, uuid) => {
-  const body = { version: version };
-  const request: FetchResponse = await openmrsFetch(
-    `/ws/rest/v1/form/${uuid}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: body,
-    }
-  );
-  return request;
-};
-
-export const updateDescription = async (description: string, uuid) => {
-  const body = { description: description };
-  const request: FetchResponse = await openmrsFetch(
-    `/ws/rest/v1/form/${uuid}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: body,
-    }
-  );
-  return request;
-};
-
-export const updateEncounterType = async (
-  encounterTypeUuid: string,
-  formUuid: string
-) => {
-  const body = { encounterType: encounterTypeUuid };
-  const request: FetchResponse = await openmrsFetch(
-    `/ws/rest/v1/form/${formUuid}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
