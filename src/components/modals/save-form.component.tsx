@@ -269,7 +269,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
         <ModalHeader
           title={t("saveFormToServer", "Save form to server")}
         ></ModalHeader>
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} className={styles.saveFormBody}>
           <ModalBody>
             <p>
               {t(
