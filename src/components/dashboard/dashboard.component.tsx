@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -24,6 +24,7 @@ import {
   TableToolbarSearch,
   Tag,
   Tile,
+  Pagination,
 } from "@carbon/react";
 import {
   Add,
@@ -38,6 +39,7 @@ import {
   showToast,
   useConfig,
   useLayoutType,
+  usePagination,
 } from "@openmrs/esm-framework";
 
 import { deleteForm } from "../../forms.resource";
@@ -238,6 +240,9 @@ function FormsList({ forms, isValidating, mutate, t }) {
   const isTablet = useLayoutType() === "tablet";
   const [filter, setFilter] = useState("");
   const config = useConfig();
+  const [pageSize, setPageSize] = useState(10);
+  const pageSizes = config?.activeVisits?.pageSizes ?? [10, 20, 30, 40, 50];
+  const [searchString, setSearchString] = useState("");
 
   const filteredRows = useMemo(() => {
     if (!filter) {
@@ -290,11 +295,40 @@ function FormsList({ forms, isValidating, mutate, t }) {
     [filteredRows, forms, mutate]
   );
 
+  const searchResults = useMemo(() => {
+    if (searchString && searchString.trim() !== "") {
+      const search = searchString.toLowerCase();
+      return tableRows.filter((formRow) =>
+        Object.entries(formRow).some(([header, value]) => {
+          if (header !== "name") {
+            return false;
+          }
+          return `${value}`.toLowerCase().includes(search);
+        })
+      );
+    }
+
+    return tableRows;
+  }, [searchString, tableRows]);
+
+  const { paginated, goTo, results, currentPage } = usePagination(
+    searchResults,
+    pageSize
+  );
+
   const handlePublishStatusChange = ({
     selectedItem,
   }: {
     selectedItem: string;
   }) => setFilter(selectedItem);
+
+  const handleSearch = useCallback(
+    (e) => {
+      goTo(1);
+      setSearchString(e.target.value);
+    },
+    [goTo, setSearchString]
+  );
 
   const handleFilter = ({
     rowIds,
@@ -347,26 +381,19 @@ function FormsList({ forms, isValidating, mutate, t }) {
       </div>
       <DataTable
         filterRows={handleFilter}
-        rows={tableRows}
+        rows={results}
         headers={tableHeaders}
         size={isTablet ? "sm" : "lg"}
         useZebraStyles
       >
-        {({
-          rows,
-          headers,
-          getTableProps,
-          getHeaderProps,
-          getRowProps,
-          onInputChange,
-        }) => (
+        {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <>
             <TableContainer className={styles.tableContainer}>
               <div className={styles.toolbarWrapper}>
                 <TableToolbar className={styles.tableToolbar}>
                   <TableToolbarContent>
                     <TableToolbarSearch
-                      onChange={onInputChange}
+                      onChange={handleSearch}
                       placeholder={t("searchThisList", "Search this list")}
                     />
                     <Button
@@ -425,6 +452,26 @@ function FormsList({ forms, isValidating, mutate, t }) {
           </>
         )}
       </DataTable>
+      {paginated && (
+        <Pagination
+          forwardText="Next page"
+          backwardText="Previous page"
+          page={currentPage}
+          pageSize={pageSize}
+          pageSizes={pageSizes}
+          totalItems={tableRows?.length}
+          className={styles.pagination}
+          size={isTablet ? "lg" : "sm"}
+          onChange={({ pageSize: newPageSize, page: newPage }) => {
+            if (newPageSize !== pageSize) {
+              setPageSize(newPageSize);
+            }
+            if (newPage !== currentPage) {
+              goTo(newPage);
+            }
+          }}
+        />
+      )}
     </>
   );
 }
