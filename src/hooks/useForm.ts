@@ -5,7 +5,7 @@ import { Form } from "../types";
 export const useForm = (uuid: string) => {
   const FORM_URL = `/ws/rest/v1/form/${uuid}?v=full`;
 
-  const { data, error, mutate } = useSWR<{ data: Form }, Error>(
+  const { data, error, isLoading, mutate } = useSWR<{ data: Form }, Error>(
     uuid ? FORM_URL : null,
     openmrsFetch
   );
@@ -13,7 +13,7 @@ export const useForm = (uuid: string) => {
   return {
     form: data?.data,
     formError: error,
-    isLoadingForm: (!data && !error) || false,
+    isLoadingForm: isLoading,
     mutate,
   };
 };

@@ -1,8 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
+  Button,
   Column,
+  ComposedModal,
   InlineNotification,
+  Form,
   Grid,
+  ModalBody,
+  ModalHeader,
+  ModalFooter,
   Tabs,
   Tab,
   TabList,
@@ -40,25 +46,65 @@ const FormEditor: React.FC = () => {
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
   const [schema, setSchema] = useState<Schema>();
+  const [showLoadDraftSchemaModal, setShowLoadDraftSchemaModal] =
+    useState(false);
   const { form, formError, isLoadingForm } = useForm(formUuid);
   const { clobdata, clobdataError, isLoadingClobdata } = useClobdata(form);
   const isLoadingFormOrSchema =
     formUuid && (isLoadingClobdata || isLoadingForm);
 
   useEffect(() => {
-    if (!isLoadingClobdata && clobdata) {
+    if (formUuid && clobdata && Object.keys(clobdata).length > 0) {
       setSchema(clobdata);
       localStorage.setItem("formJSON", JSON.stringify(clobdata));
-    } else {
-      const draftJSON = localStorage.getItem("formJSON");
-      setSchema(JSON.parse(draftJSON));
+    } else if (formUuid && !isLoadingFormOrSchema && !schema) {
+      setShowLoadDraftSchemaModal(true);
     }
-  }, [clobdata, isLoadingClobdata, setSchema]);
+  }, [clobdata, formUuid, isLoadingFormOrSchema, schema]);
 
   const updateSchema = useCallback((updatedSchema) => {
     setSchema(updatedSchema);
     localStorage.setItem("formJSON", JSON.stringify(updatedSchema));
   }, []);
+
+  const LoadDraftSchema = () => {
+    return (
+      <ComposedModal
+        open={showLoadDraftSchemaModal}
+        onClose={() => setShowLoadDraftSchemaModal(false)}
+        preventCloseOnClickOutside
+      >
+        <ModalHeader title={t("schemaNotFound", "Schema not found")} />
+        <Form onSubmit={(event) => event.preventDefault()}>
+          <ModalBody>
+            <p>
+              {t(
+                "schemaNotFoundText",
+                "The schema originally associated with this form could not be found. A draft schema was found saved in your browser's local storage. Would you like to load it instead?"
+              )}
+            </p>
+          </ModalBody>
+        </Form>
+        <ModalFooter>
+          <Button
+            onClick={() => setShowLoadDraftSchemaModal(false)}
+            kind="secondary"
+          >
+            {t("cancel", "Cancel")}
+          </Button>
+          <Button
+            onClick={() => {
+              setShowLoadDraftSchemaModal(false);
+              const draftJSON = localStorage.getItem("formJSON");
+              setSchema(JSON.parse(draftJSON));
+            }}
+          >
+            <span>{t("loadDraft", "Load draft")}</span>
+          </Button>
+        </ModalFooter>
+      </ComposedModal>
+    );
+  };
 
   return (
     <>
@@ -66,6 +112,7 @@ const FormEditor: React.FC = () => {
         <ExtensionSlot extensionSlotName="breadcrumbs-slot" />
       </div>
       <div className={styles.container}>
+        {showLoadDraftSchemaModal && <LoadDraftSchema />}
         <Grid className={styles.grid}>
           <Column lg={8} md={8} className={styles.column}>
             <Tabs>

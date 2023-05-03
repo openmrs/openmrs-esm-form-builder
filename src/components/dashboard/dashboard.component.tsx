@@ -61,7 +61,9 @@ function ActionButtons({ form }) {
     <Button
       className={styles.importButton}
       renderIcon={DocumentImport}
-      onClick={() => navigate({ to: `form-builder/edit/${form.uuid}` })}
+      onClick={() =>
+        navigate({ to: `${window.spaBase}/form-builder/edit/${form.uuid}` })
+      }
       kind={"ghost"}
       iconDescription={t("import", "Import")}
       hasIconOnly

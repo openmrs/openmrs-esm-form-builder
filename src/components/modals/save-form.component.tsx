@@ -18,19 +18,17 @@ import {
 } from "@carbon/react";
 import { showNotification, showToast } from "@openmrs/esm-framework";
 import {
-  uploadSchema,
-  saveNewForm,
-  updateName,
-  updateVersion,
-  updateDescription,
-  getResourceUuid,
   deleteClobdata,
   deleteResource,
-  updateEncounterType,
+  getResourceUuid,
+  saveNewForm,
+  updateForm,
+  uploadSchema,
 } from "../../forms.resource";
 import { EncounterType, Resource, RouteParams, Schema } from "../../types";
 import { useEncounterTypes } from "../../hooks/useEncounterTypes";
 import styles from "./save-form.scss";
+import { useForm } from "../../hooks/useForm";
 
 type FormGroupData = {
   name: string;
@@ -43,21 +41,25 @@ type FormGroupData = {
 type SaveFormModalProps = {
   form: FormGroupData;
   schema: Schema;
-  onMutate: () => void;
 };
 
 const clearDraftFormSchema = () => localStorage.removeItem("formSchema");
 
-const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
+const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
   const isSavingNewForm = !formUuid;
   const { encounterTypes } = useEncounterTypes();
+  const { mutate } = useForm(formUuid);
   const [openSaveFormModal, setOpenSaveFormModal] = useState(false);
   const [openConfirmSaveModal, setOpenConfirmSaveModal] = useState(false);
   const [saveState, setSaveState] = useState("");
   const [isSavingForm, setIsSavingForm] = useState(false);
   const [isInvalidVersion, setIsInvalidVersion] = useState(false);
+  const [name, setName] = useState(form?.name);
+  const [description, setDescription] = useState(form?.description);
+  const [encounterType, setEncounterType] = useState(form?.encounterType?.uuid);
+  const [version, setVersion] = useState(form?.version);
 
   const checkVersionValidity = (version: string) => {
     if (!version) return setIsInvalidVersion(false);
@@ -84,23 +86,23 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
     event.preventDefault();
     setIsSavingForm(true);
 
-    let name = event.target.name.value,
-      version = event.target.version.value,
-      encounterType = event.target.encounterType.value,
-      description = event.target.description.value,
-      encounterTypeUUID;
-
-    if (encounterType === "undefined") {
-      encounterTypeUUID = undefined;
-    } else {
-      encounterTypes.forEach((encType) => {
-        if (encounterType === encType.name) {
-          encounterTypeUUID = encType.uuid;
-        }
-      });
-    }
-
     if (saveState === "new" || saveState === "newVersion") {
+      let name = event.target.name.value,
+        version = event.target.version.value,
+        encounterType = event.target.encounterType.value,
+        description = event.target.description.value,
+        encounterTypeUUID;
+
+      if (encounterType === "undefined") {
+        encounterTypeUUID = undefined;
+      } else {
+        encounterTypes.forEach((encType) => {
+          if (encounterType === encType.name) {
+            encounterTypeUUID = encType.uuid;
+          }
+        });
+      }
+
       try {
         const newForm = await saveNewForm(
           name,
@@ -125,6 +127,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
         });
         clearDraftFormSchema();
         setOpenSaveFormModal(false);
+        setIsSavingForm(false);
       } catch (error) {
         showNotification({
           title: t("errorCreatingForm", "Error creating form"),
@@ -135,7 +138,17 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
       }
     } else {
       try {
-        if (form?.resources?.length != 0) {
+        const updatedSchema = {
+          ...schema,
+          name: name,
+          version: version,
+          description: description,
+          encounterType: encounterType,
+        };
+
+        await updateForm(form.uuid, name, version, description, encounterType);
+
+        if (form?.resources?.length !== 0) {
           const existingValueReferenceUuid = form?.resources?.find(
             ({ name }) => name === "JSON schema"
           )?.valueReference;
@@ -151,10 +164,23 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
 
               deleteResource(form?.uuid, resourceUuidToDelete)
                 .then(() => {
-                  uploadSchema(schema)
+                  uploadSchema(updatedSchema)
                     .then((result) => {
-                      getResourceUuid(form?.uuid, result.toString()).catch(
-                        (err) => {
+                      getResourceUuid(form?.uuid, result.toString())
+                        .then(() => {
+                          showToast({
+                            title: t("success", "Success!"),
+                            kind: "success",
+                            critical: true,
+                            description:
+                              form?.name +
+                              " " +
+                              t("saveSuccess", "was updated successfully"),
+                          });
+                          setOpenSaveFormModal(false);
+                          mutate();
+                        })
+                        .catch((err) => {
                           console.error(
                             "Error associating form with new schema: ",
                             err
@@ -169,12 +195,12 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
                               "There was a problem saving your form. Try saving again. To ensure you don’t lose your changes, copy them, reload the page and then paste them back into the editor."
                             ),
                           });
-                        }
-                      );
+                        });
                     })
                     .catch((err) =>
                       console.error("Error uploading new schema: ", err)
-                    );
+                    )
+                    .finally(() => setIsSavingForm(false));
                 })
                 .catch((error) =>
                   console.error(
@@ -182,34 +208,8 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
                     error
                   )
                 );
-            })
-            .finally(() => {
-              onMutate();
             });
         }
-
-        if (name !== form?.name) {
-          await updateName(name, form?.uuid);
-        }
-        if (version !== form?.version) {
-          await updateVersion(version, form?.uuid);
-        }
-        if (encounterTypeUUID !== form?.encounterType?.uuid) {
-          await updateEncounterType(encounterTypeUUID, form?.uuid);
-        }
-        if (description !== form?.description) {
-          await updateDescription(description, form?.uuid);
-        }
-
-        showToast({
-          title: t("success", "Success!"),
-          kind: "success",
-          critical: true,
-          description:
-            name + " " + t("saveSuccess", "was updated successfully"),
-        });
-
-        setOpenSaveFormModal(false);
       } catch (error) {
         showNotification({
           title: t("errorUpdatingForm", "Error updating form"),
@@ -217,9 +217,10 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
           critical: true,
           description: error?.message,
         });
+
+        setIsSavingForm(false);
       }
     }
-    setIsSavingForm(false);
   };
 
   return (
@@ -257,9 +258,9 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
       ) : null}
 
       <ComposedModal
-        preventCloseOnClickOutside
         open={openSaveFormModal}
         onClose={() => setOpenSaveFormModal(false)}
+        preventCloseOnClickOutside
       >
         <ModalHeader
           title={t("saveFormToServer", "Save form to server")}
@@ -278,6 +279,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
                   id="name"
                   labelText={t("formName", "Form name")}
                   defaultValue={saveState === "update" ? form?.name : ""}
+                  onChange={(event) => setName(event.target.value)}
                   placeholder="e.g. OHRI Express Care Patient Encounter Form"
                   required
                 />
@@ -295,7 +297,13 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
                   defaultValue={saveState === "update" ? form?.version : ""}
                   placeholder="e.g. 1.0"
                   required
-                  onChange={(event) => checkVersionValidity(event.target.value)}
+                  onChange={(event) => {
+                    checkVersionValidity(event.target.value);
+
+                    if (!isInvalidVersion) {
+                      setVersion(event.target.value);
+                    }
+                  }}
                   invalid={isInvalidVersion}
                   invalidText={t(
                     "invalidVersionWarning",
@@ -309,6 +317,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
                       ? form?.encounterType?.name
                       : "undefined"
                   }
+                  onChange={(event) => setEncounterType(event.target.value)}
                   labelText={t("encounterType", "Encounter Type")}
                   required
                 >
@@ -323,7 +332,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
                   {encounterTypes?.map((encounterType, key) => (
                     <SelectItem
                       key={key}
-                      value={encounterType.name}
+                      value={encounterType.uuid}
                       text={encounterType.name}
                     />
                   ))}
@@ -331,6 +340,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema, onMutate }) => {
                 <TextArea
                   labelText={t("description", "Description")}
                   defaultValue={saveState === "update" ? form?.description : ""}
+                  onChange={(event) => setDescription(event.target.value)}
                   cols={6}
                   rows={3}
                   id="description"

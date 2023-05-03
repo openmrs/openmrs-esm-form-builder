@@ -9,14 +9,15 @@ export const useClobdata = (form?: Form) => {
   const formHasResources = form?.resources.length > 0 && valueReferenceUuid;
   const CLOBDATA_URL = `/ws/rest/v1/clobdata/${valueReferenceUuid}`;
 
-  const { data, error } = useSWRImmutable<{ data: Schema }, Error>(
-    formHasResources ? CLOBDATA_URL : null,
-    openmrsFetch
-  );
+  const { data, error, isLoading, mutate } = useSWRImmutable<
+    { data: Schema },
+    Error
+  >(formHasResources ? CLOBDATA_URL : null, openmrsFetch);
 
   return {
     clobdata: data?.data,
     clobdataError: error || null,
-    isLoadingClobdata: (!data && !error) || false,
+    isLoadingClobdata: isLoading,
+    mutate: mutate,
   };
 };
