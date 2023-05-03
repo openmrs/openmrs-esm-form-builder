@@ -40,11 +40,11 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
 
   const inputDummySchema = useCallback(() => {
     const dummySchema: OHRIFormSchema = {
-      encounterType: "Test",
+      encounterType: "",
       name: "Sample Form",
       processor: "EncounterFormProcessor",
       referencedForms: [],
-      uuid: "f7a2a8f3-2ba9-49fb-a0d8-aaab0edbc1f0",
+      uuid: "",
       version: "1.0",
       pages: [
         {
