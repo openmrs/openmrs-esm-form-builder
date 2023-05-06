@@ -113,3 +113,9 @@
 .warningMessage {
   margin: 1.5rem 0;
 }
+
+.spinner {
+  &:global(.cds--inline-loading) {
+    min-height: 1rem;
+  }
+}
