@@ -8,7 +8,6 @@ import {
   ModalHeader,
 } from "@carbon/react";
 import { useParams } from "react-router-dom";
-import { useSWRConfig } from "swr";
 import { showToast, showNotification } from "@openmrs/esm-framework";
 
 import { RouteParams } from "../../types";
@@ -26,23 +25,13 @@ type Status =
   | "error";
 
 function ActionButtons({ schema, t }) {
-  const { cache, mutate }: { cache: any; mutate: Function } = useSWRConfig();
   const { formUuid } = useParams<RouteParams>();
-  const { form } = useForm(formUuid);
+  const { form, mutate } = useForm(formUuid);
   const [status, setStatus] = useState<Status>("idle");
   const [showUnpublishModal, setShowUnpublishModal] = useState(false);
 
   const launchUnpublishModal = () => {
     setShowUnpublishModal(true);
-  };
-
-  const revalidate = () => {
-    const apiUrlPattern = new RegExp("\\/ws\\/rest\\/v1\\/form");
-
-    // Find matching keys from SWR's cache and broadcast a revalidation message to their pre-bound SWR hooks
-    Array.from(cache.keys())
-      .filter((url: string) => apiUrlPattern.test(url))
-      .forEach((url: string) => mutate(url));
   };
 
   async function handlePublish() {
@@ -60,7 +49,7 @@ function ActionButtons({ schema, t }) {
       });
 
       setStatus("published");
-      revalidate();
+      mutate();
     } catch (error) {
       showNotification({
         title: t("errorPublishingForm", "Error publishing form"),
@@ -87,7 +76,7 @@ function ActionButtons({ schema, t }) {
       });
 
       setStatus("unpublished");
-      revalidate();
+      mutate();
     } catch (error) {
       showNotification({
         title: t("errorUnpublishingForm", "Error unpublishing form"),
