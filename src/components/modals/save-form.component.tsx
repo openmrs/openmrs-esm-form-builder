@@ -16,7 +16,7 @@ import {
   TextArea,
   TextInput,
 } from "@carbon/react";
-import { showNotification, showToast } from "@openmrs/esm-framework";
+import { navigate, showNotification, showToast } from "@openmrs/esm-framework";
 import {
   deleteClobdata,
   deleteResource,
@@ -128,6 +128,9 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
         clearDraftFormSchema();
         setOpenSaveFormModal(false);
         setIsSavingForm(false);
+        navigate({
+          to: `${window.spaBase}/form-builder/edit/${newForm.uuid}`,
+        });
       } catch (error) {
         showNotification({
           title: t("errorCreatingForm", "Error creating form"),

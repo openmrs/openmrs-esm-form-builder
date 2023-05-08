@@ -1,135 +1,22 @@
 {
-  "name": "Surgical Operation",
-  "description": "Surgery Form",
-  "version": "1",
-  "published": true,
-  "retired": false,
-  "encounter": "Consultation",
+  "encounterType": "",
+  "name": "UI Select Form Test",
   "pages": [
     {
-      "label": "Surgical Operation",
+      "label": "UI Select Test",
       "sections": [
         {
-          "label": "Surgical progress",
+          "label": "Visit Details",
           "isExpanded": "true",
           "questions": [
             {
-              "label": "Pre-Operative Diagnosis",
+              "label": "Select Provider",
               "type": "obs",
               "questionOptions": {
-                "rendering": "textarea",
-                "concept": "a957ff9c-80f1-4f31-8937-3bef0cfb8c0e",
-                "rows": "2"
+                "rendering": "text",
+                "concept": "a-system-defined-concept-uuid"
               },
-              "id": "Pre-Operative_Diagnosis"
-            },
-            {
-              "label": "Anesthesia Type",
-              "type": "obs",
-              "questionOptions": {
-                "rendering": "radio",
-                "concept": "3017f680-5c3c-4f7b-94e1-6afda9e07eaf",
-                "answers": [
-                  {
-                    "concept": "3ca389b4-6b9d-487c-bdd9-73d2cfeeab0c",
-                    "label": "General",
-                    "conceptMappings": []
-                  },
-                  {
-                    "concept": "5392d074-eed3-4f88-a8e9-5bae333e7589",
-                    "label": "Monitored Anesthesia Care",
-                    "conceptMappings": []
-                  },
-                  {
-                    "concept": "84ba7929-3714-4023-843a-2b1814563207",
-                    "label": "Knee Block",
-                    "conceptMappings": []
-                  }
-                ]
-              },
-              "id": "Anesthesia_Type"
-            },
-            {
-              "label": "Estimated Blood Loss (mls)",
-              "type": "obs",
-              "questionOptions": {
-                "rendering": "number",
-                "concept": "b5ab7bc0-bffb-4dc8-b832-2e1713f06944",
-                "max": "",
-                "min": "",
-                "showDate": "false"
-              },
-              "id": "Estimated_Blood_Loss"
-            },
-            {
-              "label": "Complications",
-              "type": "obs",
-              "questionOptions": {
-                "rendering": "textarea",
-                "concept": "64fe56e6-5b52-4cdb-adc2-b6d50bfdee63",
-                "rows": "5"
-              },
-              "id": "Complications"
-            },
-            {
-              "label": "Specimens",
-              "type": "obs",
-              "questionOptions": {
-                "rendering": "textarea",
-                "concept": "08f1f638-b3c7-4040-8ae9-c95a5df59755",
-                "rows": "2"
-              },
-              "id": "Specimens"
-            },
-            {
-              "label": "Drains",
-              "type": "obs",
-              "questionOptions": {
-                "rendering": "textarea",
-                "concept": "59185273-c5b8-4e73-8ba2-c68710f6c507",
-                "rows": "3"
-              },
-              "id": "Drains"
-            },
-            {
-              "label": "Condition upon discharge from OR",
-              "type": "obs",
-              "questionOptions": {
-                "rendering": "textarea",
-                "concept": "a1da87f9-c4af-4598-accd-489268a2d325",
-                "rows": "3"
-              },
-              "id": "Condition_upon_discharge_from_OR"
-            },
-            {
-              "label": "Surgeon(s)",
-              "type": "obs",
-              "questionOptions": {
-                "rendering": "textarea",
-                "concept": "0b21ca75-2fab-4c34-bf4c-f66ae2415829",
-                "rows": "3"
-              },
-              "id": "Surgeon"
-            },
-            {
-              "label": "Time of Procedure",
-              "type": "obs",
-              "questionOptions": {
-                "rendering": "date",
-                "concept": "0934658e-fee3-44e3-a8f2-292dc3587f54",
-                "weeksList": ""
-              },
-              "id": "Time_of_Procedure"
-            },
-            {
-              "label": "Post-Operative Instructions",
-              "type": "obs",
-              "questionOptions": {
-                "rendering": "textarea",
-                "concept": "2554a66d-46fe-4f5f-813a-2b491716bddf",
-                "rows": "5"
-              },
-              "id": "Post-Operative_Instructions"
+              "id": "sampleQuestion"
             }
           ]
         }
@@ -137,6 +24,6 @@
     }
   ],
   "processor": "EncounterFormProcessor",
-  "uuid": "xxxx",
-  "referencedForms": []
+  "referencedForms": [],
+  "uuid": "xxx"
 }

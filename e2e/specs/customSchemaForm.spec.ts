@@ -1,12 +1,16 @@
-import { test, expect } from "@playwright/test";
+import { test } from "../core";
+import { deleteForm } from "../commands/formOperations";
 import { FromBuilderPage } from "../pages";
 import customSchema from "../support/customSchema.json";
+
+let formUuid = "";
 
 test("Should be able to create a form using custom schema", async ({
   page,
 }) => {
   const fromBuilderPage = new FromBuilderPage(page);
   await fromBuilderPage.gotoFormBuilder();
+
   const formName = `test form ${Math.floor(Math.random() * 10000)}`;
 
   await page.getByRole("button", { name: "Create a new form" }).click();
@@ -25,7 +29,12 @@ test("Should be able to create a form using custom schema", async ({
     .getByRole("combobox", { name: "Encounter Type" })
     .selectOption("Admission");
   await page.getByRole("dialog").getByRole("button", { name: "Save" }).click();
+  const url = await page.url();
+  const regex = new RegExp("/edit/");
+  formUuid = url.split("/").slice(-1)[0];
+  await page.waitForURL(regex);
+});
 
-  await fromBuilderPage.gotoFormBuilder();
-  await expect(page.getByTestId("formsTable")).toContain(formName);
+test.afterAll(async ({ api }) => {
+  await deleteForm(api, formUuid);
 });
