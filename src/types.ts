@@ -96,19 +96,19 @@ export interface Question {
 export interface QuestionOptions {
   rendering: RenderType;
   answers: Array<Answer>;
-  max: string;
-  min: string;
   concept: string;
-  conceptMappings: Array<ConceptMapping>;
-  weekList: [];
-  attributeType: string;
-  calculate: {
+  conceptMappings?: Array<ConceptMapping>;
+  max?: string;
+  min?: string;
+  attributeType?: string;
+  calculate?: {
     calculateExpression: string;
   };
-  rows: string;
-  orderSettingUuid: string;
-  orderType: string;
-  selectableOrders: Array<Answer>;
+  rows?: string;
+  orderSettingUuid?: string;
+  orderType?: string;
+  selectableOrders?: Array<Answer>;
+  weekList?: [];
 }
 
 export interface Answer {

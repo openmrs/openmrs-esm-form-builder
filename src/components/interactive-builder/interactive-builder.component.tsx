@@ -239,7 +239,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           pageIndex={pageIndex}
           sectionIndex={sectionIndex}
           questionIndex={questionIndex}
-          questionToEdit={questionToEdit}
           resetIndices={resetIndices}
           schema={schema}
           showModal={showAddQuestionModal}

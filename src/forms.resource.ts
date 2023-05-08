@@ -12,7 +12,7 @@ export const deleteClobdata = async (valueReference: string) => {
   return response;
 };
 
-export async function deleteForm(formUuid: string): Promise<FetchResponse<{}>> {
+export async function deleteForm(formUuid: string): Promise<FetchResponse> {
   const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${formUuid}`,
     {

@@ -25,7 +25,7 @@ import {
 import { ArrowUpRight } from "@carbon/react/icons";
 import flattenDeep from "lodash-es/flattenDeep";
 import { showNotification, showToast, useConfig } from "@openmrs/esm-framework";
-import type { RenderType } from "@openmrs/openmrs-form-engine-lib";
+import { RenderType } from "@openmrs/openmrs-form-engine-lib";
 import { Answer, Concept, ConceptMapping, Question, Schema } from "../../types";
 import { useConceptLookup } from "../../hooks/useConceptLookup";
 import styles from "./question-modal.scss";
@@ -36,7 +36,6 @@ type AddQuestionModalProps = {
   onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
   questionIndex: number;
-  questionToEdit: Question;
   resetIndices: () => void;
   schema: Schema;
   sectionIndex: number;
@@ -52,7 +51,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   resetIndices,
   showModal,
   onModalChange,
-  questionToEdit,
 }) => {
   const { t } = useTranslation();
   const { fieldTypes, questionTypes } = useConfig();
@@ -71,9 +69,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [selectedAnswers, setSelectedAnswers] = useState([]);
   const { concepts, isLoadingConcepts } = useConceptLookup(conceptToLookup);
 
-  const handleConceptChange = (event) => {
-    setConceptToLookup(event.target.value);
-  };
+  const handleConceptChange = (event) => setConceptToLookup(event.target.value);
 
   const handleConceptSelect = (concept: Concept) => {
     setConceptToLookup("");
@@ -97,10 +93,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   };
 
   const questionIdExists = (idToTest) => {
-    if (questionToEdit?.id === idToTest) {
-      return false;
-    }
-
     const nestedIds = schema?.pages?.map((page) => {
       return page?.sections?.map((section) => {
         return section?.questions?.map((question) => {
