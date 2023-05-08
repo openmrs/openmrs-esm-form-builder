@@ -58,7 +58,7 @@ export const uploadSchema = async (schema: Schema) => {
 
 export const getResourceUuid = async (
   formUuid: string,
-  valueReference: any
+  valueReference: string
 ) => {
   const body = {
     name: "JSON schema",

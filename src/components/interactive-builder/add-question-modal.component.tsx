@@ -25,14 +25,8 @@ import {
 import { ArrowUpRight } from "@carbon/react/icons";
 import flattenDeep from "lodash-es/flattenDeep";
 import { showNotification, showToast, useConfig } from "@openmrs/esm-framework";
-import {
-  Answer,
-  Concept,
-  ConceptMapping,
-  FieldTypes,
-  Question,
-  Schema,
-} from "../../types";
+import type { RenderType } from "@openmrs/openmrs-form-engine-lib";
+import { Answer, Concept, ConceptMapping, Question, Schema } from "../../types";
 import { useConceptLookup } from "../../hooks/useConceptLookup";
 import styles from "./question-modal.scss";
 
@@ -67,7 +61,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [questionLabel, setQuestionLabel] = useState("");
   const [questionType, setQuestionType] = useState("");
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
-  const [fieldType, setFieldType] = useState<FieldTypes>(null);
+  const [fieldType, setFieldType] = useState<RenderType>(null);
   const [questionId, setQuestionId] = useState("");
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [selectedConcept, setSelectedConcept] = useState(null);
@@ -92,7 +86,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     );
     setConceptMappings(
       concept?.mappings?.map((conceptMapping) => {
-        let data = conceptMapping.display.split(": ");
+        const data = conceptMapping.display.split(": ");
         return {
           relationship: conceptMapping.conceptMapType.display,
           type: data[0],
@@ -265,7 +259,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   <SelectItem text={fieldType} value={fieldType} key={key} />
                 ))}
               </Select>
-              {fieldType === FieldTypes.Number ? (
+              {fieldType === "number" ? (
                 <>
                   <TextInput
                     id="min"
@@ -282,7 +276,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                     required
                   />
                 </>
-              ) : fieldType === FieldTypes.TextArea ? (
+              ) : fieldType === "textarea" ? (
                 <TextInput
                   id="textAreaRows"
                   labelText={t("rows", "Rows")}
@@ -292,7 +286,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 />
               ) : null}
 
-              {fieldType !== FieldTypes.UiSelectExtended && (
+              {fieldType !== "ui-select-extended" && (
                 <div>
                   <FormLabel className={styles.label}>
                     {t(
@@ -470,7 +464,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             !questionId ||
             questionIdExists(questionId) ||
             !fieldType ||
-            (fieldType !== FieldTypes.UiSelectExtended && !selectedConcept)
+            (fieldType !== "ui-select-extended" && !selectedConcept)
           }
           onClick={handleCreateQuestion}
         >

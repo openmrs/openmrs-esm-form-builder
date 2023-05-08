@@ -1,12 +1,16 @@
+import type { RenderType } from "@openmrs/openmrs-form-engine-lib";
+
 export interface Form {
   uuid: string;
   name: string;
   encounterType: EncounterType;
   version: string;
-  description: string;
-  published: boolean;
-  retired: boolean;
   resources: Array<Resource>;
+  description: string;
+  published?: boolean;
+  retired?: boolean;
+  formFields?: Array<unknown>;
+  display?: string;
 }
 
 export type RouteParams = { formUuid: string };
@@ -14,7 +18,10 @@ export type RouteParams = { formUuid: string };
 export interface FilterProps {
   rowIds: Array<string>;
   headers: Array<Record<string, string>>;
-  cellsById: any;
+  cellsById: Record<
+    string,
+    Record<string, boolean | string | null | Record<string, unknown>>
+  >;
   inputValue: string;
   getCellId: (row, key) => string;
 }
@@ -33,24 +40,38 @@ export interface Resource {
 
 export interface Schema {
   name: string;
-  pages: any;
+  pages: Array<{
+    label: string;
+    sections: Array<{
+      label: string;
+      isExpanded: string;
+      questions: Array<{
+        id: string;
+        label: string;
+        type: string;
+        required?: boolean;
+        questionOptions: {
+          type?: string;
+          concept?: string;
+          answers?: Array<Record<string, string>>;
+          rendering: RenderType;
+          max?: string;
+          min?: string;
+          conceptMappings?: Array<Record<string, string>>;
+        };
+        validators?: Array<Record<string, string>>;
+      }>;
+    }>;
+  }>;
   processor: string;
   uuid: string;
   encounterType: string;
-  referencedForms: any;
-}
-
-export interface ClobResponse {
-  body: any;
-  data: any;
-  headers: any;
-  statusText: any;
-  status: any;
+  referencedForms: [];
 }
 
 export interface SchemaContextType {
   schema: Schema;
-  setSchema: any;
+  setSchema: (schema: Schema) => void;
 }
 
 export interface Page {
@@ -73,7 +94,7 @@ export interface Question {
 }
 
 export interface QuestionOptions {
-  rendering: string;
+  rendering: RenderType;
   answers: Array<Answer>;
   max: string;
   min: string;
@@ -81,7 +102,9 @@ export interface QuestionOptions {
   conceptMappings: Array<ConceptMapping>;
   weekList: [];
   attributeType: string;
-  calculate: any;
+  calculate: {
+    calculateExpression: string;
+  };
   rows: string;
   orderSettingUuid: string;
   orderType: string;
@@ -93,11 +116,7 @@ export interface Answer {
   label: string;
 }
 
-export interface ConceptMapping {
-  type: string;
-  value: string;
-  relationship: string;
-}
+export type ConceptMapping = Record<string, string>;
 
 export interface Concept {
   uuid: string;
@@ -116,21 +135,4 @@ export interface Mapping {
   conceptMapType: {
     display: string;
   };
-}
-
-export enum FieldTypes {
-  Date = "date",
-  Drug = "drug",
-  FieldSet = "field-set",
-  File = "file",
-  Group = "group",
-  MultiCheckbox = "multiCheckbox",
-  Number = "number",
-  Problem = "problem",
-  Radio = "radio",
-  Repeating = "repeating",
-  Select = "select",
-  Text = "text",
-  TextArea = "textarea",
-  UiSelectExtended = "ui-select-extended",
 }

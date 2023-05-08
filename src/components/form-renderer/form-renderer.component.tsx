@@ -87,7 +87,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
           </Tile>
         )}
         {schema === schemaToRender && (
-          <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => {}}>
+          <ErrorBoundary FallbackComponent={ErrorFallback}>
             <OHRIForm
               formJson={schemaToRender}
               mode={"enter"}
