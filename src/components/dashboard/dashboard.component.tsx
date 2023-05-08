@@ -2,11 +2,16 @@ import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
+  ComposedModal,
   DataTable,
   DataTableSkeleton,
   Dropdown,
+  Form,
   InlineLoading,
   InlineNotification,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   Table,
   TableBody,
   TableCell,
@@ -20,9 +25,22 @@ import {
   Tag,
   Tile,
 } from "@carbon/react";
-import { Add, DocumentImport, Download, Edit } from "@carbon/react/icons";
-import { navigate, useConfig, useLayoutType } from "@openmrs/esm-framework";
+import {
+  Add,
+  DocumentImport,
+  Download,
+  Edit,
+  TrashCan,
+} from "@carbon/react/icons";
+import {
+  navigate,
+  showNotification,
+  showToast,
+  useConfig,
+  useLayoutType,
+} from "@openmrs/esm-framework";
 
+import { deleteForm } from "../../forms.resource";
 import { FilterProps } from "../../types";
 import { useClobdata } from "../../hooks/useClobdata";
 import { useForms } from "../../hooks/useForms";
@@ -44,10 +62,12 @@ function CustomTag({ condition }) {
   );
 }
 
-function ActionButtons({ form }) {
+function ActionButtons({ form, mutate }) {
   const { t } = useTranslation();
   const { clobdata } = useClobdata(form);
   const formResources = form?.resources;
+  const [showDeleteFormModal, setShowDeleteFormModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const downloadableSchema = useMemo(
     () =>
@@ -57,21 +77,51 @@ function ActionButtons({ form }) {
     [clobdata]
   );
 
-  return formResources.length == 0 || !form?.resources[0] ? (
-    <Button
-      className={styles.importButton}
-      renderIcon={DocumentImport}
-      onClick={() =>
-        navigate({ to: `${window.spaBase}/form-builder/edit/${form.uuid}` })
-      }
-      kind={"ghost"}
-      iconDescription={t("import", "Import")}
-      hasIconOnly
-    />
-  ) : (
-    <>
+  const handleDeleteForm = (formUuid: string) => {
+    deleteForm(formUuid)
+      .then((res) => {
+        if (res.status === 204) {
+          showToast({
+            title: t("formDeleted", "Form deleted"),
+            kind: "success",
+            critical: true,
+            description:
+              `${form.name} ` +
+              t("formDeletedSuccessfully", "deleted successfully"),
+          });
+
+          mutate();
+          setShowDeleteFormModal(false);
+        }
+      })
+      .catch((e) =>
+        showNotification({
+          title: t("errorDeletingForm", "Error deleting form"),
+          kind: "error",
+          critical: true,
+          description: e?.message,
+        })
+      )
+      .finally(() => setIsDeleting(false));
+  };
+
+  const ImportButton = () => {
+    return (
       <Button
-        className={styles.editButton}
+        renderIcon={DocumentImport}
+        onClick={() =>
+          navigate({ to: `${window.spaBase}/form-builder/edit/${form.uuid}` })
+        }
+        kind={"ghost"}
+        iconDescription={t("import", "Import")}
+        hasIconOnly
+      />
+    );
+  };
+
+  const EditButton = () => {
+    return (
+      <Button
         enterDelayMs={300}
         renderIcon={Edit}
         onClick={() =>
@@ -84,8 +134,12 @@ function ActionButtons({ form }) {
         hasIconOnly
         tooltipAlignment="start"
       />
+    );
+  };
+
+  const DownloadSchemaButton = () => {
+    return (
       <a
-        className={styles.downloadLink}
         download={`${form?.name}.json`}
         href={window.URL.createObjectURL(downloadableSchema)}
       >
@@ -97,13 +151,90 @@ function ActionButtons({ form }) {
           iconDescription={t("downloadSchema", "Download schema")}
           hasIconOnly
           tooltipAlignment="start"
-        ></Button>
+        />
       </a>
+    );
+  };
+
+  const DeleteButton = () => {
+    return (
+      <Button
+        enterDelayMs={300}
+        renderIcon={TrashCan}
+        onClick={() => setShowDeleteFormModal(true)}
+        kind={"ghost"}
+        iconDescription={t("deleteSchema", "Delete schema")}
+        hasIconOnly
+        tooltipAlignment="start"
+      />
+    );
+  };
+
+  const DeleteFormModal = () => {
+    return (
+      <ComposedModal
+        danger
+        open={showDeleteFormModal}
+        onClose={() => setShowDeleteFormModal(false)}
+        preventCloseOnClickOutside
+      >
+        <ModalHeader title={t("deleteForm", "Delete form")} />
+        <Form onSubmit={(event) => event.preventDefault()}>
+          <ModalBody>
+            <p>
+              {t(
+                "deleteFormConfirmation",
+                "Are you sure you want to delete this form?"
+              )}
+            </p>
+          </ModalBody>
+        </Form>
+        <ModalFooter>
+          <Button
+            kind="secondary"
+            onClick={() => setShowDeleteFormModal(false)}
+          >
+            {t("cancel", "Cancel")}
+          </Button>
+          <Button
+            disabled={isDeleting}
+            kind="danger"
+            onClick={() => {
+              setIsDeleting(true);
+              handleDeleteForm(form.uuid);
+            }}
+          >
+            {isDeleting ? (
+              <InlineLoading
+                className={styles.spinner}
+                description={t("deleting", "Deleting") + "..."}
+              />
+            ) : (
+              <span>{t("delete", "Delete")}</span>
+            )}
+          </Button>
+        </ModalFooter>
+      </ComposedModal>
+    );
+  };
+
+  return (
+    <>
+      {formResources.length == 0 || !form?.resources[0] ? (
+        <ImportButton />
+      ) : (
+        <>
+          <EditButton />
+          <DownloadSchemaButton />
+        </>
+      )}
+      <DeleteButton />
+      {setShowDeleteFormModal && <DeleteFormModal />}
     </>
   );
 }
 
-function FormsList({ forms, isValidating, t }) {
+function FormsList({ forms, isValidating, mutate, t }) {
   const isTablet = useLayoutType() === "tablet";
   const [filter, setFilter] = useState("");
   const config = useConfig();
@@ -149,18 +280,21 @@ function FormsList({ forms, isValidating, t }) {
 
   const tableRows = useMemo(
     () =>
-      (filteredRows ? filteredRows : forms)?.map((form) => ({
+      (filteredRows ? filteredRows : forms)?.map((form: Form) => ({
         ...form,
         id: form.uuid,
         published: <CustomTag condition={form.published} />,
         retired: <CustomTag condition={form.retired} />,
-        actions: <ActionButtons form={form} />,
+        actions: <ActionButtons form={form} mutate={mutate} />,
       })),
-    [filteredRows, forms]
+    [filteredRows, forms, mutate]
   );
 
-  const handlePublishStatusChange = ({ selectedItem }) =>
-    setFilter(selectedItem);
+  const handlePublishStatusChange = ({
+    selectedItem,
+  }: {
+    selectedItem: string;
+  }) => setFilter(selectedItem);
 
   const handleFilter = ({
     rowIds,
@@ -297,7 +431,7 @@ function FormsList({ forms, isValidating, t }) {
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation();
-  const { error, forms, isLoading, isValidating } = useForms();
+  const { error, forms, isLoading, isValidating, mutate } = useForms();
 
   return (
     <div className={styles.container}>
@@ -315,7 +449,14 @@ const Dashboard: React.FC = () => {
           return <EmptyState />;
         }
 
-        return <FormsList forms={forms} isValidating={isValidating} t={t} />;
+        return (
+          <FormsList
+            forms={forms}
+            isValidating={isValidating}
+            mutate={mutate}
+            t={t}
+          />
+        );
       })()}
     </div>
   );

@@ -2,28 +2,39 @@ import { openmrsFetch, FetchResponse } from "@openmrs/esm-framework";
 import { Schema } from "./types";
 
 export const deleteClobdata = async (valueReference: string) => {
-  const request: FetchResponse = await openmrsFetch(
+  const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/clobdata/${valueReference}`,
     {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
     }
   );
-  return request;
+  return response;
 };
+
+export async function deleteForm(formUuid: string): Promise<FetchResponse<{}>> {
+  const response: FetchResponse = await openmrsFetch(
+    `/ws/rest/v1/form/${formUuid}`,
+    {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+  return response;
+}
 
 export const deleteResource = async (
   formUuid: string,
   resourceUuid: string
 ) => {
-  const request: FetchResponse = await openmrsFetch(
+  const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${formUuid}/resource/${resourceUuid}`,
     {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
     }
   );
-  return request;
+  return response;
 };
 
 export const uploadSchema = async (schema: Schema) => {
@@ -33,7 +44,7 @@ export const uploadSchema = async (schema: Schema) => {
   const body = new FormData();
   body.append("file", schemaBlob);
 
-  const request = await window
+  const response = await window
     .fetch(`${window.openmrsBase}/ws/rest/v1/clobdata`, {
       body,
       method: "POST",
@@ -42,7 +53,7 @@ export const uploadSchema = async (schema: Schema) => {
       return response.text();
     });
 
-  return request;
+  return response;
 };
 
 export const getResourceUuid = async (
@@ -55,7 +66,7 @@ export const getResourceUuid = async (
     valueReference: valueReference,
   };
 
-  const request: FetchResponse = await openmrsFetch(
+  const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${formUuid}/resource`,
     {
       method: "POST",
@@ -64,7 +75,7 @@ export const getResourceUuid = async (
     }
   );
 
-  return request;
+  return response;
 };
 
 export const updateForm = async (
@@ -84,7 +95,7 @@ export const updateForm = async (
     },
   };
 
-  const request: FetchResponse = await openmrsFetch(
+  const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${formUuid}`,
     {
       method: "POST",
@@ -94,7 +105,7 @@ export const updateForm = async (
     }
   );
 
-  return request;
+  return response;
 };
 
 export const saveNewForm = async (
@@ -131,7 +142,7 @@ export const saveNewForm = async (
 
 export const publishForm = async (uuid) => {
   const body = { published: true };
-  const request: FetchResponse = await openmrsFetch(
+  const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${uuid}`,
     {
       method: "POST",
@@ -139,12 +150,12 @@ export const publishForm = async (uuid) => {
       body: body,
     }
   );
-  return request;
+  return response;
 };
 
 export const unpublishForm = async (uuid) => {
   const body = { published: false };
-  const request: FetchResponse = await openmrsFetch(
+  const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${uuid}`,
     {
       method: "POST",
@@ -152,5 +163,5 @@ export const unpublishForm = async (uuid) => {
       body: body,
     }
   );
-  return request;
+  return response;
 };

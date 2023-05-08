@@ -1,11 +1,17 @@
 import React from "react";
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { navigate, openmrsFetch } from "@openmrs/esm-framework";
 import { renderWithSwr, waitForLoadingToFinish } from "../../test-helpers";
+import { deleteForm } from "../../forms.resource";
 import Dashboard from "./dashboard.component";
 
 const mockedOpenmrsFetch = openmrsFetch as jest.Mock;
+const mockedDeleteForm = deleteForm as jest.Mock;
+
+jest.mock("../../forms.resource", () => ({
+  deleteForm: jest.fn(),
+}));
 
 const formsResponse = [
   {
@@ -98,7 +104,7 @@ describe("Dashboard", () => {
 
     const searchbox = screen.getByRole("searchbox");
 
-    await user.type(searchbox, "COVID");
+    await waitFor(() => user.type(searchbox, "COVID"));
 
     expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument();
     expect(
@@ -123,8 +129,10 @@ describe("Dashboard", () => {
       name: /filter by publish status/i,
     });
 
-    await user.click(publishStatusFilter);
-    await user.click(screen.getByRole("option", { name: /unpublished/i }));
+    await waitFor(() => user.click(publishStatusFilter));
+    await waitFor(() =>
+      user.click(screen.getByRole("option", { name: /unpublished/i }))
+    );
 
     expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument();
     expect(
@@ -173,7 +181,7 @@ describe("Dashboard", () => {
       name: /edit schema/i,
     });
 
-    await user.click(editSchemaButton);
+    await waitFor(() => user.click(editSchemaButton));
 
     expect(navigate).toHaveBeenCalledWith({
       to: expect.stringMatching(/form\-builder\/edit/),
@@ -197,9 +205,44 @@ describe("Dashboard", () => {
       name: /download schema/i,
     });
 
-    await user.click(downloadSchemaButton);
+    await waitFor(() => user.click(downloadSchemaButton));
 
     expect(window.URL.createObjectURL).toHaveBeenCalled();
+  });
+
+  it('clicking the "delete button" lets you delete a form', async () => {
+    const user = userEvent.setup();
+
+    mockedOpenmrsFetch.mockReturnValueOnce({
+      data: {
+        results: formsResponse,
+      },
+    });
+    mockedDeleteForm.mockResolvedValue({});
+
+    renderDashboard();
+
+    await waitForLoadingToFinish();
+
+    const deleteButton = screen.getByRole("button", { name: /delete schema/i });
+    expect(deleteButton).toBeInTheDocument();
+
+    await waitFor(() => user.click(deleteButton));
+
+    const modal = screen.getByRole("presentation");
+    expect(modal).toBeInTheDocument();
+    expect(modal).toHaveTextContent(/delete form/i);
+    expect(modal).toHaveTextContent(
+      /are you sure you want to delete this form?/i
+    );
+    expect(screen.getByRole("button", { name: /cancel/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /danger delete/i })
+    ).toBeInTheDocument();
+
+    await waitFor(() =>
+      user.click(screen.getByRole("button", { name: /danger delete/i }))
+    );
   });
 });
 
