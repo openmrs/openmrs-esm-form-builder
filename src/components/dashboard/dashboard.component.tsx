@@ -349,7 +349,6 @@ function FormsList({ forms, isValidating, mutate, t }) {
         filterRows={handleFilter}
         rows={tableRows}
         headers={tableHeaders}
-        data-testid="formsTable"
         size={isTablet ? "sm" : "lg"}
         useZebraStyles
       >

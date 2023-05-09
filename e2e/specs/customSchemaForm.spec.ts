@@ -1,6 +1,6 @@
 import { test } from "../core";
 import { deleteForm } from "../commands/formOperations";
-import { FromBuilderPage } from "../pages";
+import { FormBuilderPage } from "../pages";
 import customSchema from "../support/customSchema.json";
 
 let formUuid = "";
@@ -8,12 +8,13 @@ let formUuid = "";
 test("Should be able to create a form using custom schema", async ({
   page,
 }) => {
-  const fromBuilderPage = new FromBuilderPage(page);
-  await fromBuilderPage.gotoFormBuilder();
-
+  const formBuilderPage = new FormBuilderPage(page);
   const formName = `test form ${Math.floor(Math.random() * 10000)}`;
 
-  await page.getByRole("button", { name: "Create a new form" }).click();
+  await formBuilderPage.gotoFormBuilder();
+  await formBuilderPage.clickCreateNewFormButton();
+
+  // Inputs the custom schema and render changes
   await page.locator(".ace_text-input").fill(JSON.stringify(customSchema));
   await page.getByRole("button", { name: "Render changes" }).click();
 
@@ -29,12 +30,14 @@ test("Should be able to create a form using custom schema", async ({
     .getByRole("combobox", { name: "Encounter Type" })
     .selectOption("Admission");
   await page.getByRole("dialog").getByRole("button", { name: "Save" }).click();
-  const url = await page.url();
+
+  // Checks whether the user has been redirected to the edit page
   const regex = new RegExp("/edit/");
-  formUuid = url.split("/").slice(-1)[0];
   await page.waitForURL(regex);
+  const url = await page.url();
+  formUuid = url.split("/").slice(-1)[0];
 });
 
-test.afterAll(async ({ api }) => {
+test.afterEach(async ({ api }) => {
   await deleteForm(api, formUuid);
 });
