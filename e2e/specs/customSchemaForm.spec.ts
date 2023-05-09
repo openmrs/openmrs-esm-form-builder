@@ -3,7 +3,7 @@ import { deleteForm } from "../commands/formOperations";
 import { FormBuilderPage } from "../pages";
 import customSchema from "../support/customSchema.json";
 
-let formUuid = "";
+let formUuid = null;
 
 test("Should be able to create a form using custom schema", async ({
   page,
