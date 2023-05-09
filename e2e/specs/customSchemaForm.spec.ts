@@ -32,12 +32,14 @@ test("Should be able to create a form using custom schema", async ({
   await page.getByRole("dialog").getByRole("button", { name: "Save" }).click();
 
   // Checks whether the user has been redirected to the edit page
-  const regex = new RegExp("/edit/");
-  await page.waitForURL(regex);
-  const url = await page.url();
-  formUuid = url.split("/").slice(-1)[0];
+  const editFormPageURLRegex = new RegExp("/edit/");
+  await page.waitForURL(editFormPageURLRegex);
+  const editFormPageURL = await page.url();
+  formUuid = editFormPageURL.split("/").slice(-1)[0];
 });
 
 test.afterEach(async ({ api }) => {
-  await deleteForm(api, formUuid);
+  if (formUuid) {
+    await deleteForm(api, formUuid);
+  }
 });
