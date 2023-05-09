@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -23,17 +23,12 @@ import {
   Tile,
 } from "@carbon/react";
 import { ArrowUpRight } from "@carbon/react/icons";
-import { flattenDeep } from "lodash-es";
+import debounce from "lodash-es/debounce";
+import flattenDeep from "lodash-es/flattenDeep";
 import { showNotification, showToast, useConfig } from "@openmrs/esm-framework";
 import type { RenderType } from "@openmrs/openmrs-form-engine-lib";
 
-import type {
-  Answer,
-  Concept,
-  ConceptMapping,
-  Question,
-  Schema,
-} from "../../types";
+import type { Concept, ConceptMapping, Question, Schema } from "../../types";
 import { useConceptLookup } from "../../hooks/useConceptLookup";
 import { useConceptName } from "../../hooks/useConceptName";
 import styles from "./question-modal.scss";
@@ -72,32 +67,38 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
   const [fieldType, setFieldType] = useState<RenderType>(null);
   const [questionId, setQuestionId] = useState("");
-  const [answers, setAnswers] = useState<Answer[]>([]);
   const [selectedConcept, setSelectedConcept] = useState(null);
   const [conceptMappings, setConceptMappings] = useState<ConceptMapping[]>(
     questionToEdit.questionOptions.conceptMappings
   );
   const [rows, setRows] = useState(2);
   const [conceptToLookup, setConceptToLookup] = useState("");
+  const [answersFromConcept, setAnswersFromConcept] = useState([]);
   const [selectedAnswers, setSelectedAnswers] = useState([]);
   const { concepts, isLoadingConcepts } = useConceptLookup(conceptToLookup);
   const { conceptName, isLoadingConceptName } = useConceptName(
     questionToEdit.questionOptions.concept
   );
 
-  const handleConceptChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setConceptToLookup(event.target.value);
+  const hasConceptChanged =
+    selectedConcept &&
+    questionToEdit?.questionOptions?.concept !== selectedConcept;
+
+  const debouncedSearch = useMemo(
+    () => debounce((searchTerm) => setConceptToLookup(searchTerm), 500),
+    []
+  );
+
+  const handleConceptChange = (searchTerm: string) => {
+    if (searchTerm) {
+      debouncedSearch(searchTerm);
+    }
   };
 
   const handleConceptSelect = (concept: Concept) => {
     setConceptToLookup("");
+    setSelectedAnswers([]);
     setSelectedConcept(concept);
-    setAnswers(
-      concept?.answers?.map((answer) => ({
-        concept: answer?.uuid,
-        label: answer?.display,
-      }))
-    );
     setConceptMappings(
       concept?.mappings?.map((conceptMapping) => {
         const data = conceptMapping.display.split(": ");
@@ -107,6 +108,12 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           value: data[1],
         };
       })
+    );
+    setAnswersFromConcept(
+      concept?.answers?.map((answer) => ({
+        concept: answer?.uuid,
+        label: answer?.display,
+      }))
     );
   };
 
@@ -139,7 +146,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
         concept: answer.id,
         label: answer.text,
       }));
-
       const data = {
         label: questionLabel ? questionLabel : questionToEdit.label,
         type: questionType ? questionType : questionToEdit.type,
@@ -157,7 +163,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           conceptMappings: conceptMappings.length
             ? conceptMappings
             : questionToEdit.questionOptions.conceptMappings,
-          answers: mappedAnswers.length
+          answers: hasConceptChanged
             ? mappedAnswers
             : questionToEdit.questionOptions.answers,
         },
@@ -165,9 +171,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 
       schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] =
         data;
-
       onSchemaChange({ ...schema });
-
       resetIndices();
       setQuestionLabel("");
       setQuestionId("");
@@ -176,10 +180,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       setFieldType(null);
       setSelectedConcept(null);
       setConceptMappings([]);
-      setAnswers([]);
       setSelectedAnswers([]);
       onQuestionEdit(null);
-
       showToast({
         title: t("success", "Success!"),
         kind: "success",
@@ -217,6 +219,27 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                 onChange={(event) => setQuestionLabel(event.target.value)}
                 required
               />
+
+              <TextInput
+                defaultValue={questionToEdit.id}
+                id="questionId"
+                invalid={questionIdExists(questionId)}
+                invalidText={t(
+                  "questionIdExists",
+                  "This question ID already exists in your schema"
+                )}
+                labelText={t(
+                  "questionId",
+                  "Question ID (prefer using camel-case for IDs)"
+                )}
+                onChange={(event) => setQuestionId(event.target.value)}
+                placeholder={t(
+                  "questionIdPlaceholder",
+                  'Enter a unique ID e.g. "anaesthesiaType" for a question asking about the type of anaesthesia.'
+                )}
+                required
+              />
+
               <RadioButtonGroup
                 defaultSelected={
                   /true/.test(questionToEdit?.required?.toString())
@@ -244,6 +267,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                   value="required"
                 />
               </RadioButtonGroup>
+
               <Select
                 defaultValue={questionToEdit.type}
                 onChange={(event) => setQuestionType(event.target.value)}
@@ -266,6 +290,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                   />
                 ))}
               </Select>
+
               <Select
                 defaultValue={questionToEdit.questionOptions.rendering}
                 onChange={(event) => setFieldType(event.target.value)}
@@ -287,6 +312,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                   <SelectItem text={fieldType} value={fieldType} key={key} />
                 ))}
               </Select>
+
               {fieldType === "number" ? (
                 <>
                   <TextInput
@@ -333,8 +359,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                         defaultValue={conceptName}
                         id="conceptLookup"
                         onClear={() => setSelectedConcept(null)}
-                        onChange={handleConceptChange}
-                        onInputChange={(event) => setConceptToLookup(event)}
+                        onChange={(e) =>
+                          handleConceptChange(e.target.value?.trim())
+                        }
                         placeholder={t(
                           "searchConcept",
                           "Search using a concept name or UUID"
@@ -412,7 +439,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               )}
 
               {conceptMappings && conceptMappings.length ? (
-                <>
+                <FormGroup>
+                  <FormLabel className={styles.label}>
+                    {t("mappings", "Mappings")}
+                  </FormLabel>
                   <table className={styles.tableStriped}>
                     <thead>
                       <tr>
@@ -431,10 +461,11 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                       ))}
                     </tbody>
                   </table>
-                </>
+                </FormGroup>
               ) : null}
 
-              {questionToEdit?.questionOptions?.answers &&
+              {!hasConceptChanged &&
+              questionToEdit?.questionOptions?.answers &&
               questionToEdit?.questionOptions.answers?.length ? (
                 <MultiSelect
                   direction="top"
@@ -463,19 +494,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                 />
               ) : null}
 
-              {selectedAnswers.length ? (
-                <div>
-                  {selectedAnswers.map((selectedAnswer) => (
-                    <Tag
-                      className={styles.tag}
-                      key={selectedAnswer.id}
-                      type={"blue"}
-                    >
-                      {selectedAnswer.text}
-                    </Tag>
-                  ))}
-                </div>
-              ) : (
+              {!hasConceptChanged &&
+              questionToEdit?.questionOptions?.answers?.length ? (
                 <div>
                   {questionToEdit?.questionOptions?.answers?.map((answer) => (
                     <Tag
@@ -487,27 +507,41 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                     </Tag>
                   ))}
                 </div>
-              )}
+              ) : null}
 
-              <TextInput
-                defaultValue={questionToEdit.id}
-                id="questionId"
-                invalid={questionIdExists(questionId)}
-                invalidText={t(
-                  "questionIdExists",
-                  "This question ID already exists in your schema"
-                )}
-                labelText={t(
-                  "questionId",
-                  "Question ID (prefer camel-case for IDs)"
-                )}
-                onChange={(event) => setQuestionId(event.target.value)}
-                placeholder={t(
-                  "questionIdPlaceholder",
-                  'Enter a unique ID e.g. "anaesthesiaType" for a question asking about the type of anaesthesia.'
-                )}
-                required
-              />
+              {hasConceptChanged && answersFromConcept.length ? (
+                <MultiSelect
+                  direction="top"
+                  id="selectAnswers"
+                  itemToString={(item) => item.text}
+                  items={answersFromConcept.map((answer) => ({
+                    id: answer.concept,
+                    text: answer.label,
+                  }))}
+                  onChange={({ selectedItems }) =>
+                    setSelectedAnswers(selectedItems.sort())
+                  }
+                  size="md"
+                  titleText={t(
+                    "selectAnswersToDisplay",
+                    "Select answers to display"
+                  )}
+                />
+              ) : null}
+
+              {hasConceptChanged && (
+                <div>
+                  {selectedAnswers.map((selectedAnswer) => (
+                    <Tag
+                      className={styles.tag}
+                      key={selectedAnswer.id}
+                      type={"blue"}
+                    >
+                      {selectedAnswer.text}
+                    </Tag>
+                  ))}
+                </div>
+              )}
             </Stack>
           </FormGroup>
         </ModalBody>
