@@ -1,0 +1,29 @@
+{
+  "encounterType": "",
+  "name": "UI Select Form Test",
+  "pages": [
+    {
+      "label": "UI Select Test",
+      "sections": [
+        {
+          "label": "Visit Details",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Select Provider",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "a-system-defined-concept-uuid"
+              },
+              "id": "sampleQuestion"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "processor": "EncounterFormProcessor",
+  "referencedForms": [],
+  "uuid": "xxx"
+}
