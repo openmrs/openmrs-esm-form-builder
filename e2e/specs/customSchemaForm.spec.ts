@@ -23,7 +23,7 @@ test("Should be able to create a form using custom schema", async ({
 
   // Checks whether the user has been redirected to the edit page
   const editFormPageURLRegex = new RegExp("/edit/");
-  await expect(formBuilderPage.formSavedToast()).toBeVisible();
+  await expect(page.getByText("Form created")).toBeVisible();
   await page.waitForURL(editFormPageURLRegex);
   const editFormPageURL = await page.url();
   formUuid = editFormPageURL.split("/").slice(-1)[0];
