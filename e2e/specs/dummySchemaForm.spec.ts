@@ -2,21 +2,17 @@ import { test } from "../core";
 import { expect } from "@playwright/test";
 import { deleteForm } from "../commands/formOperations";
 import { FormBuilderPage } from "../pages";
-import customSchema from "../support/customSchema.json";
 
 let formUuid = null;
 
-test("Should be able to create a form using custom schema", async ({
-  page,
-}) => {
+test("Should be able to create a form using dummy schema", async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
 
   await formBuilderPage.gotoFormBuilder();
   await formBuilderPage.createNewFormButton().click();
 
-  // Inputs the custom schema and render changes
-  await formBuilderPage.schemaInput().fill(JSON.stringify(customSchema));
-  await formBuilderPage.renderChangesButton().click();
+  // Inputs the dummy schema
+  await formBuilderPage.inputDummySchemaButton().click();
 
   // Save the form
   await formBuilderPage.saveForm();
