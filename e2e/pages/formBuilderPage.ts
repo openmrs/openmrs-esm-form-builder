@@ -19,6 +19,7 @@ export class FormBuilderPage {
     this.page.getByRole("combobox", { name: "Encounter Type" });
   readonly formSaveButton = () =>
     this.page.getByRole("dialog").getByRole("button", { name: "Save" });
+  readonly formSavedToast = () => this.page.getByText("Form created");
 
   async gotoFormBuilder() {
     await this.page.goto("form-builder");

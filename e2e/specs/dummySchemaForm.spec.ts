@@ -1,4 +1,5 @@
 import { test } from "../core";
+import { expect } from "@playwright/test";
 import { deleteForm } from "../commands/formOperations";
 import { FormBuilderPage } from "../pages";
 
@@ -18,6 +19,7 @@ test("Should be able to create a form using dummy schema", async ({ page }) => {
 
   // Checks whether the user has been redirected to the edit page
   const editFormPageURLRegex = new RegExp("/edit/");
+  await expect(formBuilderPage.formSavedToast()).toBeVisible();
   await page.waitForURL(editFormPageURLRegex);
   const editFormPageURL = await page.url();
   formUuid = editFormPageURL.split("/").slice(-1)[0];
