@@ -9,7 +9,6 @@ type EditableValueProps = {
   elementType?: "schema" | "page" | "section";
   id: string;
   value: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onSave: (value: string) => void;
 };
 
@@ -17,7 +16,6 @@ const EditableValue: React.FC<EditableValueProps> = ({
   elementType,
   id,
   value,
-  onChange,
   onSave,
 }) => {
   const { t } = useTranslation();
@@ -36,7 +34,6 @@ const EditableValue: React.FC<EditableValueProps> = ({
             onSave(val);
             closeEditor();
           }}
-          onChange={onChange}
           id={id}
           value={value}
         />

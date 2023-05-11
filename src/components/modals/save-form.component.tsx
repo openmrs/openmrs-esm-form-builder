@@ -87,11 +87,12 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
     setIsSavingForm(true);
 
     if (saveState === "new" || saveState === "newVersion") {
-      let name = event.target.name.value,
+      const name = event.target.name.value,
         version = event.target.version.value,
         encounterType = event.target.encounterType.value,
-        description = event.target.description.value,
-        encounterTypeUUID;
+        description = event.target.description.value;
+
+      let encounterTypeUUID = "";
 
       if (encounterType === "undefined") {
         encounterTypeUUID = undefined;

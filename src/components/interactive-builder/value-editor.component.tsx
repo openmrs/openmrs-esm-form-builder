@@ -8,7 +8,7 @@ type ValueEditorProps = {
   id: string;
   handleCancel: () => void;
   handleSave: (value: string) => void;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   value: string;
 };
 
@@ -16,7 +16,6 @@ const ValueEditor: React.FC<ValueEditorProps> = ({
   id,
   handleCancel,
   handleSave,
-  onChange,
   value,
 }) => {
   const { t } = useTranslation();

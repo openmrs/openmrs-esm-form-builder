@@ -3,7 +3,13 @@
   "plugins": [
     "@typescript-eslint"
   ],
-  "extends": ["ts-react-important-stuff", "plugin:prettier/recommended"],
+  "root": true,
+  "extends": [
+    "eslint:recommended",
+    "plugin:prettier/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "ts-react-important-stuff"
+  ],
   "rules": {
     "no-restricted-imports": [
       "error",

@@ -33,9 +33,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
   const isEditingExistingForm = !!formUuid;
-  const [formName, setFormName] = useState(schema ? schema.name : "");
-  const [pageName, setPageName] = useState("");
-  const [sectionName, setSectionName] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
   const [sectionIndex, setSectionIndex] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -95,8 +92,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     try {
       if (value) {
         schema.name = value;
-      } else {
-        schema.name = formName;
       }
 
       onSchemaChange({ ...schema });
@@ -121,8 +116,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     try {
       if (name) {
         schema.pages[pageIndex].label = name;
-      } else if (pageName) {
-        schema.pages[pageIndex].label = pageName;
       }
 
       onSchemaChange({ ...schema });
@@ -246,7 +239,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           pageIndex={pageIndex}
           sectionIndex={sectionIndex}
           questionIndex={questionIndex}
-          questionToEdit={questionToEdit}
           resetIndices={resetIndices}
           schema={schema}
           showModal={showAddQuestionModal}
@@ -342,7 +334,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
               elementType="schema"
               id="formNameInput"
               value={schema?.name}
-              onChange={(event) => setFormName(event.target.value)}
               onSave={(name) => renameSchema(name)}
             />
           </div>
@@ -377,7 +368,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                     elementType="page"
                     id="pageNameInput"
                     value={schema.pages[pageIndex].label}
-                    onChange={(event) => setPageName(event.target.value)}
                     onSave={(name) => renamePage(name, pageIndex)}
                   />
                 </div>
@@ -416,9 +406,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                 elementType="section"
                                 id="sectionNameInput"
                                 value={section.label}
-                                onChange={(event) =>
-                                  setSectionName(event.target.value)
-                                }
                                 onSave={(name) =>
                                   renameSection(name, pageIndex, sectionIndex)
                                 }
