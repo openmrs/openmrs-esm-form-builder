@@ -24,7 +24,6 @@ import {
   TableToolbarSearch,
   Tag,
   Tile,
-  Pagination,
 } from "@carbon/react";
 import {
   Add,
@@ -43,11 +42,12 @@ import {
 } from "@openmrs/esm-framework";
 
 import { deleteForm } from "../../forms.resource";
-import { FilterProps } from "../../types";
+import type { Form as FormType } from "../../types";
 import { useClobdata } from "../../hooks/useClobdata";
 import { useForms } from "../../hooks/useForms";
 import EmptyState from "../empty-state/empty-state.component";
 import ErrorState from "../error-state/error-state.component";
+import { FormBuilderPagination } from "../pagination";
 import styles from "./dashboard.scss";
 
 function CustomTag({ condition }) {
@@ -66,7 +66,7 @@ function CustomTag({ condition }) {
 
 function ActionButtons({ form, mutate }) {
   const { t } = useTranslation();
-  const { clobdata } = useClobdata(form);
+  const { clobdata = {} } = useClobdata(form);
   const formResources = form?.resources;
   const [showDeleteFormModal, setShowDeleteFormModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -241,7 +241,7 @@ function FormsList({ forms, isValidating, mutate, t }) {
   const [filter, setFilter] = useState("");
   const config = useConfig();
   const [pageSize, setPageSize] = useState(10);
-  const pageSizes = config?.activeVisits?.pageSizes ?? [10, 20, 30, 40, 50];
+  const pageSizes = [10, 20, 30, 40, 50];
   const [searchString, setSearchString] = useState("");
 
   const filteredRows = useMemo(() => {
@@ -283,38 +283,28 @@ function FormsList({ forms, isValidating, mutate, t }) {
     },
   ];
 
-  const tableRows = useMemo(
-    () =>
-      (filteredRows ? filteredRows : forms)?.map((form: Form) => ({
-        ...form,
-        id: form.uuid,
-        published: <CustomTag condition={form.published} />,
-        retired: <CustomTag condition={form.retired} />,
-        actions: <ActionButtons form={form} mutate={mutate} />,
-      })),
-    [filteredRows, forms, mutate]
-  );
-
   const searchResults = useMemo(() => {
     if (searchString && searchString.trim() !== "") {
-      const search = searchString.toLowerCase();
-      return tableRows.filter((formRow) =>
-        Object.entries(formRow).some(([header, value]) => {
-          if (header !== "name") {
-            return false;
-          }
-          return `${value}`.toLowerCase().includes(search);
-        })
+      return filteredRows.filter((form) =>
+        form.name.toLowerCase().includes(searchString.toLowerCase())
       );
     }
 
-    return tableRows;
-  }, [searchString, tableRows]);
+    return filteredRows;
+  }, [searchString, filteredRows]);
 
   const { paginated, goTo, results, currentPage } = usePagination(
     searchResults,
     pageSize
   );
+
+  const tableRows = results?.map((form: FormType) => ({
+    ...form,
+    id: form?.uuid,
+    published: <CustomTag condition={form?.published} />,
+    retired: <CustomTag condition={form?.retired} />,
+    actions: <ActionButtons form={form} mutate={mutate} />,
+  }));
 
   const handlePublishStatusChange = ({
     selectedItem,
@@ -329,24 +319,6 @@ function FormsList({ forms, isValidating, mutate, t }) {
     },
     [goTo, setSearchString]
   );
-
-  const handleFilter = ({
-    rowIds,
-    headers,
-    cellsById,
-    inputValue,
-    getCellId,
-  }: FilterProps): Array<string> => {
-    return rowIds.filter((rowId) =>
-      headers.some(({ key }) => {
-        const cellId = getCellId(rowId, key);
-        const filterableValue = cellsById[cellId].value;
-        const filterTerm = inputValue.toLowerCase();
-
-        return ("" + filterableValue).toLowerCase().includes(filterTerm);
-      })
-    );
-  };
 
   return (
     <>
@@ -380,8 +352,7 @@ function FormsList({ forms, isValidating, mutate, t }) {
         </div>
       </div>
       <DataTable
-        filterRows={handleFilter}
-        rows={results}
+        rows={tableRows}
         headers={tableHeaders}
         size={isTablet ? "sm" : "lg"}
         useZebraStyles
@@ -453,23 +424,14 @@ function FormsList({ forms, isValidating, mutate, t }) {
         )}
       </DataTable>
       {paginated && (
-        <Pagination
-          forwardText="Next page"
-          backwardText="Previous page"
-          page={currentPage}
-          pageSize={pageSize}
-          pageSizes={pageSizes}
-          totalItems={tableRows?.length}
-          className={styles.pagination}
-          size={isTablet ? "lg" : "sm"}
-          onChange={({ pageSize: newPageSize, page: newPage }) => {
-            if (newPageSize !== pageSize) {
-              setPageSize(newPageSize);
-            }
-            if (newPage !== currentPage) {
-              goTo(newPage);
-            }
+        <FormBuilderPagination
+          currentItems={results.length}
+          totalItems={searchResults.length}
+          onPageNumberChange={({ page }) => {
+            goTo(page);
           }}
+          pageNumber={currentPage}
+          pageSize={pageSize}
         />
       )}
     </>
