@@ -8,7 +8,7 @@ import {
   ModalHeader,
 } from "@carbon/react";
 import { showNotification, showToast } from "@openmrs/esm-framework";
-import { Schema } from "../../types";
+import type { Schema } from "../../types";
 
 type DeleteSectionModal = {
   onModalChange: (showModal: boolean) => void;
@@ -31,7 +31,7 @@ const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
 }) => {
   const { t } = useTranslation();
 
-  const deleteSection = (pageIndex, sectionIndex) => {
+  const deleteSection = (pageIndex: number, sectionIndex: number) => {
     try {
       schema.pages[pageIndex].sections.splice(sectionIndex, 1);
 

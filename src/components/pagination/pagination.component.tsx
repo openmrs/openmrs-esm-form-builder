@@ -1,5 +1,4 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { Pagination } from "@carbon/react";
 import { useLayoutType } from "@openmrs/esm-framework";
 import { usePaginationInfo } from "./usePaginationInfo";
@@ -10,7 +9,7 @@ interface FormBuilderPaginationProps {
   totalItems: number;
   pageNumber: number;
   pageSize: number;
-  onPageNumberChange?: any;
+  onPageNumberChange?: ({ page }: { page: number }) => void;
 }
 
 export const FormBuilderPagination: React.FC<FormBuilderPaginationProps> = ({
@@ -20,7 +19,6 @@ export const FormBuilderPagination: React.FC<FormBuilderPaginationProps> = ({
   pageNumber,
   currentItems,
 }) => {
-  const { t } = useTranslation();
   const { itemsDisplayed, pageSizes } = usePaginationInfo(
     pageSize,
     totalItems,

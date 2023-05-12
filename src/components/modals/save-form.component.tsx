@@ -17,6 +17,7 @@ import {
   TextInput,
 } from "@carbon/react";
 import { navigate, showNotification, showToast } from "@openmrs/esm-framework";
+
 import {
   deleteClobdata,
   deleteResource,
@@ -25,7 +26,7 @@ import {
   updateForm,
   uploadSchema,
 } from "../../forms.resource";
-import { EncounterType, Resource, RouteParams, Schema } from "../../types";
+import type { EncounterType, Resource, RouteParams, Schema } from "../../types";
 import { useEncounterTypes } from "../../hooks/useEncounterTypes";
 import { useForm } from "../../hooks/useForm";
 import styles from "./save-form.scss";
@@ -47,9 +48,9 @@ type SaveFormModalProps = {
 const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
+  const { mutate } = useForm(formUuid);
   const isSavingNewForm = !formUuid;
   const { encounterTypes } = useEncounterTypes();
-  const { mutate } = useForm(formUuid);
   const [openSaveFormModal, setOpenSaveFormModal] = useState(false);
   const [openConfirmSaveModal, setOpenConfirmSaveModal] = useState(false);
   const [saveState, setSaveState] = useState("");
@@ -62,13 +63,16 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
   );
   const [version, setVersion] = useState(form?.version);
 
+  const clearDraftFormSchema = useCallback(
+    () => localStorage.removeItem("formSchema"),
+    []
+  );
+
   const checkVersionValidity = (version: string) => {
     if (!version) return setIsInvalidVersion(false);
 
     setIsInvalidVersion(!/^[0-9]/.test(version));
   };
-
-  const clearDraftFormSchema = () => localStorage.removeItem("formJSON");
 
   const openModal = useCallback((option: string) => {
     if (option === "newVersion") {
@@ -240,7 +244,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
   };
 
   return (
-    <div>
+    <>
       {!isSavingNewForm ? (
         <ComposedModal
           open={openConfirmSaveModal}
@@ -397,7 +401,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
       >
         {t("saveForm", "Save form")}
       </Button>
-    </div>
+    </>
   );
 };
 

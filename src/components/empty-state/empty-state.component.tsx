@@ -3,8 +3,8 @@ import { Layer, Link, Tile } from "@carbon/react";
 import { useTranslation } from "react-i18next";
 import { navigate, useLayoutType } from "@openmrs/esm-framework";
 
-import styles from "./empty-state.scss";
 import { EmptyDataIllustration } from "./empty-data-illustration.component";
+import styles from "./empty-state.scss";
 
 function EmptyState() {
   const { t } = useTranslation();

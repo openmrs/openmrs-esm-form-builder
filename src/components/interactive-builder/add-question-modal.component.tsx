@@ -26,7 +26,14 @@ import { ArrowUpRight } from "@carbon/react/icons";
 import flattenDeep from "lodash-es/flattenDeep";
 import { showNotification, showToast, useConfig } from "@openmrs/esm-framework";
 import { RenderType } from "@openmrs/openmrs-form-engine-lib";
-import { Answer, Concept, ConceptMapping, Question, Schema } from "../../types";
+
+import type {
+  Answer,
+  Concept,
+  ConceptMapping,
+  Question,
+  Schema,
+} from "../../types";
 import { useConceptLookup } from "../../hooks/useConceptLookup";
 import styles from "./question-modal.scss";
 
@@ -69,7 +76,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [selectedAnswers, setSelectedAnswers] = useState([]);
   const { concepts, isLoadingConcepts } = useConceptLookup(conceptToLookup);
 
-  const handleConceptChange = (event) => setConceptToLookup(event.target.value);
+  const handleConceptChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setConceptToLookup(event.target.value);
 
   const handleConceptSelect = (concept: Concept) => {
     setConceptToLookup("");
@@ -92,7 +100,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     );
   };
 
-  const questionIdExists = (idToTest) => {
+  const questionIdExists = (idToTest: string) => {
     const nestedIds = schema?.pages?.map((page) => {
       return page?.sections?.map((section) => {
         return section?.questions?.map((question) => {

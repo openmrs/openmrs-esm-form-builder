@@ -1,5 +1,5 @@
-import React, { useMemo, useState, useCallback } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useCallback, useMemo, useState } from "react";
+import { TFunction, useTranslation } from "react-i18next";
 import {
   Button,
   ComposedModal,
@@ -33,6 +33,7 @@ import {
   TrashCan,
 } from "@carbon/react/icons";
 import {
+  FetchResponse,
   navigate,
   showNotification,
   showToast,
@@ -40,33 +41,56 @@ import {
   useLayoutType,
   usePagination,
 } from "@openmrs/esm-framework";
+import type { KeyedMutator } from "swr";
 
 import type { Form as FormType } from "../../types";
-import { FormBuilderPagination } from "../pagination";
 import { deleteForm } from "../../forms.resource";
+import { FormBuilderPagination } from "../pagination";
 import { useClobdata } from "../../hooks/useClobdata";
 import { useForms } from "../../hooks/useForms";
 import EmptyState from "../empty-state/empty-state.component";
 import ErrorState from "../error-state/error-state.component";
 import styles from "./dashboard.scss";
 
-function CustomTag({ condition }) {
+type Mutator = KeyedMutator<{
+  data: {
+    results: Array<Form>;
+  };
+}>;
+
+type ActionButtonsProps = {
+  form: Form;
+  mutate: Mutator;
+  t: TFunction;
+};
+
+type FormsListProps = {
+  forms: Array<Form>;
+  isValidating: boolean;
+  mutate: Mutator;
+  t: TFunction;
+};
+
+function CustomTag({ condition }: { condition: boolean }) {
   const { t } = useTranslation();
 
-  return condition ? (
-    <Tag type="green" size="md" title="Clear Filter">
-      {t("yes", "Yes")}
-    </Tag>
-  ) : (
+  if (condition) {
+    return (
+      <Tag type="green" size="md" title="Clear Filter">
+        {t("yes", "Yes")}
+      </Tag>
+    );
+  }
+
+  return (
     <Tag type="red" size="md" title="Clear Filter">
       {t("no", "No")}
     </Tag>
   );
 }
 
-function ActionButtons({ form, mutate }) {
-  const { t } = useTranslation();
-  const { clobdata = {} } = useClobdata(form);
+function ActionButtons({ form, mutate, t }: ActionButtonsProps) {
+  const { clobdata } = useClobdata(form);
   const formResources = form?.resources;
   const [showDeleteFormModal, setShowDeleteFormModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -79,33 +103,36 @@ function ActionButtons({ form, mutate }) {
     [clobdata]
   );
 
-  const handleDeleteForm = (formUuid: string) => {
-    deleteForm(formUuid)
-      .then((res) => {
-        if (res.status === 204) {
-          showToast({
-            title: t("formDeleted", "Form deleted"),
-            kind: "success",
-            critical: true,
-            description:
-              `${form.name} ` +
-              t("formDeletedSuccessfully", "deleted successfully"),
-          });
+  const handleDeleteForm = useCallback(
+    (formUuid: string) => {
+      deleteForm(formUuid)
+        .then((res: FetchResponse) => {
+          if (res.status === 204) {
+            showToast({
+              title: t("formDeleted", "Form deleted"),
+              kind: "success",
+              critical: true,
+              description:
+                `${form.name} ` +
+                t("formDeletedSuccessfully", "deleted successfully"),
+            });
 
-          mutate();
-          setShowDeleteFormModal(false);
-        }
-      })
-      .catch((e) =>
-        showNotification({
-          title: t("errorDeletingForm", "Error deleting form"),
-          kind: "error",
-          critical: true,
-          description: e?.message,
+            mutate();
+            setShowDeleteFormModal(false);
+          }
         })
-      )
-      .finally(() => setIsDeleting(false));
-  };
+        .catch((e: Error) =>
+          showNotification({
+            title: t("errorDeletingForm", "Error deleting form"),
+            kind: "error",
+            critical: true,
+            description: e?.message,
+          })
+        )
+        .finally(() => setIsDeleting(false));
+    },
+    [form.name, mutate, t]
+  );
 
   const ImportButton = () => {
     return (
@@ -237,10 +264,10 @@ function ActionButtons({ form, mutate }) {
   );
 }
 
-function FormsList({ forms, isValidating, mutate, t }) {
+function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
+  const config = useConfig();
   const isTablet = useLayoutType() === "tablet";
   const [filter, setFilter] = useState("");
-  const config = useConfig();
   const [searchString, setSearchString] = useState("");
   const pageSize = 10;
 
@@ -303,7 +330,7 @@ function FormsList({ forms, isValidating, mutate, t }) {
     id: form?.uuid,
     published: <CustomTag condition={form?.published} />,
     retired: <CustomTag condition={form?.retired} />,
-    actions: <ActionButtons form={form} mutate={mutate} />,
+    actions: <ActionButtons form={form} mutate={mutate} t={t} />,
   }));
 
   const handlePublishStatusChange = ({

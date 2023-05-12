@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Accordion, AccordionItem, Button, InlineLoading } from "@carbon/react";
 import { Add, Edit, Replicate, TrashCan } from "@carbon/react/icons";
@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 import { showToast, showNotification } from "@openmrs/esm-framework";
 import { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
 
-import { RouteParams, Schema } from "../../types";
+import type { Question, RouteParams, Schema } from "../../types";
 import ActionButtons from "../action-buttons/action-buttons.component";
 import AddQuestionModal from "./add-question-modal.component";
 import DeleteSectionModal from "./delete-section-modal.component";
@@ -46,7 +46,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const [showDeleteSectionModal, setShowDeleteSectionModal] = useState(false);
   const [showDeleteQuestionModal, setShowDeleteQuestionModal] = useState(false);
 
-  const initializeSchema = () => {
+  const initializeSchema = useCallback(() => {
     const dummySchema: OHRIFormSchema = {
       name: null,
       pages: [],
@@ -59,7 +59,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     if (!schema) {
       onSchemaChange({ ...dummySchema });
     }
-  };
+  }, [onSchemaChange, schema]);
 
   const launchNewFormModal = () => {
     initializeSchema();
@@ -88,109 +88,121 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     setShowEditQuestionModal(true);
   };
 
-  const renameSchema = (value) => {
-    try {
-      if (value) {
-        schema.name = value;
+  const renameSchema = useCallback(
+    (value: string) => {
+      try {
+        if (value) {
+          schema.name = value;
+        }
+
+        onSchemaChange({ ...schema });
+
+        showToast({
+          title: t("success", "Success!"),
+          kind: "success",
+          critical: true,
+          description: t("formRenamed", "Form renamed"),
+        });
+      } catch (error) {
+        showNotification({
+          title: t("errorRenamingForm", "Error renaming form"),
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
       }
+    },
+    [onSchemaChange, schema, t]
+  );
 
-      onSchemaChange({ ...schema });
+  const renamePage = useCallback(
+    (name: string, pageIndex: number) => {
+      try {
+        if (name) {
+          schema.pages[pageIndex].label = name;
+        }
 
-      showToast({
-        title: t("success", "Success!"),
-        kind: "success",
-        critical: true,
-        description: t("formRenamed", "Form renamed"),
-      });
-    } catch (error) {
-      showNotification({
-        title: t("errorRenamingForm", "Error renaming form"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-    }
-  };
+        onSchemaChange({ ...schema });
 
-  const renamePage = (name, pageIndex) => {
-    try {
-      if (name) {
-        schema.pages[pageIndex].label = name;
+        showToast({
+          title: t("success", "Success!"),
+          kind: "success",
+          critical: true,
+          description: t("pageRenamed", "Page renamed"),
+        });
+      } catch (error) {
+        showNotification({
+          title: t("errorRenamingPage", "Error renaming page"),
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
       }
+    },
+    [onSchemaChange, schema, t]
+  );
 
-      onSchemaChange({ ...schema });
+  const renameSection = useCallback(
+    (name: string, pageIndex: number, sectionIndex: number) => {
+      try {
+        if (name) {
+          schema.pages[pageIndex].sections[sectionIndex].label = name;
+        }
+        onSchemaChange({ ...schema });
 
-      showToast({
-        title: t("success", "Success!"),
-        kind: "success",
-        critical: true,
-        description: t("pageRenamed", "Page renamed"),
-      });
-    } catch (error) {
-      showNotification({
-        title: t("errorRenamingPage", "Error renaming page"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-    }
-  };
+        resetIndices();
 
-  const renameSection = (name, pageIndex, sectionIndex) => {
-    try {
-      if (name) {
-        schema.pages[pageIndex].sections[sectionIndex].label = name;
+        showToast({
+          title: t("success", "Success!"),
+          kind: "success",
+          critical: true,
+          description: t("sectionRenamed", "Section renamed"),
+        });
+      } catch (error) {
+        showNotification({
+          title: t("errorRenamingSection", "Error renaming section"),
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
       }
-      onSchemaChange({ ...schema });
+    },
+    [onSchemaChange, schema, t]
+  );
 
-      resetIndices();
+  const duplicateQuestion = useCallback(
+    (question: Question, pageId: number, sectionId: number) => {
+      try {
+        const questionToDuplicate = JSON.parse(JSON.stringify(question));
+        questionToDuplicate.id = questionToDuplicate.id + "Duplicate";
 
-      showToast({
-        title: t("success", "Success!"),
-        kind: "success",
-        critical: true,
-        description: t("sectionRenamed", "Section renamed"),
-      });
-    } catch (error) {
-      showNotification({
-        title: t("errorRenamingSection", "Error renaming section"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-    }
-  };
+        schema.pages[pageId].sections[sectionId].questions.push(
+          questionToDuplicate
+        );
 
-  const duplicateQuestion = (question, pageId, sectionId) => {
-    try {
-      const questionToDuplicate = JSON.parse(JSON.stringify(question));
-      questionToDuplicate.id = questionToDuplicate.id + "Duplicate";
+        onSchemaChange({ ...schema });
+        resetIndices();
 
-      schema.pages[pageId].sections[sectionId].questions.push(
-        questionToDuplicate
-      );
-
-      onSchemaChange({ ...schema });
-      resetIndices();
-
-      showToast({
-        title: t("success", "Success!"),
-        kind: "success",
-        critical: true,
-        description: t(
-          "questionDuplicated",
-          "Question duplicated. Please change the duplicated question's ID to a unique, camelcased value"
-        ),
-      });
-    } catch (error) {
-      showNotification({
-        title: t("errorDuplicatingQuestion", "Error duplicating question"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-    }
-  };
+        showToast({
+          title: t("success", "Success!"),
+          kind: "success",
+          critical: true,
+          description: t(
+            "questionDuplicated",
+            "Question duplicated. Please change the duplicated question's ID to a unique, camelcased value"
+          ),
+        });
+      } catch (error) {
+        showNotification({
+          title: t("errorDuplicatingQuestion", "Error duplicating question"),
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
+      }
+    },
+    [onSchemaChange, schema, t]
+  );
 
   return (
     <div className={styles.container}>

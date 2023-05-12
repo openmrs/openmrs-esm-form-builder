@@ -87,17 +87,18 @@ export interface Section {
 }
 
 export interface Question {
-  label: string;
   id: string;
+  label: string;
   type: string;
   questionOptions: QuestionOptions;
-  required: string;
+  required?: boolean;
+  validators?: Array<Record<string, string | Array<string>>>;
 }
 
 export interface QuestionOptions {
   rendering: RenderType;
-  answers: Array<Answer>;
-  concept: string;
+  answers?: Array<Record<string, string>>;
+  concept?: string;
   conceptMappings?: Array<ConceptMapping>;
   max?: string;
   min?: string;

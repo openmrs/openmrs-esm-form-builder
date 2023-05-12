@@ -8,7 +8,7 @@ import {
   ModalHeader,
 } from "@carbon/react";
 import { showNotification, showToast } from "@openmrs/esm-framework";
-import { Schema } from "../../types";
+import type { Schema } from "../../types";
 
 type DeletePageModalProps = {
   onModalChange: (showModal: boolean) => void;
@@ -29,7 +29,7 @@ const DeletePageModal: React.FC<DeletePageModalProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const deletePage = (pageIndex) => {
+  const deletePage = (pageIndex: number) => {
     try {
       schema.pages.splice(pageIndex, 1);
 

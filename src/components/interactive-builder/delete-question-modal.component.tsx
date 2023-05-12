@@ -8,7 +8,7 @@ import {
   ModalHeader,
 } from "@carbon/react";
 import { showNotification, showToast } from "@openmrs/esm-framework";
-import { Schema } from "../../types";
+import type { Schema } from "../../types";
 
 type DeleteQuestionModal = {
   onModalChange: (showModal: boolean) => void;
@@ -33,7 +33,11 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
 }) => {
   const { t } = useTranslation();
 
-  const deleteQuestion = (pageIndex, sectionIndex, questionIndex) => {
+  const deleteQuestion = (
+    pageIndex: number,
+    sectionIndex: number,
+    questionIndex: number
+  ) => {
     try {
       schema.pages[pageIndex].sections[sectionIndex].questions.splice(
         questionIndex,

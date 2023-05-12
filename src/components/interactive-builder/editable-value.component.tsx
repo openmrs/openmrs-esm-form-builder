@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@carbon/react";
 import { Edit } from "@carbon/react/icons";
@@ -19,41 +19,40 @@ const EditableValue: React.FC<EditableValueProps> = ({
   onSave,
 }) => {
   const { t } = useTranslation();
-  const [editing, setEditing] = React.useState(false);
+  const [editing, setEditing] = useState(false);
 
   const closeEditor = () => {
     setEditing(false);
   };
 
+  if (editing) {
+    return (
+      <ValueEditor
+        handleCancel={closeEditor}
+        handleSave={(val) => {
+          onSave(val);
+          closeEditor();
+        }}
+        id={id}
+        value={value}
+      />
+    );
+  }
+
   return (
     <>
-      {editing ? (
-        <ValueEditor
-          handleCancel={closeEditor}
-          handleSave={(val) => {
-            onSave(val);
-            closeEditor();
-          }}
-          id={id}
-          value={value}
-        />
-      ) : (
-        <>
-          <h1 className={styles[`${elementType}` + "Label"]}>{value}</h1>
-
-          <Button
-            kind="ghost"
-            size="sm"
-            enterDelayMs={200}
-            iconDescription={t("editButton", "Edit {elementType}", {
-              elementType: elementType,
-            })}
-            onClick={() => setEditing(true)}
-            renderIcon={(props) => <Edit size={16} {...props} />}
-            hasIconOnly
-          />
-        </>
-      )}
+      <h1 className={styles[`${elementType}` + "Label"]}>{value}</h1>
+      <Button
+        kind="ghost"
+        size="sm"
+        enterDelayMs={200}
+        iconDescription={t("editButton", "Edit {elementType}", {
+          elementType: elementType,
+        })}
+        onClick={() => setEditing(true)}
+        renderIcon={(props) => <Edit size={16} {...props} />}
+        hasIconOnly
+      />
     </>
   );
 };

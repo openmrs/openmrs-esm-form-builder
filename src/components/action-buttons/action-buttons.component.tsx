@@ -10,7 +10,8 @@ import {
 import { useParams } from "react-router-dom";
 import { showToast, showNotification } from "@openmrs/esm-framework";
 
-import { RouteParams } from "../../types";
+import type { TFunction } from "react-i18next";
+import type { RouteParams, Schema } from "../../types";
 import { publishForm, unpublishForm } from "../../forms.resource";
 import { useForm } from "../../hooks/useForm";
 import SaveForm from "../modals/save-form.component";
@@ -24,7 +25,12 @@ type Status =
   | "unpublished"
   | "error";
 
-function ActionButtons({ schema, t }) {
+type ActionButtonsProps = {
+  schema: Schema;
+  t: TFunction;
+};
+
+function ActionButtons({ schema, t }: ActionButtonsProps) {
   const { formUuid } = useParams<RouteParams>();
   const { form, mutate } = useForm(formUuid);
   const [status, setStatus] = useState<Status>("idle");

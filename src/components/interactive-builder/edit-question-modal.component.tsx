@@ -26,7 +26,14 @@ import { ArrowUpRight } from "@carbon/react/icons";
 import { flattenDeep } from "lodash-es";
 import { showNotification, showToast, useConfig } from "@openmrs/esm-framework";
 import type { RenderType } from "@openmrs/openmrs-form-engine-lib";
-import { Answer, Concept, ConceptMapping, Question, Schema } from "../../types";
+
+import type {
+  Answer,
+  Concept,
+  ConceptMapping,
+  Question,
+  Schema,
+} from "../../types";
 import { useConceptLookup } from "../../hooks/useConceptLookup";
 import { useConceptName } from "../../hooks/useConceptName";
 import styles from "./question-modal.scss";
@@ -78,7 +85,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     questionToEdit.questionOptions.concept
   );
 
-  const handleConceptChange = (event) => {
+  const handleConceptChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setConceptToLookup(event.target.value);
   };
 
@@ -103,7 +110,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     );
   };
 
-  const questionIdExists = (idToTest) => {
+  const questionIdExists = (idToTest: string) => {
     if (questionToEdit?.id === idToTest) {
       return false;
     }
@@ -126,7 +133,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     onModalChange(false);
   };
 
-  const updateQuestion = (questionIndex) => {
+  const updateQuestion = (questionIndex: number) => {
     try {
       const mappedAnswers = selectedAnswers?.map((answer) => ({
         concept: answer.id,
@@ -138,7 +145,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
         type: questionType ? questionType : questionToEdit.type,
         required: isQuestionRequired
           ? isQuestionRequired
-          : /true/.test(questionToEdit?.required),
+          : /true/.test(questionToEdit?.required?.toString()),
         id: questionId ? questionId : questionToEdit.id,
         questionOptions: {
           rendering: fieldType
@@ -212,7 +219,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               />
               <RadioButtonGroup
                 defaultSelected={
-                  /true/.test(questionToEdit?.required)
+                  /true/.test(questionToEdit?.required?.toString())
                     ? "required"
                     : "optional"
                 }

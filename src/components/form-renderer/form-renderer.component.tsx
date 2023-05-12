@@ -13,6 +13,11 @@ type FormRendererProps = {
   schema: OHRIFormSchema;
 };
 
+type ErrorFallbackProps = {
+  error: Error;
+  resetErrorBoundary: () => void;
+};
+
 const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
   const { t } = useTranslation();
 
@@ -98,7 +103,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
   );
 };
 
-function ErrorFallback({ error, resetErrorBoundary }) {
+function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
   const { t } = useTranslation();
   return (
     <Tile className={styles.errorStateTile}>
