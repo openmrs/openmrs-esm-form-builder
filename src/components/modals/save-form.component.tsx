@@ -92,25 +92,13 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
         encounterType = event.target.encounterType.value,
         description = event.target.description.value;
 
-      let encounterTypeUUID = "";
-
-      if (encounterType === "undefined") {
-        encounterTypeUUID = undefined;
-      } else {
-        encounterTypes.forEach((encType) => {
-          if (encounterType === encType.name) {
-            encounterTypeUUID = encType.uuid;
-          }
-        });
-      }
-
       try {
         const newForm = await saveNewForm(
           name,
           version,
           false,
           description,
-          encounterTypeUUID
+          encounterType
         );
         const newValueReference = await uploadSchema(schema);
         await getResourceUuid(newForm.uuid, newValueReference.toString());
