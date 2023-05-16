@@ -79,6 +79,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const { conceptName, isLoadingConceptName } = useConceptName(
     questionToEdit.questionOptions.concept
   );
+  const [answersChanged, setAnswersChanged] = useState(false);
 
   const hasConceptChanged =
     selectedConcept &&
@@ -110,10 +111,12 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       })
     );
     setAnswersFromConcept(
-      concept?.answers?.map((answer) => ({
-        concept: answer?.uuid,
-        label: answer?.display,
-      }))
+      concept?.answers?.length
+        ? concept.answers.map((answer) => ({
+            concept: answer?.uuid,
+            label: answer?.display,
+          }))
+        : []
     );
   };
 
@@ -137,15 +140,34 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 
   const handleUpdateQuestion = () => {
     updateQuestion(questionIndex);
-    onModalChange(false);
   };
 
   const updateQuestion = (questionIndex: number) => {
-    try {
-      const mappedAnswers = selectedAnswers?.map((answer) => ({
+    let mappedAnswers = [];
+
+    if (!hasConceptChanged && selectedAnswers?.length) {
+      mappedAnswers = selectedAnswers.map((answer) => ({
         concept: answer.id,
         label: answer.text,
       }));
+    } else if (hasConceptChanged && answersFromConcept.length === 0) {
+      mappedAnswers = [];
+    } else if (
+      hasConceptChanged &&
+      answersFromConcept?.length > 0 &&
+      selectedAnswers?.length
+    ) {
+      mappedAnswers = selectedAnswers?.length
+        ? selectedAnswers.map((answer) => ({
+            concept: answer.id,
+            label: answer.text,
+          }))
+        : questionToEdit.questionOptions.answers;
+    } else {
+      mappedAnswers = questionToEdit.questionOptions.answers;
+    }
+
+    try {
       const data = {
         label: questionLabel ? questionLabel : questionToEdit.label,
         type: questionType ? questionType : questionToEdit.type,
@@ -160,12 +182,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           concept: selectedConcept?.uuid
             ? selectedConcept.uuid
             : questionToEdit.questionOptions.concept,
-          conceptMappings: conceptMappings.length
+          conceptMappings: conceptMappings?.length
             ? conceptMappings
             : questionToEdit.questionOptions.conceptMappings,
-          answers: hasConceptChanged
-            ? mappedAnswers
-            : questionToEdit.questionOptions.answers,
+          answers: mappedAnswers,
         },
       };
 
@@ -188,6 +208,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
         critical: true,
         description: t("questionUpdated", "Question updated"),
       });
+      onModalChange(false);
     } catch (error) {
       showNotification({
         title: t("errorUpdatingQuestion", "Error updating question"),
@@ -483,9 +504,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                       text: answer.label,
                     })
                   )}
-                  onChange={({ selectedItems }) =>
-                    setSelectedAnswers(selectedItems.sort())
-                  }
+                  onChange={({ selectedItems }) => {
+                    setAnswersChanged(true);
+                    setSelectedAnswers(selectedItems.sort());
+                  }}
                   size="md"
                   titleText={t(
                     "selectAnswersToDisplay",
@@ -495,7 +517,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               ) : null}
 
               {!hasConceptChanged &&
-              questionToEdit?.questionOptions?.answers?.length ? (
+              questionToEdit?.questionOptions?.answers?.length &&
+              !answersChanged ? (
                 <div>
                   {questionToEdit?.questionOptions?.answers?.map((answer) => (
                     <Tag
@@ -529,7 +552,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                 />
               ) : null}
 
-              {hasConceptChanged && (
+              {(hasConceptChanged || answersChanged) && (
                 <div>
                   {selectedAnswers.map((selectedAnswer) => (
                     <Tag
