@@ -69,6 +69,71 @@ describe("Dashboard", () => {
     expect(screen.getByText(/create a new form/i)).toBeInTheDocument();
   });
 
+  it('searches for a form by name and filters the list of forms', async () => {
+    const user = userEvent.setup();
+
+    mockedOpenmrsFetch.mockReturnValueOnce({
+      data: {
+        results: formsResponse,
+      },
+    });
+
+    renderDashboard();
+
+    await waitForLoadingToFinish();
+
+    const searchbox = screen.getByRole("searchbox") as HTMLInputElement;
+
+    await waitFor(() => user.type(searchbox, "COVID"));
+
+    expect(searchbox.value).toBe('COVID');
+
+    mockUsePagination.mockImplementation(() => ({
+      currentPage: 1,
+      goTo: () => {},
+      results: formsResponse.filter(form => form.name === searchbox.value),
+    }));
+
+    await waitFor(() => expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument());
+    expect(
+      screen.getByText(/no matching forms to display/i)
+    ).toBeInTheDocument();
+  });
+
+  it('filters the list of forms by "published" status', async () => {
+    const user = userEvent.setup();
+
+    mockedOpenmrsFetch.mockReturnValueOnce({
+      data: {
+        results: formsResponse,
+      },
+    });
+
+    renderDashboard();
+
+    await waitForLoadingToFinish();
+
+    const publishStatusFilter = screen.getByRole("button", {
+      name: /filter by publish status/i,
+    });
+
+    await waitFor(() => user.click(publishStatusFilter));
+    await waitFor(() =>
+      user.click(screen.getByRole("option", { name: /unpublished/i }))
+    );
+
+    mockUsePagination.mockImplementation(() => ({
+      currentPage: 1,
+      goTo: () => {},
+      results: formsResponse.filter(form => !form.published),
+    }));
+
+    expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/no matching forms to display/i)
+    ).toBeInTheDocument();
+  });
+
   it("renders a list of forms fetched from the server", async () => {
     mockedOpenmrsFetch.mockReturnValueOnce({
       data: {
@@ -108,7 +173,7 @@ describe("Dashboard", () => {
     expect(screen.getByText(/Test Form 1/i)).toBeInTheDocument();
   });
 
-  it('filters the list of forms by "published" status', async () => {
+  it('clicking on "create a new form" button navigates to the "create form" page', async () => {
     const user = userEvent.setup();
 
     mockedOpenmrsFetch.mockReturnValueOnce({
@@ -122,35 +187,6 @@ describe("Dashboard", () => {
       goTo: () => {},
       results: formsResponse,
     }));
-
-    renderDashboard();
-
-    await waitForLoadingToFinish();
-
-    const publishStatusFilter = screen.getByRole("button", {
-      name: /filter by publish status/i,
-    });
-
-    await waitFor(() => user.click(publishStatusFilter));
-    await waitFor(() =>
-      user.click(screen.getByRole("option", { name: /unpublished/i }))
-    );
-
-    // The filtering isn't working either
-    expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument();
-    expect(
-      screen.getByText(/no matching forms to display/i)
-    ).toBeInTheDocument();
-  });
-
-  it('clicking on "create a new form" button navigates to the "create form" page', async () => {
-    const user = userEvent.setup();
-
-    mockedOpenmrsFetch.mockReturnValueOnce({
-      data: {
-        results: formsResponse,
-      },
-    });
 
     renderDashboard();
 
@@ -176,6 +212,12 @@ describe("Dashboard", () => {
       },
     });
 
+    mockUsePagination.mockImplementation(() => ({
+      currentPage: 1,
+      goTo: () => {},
+      results: formsResponse,
+    }));
+
     renderDashboard();
 
     await waitForLoadingToFinish();
@@ -200,6 +242,11 @@ describe("Dashboard", () => {
       },
     });
 
+    mockUsePagination.mockImplementation(() => ({
+      currentPage: 1,
+      goTo: () => {},
+      results: formsResponse,
+    }));
     renderDashboard();
 
     await waitForLoadingToFinish();
@@ -222,6 +269,12 @@ describe("Dashboard", () => {
       },
     });
     mockedDeleteForm.mockResolvedValue({});
+
+    mockUsePagination.mockImplementation(() => ({
+      currentPage: 1,
+      goTo: () => {},
+      results: formsResponse,
+    }));
 
     renderDashboard();
 
@@ -247,34 +300,6 @@ describe("Dashboard", () => {
       user.click(screen.getByRole("button", { name: /danger delete/i }))
     );
   });
-
-  it('searhes for a form by name and filters the list of forms', async () => {
-    const user = userEvent.setup();
-
-    mockedOpenmrsFetch.mockReturnValueOnce({
-      data: {
-        results: formsResponse,
-      },
-    });
-
-    mockUsePagination.mockImplementation(() => ({
-      currentPage: 1,
-      goTo: () => {},
-      results: formsResponse,
-    }));
-
-    const searchbox = screen.getByRole("searchbox") as HTMLInputElement;
-
-    await waitFor(() => user.type(searchbox, "COVID"));
-
-    expect(searchbox.value).toBe('COVID');
-
-    // Can't get these assertions to work
-    // await waitFor(() => expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument());
-    // expect(
-    //   screen.getByText(/no matching forms to display/i)
-    // ).toBeInTheDocument();
-  })
 });
 
 function renderDashboard() {
