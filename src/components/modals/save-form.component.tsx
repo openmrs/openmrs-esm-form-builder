@@ -27,8 +27,8 @@ import {
 } from "../../forms.resource";
 import { EncounterType, Resource, RouteParams, Schema } from "../../types";
 import { useEncounterTypes } from "../../hooks/useEncounterTypes";
-import styles from "./save-form.scss";
 import { useForm } from "../../hooks/useForm";
+import styles from "./save-form.scss";
 
 type FormGroupData = {
   name: string;
@@ -38,6 +38,7 @@ type FormGroupData = {
   description: string;
   resources: Array<Resource>;
 };
+
 type SaveFormModalProps = {
   form: FormGroupData;
   schema: Schema;
@@ -58,7 +59,9 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
   const [isInvalidVersion, setIsInvalidVersion] = useState(false);
   const [name, setName] = useState(form?.name);
   const [description, setDescription] = useState(form?.description);
-  const [encounterType, setEncounterType] = useState(form?.encounterType?.uuid);
+  const [encounterType, setEncounterType] = useState(
+    form?.encounterType?.uuid || ""
+  );
   const [version, setVersion] = useState(form?.version);
 
   const checkVersionValidity = (version: string) => {
@@ -125,10 +128,11 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
         });
         clearDraftFormSchema();
         setOpenSaveFormModal(false);
-        setIsSavingForm(false);
+        mutate();
         navigate({
           to: `${window.spaBase}/form-builder/edit/${newForm.uuid}`,
         });
+        setIsSavingForm(false);
       } catch (error) {
         showNotification({
           title: t("errorCreatingForm", "Error creating form"),
@@ -136,6 +140,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
           critical: true,
           description: error?.message,
         });
+        setIsSavingForm(false);
       }
     } else {
       try {
@@ -154,7 +159,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
             ({ name }) => name === "JSON schema"
           )?.valueReference;
 
-          deleteClobdata(existingValueReferenceUuid)
+          await deleteClobdata(existingValueReferenceUuid)
             .catch((error) =>
               console.error("Unable to delete clobdata: ", error)
             )
@@ -200,8 +205,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                     })
                     .catch((err) =>
                       console.error("Error uploading new schema: ", err)
-                    )
-                    .finally(() => setIsSavingForm(false));
+                    );
                 })
                 .catch((error) =>
                   console.error(
@@ -210,6 +214,8 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                   )
                 );
             });
+
+          setIsSavingForm(false);
         }
       } catch (error) {
         showNotification({
@@ -313,14 +319,10 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                 />
                 <Select
                   id="encounterType"
-                  defaultValue={
-                    form?.encounterType
-                      ? form?.encounterType?.name
-                      : "undefined"
-                  }
                   onChange={(event) => setEncounterType(event.target.value)}
                   labelText={t("encounterType", "Encounter Type")}
                   required
+                  value={encounterType}
                 >
                   {!form?.encounterType ? (
                     <SelectItem
