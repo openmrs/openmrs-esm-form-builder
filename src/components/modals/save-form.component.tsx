@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { SyntheticEvent, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import {
@@ -44,8 +44,6 @@ type SaveFormModalProps = {
   schema: Schema;
 };
 
-const clearDraftFormSchema = () => localStorage.removeItem("formSchema");
-
 const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
@@ -70,7 +68,9 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
     setIsInvalidVersion(!/^[0-9]/.test(version));
   };
 
-  const openModal = useCallback((option) => {
+  const clearDraftFormSchema = () => localStorage.removeItem("formJSON");
+
+  const openModal = useCallback((option: string) => {
     if (option === "newVersion") {
       setSaveState("newVersion");
       setOpenConfirmSaveModal(false);
@@ -85,15 +85,22 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
     }
   }, []);
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
     setIsSavingForm(true);
 
+    const target = event.target as typeof event.target & {
+      name: { value: string };
+      version: { value: string };
+      encounterType: { value: string };
+      description: { value: string };
+    };
+
     if (saveState === "new" || saveState === "newVersion") {
-      const name = event.target.name.value,
-        version = event.target.version.value,
-        encounterType = event.target.encounterType.value,
-        description = event.target.description.value;
+      const name = target.name.value,
+        version = target.version.value,
+        encounterType = target.encounterType.value,
+        description = target.description.value;
 
       try {
         const newForm = await saveNewForm(
@@ -285,23 +292,22 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                 <TextInput
                   id="name"
                   labelText={t("formName", "Form name")}
-                  defaultValue={saveState === "update" ? form?.name : ""}
                   onChange={(event) => setName(event.target.value)}
                   placeholder="e.g. OHRI Express Care Patient Encounter Form"
                   required
+                  value={schema?.name || form?.name}
                 />
                 {saveState === "update" ? (
                   <TextInput
                     id="uuid"
                     labelText="UUID (auto-generated)"
                     disabled
-                    defaultValue={saveState === "update" ? form?.uuid : ""}
+                    value={schema?.uuid || form?.uuid}
                   />
                 ) : null}
                 <TextInput
                   id="version"
                   labelText="Version"
-                  defaultValue={saveState === "update" ? form?.version : ""}
                   placeholder="e.g. 1.0"
                   required
                   onChange={(event) => {
@@ -316,13 +322,14 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                     "invalidVersionWarning",
                     "Version can only start with with a number"
                   )}
+                  value={schema?.version || form?.version}
                 />
                 <Select
                   id="encounterType"
+                  defaultValue={encounterType}
                   onChange={(event) => setEncounterType(event.target.value)}
                   labelText={t("encounterType", "Encounter Type")}
                   required
-                  value={encounterType}
                 >
                   {!form?.encounterType ? (
                     <SelectItem

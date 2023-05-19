@@ -67,6 +67,7 @@ export interface Schema {
   uuid: string;
   encounterType: string;
   referencedForms: [];
+  version?: string;
 }
 
 export interface SchemaContextType {
