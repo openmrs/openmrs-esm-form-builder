@@ -85,7 +85,9 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
     }
   }, []);
 
-  const handleSubmit = async (event: SyntheticEvent) => {
+  const handleSubmit = async (
+    event: SyntheticEvent<{ name: { value: string } }>
+  ) => {
     event.preventDefault();
     setIsSavingForm(true);
 
