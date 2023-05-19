@@ -54,13 +54,22 @@ const FormEditor: React.FC = () => {
     formUuid && (isLoadingClobdata || isLoadingForm);
 
   useEffect(() => {
-    if (formUuid && clobdata && Object.keys(clobdata).length > 0) {
-      setSchema(clobdata);
-      localStorage.setItem("formJSON", JSON.stringify(clobdata));
-    } else if (formUuid && !isLoadingFormOrSchema && !schema) {
-      setShowLoadDraftSchemaModal(true);
+    if (formUuid) {
+      if (
+        !isLoadingFormOrSchema &&
+        clobdata &&
+        Object.keys(clobdata).length > 0
+      ) {
+        setSchema(clobdata);
+        localStorage.setItem("formJSON", JSON.stringify(clobdata));
+      } else if (
+        !isLoadingFormOrSchema &&
+        (!clobdata || Object.keys(clobdata).length === 0)
+      ) {
+        setShowLoadDraftSchemaModal(true);
+      }
     }
-  }, [clobdata, formUuid, isLoadingFormOrSchema, schema]);
+  }, [clobdata, formUuid, isLoadingFormOrSchema]);
 
   const updateSchema = useCallback((updatedSchema) => {
     setSchema(updatedSchema);

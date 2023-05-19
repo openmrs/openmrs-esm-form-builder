@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { SyntheticEvent, useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import {
@@ -27,8 +27,8 @@ import {
 } from "../../forms.resource";
 import { EncounterType, Resource, RouteParams, Schema } from "../../types";
 import { useEncounterTypes } from "../../hooks/useEncounterTypes";
-import styles from "./save-form.scss";
 import { useForm } from "../../hooks/useForm";
+import styles from "./save-form.scss";
 
 type FormGroupData = {
   name: string;
@@ -38,12 +38,11 @@ type FormGroupData = {
   description: string;
   resources: Array<Resource>;
 };
+
 type SaveFormModalProps = {
   form: FormGroupData;
   schema: Schema;
 };
-
-const clearDraftFormSchema = () => localStorage.removeItem("formSchema");
 
 const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
   const { t } = useTranslation();
@@ -58,7 +57,9 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
   const [isInvalidVersion, setIsInvalidVersion] = useState(false);
   const [name, setName] = useState(form?.name);
   const [description, setDescription] = useState(form?.description);
-  const [encounterType, setEncounterType] = useState(form?.encounterType?.uuid);
+  const [encounterType, setEncounterType] = useState(
+    form?.encounterType?.uuid || ""
+  );
   const [version, setVersion] = useState(form?.version);
 
   const checkVersionValidity = (version: string) => {
@@ -67,7 +68,9 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
     setIsInvalidVersion(!/^[0-9]/.test(version));
   };
 
-  const openModal = useCallback((option) => {
+  const clearDraftFormSchema = () => localStorage.removeItem("formJSON");
+
+  const openModal = useCallback((option: string) => {
     if (option === "newVersion") {
       setSaveState("newVersion");
       setOpenConfirmSaveModal(false);
@@ -82,15 +85,24 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
     }
   }, []);
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (
+    event: SyntheticEvent<{ name: { value: string } }>
+  ) => {
     event.preventDefault();
     setIsSavingForm(true);
 
+    const target = event.target as typeof event.target & {
+      name: { value: string };
+      version: { value: string };
+      encounterType: { value: string };
+      description: { value: string };
+    };
+
     if (saveState === "new" || saveState === "newVersion") {
-      const name = event.target.name.value,
-        version = event.target.version.value,
-        encounterType = event.target.encounterType.value,
-        description = event.target.description.value;
+      const name = target.name.value,
+        version = target.version.value,
+        encounterType = target.encounterType.value,
+        description = target.description.value;
 
       try {
         const newForm = await saveNewForm(
@@ -125,10 +137,11 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
         });
         clearDraftFormSchema();
         setOpenSaveFormModal(false);
-        setIsSavingForm(false);
+        mutate();
         navigate({
           to: `${window.spaBase}/form-builder/edit/${newForm.uuid}`,
         });
+        setIsSavingForm(false);
       } catch (error) {
         showNotification({
           title: t("errorCreatingForm", "Error creating form"),
@@ -136,6 +149,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
           critical: true,
           description: error?.message,
         });
+        setIsSavingForm(false);
       }
     } else {
       try {
@@ -154,7 +168,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
             ({ name }) => name === "JSON schema"
           )?.valueReference;
 
-          deleteClobdata(existingValueReferenceUuid)
+          await deleteClobdata(existingValueReferenceUuid)
             .catch((error) =>
               console.error("Unable to delete clobdata: ", error)
             )
@@ -200,8 +214,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                     })
                     .catch((err) =>
                       console.error("Error uploading new schema: ", err)
-                    )
-                    .finally(() => setIsSavingForm(false));
+                    );
                 })
                 .catch((error) =>
                   console.error(
@@ -210,6 +223,8 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                   )
                 );
             });
+
+          setIsSavingForm(false);
         }
       } catch (error) {
         showNotification({
@@ -279,23 +294,22 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                 <TextInput
                   id="name"
                   labelText={t("formName", "Form name")}
-                  defaultValue={saveState === "update" ? form?.name : ""}
                   onChange={(event) => setName(event.target.value)}
                   placeholder="e.g. OHRI Express Care Patient Encounter Form"
                   required
+                  value={schema?.name || form?.name}
                 />
                 {saveState === "update" ? (
                   <TextInput
                     id="uuid"
                     labelText="UUID (auto-generated)"
                     disabled
-                    defaultValue={saveState === "update" ? form?.uuid : ""}
+                    value={schema?.uuid || form?.uuid}
                   />
                 ) : null}
                 <TextInput
                   id="version"
                   labelText="Version"
-                  defaultValue={saveState === "update" ? form?.version : ""}
                   placeholder="e.g. 1.0"
                   required
                   onChange={(event) => {
@@ -310,14 +324,11 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                     "invalidVersionWarning",
                     "Version can only start with with a number"
                   )}
+                  value={schema?.version || form?.version}
                 />
                 <Select
                   id="encounterType"
-                  defaultValue={
-                    form?.encounterType
-                      ? form?.encounterType?.name
-                      : "undefined"
-                  }
+                  defaultValue={encounterType}
                   onChange={(event) => setEncounterType(event.target.value)}
                   labelText={t("encounterType", "Encounter Type")}
                   required
