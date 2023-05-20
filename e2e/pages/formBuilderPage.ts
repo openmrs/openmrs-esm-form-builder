@@ -74,6 +74,20 @@ export class FormBuilderPage {
     this.page.getByText(/new question created/i);
   readonly saveQuestionButton = () =>
     this.page.getByRole("button", { name: /^save$/i, exact: true });
+  readonly publishFormButton = () =>
+    this.page.getByRole("button", { name: "Publish Form" });
+
+  readonly publishStatusDropdownButton = () =>
+    this.page.getByRole("button", {
+      name: /filter by publish status/i,
+    });
+
+  readonly publishedOption = () =>
+    this.page.getByRole("option", { name: "Published", exact: true });
+
+  readonly searchbox = () => this.page.getByRole("searchbox");
+  readonly tableContainer = () =>
+    this.page.locator(".cds--data-table-container");
 
   async gotoFormBuilder() {
     await this.page.goto("form-builder");
