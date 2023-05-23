@@ -38,12 +38,6 @@ export const configSchema = {
       "ui-select-extended",
     ],
   },
-  patientUuid: {
-    _type: "String",
-    _default: "0fffdcc6-ee28-49ed-a6fc-947309218f27",
-    _description:
-      "UUID of the test patient whose information gets rendered in a patient banner within the form renderer",
-  },
   showSchemaSaveWarning: {
     _type: Type.Boolean,
     _default: true,

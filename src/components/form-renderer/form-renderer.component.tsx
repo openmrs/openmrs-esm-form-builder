@@ -3,7 +3,6 @@ import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
 import { Button, InlineLoading, Tile } from "@carbon/react";
 import { OHRIFormSchema, OHRIForm } from "@openmrs/openmrs-form-engine-lib";
-import { useConfig } from "@openmrs/esm-framework";
 
 import ActionButtons from "../action-buttons/action-buttons.component";
 import styles from "./form-renderer.scss";
@@ -16,7 +15,6 @@ type FormRendererProps = {
 
 const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
   const { t } = useTranslation();
-  const { patientUuid } = useConfig();
 
   const dummySchema: OHRIFormSchema = {
     encounterType: "",
@@ -91,7 +89,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
             <OHRIForm
               formJson={schemaToRender}
               mode={"enter"}
-              patientUUID={patientUuid}
+              patientUUID={""}
             />
           </ErrorBoundary>
         )}
