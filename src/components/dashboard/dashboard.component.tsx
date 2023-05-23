@@ -41,13 +41,13 @@ import {
   usePagination,
 } from "@openmrs/esm-framework";
 
-import { deleteForm } from "../../forms.resource";
 import type { Form as FormType } from "../../types";
+import { FormBuilderPagination } from "../pagination";
+import { deleteForm } from "../../forms.resource";
 import { useClobdata } from "../../hooks/useClobdata";
 import { useForms } from "../../hooks/useForms";
 import EmptyState from "../empty-state/empty-state.component";
 import ErrorState from "../error-state/error-state.component";
-import { FormBuilderPagination } from "../pagination";
 import styles from "./dashboard.scss";
 
 function CustomTag({ condition }) {
@@ -240,9 +240,8 @@ function FormsList({ forms, isValidating, mutate, t }) {
   const isTablet = useLayoutType() === "tablet";
   const [filter, setFilter] = useState("");
   const config = useConfig();
-  const [pageSize, setPageSize] = useState(10);
-  const pageSizes = [10, 20, 30, 40, 50];
   const [searchString, setSearchString] = useState("");
+  const pageSize = 10;
 
   const filteredRows = useMemo(() => {
     if (!filter) {
