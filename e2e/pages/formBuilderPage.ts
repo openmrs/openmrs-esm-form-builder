@@ -12,6 +12,8 @@ export class FormBuilderPage {
     this.page.getByRole("button", { name: "Input dummy schema" });
   readonly saveFormButton = () =>
     this.page.getByRole("button", { name: "Save Form" });
+  readonly updateExistingFormButton = () =>
+    this.page.getByRole("button", { name: "Update existing version" });
   readonly formNameInput = () => this.page.getByLabel("Form name");
   readonly formVersionInput = () => this.page.getByLabel("Version");
   readonly formDescriptionInput = () => this.page.getByLabel("Description");

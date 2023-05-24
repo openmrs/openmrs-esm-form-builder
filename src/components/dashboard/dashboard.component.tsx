@@ -126,6 +126,7 @@ function ActionButtons({ form, mutate }) {
       <Button
         enterDelayMs={300}
         renderIcon={Edit}
+        data-testid={`editSchema${form.uuid}`}
         onClick={() =>
           navigate({
             to: `${window.spaBase}/form-builder/edit/${form.uuid}`,
