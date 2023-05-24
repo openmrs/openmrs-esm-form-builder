@@ -17,10 +17,10 @@ test("should be able to create a schema using the interactive builder", async ({
   await page.getByRole("button", { name: /start building/i }).click();
 
   const formNameInput = page.getByRole("textbox", { name: /form name/i });
-  formNameInput.fill("Covid-19 Patient Screening");
+  formNameInput.fill("Covid-19 Screening");
   await page.getByRole("button", { name: /create form/i }).click();
   await expect(
-    page.getByRole("heading", { name: /covid-19 patient screening/i })
+    page.getByRole("heading", { name: /covid-19 screening/i })
   ).toBeVisible();
   await page.getByRole("button", { name: /add page/i }).click();
   await page
@@ -48,6 +48,8 @@ test("should be able to create a schema using the interactive builder", async ({
 
   await expect(page.getByRole("textbox", { name: /label/i })).toBeVisible();
   await expect(page.getByRole("radio", { name: /optional/i })).toBeChecked();
+
+  // TODO: Fix radio buttons not getting checked
   await expect(
     page.getByRole("radio", { name: /required/i })
   ).not.toBeChecked();
@@ -73,15 +75,37 @@ test("should be able to create a schema using the interactive builder", async ({
   await page
     .getByRole("combobox", { name: /field type/i })
     .selectOption("radio");
-  await page
-    .getByRole("textbox", { name: /question id/i })
-    .fill("everTestedForCovid");
+
   await page.getByRole("searchbox").type("Tested for COVID 19");
   await page.getByRole("searchbox").press("Enter");
   await page.getByRole("menuitem", { name: "Tested for COVID 19" }).click();
-  // TODO add logic that select the answers to display
+
+  await expect(
+    page.getByRole("button", { name: "Select answers to display Open menu" })
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Select answers to display Open menu" })
+    .press("Enter");
+  await page.getByRole("option", { name: "No" }).click();
+  await page.getByRole("option", { name: "Yes" }).click();
+
+  await page
+    .getByRole("textbox", { name: /question id/i })
+    .fill("everTestedForCovid19");
+
   await expect(
     page.getByRole("button", { name: /^save$/i })
   ).not.toBeDisabled();
   await page.getByRole("button", { name: /^save$/i }).click();
+
+  // TODO: Assert that schema editor content matches the expected schema in interactiveSchema.json
+  await expect(
+    page
+      .getByRole("tabpanel", { name: "Schema Editor" })
+      .locator("div")
+      .filter({
+        hasText: '{ "name": "Covid-19 Screening"',
+      })
+      .nth(2)
+  ).toBeVisible();
 });
