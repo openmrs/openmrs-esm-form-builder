@@ -33,16 +33,22 @@ export const addFormResources = async (
 };
 
 export const createValueReference = async (api: APIRequestContext) => {
-  const schemaBlob = new Blob([JSON.stringify(customSchema)], {
-    type: undefined,
-  });
-  const body = new FormData();
-  body.append("file", schemaBlob);
+  const boundary =
+    "--------------------------" + Math.floor(Math.random() * 1e16);
+  const delimiter = "\r\n--" + boundary + "\r\n";
+  const closeDelimiter = "\r\n--" + boundary + "--";
+
+  const body =
+    delimiter +
+    'Content-Disposition: form-data; name="file"; filename="schema.json"\r\n' +
+    "Content-Type: application/json\r\n\r\n" +
+    JSON.stringify(customSchema) +
+    closeDelimiter;
 
   const valueReference = await api.post("clobdata", {
     data: body,
     headers: {
-      "Content-Type": "multipart/form-data",
+      "Content-Type": "multipart/form-data; boundary=" + boundary,
     },
   });
 
