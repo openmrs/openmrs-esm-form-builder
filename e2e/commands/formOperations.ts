@@ -55,6 +55,6 @@ export const createValueReference = async (api: APIRequestContext) => {
   return await valueReference.text();
 };
 
-export const deleteForm = async (api: APIRequestContext, uuid: string) => {
+export async function deleteForm(api: APIRequestContext, uuid: string) {
   await api.delete(`form/${uuid}`, { data: {} });
-};
+}

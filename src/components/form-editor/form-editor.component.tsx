@@ -18,7 +18,8 @@ import {
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ExtensionSlot } from "@openmrs/esm-framework";
-import { Schema, RouteParams } from "../../types";
+
+import type { Schema, RouteParams } from "../../types";
 import { useClobdata } from "../../hooks/useClobdata";
 import { useForm } from "../../hooks/useForm";
 import FormRenderer from "../form-renderer/form-renderer.component";
@@ -26,7 +27,12 @@ import InteractiveBuilder from "../interactive-builder/interactive-builder.compo
 import SchemaEditor from "../schema-editor/schema-editor.component";
 import styles from "./form-editor.scss";
 
-const Error = ({ error, title }) => {
+type ErrorProps = {
+  error: Error;
+  title: string;
+};
+
+const Error = ({ error, title }: ErrorProps) => {
   return (
     <InlineNotification
       style={{
@@ -76,7 +82,7 @@ const FormEditor: React.FC = () => {
     localStorage.setItem("formJSON", JSON.stringify(updatedSchema));
   }, []);
 
-  const LoadDraftSchema = () => {
+  const LoadDraftSchema = useCallback(() => {
     return (
       <ComposedModal
         open={showLoadDraftSchemaModal}
@@ -113,7 +119,7 @@ const FormEditor: React.FC = () => {
         </ModalFooter>
       </ComposedModal>
     );
-  };
+  }, [showLoadDraftSchemaModal, t]);
 
   return (
     <>

@@ -11,7 +11,7 @@ import {
   TextInput,
 } from "@carbon/react";
 import { showToast, showNotification } from "@openmrs/esm-framework";
-import { Schema } from "../../types";
+import type { Schema } from "../../types";
 
 type NewFormModalProps = {
   schema: Schema;

@@ -1,7 +1,9 @@
 import { openmrsFetch, FetchResponse } from "@openmrs/esm-framework";
-import { Schema } from "./types";
+import type { Form, Schema } from "./types";
 
-export const deleteClobdata = async (valueReference: string) => {
+export async function deleteClobdata(
+  valueReference: string
+): Promise<FetchResponse<Schema>> {
   const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/clobdata/${valueReference}`,
     {
@@ -10,9 +12,11 @@ export const deleteClobdata = async (valueReference: string) => {
     }
   );
   return response;
-};
+}
 
-export async function deleteForm(formUuid: string): Promise<FetchResponse> {
+export async function deleteForm(
+  formUuid: string
+): Promise<FetchResponse<Record<string, never>>> {
   const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${formUuid}`,
     {
@@ -23,10 +27,10 @@ export async function deleteForm(formUuid: string): Promise<FetchResponse> {
   return response;
 }
 
-export const deleteResource = async (
+export async function deleteResource(
   formUuid: string,
   resourceUuid: string
-) => {
+): Promise<FetchResponse<Record<string, never>>> {
   const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${formUuid}/resource/${resourceUuid}`,
     {
@@ -35,9 +39,9 @@ export const deleteResource = async (
     }
   );
   return response;
-};
+}
 
-export const uploadSchema = async (schema: Schema) => {
+export async function uploadSchema(schema: Schema): Promise<string> {
   const schemaBlob = new Blob([JSON.stringify(schema)], {
     type: undefined,
   });
@@ -54,12 +58,12 @@ export const uploadSchema = async (schema: Schema) => {
     });
 
   return response;
-};
+}
 
-export const getResourceUuid = async (
+export async function getResourceUuid(
   formUuid: string,
   valueReference: string
-) => {
+): Promise<FetchResponse<Schema>> {
   const body = {
     name: "JSON schema",
     dataType: "AmpathJsonSchema",
@@ -76,15 +80,15 @@ export const getResourceUuid = async (
   );
 
   return response;
-};
+}
 
-export const updateForm = async (
+export async function updateForm(
   formUuid,
   name,
   version,
   description,
   encounterTypeUuid
-) => {
+): Promise<FetchResponse<Schema>> {
   const abortController = new AbortController();
   const body = {
     name: name,
@@ -106,15 +110,15 @@ export const updateForm = async (
   );
 
   return response;
-};
+}
 
-export const saveNewForm = async (
+export async function saveNewForm(
   name: string,
   version: string,
   published?: boolean,
   description?: string,
   encounterType?: string
-) => {
+): Promise<Form> {
   const abortController = new AbortController();
 
   const body = {
@@ -138,9 +142,9 @@ export const saveNewForm = async (
   });
 
   return response.data;
-};
+}
 
-export const publishForm = async (uuid) => {
+export async function publishForm(uuid: string): Promise<FetchResponse<Form>> {
   const body = { published: true };
   const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${uuid}`,
@@ -151,9 +155,11 @@ export const publishForm = async (uuid) => {
     }
   );
   return response;
-};
+}
 
-export const unpublishForm = async (uuid) => {
+export async function unpublishForm(
+  uuid: string
+): Promise<FetchResponse<Form>> {
   const body = { published: false };
   const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${uuid}`,
@@ -164,4 +170,4 @@ export const unpublishForm = async (uuid) => {
     }
   );
   return response;
-};
+}
