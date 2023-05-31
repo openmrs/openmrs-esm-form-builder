@@ -193,6 +193,29 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 onChange={(event) => setQuestionLabel(event.target.value)}
                 required
               />
+
+              <TextInput
+                id="questionId"
+                invalid={questionIdExists(questionId)}
+                invalidText={t(
+                  "questionIdExists",
+                  "This question ID already exists in your schema"
+                )}
+                labelText={t(
+                  "questionId",
+                  "Question ID (prefer using camel-case for IDs)"
+                )}
+                value={questionId}
+                onChange={(event) => {
+                  setQuestionId(event.target.value);
+                }}
+                placeholder={t(
+                  "questionIdPlaceholder",
+                  'Enter a unique ID e.g. "anaesthesiaType" for a question asking about the type of anaesthesia.'
+                )}
+                required
+              />
+
               <RadioButtonGroup
                 defaultSelected="optional"
                 name="isQuestionRequired"
@@ -216,6 +239,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   value="required"
                 />
               </RadioButtonGroup>
+
               <Select
                 value={questionType}
                 onChange={(event) => setQuestionType(event.target.value)}
@@ -238,6 +262,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   />
                 ))}
               </Select>
+
               <Select
                 value={fieldType}
                 onChange={(event) => setFieldType(event.target.value)}
@@ -259,6 +284,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   <SelectItem text={fieldType} value={fieldType} key={key} />
                 ))}
               </Select>
+
               {fieldType === "number" ? (
                 <>
                   <TextInput
@@ -377,7 +403,10 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
               )}
 
               {conceptMappings && conceptMappings.length ? (
-                <>
+                <FormGroup>
+                  <FormLabel className={styles.label}>
+                    {t("mappings", "Mappings")}
+                  </FormLabel>
                   <table className={styles.tableStriped}>
                     <thead>
                       <tr>
@@ -396,7 +425,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                       ))}
                     </tbody>
                   </table>
-                </>
+                </FormGroup>
               ) : null}
 
               {answers && answers.length ? (
@@ -428,28 +457,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   ))}
                 </div>
               ) : null}
-
-              <TextInput
-                id="questionId"
-                invalid={questionIdExists(questionId)}
-                invalidText={t(
-                  "questionIdExists",
-                  "This question ID already exists in your schema"
-                )}
-                labelText={t(
-                  "questionId",
-                  "Question ID (prefer camel-case for IDs)"
-                )}
-                value={questionId}
-                onChange={(event) => {
-                  setQuestionId(event.target.value);
-                }}
-                placeholder={t(
-                  "questionIdPlaceholder",
-                  'Enter a unique ID e.g. "anaesthesiaType" for a question asking about the type of anaesthesia.'
-                )}
-                required
-              />
             </Stack>
           </FormGroup>
         </ModalBody>

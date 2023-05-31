@@ -90,7 +90,7 @@
   "publishing": "Publishing",
   "questionCreated": "New question created",
   "QuestionDeleted": "Question deleted",
-  "questionId": "Question ID (prefer camel-case for IDs)",
+  "questionId": "Question ID (prefer using camel-case for IDs)",
   "questionIdExists": "This question ID already exists in your schema",
   "questionIdPlaceholder": "Enter a unique ID e.g. \"anaesthesiaType\" for a question asking about the type of anaesthesia.",
   "questionLabel": "Label",

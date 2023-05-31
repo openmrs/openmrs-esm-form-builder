@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 import { showToast, showNotification } from "@openmrs/esm-framework";
 import { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
 
-import type { Question, RouteParams, Schema } from "../../types";
+import type { RouteParams, Schema } from "../../types";
 import ActionButtons from "../action-buttons/action-buttons.component";
 import AddQuestionModal from "./add-question-modal.component";
 import DeleteSectionModal from "./delete-section-modal.component";
@@ -171,7 +171,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   );
 
   const duplicateQuestion = useCallback(
-    (question: Question, pageId: number, sectionId: number) => {
+    (question, pageId: number, sectionId: number) => {
       try {
         const questionToDuplicate = JSON.parse(JSON.stringify(question));
         questionToDuplicate.id = questionToDuplicate.id + "Duplicate";
