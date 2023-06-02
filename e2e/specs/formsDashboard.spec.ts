@@ -13,7 +13,6 @@ test("should filter forms based on publish status", async ({ page }) => {
 
   // Inputs the dummy schema
   await formBuilderPage.inputDummySchemaButton().click();
-  // await formBuilderPage.renderChangesButton().click();
 
   // Save the form
   await formBuilderPage.saveForm();
@@ -26,22 +25,19 @@ test("should filter forms based on publish status", async ({ page }) => {
   await formBuilderPage.publishedOption().click();
 
   // Wait for the table to update with filtered results
-  await formBuilderPage.tableContainer();
+  await page.locator(".cds--data-table-container");
 
   // Assert that only published forms are displayed in the table
   const tableRows = await page.$$eval(
-    ".cds--data-table tbody tr",
+    '[data-testid^="form-row-"]',
     (rows) => rows
   );
 
   expect(tableRows.length).toBeGreaterThan(1);
 
-  const tableRow = await page.$(".cds--data-table tbody tr");
-  const thirdTdElement = await tableRow.evaluateHandle((row) =>
-    row.querySelector("td:nth-child(3)")
-  );
+  const row = await page.$(`[data-testid="form-row-0"]`);
+  const thirdTdElement = await row.$("td:nth-child(3)");
 
-  // Locate the <div> element with the publish status tag
   const publishStatusTag = await thirdTdElement.$(".cds--tag");
 
   // Get the text content of the publish status tag
@@ -76,11 +72,11 @@ test("should search forms by name", async ({ page }) => {
 
   await formBuilderPage.searchbox().type("Sample Form");
 
-  await formBuilderPage.tableContainer();
+  await page.locator(".cds--data-table-container");
 
   // Assert that only published forms are displayed in the table
   const tableRows = await page.$$eval(
-    ".cds--data-table tbody tr",
+    '[data-testid^="form-row-"]',
     (rows) => rows
   );
 
@@ -90,7 +86,7 @@ test("should search forms by name", async ({ page }) => {
     .getAttribute("value");
   expect(searchBoxValue).toBe("Sample Form");
 
-  const tableRow = await page.$(".cds--data-table tbody tr");
+  const tableRow = await page.$(`[data-testid="form-row-1"]`);
   const tdElement = await tableRow.$("td");
   const tdNameTextContent = await tdElement.textContent();
 

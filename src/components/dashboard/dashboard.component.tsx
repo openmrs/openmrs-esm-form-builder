@@ -420,8 +420,11 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {rows.map((row) => (
-                    <TableRow {...getRowProps({ row })}>
+                  {rows.map((row, i) => (
+                    <TableRow
+                      {...getRowProps({ row })}
+                      data-testid={`form-row-${i}`}
+                    >
                       {row.cells.map((cell) => (
                         <TableCell key={cell.id}>{cell.value}</TableCell>
                       ))}

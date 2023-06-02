@@ -86,8 +86,6 @@ export class FormBuilderPage {
     this.page.getByRole("option", { name: "Published", exact: true });
 
   readonly searchbox = () => this.page.getByRole("searchbox");
-  readonly tableContainer = () =>
-    this.page.locator(".cds--data-table-container");
 
   async gotoFormBuilder() {
     await this.page.goto("form-builder");
