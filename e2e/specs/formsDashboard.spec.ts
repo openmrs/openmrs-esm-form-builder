@@ -1,33 +1,33 @@
 import { test } from "../core";
 import { expect } from "@playwright/test";
 import { FormBuilderPage } from "../pages";
-import { deleteForm } from "../commands/formOperations";
+import {
+  createForm,
+  createValueReference,
+  addFormResources,
+  deleteForm,
+} from "../commands/formOperations";
+import { Form } from "../../src/types";
 
-let formUuid = null;
+let form: Form = null;
+test.beforeEach(async ({ api }) => {
+  form = await createForm(api);
+  const valueReference = await createValueReference(api);
+  await addFormResources(api, valueReference, form.uuid);
+});
 
 test("should filter forms based on publish status", async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
   await formBuilderPage.gotoFormBuilder();
 
-  await formBuilderPage.createNewFormButton().click();
-
-  // Inputs the dummy schema
-  await formBuilderPage.inputDummySchemaButton().click();
-
-  // Save the form
-  await formBuilderPage.saveForm();
-  await formBuilderPage.publishFormButton().click();
-  await formBuilderPage.gotoFormBuilder();
-
-  // Select the "Published" filter option
+  // Select the "unPublished" filter option
   await formBuilderPage.publishStatusDropdownButton().click();
 
-  await formBuilderPage.publishedOption().click();
+  await formBuilderPage.unPublishedOption().click();
 
   // Wait for the table to update with filtered results
   await page.locator(".cds--data-table-container");
 
-  // Assert that only published forms are displayed in the table
   const tableRows = await page.$$eval(
     '[data-testid^="form-row-"]',
     (rows) => rows
@@ -46,35 +46,18 @@ test("should filter forms based on publish status", async ({ page }) => {
     (spanElement) => spanElement.textContent
   );
 
-  // Expect the publish status to be "Yes"
-  expect(publishStatusText).toBe("Yes");
+  // Expect the publish status to be "No"
+  expect(publishStatusText).toBe("No");
 });
 
 test("should search forms by name", async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
   await formBuilderPage.gotoFormBuilder();
 
-  await formBuilderPage.createNewFormButton().click();
-
-  // Inputs the custom schema
-  await formBuilderPage.inputDummySchemaButton().click();
-
-  // Save the form
-  await formBuilderPage.saveForm();
-  await formBuilderPage.publishFormButton().click();
-
-  const editFormPageURLRegex = new RegExp("/edit/");
-  await page.waitForURL(editFormPageURLRegex);
-  const editFormPageURL = await page.url();
-  formUuid = editFormPageURL.split("/").slice(-1)[0];
-
-  await formBuilderPage.gotoFormBuilder();
-
-  await formBuilderPage.searchbox().type("Sample Form");
+  await formBuilderPage.searchbox().type("UI Select Form Test");
 
   await page.locator(".cds--data-table-container");
 
-  // Assert that only published forms are displayed in the table
   const tableRows = await page.$$eval(
     '[data-testid^="form-row-"]',
     (rows) => rows
@@ -84,18 +67,18 @@ test("should search forms by name", async ({ page }) => {
   const searchBoxValue = await formBuilderPage
     .searchbox()
     .getAttribute("value");
-  expect(searchBoxValue).toBe("Sample Form");
+  expect(searchBoxValue).toBe("UI Select Form Test");
 
   const tableRow = await page.$(`[data-testid="form-row-1"]`);
   const tdElement = await tableRow.$("td");
   const tdNameTextContent = await tdElement.textContent();
 
-  // Expect the form name to be "test form"
-  expect(tdNameTextContent).toBe("Sample Form");
+  // Expect the form name to be "UI Select Form Test"
+  expect(tdNameTextContent).toBe("UI Select Form Test");
 });
 
 test.afterEach(async ({ api }) => {
-  if (formUuid) {
-    await deleteForm(api, formUuid);
+  if (form) {
+    await deleteForm(api, form.uuid);
   }
 });

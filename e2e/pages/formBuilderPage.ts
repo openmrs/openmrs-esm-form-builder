@@ -82,8 +82,8 @@ export class FormBuilderPage {
       name: /filter by publish status/i,
     });
 
-  readonly publishedOption = () =>
-    this.page.getByRole("option", { name: "Published", exact: true });
+  readonly unPublishedOption = () =>
+    this.page.getByRole("option", { name: "Unpublished", exact: true });
 
   readonly searchbox = () => this.page.getByRole("searchbox");
 
