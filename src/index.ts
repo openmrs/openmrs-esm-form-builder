@@ -63,6 +63,16 @@ function setupOpenMRS() {
         online: true,
         offline: true,
       },
+      {
+        id: "system-administration-form-builder-card-link",
+        slot: "system-admin-page-card-link-slot",
+        load: getAsyncLifecycle(
+          () => import("./form-builder-admin-card-link.component"),
+          options
+        ),
+        online: true,
+        offline: true,
+      },
     ],
   };
 }
