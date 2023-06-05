@@ -7,7 +7,7 @@ export const createForm = async (
 ) => {
   const formResponse = await api.post("form", {
     data: {
-      name: "Form created for testing",
+      name: "A sample test form",
       version: "1.0",
       published: isFormPublished,
       description: "This is the form description",

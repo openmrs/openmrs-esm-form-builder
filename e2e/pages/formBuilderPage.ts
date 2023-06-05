@@ -124,7 +124,7 @@ export class FormBuilderPage {
   }
 
   async saveForm() {
-    const formName = `test form ${Math.floor(Math.random() * 10000)}`;
+    const formName = `A sample test form ${Math.floor(Math.random() * 10000)}`;
 
     await this.saveFormButton().click();
     await this.formNameInput().click();
