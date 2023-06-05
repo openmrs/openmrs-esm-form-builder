@@ -9,7 +9,7 @@ export const useClobdata = (form?: Form) => {
   const formHasResources = form?.resources.length > 0 && valueReferenceUuid;
   const url = `/ws/rest/v1/clobdata/${valueReferenceUuid}`;
 
-  const { data, error, isLoading, mutate } = useSWRImmutable<
+  const { data, error, isLoading, isValidating, mutate } = useSWRImmutable<
     { data: Schema },
     Error
   >(formHasResources ? url : null, openmrsFetch);
@@ -18,6 +18,7 @@ export const useClobdata = (form?: Form) => {
     clobdata: data?.data,
     clobdataError: error || null,
     isLoadingClobdata: isLoading,
+    isValidatingClobdata: isValidating,
     mutate: mutate,
   };
 };

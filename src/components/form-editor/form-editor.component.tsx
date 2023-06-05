@@ -32,6 +32,8 @@ type ErrorProps = {
   title: string;
 };
 
+type Status = "idle" | "formLoaded" | "schemaLoaded";
+
 const Error = ({ error, title }: ErrorProps) => {
   return (
     <InlineNotification
@@ -52,41 +54,59 @@ const FormEditor: React.FC = () => {
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
   const [schema, setSchema] = useState<Schema>();
-  const [showLoadDraftSchemaModal, setShowLoadDraftSchemaModal] =
-    useState(false);
+  const [showDraftSchemaModal, setShowDraftSchemaModal] = useState(false);
   const { form, formError, isLoadingForm } = useForm(formUuid);
   const { clobdata, clobdataError, isLoadingClobdata } = useClobdata(form);
+  const [status, setStatus] = useState<Status>("idle");
+
   const isLoadingFormOrSchema =
     formUuid && (isLoadingClobdata || isLoadingForm);
 
   useEffect(() => {
     if (formUuid) {
+      if (form && Object.keys(form).length > 0) {
+        setStatus("formLoaded");
+      }
+
       if (
-        !isLoadingFormOrSchema &&
-        clobdata &&
-        Object.keys(clobdata).length > 0
+        status === "formLoaded" &&
+        !isLoadingClobdata &&
+        clobdata === undefined
       ) {
+        setShowDraftSchemaModal(true);
+      }
+
+      if (clobdata && Object.keys(clobdata).length > 0) {
+        setStatus("schemaLoaded");
         setSchema(clobdata);
         localStorage.setItem("formJSON", JSON.stringify(clobdata));
-      } else if (
-        !isLoadingFormOrSchema &&
-        (!clobdata || Object.keys(clobdata).length === 0)
-      ) {
-        setShowLoadDraftSchemaModal(true);
       }
     }
-  }, [clobdata, formUuid, isLoadingFormOrSchema]);
+  }, [
+    clobdata,
+    form,
+    formUuid,
+    isLoadingClobdata,
+    isLoadingFormOrSchema,
+    status,
+  ]);
+
+  const handleLoadDraftSchema = useCallback(() => {
+    setShowDraftSchemaModal(false);
+    const draftSchema = localStorage.getItem("formJSON");
+    setSchema(JSON.parse(draftSchema));
+  }, []);
 
   const updateSchema = useCallback((updatedSchema) => {
     setSchema(updatedSchema);
     localStorage.setItem("formJSON", JSON.stringify(updatedSchema));
   }, []);
 
-  const LoadDraftSchema = useCallback(() => {
+  const DraftSchemaModal = () => {
     return (
       <ComposedModal
-        open={showLoadDraftSchemaModal}
-        onClose={() => setShowLoadDraftSchemaModal(false)}
+        open={showDraftSchemaModal}
+        onClose={() => setShowDraftSchemaModal(false)}
         preventCloseOnClickOutside
       >
         <ModalHeader title={t("schemaNotFound", "Schema not found")} />
@@ -102,24 +122,18 @@ const FormEditor: React.FC = () => {
         </Form>
         <ModalFooter>
           <Button
-            onClick={() => setShowLoadDraftSchemaModal(false)}
+            onClick={() => setShowDraftSchemaModal(false)}
             kind="secondary"
           >
             {t("cancel", "Cancel")}
           </Button>
-          <Button
-            onClick={() => {
-              setShowLoadDraftSchemaModal(false);
-              const draftJSON = localStorage.getItem("formJSON");
-              setSchema(JSON.parse(draftJSON));
-            }}
-          >
+          <Button onClick={handleLoadDraftSchema}>
             <span>{t("loadDraft", "Load draft")}</span>
           </Button>
         </ModalFooter>
       </ComposedModal>
     );
-  }, [showLoadDraftSchemaModal, t]);
+  };
 
   return (
     <>
@@ -127,11 +141,11 @@ const FormEditor: React.FC = () => {
         <ExtensionSlot extensionSlotName="breadcrumbs-slot" />
       </div>
       <div className={styles.container}>
-        {showLoadDraftSchemaModal && <LoadDraftSchema />}
+        {showDraftSchemaModal && <DraftSchemaModal />}
         <Grid className={styles.grid}>
           <Column lg={8} md={8} className={styles.column}>
             <Tabs>
-              <TabList>
+              <TabList aria-label="Schema editor">
                 <Tab>{t("schemaEditor", "Schema Editor")}</Tab>
               </TabList>
               <TabPanels>
@@ -161,7 +175,7 @@ const FormEditor: React.FC = () => {
           </Column>
           <Column lg={8} md={8} className={styles.column}>
             <Tabs>
-              <TabList>
+              <TabList aria-label="Form preview">
                 <Tab>{t("preview", "Preview")}</Tab>
                 <Tab>{t("interactiveBuilder", "Interactive Builder")}</Tab>
               </TabList>
