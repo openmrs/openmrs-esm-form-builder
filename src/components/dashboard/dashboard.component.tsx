@@ -54,18 +54,18 @@ import styles from "./dashboard.scss";
 
 type Mutator = KeyedMutator<{
   data: {
-    results: Array<Form>;
+    results: Array<FormType>;
   };
 }>;
 
 type ActionButtonsProps = {
-  form: Form;
+  form: FormType;
   mutate: Mutator;
   t: TFunction;
 };
 
 type FormsListProps = {
-  forms: Array<Form>;
+  forms: Array<FormType>;
   isValidating: boolean;
   mutate: Mutator;
   t: TFunction;
