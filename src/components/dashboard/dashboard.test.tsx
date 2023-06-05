@@ -27,17 +27,17 @@ const formsResponse = [
     retired: false,
     resources: [
       {
-        dataType:"AmpathJsonSchema",
-        name:"JSON schema",
-        uuid:"26e45c1a-a46d-4f69-af0a-c29baaed5b3e",
-        valueReference:"9c35c3d7-1366-45ef-b4d7-ae635b22b6a7",
+        dataType: "AmpathJsonSchema",
+        name: "JSON schema",
+        uuid: "26e45c1a-a46d-4f69-af0a-c29baaed5b3e",
+        valueReference: "9c35c3d7-1366-45ef-b4d7-ae635b22b6a7",
       },
     ],
   },
 ];
 
-jest.mock('@openmrs/esm-framework', () => {
-  const originalModule = jest.requireActual('@openmrs/esm-framework');
+jest.mock("@openmrs/esm-framework", () => {
+  const originalModule = jest.requireActual("@openmrs/esm-framework");
 
   return {
     ...originalModule,
@@ -69,7 +69,7 @@ describe("Dashboard", () => {
     expect(screen.getByText(/create a new form/i)).toBeInTheDocument();
   });
 
-  it('searches for a form by name and filters the list of forms', async () => {
+  it("searches for a form by name and filters the list of forms", async () => {
     const user = userEvent.setup();
 
     mockedOpenmrsFetch.mockReturnValueOnce({
@@ -86,15 +86,17 @@ describe("Dashboard", () => {
 
     await waitFor(() => user.type(searchbox, "COVID"));
 
-    expect(searchbox.value).toBe('COVID');
+    expect(searchbox.value).toBe("COVID");
 
     mockUsePagination.mockImplementation(() => ({
       currentPage: 1,
       goTo: () => {},
-      results: formsResponse.filter(form => form.name === searchbox.value),
+      results: formsResponse.filter((form) => form.name === searchbox.value),
     }));
 
-    await waitFor(() => expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument()
+    );
     expect(
       screen.getByText(/no matching forms to display/i)
     ).toBeInTheDocument();
@@ -113,7 +115,7 @@ describe("Dashboard", () => {
 
     await waitForLoadingToFinish();
 
-    const publishStatusFilter = screen.getByRole("button", {
+    const publishStatusFilter = screen.getByRole("combobox", {
       name: /filter by publish status/i,
     });
 
@@ -125,7 +127,7 @@ describe("Dashboard", () => {
     mockUsePagination.mockImplementation(() => ({
       currentPage: 1,
       goTo: () => {},
-      results: formsResponse.filter(form => !form.published),
+      results: formsResponse.filter((form) => !form.published),
     }));
 
     expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument();
@@ -155,7 +157,7 @@ describe("Dashboard", () => {
       screen.getByRole("heading", { name: /form builder/i })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /filter by publish status/i })
+      screen.getByRole("combobox", { name: /filter by publish status/i })
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /create a new form/i })
@@ -167,7 +169,7 @@ describe("Dashboard", () => {
       screen.getByRole("button", { name: /download schema/i })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("search", { name: /filter table/i })
+      screen.getByRole("searchbox", { name: /filter table/i })
     ).toBeInTheDocument();
     expect(screen.queryByRole("table")).toBeInTheDocument();
     expect(screen.getByText(/Test Form 1/i)).toBeInTheDocument();

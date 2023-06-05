@@ -46,7 +46,7 @@ jobs:
           server-token: ${{ secrets.TURBO_SERVER_TOKEN }}
 
       - name: Run tests, lint and typechecking
-        run: yarn turbo verify
+        run: yarn verify
 
       - name: Run build
         run: yarn turbo build --color
