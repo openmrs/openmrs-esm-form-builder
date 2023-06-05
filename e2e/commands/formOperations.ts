@@ -1,12 +1,15 @@
 import { APIRequestContext } from "@playwright/test";
 import customSchema from "../support/customSchema.json";
 
-export const createForm = async (api: APIRequestContext) => {
+export const createForm = async (
+  api: APIRequestContext,
+  isFormPublished: boolean
+) => {
   const formResponse = await api.post("form", {
     data: {
       name: "Form created for testing",
       version: "1.0",
-      published: false,
+      published: isFormPublished,
       description: "This is the form description",
       encounterType: {
         uuid: "e22e39fd-7db2-45e7-80f1-60fa0d5a4378",

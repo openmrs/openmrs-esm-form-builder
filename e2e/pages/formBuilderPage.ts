@@ -12,6 +12,14 @@ export class FormBuilderPage {
     this.page.getByRole("button", { name: "Input dummy schema" });
   readonly saveFormButton = () =>
     this.page.getByRole("button", { name: "Save Form" });
+  readonly publishFormButton = () =>
+    this.page.getByRole("button", { name: "Publish Form" });
+  readonly unpublishFormButton = () =>
+    this.page.getByRole("button", { name: "Unpublish Form" });
+  readonly unpublishFormConfirmationButton = () =>
+    this.page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Unpublish Form" });
   readonly updateExistingFormButton = () =>
     this.page.getByRole("button", { name: "Update existing version" });
   readonly formNameInput = () => this.page.getByLabel("Form name");
