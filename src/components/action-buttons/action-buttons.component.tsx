@@ -14,7 +14,7 @@ import type { TFunction } from "react-i18next";
 import type { RouteParams, Schema } from "../../types";
 import { publishForm, unpublishForm } from "../../forms.resource";
 import { useForm } from "../../hooks/useForm";
-import SaveForm from "../modals/save-form.component";
+import SaveFormModal from "../modals/save-form.component";
 import styles from "./action-buttons.scss";
 
 type Status =
@@ -97,7 +97,7 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
 
   return (
     <div className={styles.actionButtons}>
-      <SaveForm form={form} schema={schema} />
+      <SaveFormModal form={form} schema={schema} />
 
       <>
         {form && !form.published ? (

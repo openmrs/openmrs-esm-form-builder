@@ -45,7 +45,7 @@ type SaveFormModalProps = {
   schema: Schema;
 };
 
-const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
+const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema }) => {
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
   const { mutate } = useForm(formUuid);
@@ -198,6 +198,8 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                           });
                           setOpenSaveFormModal(false);
                           mutate();
+
+                          setIsSavingForm(false);
                         })
                         .catch((err) => {
                           console.error(
@@ -227,8 +229,6 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                   )
                 );
             });
-
-          setIsSavingForm(false);
         }
       } catch (error) {
         showNotification({
@@ -296,12 +296,12 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
             <FormGroup legendText={""}>
               <Stack gap={5}>
                 <TextInput
+                  defaultValue={schema?.name || form?.name}
                   id="name"
                   labelText={t("formName", "Form name")}
                   onChange={(event) => setName(event.target.value)}
                   placeholder="e.g. OHRI Express Care Patient Encounter Form"
                   required
-                  value={schema?.name || form?.name}
                 />
                 {saveState === "update" ? (
                   <TextInput
@@ -312,6 +312,7 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                   />
                 ) : null}
                 <TextInput
+                  defaultValue={schema?.version || form?.version}
                   id="version"
                   labelText="Version"
                   placeholder="e.g. 1.0"
@@ -328,7 +329,6 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                     "invalidVersionWarning",
                     "Version can only start with with a number"
                   )}
-                  value={schema?.version || form?.version}
                 />
                 <Select
                   id="encounterType"
@@ -405,4 +405,4 @@ const SaveForm: React.FC<SaveFormModalProps> = ({ form, schema }) => {
   );
 };
 
-export default SaveForm;
+export default SaveFormModal;

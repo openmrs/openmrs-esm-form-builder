@@ -9,7 +9,7 @@ export interface Form {
   description: string;
   published?: boolean;
   retired?: boolean;
-  formFields?: Array<unknown>;
+  formFields?: Array<string>;
   display?: string;
 }
 
