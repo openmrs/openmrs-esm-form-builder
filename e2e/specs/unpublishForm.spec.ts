@@ -16,17 +16,26 @@ test.beforeEach(async ({ api }) => {
   await addFormResources(api, valueReference, form.uuid);
 });
 
-test("Should be able to unpublish a form", async ({ page }) => {
+test("Unpublish a form", async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
 
-  await formBuilderPage.gotoFormBuilder();
+  await test.step("When I visit the form builder page", async () => {
+    await formBuilderPage.gotoFormBuilder();
+  });
 
-  await page.getByTestId(`editSchema${form.uuid}`).click();
-  await formBuilderPage.unpublishFormButton().click();
-  await formBuilderPage.unpublishFormConfirmationButton().click();
+  await test.step("And I click on a form I need to unpublish", async () => {
+    await page.getByTestId(`editSchema${form.uuid}`).click();
+  });
 
-  await expect(page.getByText("Form unpublished")).toBeVisible();
-  await expect(formBuilderPage.publishFormButton()).toBeVisible();
+  await test.step("Then I click on the unpublish form button and confirms the unpublication", async () => {
+    await formBuilderPage.unpublishFormButton().click();
+    await formBuilderPage.unpublishFormConfirmationButton().click();
+  });
+
+  await test.step("The I should see the form unpublished notification and the publish form button", async () => {
+    await expect(page.getByText("Form unpublished")).toBeVisible();
+    await expect(formBuilderPage.publishFormButton()).toBeVisible();
+  });
 });
 
 test.afterEach(async ({ api }) => {

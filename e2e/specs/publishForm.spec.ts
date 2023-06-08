@@ -16,15 +16,25 @@ test.beforeEach(async ({ api }) => {
   await addFormResources(api, valueReference, form.uuid);
 });
 
-test("Should be able to publish a form", async ({ page }) => {
+test("Publish a form", async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
 
-  await formBuilderPage.gotoFormBuilder();
+  await test.step("When I visit the form builder page", async () => {
+    await formBuilderPage.gotoFormBuilder();
+  });
 
-  await page.getByTestId(`editSchema${form.uuid}`).click();
-  await formBuilderPage.publishFormButton().click();
-  await expect(page.getByText("Form published")).toBeVisible();
-  await expect(formBuilderPage.unpublishFormButton()).toBeVisible();
+  await test.step("And I click on a form I need to publish", async () => {
+    await page.getByTestId(`editSchema${form.uuid}`).click();
+  });
+
+  await test.step("Then I click on the publish form button", async () => {
+    await formBuilderPage.publishFormButton().click();
+  });
+
+  await test.step("The I should see the form published notification and the unpublish form button", async () => {
+    await expect(page.getByText("Form published")).toBeVisible();
+    await expect(formBuilderPage.unpublishFormButton()).toBeVisible();
+  });
 });
 
 test.afterEach(async ({ api }) => {
