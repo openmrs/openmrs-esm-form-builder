@@ -77,16 +77,6 @@ export class FormBuilderPage {
   readonly publishFormButton = () =>
     this.page.getByRole("button", { name: "Publish Form" });
 
-  readonly publishStatusDropdownButton = () =>
-    this.page.getByRole("button", {
-      name: /filter by publish status/i,
-    });
-
-  readonly unPublishedOption = () =>
-    this.page.getByRole("option", { name: "Unpublished", exact: true });
-
-  readonly searchbox = () => this.page.getByRole("searchbox");
-
   async gotoFormBuilder() {
     await this.page.goto("form-builder");
   }

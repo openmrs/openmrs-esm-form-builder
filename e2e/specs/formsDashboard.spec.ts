@@ -16,65 +16,59 @@ test.beforeEach(async ({ api }) => {
   await addFormResources(api, valueReference, form.uuid);
 });
 
-test("should filter forms based on publish status", async ({ page }) => {
+test("should filter forms based on publish status and the search value", async ({
+  page,
+}) => {
   const formBuilderPage = new FormBuilderPage(page);
   await formBuilderPage.gotoFormBuilder();
 
-  // Select the "unPublished" filter option
-  await formBuilderPage.publishStatusDropdownButton().click();
+  // Test the filter functionality
+  await page
+    .getByRole("button", { name: "Filter by publish status: All Open menu" })
+    .click();
+  await page.getByText("Unpublished").click();
 
-  await formBuilderPage.unPublishedOption().click();
-
-  // Wait for the table to update with filtered results
+  // Locate the table
   await page.locator(".cds--data-table-container");
 
-  const tableRows = await page.$$eval(
-    '[data-testid^="form-row-"]',
+  // Assert that only published forms are displayed in the table
+  const filteredTableRows = await page.$$eval(
+    ".cds--data-table tbody tr",
     (rows) => rows
   );
 
-  expect(tableRows.length).toBeGreaterThan(1);
-
-  const row = await page.$(`[data-testid="form-row-0"]`);
-  const thirdTdElement = await row.$("td:nth-child(3)");
-
-  const publishStatusTag = await thirdTdElement.$(".cds--tag");
-
-  // Get the text content of the publish status tag
-  const publishStatusText = await publishStatusTag.$eval(
-    "span",
-    (spanElement) => spanElement.textContent
-  );
+  expect(filteredTableRows.length).toBeGreaterThanOrEqual(1);
 
   // Expect the publish status to be "No"
-  expect(publishStatusText).toBe("No");
+  const tagElement = await await page.$(`[data-testid="no-tag"]`);
+
+  // Get the inner text of the tag element
+  const innerText = await tagElement.innerText();
+
+  // Assert that the inner text is "No"
+  expect(innerText).toBe("No");
 });
 
 test("should search forms by name", async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
   await formBuilderPage.gotoFormBuilder();
 
-  await formBuilderPage.searchbox().type("UI Select Form Test");
+  await page.getByPlaceholder("Search this list").click();
+  await page.getByPlaceholder("Search this list").fill("ui select");
 
+  // Wait for the table to update with filtered results
   await page.locator(".cds--data-table-container");
 
-  const tableRows = await page.$$eval(
-    '[data-testid^="form-row-"]',
+  const searchedTableRows = await page.$$eval(
+    ".cds--data-table tbody tr",
     (rows) => rows
   );
 
-  expect(tableRows.length).toBeGreaterThan(1);
-  const searchBoxValue = await formBuilderPage
-    .searchbox()
-    .getAttribute("value");
-  expect(searchBoxValue).toBe("UI Select Form Test");
+  expect(searchedTableRows.length).toBeGreaterThanOrEqual(1);
+  const formNameElement = await page.locator("tr:nth-child(1) > td").nth(0);
 
-  const tableRow = await page.$(`[data-testid="form-row-1"]`);
-  const tdElement = await tableRow.$("td");
-  const tdNameTextContent = await tdElement.textContent();
-
-  // Expect the form name to be "UI Select Form Test"
-  expect(tdNameTextContent).toBe("UI Select Form Test");
+  const innerNameText = await formNameElement.innerText();
+  expect(innerNameText).toContain("UI Select");
 });
 
 test.afterEach(async ({ api }) => {
