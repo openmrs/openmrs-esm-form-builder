@@ -32,11 +32,8 @@ test("Filter forms based on publish status", async ({ page }) => {
   await test.step("And I click the Unplished option", async () =>
     await page.getByText("Unpublished").click());
 
-  // Locate the table
-  await page.$('[data-testid ="forms-table"]');
-
   // Expect the publish status to be "No"
-  const tagElement = await await page.$(`[data-testid="no-tag"]`);
+  const tagElement = await page.getByTestId(`[data-testid="no-tag"]`);
 
   // Get the inner text of the tag element
   const innerText = await tagElement.innerText();
@@ -57,9 +54,6 @@ test("Search forms by name", async ({ page }) => {
 
   await test.step("And I type 'form created'", async () =>
     await page.getByPlaceholder("Search this list").fill("form created"));
-
-  // Wait for the table to update with filtered results
-  await page.$('[data-testid ="forms-table"]');
 
   const formNameElement = await page.locator("tr:nth-child(1) > td").nth(0);
   const innerNameText = await formNameElement.innerText();
