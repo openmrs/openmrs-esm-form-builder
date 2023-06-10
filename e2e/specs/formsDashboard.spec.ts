@@ -33,10 +33,11 @@ test("Filter forms based on publish status", async ({ page }) => {
     await page.getByText("Unpublished").click());
 
   // Expect the publish status to be "No"
-  const tagElement = await page.getByTestId(`[data-testid="no-tag"]`);
+  const tagElements = await page.$$('div[data-testid="no-tag"]');
+  const firstTagElement = tagElements[0];
 
   // Get the inner text of the tag element
-  const innerText = await tagElement.innerText();
+  const innerText = await firstTagElement.innerText();
   await test.step("Then the form table should have only the unpublished forms", () => {
     expect(innerText).toBe("No");
   });
