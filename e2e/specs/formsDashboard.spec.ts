@@ -16,67 +16,55 @@ test.beforeEach(async ({ api }) => {
   await addFormResources(api, valueReference, form.uuid);
 });
 
-test("should filter forms based on publish status and the search value", async ({
-  page,
-}) => {
+test("Filter forms based on publish status", async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
   await test.step("When I Visit the form builder dashboard", async () => {
     await formBuilderPage.gotoFormBuilder();
   });
 
   // Test the filter functionality
-  await test.step("Then I click the publish filter dropdown and click Unpublished", async () => {
+  await test.step("Then I click the publish filter dropdown", async () => {
     await page
       .getByRole("button", { name: "Filter by publish status: All Open menu" })
       .click();
-    await page.getByText("Unpublished").click();
   });
 
-  // Locate the table
-  await test.step("When I locate the table", async () =>
-    await page.locator(".cds--data-table-container"));
+  await test.step("And I click the Unplished option", async () =>
+    await page.getByText("Unpublished").click());
 
-  // Assert that only published forms are displayed in the table
-  const filteredTableRows = await page.$$eval(
-    ".cds--data-table tbody tr",
-    (rows) => rows
-  );
+  // Locate the table
+  await page.$('[data-testid ="forms-table"]');
 
   // Expect the publish status to be "No"
   const tagElement = await await page.$(`[data-testid="no-tag"]`);
 
   // Get the inner text of the tag element
   const innerText = await tagElement.innerText();
-  await test.step("Then the table should have row greater or equal to 1 and the Publish tag should be No", () => {
-    expect(filteredTableRows.length).toBeGreaterThanOrEqual(1);
+  await test.step("Then the form table should have only the unpublished forms", () => {
     expect(innerText).toBe("No");
   });
 });
 
-test("should search forms by name", async ({ page }) => {
+test("Search forms by name", async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
   await test.step("When I Visit the form builder dashboard", async () => {
     await formBuilderPage.gotoFormBuilder();
   });
 
-  await test.step("Then I click the search button and type 'form created' in the search field", async () => {
+  await test.step("Then I click the search button", async () => {
     await page.getByPlaceholder("Search this list").click();
-    await page.getByPlaceholder("Search this list").fill("form created");
   });
 
-  // Wait for the table to update with filtered results
-  await page.locator(".cds--data-table-container");
+  await test.step("And I type 'form created'", async () =>
+    await page.getByPlaceholder("Search this list").fill("form created"));
 
-  const searchedTableRows = await page.$$eval(
-    ".cds--data-table tbody tr",
-    (rows) => rows
-  );
+  // Wait for the table to update with filtered results
+  await page.$('[data-testid ="forms-table"]');
 
   const formNameElement = await page.locator("tr:nth-child(1) > td").nth(0);
   const innerNameText = await formNameElement.innerText();
 
-  await test.step("When I locate the table, it should have atleast 1 row with the form name containing 'Form created'", () => {
-    expect(searchedTableRows.length).toBeGreaterThanOrEqual(1);
+  await test.step("Then the form table should show only the forms containing the name 'Form created'", () => {
     expect(innerNameText).toContain("Form created");
   });
 });

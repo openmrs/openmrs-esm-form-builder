@@ -386,7 +386,10 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
       >
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <>
-            <TableContainer className={styles.tableContainer}>
+            <TableContainer
+              className={styles.tableContainer}
+              data-testid="forms-table"
+            >
               <div className={styles.toolbarWrapper}>
                 <TableToolbar className={styles.tableToolbar}>
                   <TableToolbarContent>
@@ -421,7 +424,10 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
                 </TableHead>
                 <TableBody>
                   {rows.map((row, i) => (
-                    <TableRow {...getRowProps({ row })}>
+                    <TableRow
+                      {...getRowProps({ row })}
+                      data-testid={`form-row-${row.id}`}
+                    >
                       {row.cells.map((cell) => (
                         <TableCell key={cell.id}>{cell.value}</TableCell>
                       ))}
