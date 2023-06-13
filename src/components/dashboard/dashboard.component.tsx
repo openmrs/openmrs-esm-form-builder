@@ -76,14 +76,14 @@ function CustomTag({ condition }: { condition: boolean }) {
 
   if (condition) {
     return (
-      <Tag type="green" size="md" title="Clear Filter">
+      <Tag type="green" size="md" title="Clear Filter" data-testid="yes-tag">
         {t("yes", "Yes")}
       </Tag>
     );
   }
 
   return (
-    <Tag type="red" size="md" title="Clear Filter">
+    <Tag type="red" size="md" title="Clear Filter" data-testid="no-tag">
       {t("no", "No")}
     </Tag>
   );
@@ -386,7 +386,10 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
       >
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <>
-            <TableContainer className={styles.tableContainer}>
+            <TableContainer
+              className={styles.tableContainer}
+              data-testid="forms-table"
+            >
               <div className={styles.toolbarWrapper}>
                 <TableToolbar className={styles.tableToolbar}>
                   <TableToolbarContent>
@@ -420,8 +423,11 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {rows.map((row) => (
-                    <TableRow {...getRowProps({ row })}>
+                  {rows.map((row, i) => (
+                    <TableRow
+                      {...getRowProps({ row })}
+                      data-testid={`form-row-${row.id}`}
+                    >
                       {row.cells.map((cell) => (
                         <TableCell key={cell.id}>{cell.value}</TableCell>
                       ))}

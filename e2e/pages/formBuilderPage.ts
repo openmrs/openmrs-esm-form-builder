@@ -74,6 +74,8 @@ export class FormBuilderPage {
     this.page.getByText(/new question created/i);
   readonly saveQuestionButton = () =>
     this.page.getByRole("button", { name: /^save$/i, exact: true });
+  readonly publishFormButton = () =>
+    this.page.getByRole("button", { name: "Publish Form" });
 
   async gotoFormBuilder() {
     await this.page.goto("form-builder");
