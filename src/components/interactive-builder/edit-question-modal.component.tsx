@@ -489,6 +489,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               questionToEdit?.questionOptions?.answers &&
               questionToEdit?.questionOptions.answers?.length ? (
                 <MultiSelect
+                  className={styles.multiSelect}
                   direction="top"
                   id="selectAnswers"
                   itemToString={(item) => item.text}
@@ -534,6 +535,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 
               {hasConceptChanged && answersFromConcept.length ? (
                 <MultiSelect
+                  className={styles.multiSelect}
                   direction="top"
                   id="selectAnswers"
                   itemToString={(item) => item.text}
