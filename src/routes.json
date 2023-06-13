@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json.openmrs.org/routes.schema.json",
+  "backendDependencies": {
+    "fhir2": "^1.2.0",
+    "webservices.rest": "^2.2.0"
+  },
+  "pages": [
+    {
+      "component": "root",
+      "route": "form-builder",
+      "online": true,
+      "offline": true,
+      "order": 0
+    }
+  ],
+  "extensions": [
+    {
+      "name": "form-builder-app-menu-link",
+      "slot": "app-menu-slot",
+      "component": "formBuilderAppMenuLink",
+      "online": true,
+      "offline": true
+    },
+    {
+      "name": "system-administration-form-builder-card-link",
+      "slot": "system-admin-page-card-link-slot",
+      "component": "systemAdministrationFormBuilderCardLink",
+      "online": true,
+      "offline": true
+    }
+  ]
+}
