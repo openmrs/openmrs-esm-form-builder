@@ -54,16 +54,6 @@ function setupOpenMRS() {
     ],
     extensions: [
       {
-        id: "form-builder-app-menu-link",
-        slot: "app-menu-slot",
-        load: getAsyncLifecycle(
-          () => import("./form-builder-app-menu-link.component"),
-          options
-        ),
-        online: true,
-        offline: true,
-      },
-      {
         id: "system-administration-form-builder-card-link",
         slot: "system-admin-page-card-link-slot",
         load: getAsyncLifecycle(
