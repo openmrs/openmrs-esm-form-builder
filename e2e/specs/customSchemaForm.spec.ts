@@ -6,9 +6,7 @@ import customSchema from "../support/customSchema.json";
 
 let formUuid = null;
 
-test("Should be able to create a form using custom schema", async ({
-  page,
-}) => {
+test("Should be able to create a form using custom schema", async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
 
   await formBuilderPage.gotoFormBuilder();
