@@ -13,7 +13,7 @@ test("Create a form using a custom JSON schema", async ({ page }) => {
     await formBuilderPage.gotoFormBuilder();
   });
 
-  await test.step("And click the `Create New Form` button", async () => {
+  await test.step("And I click the `Create New Form` button", async () => {
     await formBuilderPage.createNewFormButton().click();
   });
 
@@ -27,7 +27,7 @@ test("Create a form using a custom JSON schema", async ({ page }) => {
     await formBuilderPage.saveForm();
   });
 
-  await test.step(" I should get a success message and be redirected to the edit page for the new form", async () => {
+  await test.step("And I should get a success message and be redirected to the edit page for the new form", async () => {
     // Checks whether the user has been redirected to the edit page
     const editFormPageURLRegex = new RegExp("/edit/");
     await expect(page.getByText("Form created")).toBeVisible();
