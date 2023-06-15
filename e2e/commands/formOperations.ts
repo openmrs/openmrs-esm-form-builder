@@ -1,18 +1,22 @@
-import { APIRequestContext } from "@playwright/test";
+import { APIRequestContext, expect } from "@playwright/test";
 import customSchema from "../support/customSchema.json";
 
-export const createForm = async (api: APIRequestContext) => {
+export const createForm = async (
+  api: APIRequestContext,
+  isFormPublished: boolean
+) => {
   const formResponse = await api.post("form", {
     data: {
-      name: "Form created for testing",
+      name: "A sample test form",
       version: "1.0",
-      published: false,
+      published: isFormPublished,
       description: "This is the form description",
       encounterType: {
         uuid: "e22e39fd-7db2-45e7-80f1-60fa0d5a4378",
       },
     },
   });
+  await expect(formResponse.ok()).toBeTruthy();
   const form = await formResponse.json();
 
   return form;
@@ -23,13 +27,14 @@ export const addFormResources = async (
   valueReference: string,
   formUuid: string
 ) => {
-  await api.post(`form/${formUuid}/resource`, {
+  const formResourcesRes = await api.post(`form/${formUuid}/resource`, {
     data: {
       name: "JSON schema",
       dataType: "AmpathJsonSchema",
       valueReference: valueReference,
     },
   });
+  await expect(formResourcesRes.ok()).toBeTruthy();
 };
 
 export const createValueReference = async (api: APIRequestContext) => {
@@ -51,10 +56,11 @@ export const createValueReference = async (api: APIRequestContext) => {
       "Content-Type": "multipart/form-data; boundary=" + boundary,
     },
   });
-
+  await expect(valueReference.ok()).toBeTruthy();
   return await valueReference.text();
 };
 
 export async function deleteForm(api: APIRequestContext, uuid: string) {
-  await api.delete(`form/${uuid}`, { data: {} });
+  const formDeleteRes = await api.delete(`form/${uuid}`, { data: {} });
+  await expect(formDeleteRes.ok()).toBeTruthy();
 }

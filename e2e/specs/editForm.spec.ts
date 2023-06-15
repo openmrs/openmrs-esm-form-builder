@@ -11,7 +11,7 @@ import { Form } from "../../src/types";
 
 let form: Form = null;
 test.beforeEach(async ({ api }) => {
-  form = await createForm(api);
+  form = await createForm(api, false);
   const valueReference = await createValueReference(api);
   await addFormResources(api, valueReference, form.uuid);
 });
