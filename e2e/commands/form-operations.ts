@@ -1,5 +1,5 @@
 import { APIRequestContext, expect } from "@playwright/test";
-import customSchema from "../support/customSchema.json";
+import customSchema from "../support/custom-schema.json";
 
 export const createForm = async (
   api: APIRequestContext,
