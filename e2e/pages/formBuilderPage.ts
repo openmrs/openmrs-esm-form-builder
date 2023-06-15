@@ -12,6 +12,14 @@ export class FormBuilderPage {
     this.page.getByRole("button", { name: "Input dummy schema" });
   readonly saveFormButton = () =>
     this.page.getByRole("button", { name: "Save Form" });
+  readonly publishFormButton = () =>
+    this.page.getByRole("button", { name: "Publish Form" });
+  readonly unpublishFormButton = () =>
+    this.page.getByRole("button", { name: "Unpublish Form" });
+  readonly unpublishFormConfirmationButton = () =>
+    this.page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Unpublish Form" });
   readonly updateExistingFormButton = () =>
     this.page.getByRole("button", { name: "Update existing version" });
   readonly formNameInput = () => this.page.getByLabel("Form name");
@@ -74,8 +82,6 @@ export class FormBuilderPage {
     this.page.getByText(/new question created/i);
   readonly saveQuestionButton = () =>
     this.page.getByRole("button", { name: /^save$/i, exact: true });
-  readonly publishFormButton = () =>
-    this.page.getByRole("button", { name: "Publish Form" });
 
   async gotoFormBuilder() {
     await this.page.goto("form-builder");
@@ -116,7 +122,7 @@ export class FormBuilderPage {
   }
 
   async saveForm() {
-    const formName = `test form ${Math.floor(Math.random() * 10000)}`;
+    const formName = `A sample test form ${Math.floor(Math.random() * 10000)}`;
 
     await this.saveFormButton().click();
     await this.formNameInput().click();

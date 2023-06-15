@@ -430,6 +430,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
               {answers && answers.length ? (
                 <MultiSelect
+                  className={styles.multiSelect}
                   direction="top"
                   id="selectAnswers"
                   itemToString={(item) => item.text}

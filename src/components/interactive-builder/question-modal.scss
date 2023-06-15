@@ -94,3 +94,13 @@
   }
 }
 
+.multiSelect {
+  :global(.cds--list-box__field--wrapper) {
+    align-items: center;
+    display: flex;
+    height: 2.5rem;
+    justify-content: space-between;
+    margin-left: 0.5rem;
+    width: 100%;
+  }
+}
