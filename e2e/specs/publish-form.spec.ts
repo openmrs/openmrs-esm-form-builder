@@ -5,9 +5,9 @@ import {
   createValueReference,
   addFormResources,
   deleteForm,
-} from "../commands/formOperations";
+} from "../commands/form-operations";
 import { FormBuilderPage } from "../pages";
-import { Form } from "../../src/types";
+import type { Form } from "../../src/types";
 
 let form: Form = null;
 test.beforeEach(async ({ api }) => {
@@ -19,7 +19,7 @@ test.beforeEach(async ({ api }) => {
 test("Publish a form", async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
 
-  await test.step("When I visit the form builder page", async () => {
+  await test.step("When I visit the form builder", async () => {
     await formBuilderPage.gotoFormBuilder();
   });
 
@@ -31,7 +31,7 @@ test("Publish a form", async ({ page }) => {
     await formBuilderPage.publishFormButton().click();
   });
 
-  await test.step("The I should see the form published notification and the unpublish form button", async () => {
+  await test.step("Then I should see the form published notification and the unpublish form button", async () => {
     await expect(page.getByText("Form published")).toBeVisible();
     await expect(formBuilderPage.unpublishFormButton()).toBeVisible();
   });
