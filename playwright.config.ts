@@ -14,12 +14,11 @@ const config: PlaywrightTestConfig = {
   retries: 0,
   reporter: process.env.CI
     ? [["junit", { outputFile: "results.xml" }], ["html"]]
-    : [["html"]],
+    : [["line"]],
   globalSetup: require.resolve("./e2e/core/global-setup"),
   use: {
     baseURL: `${process.env.E2E_BASE_URL}/spa/`,
     storageState: "e2e/storageState.json",
-    video: "retain-on-failure",
   },
   projects: [
     {

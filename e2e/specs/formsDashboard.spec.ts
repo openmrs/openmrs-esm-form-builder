@@ -25,7 +25,9 @@ test("Filter forms based on publish status", async ({ page }) => {
   // Test the filter functionality
   await test.step("Then I click the publish filter dropdown", async () => {
     await page
-      .getByRole("button", { name: "Filter by publish status: All Open menu" })
+      .getByRole("combobox", {
+        name: "Filter by publish status: All Open menu",
+      })
       .click();
   });
 
