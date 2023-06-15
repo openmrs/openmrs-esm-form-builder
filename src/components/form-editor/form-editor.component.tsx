@@ -138,7 +138,7 @@ const FormEditor: React.FC = () => {
   return (
     <>
       <div className={styles.breadcrumbsContainer}>
-        <ExtensionSlot extensionSlotName="breadcrumbs-slot" />
+        <ExtensionSlot name="breadcrumbs-slot" />
       </div>
       <div className={styles.container}>
         {showDraftSchemaModal && <DraftSchemaModal />}
