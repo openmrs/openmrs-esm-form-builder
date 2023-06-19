@@ -24,11 +24,6 @@ export const root = getAsyncLifecycle(
   options
 );
 
-export const formBuilderAppMenuLink = getAsyncLifecycle(
-  () => import("./form-builder-app-menu-link.component"),
-  options
-);
-
 export const systemAdministrationFormBuilderCardLink = getAsyncLifecycle(
   () => import("./form-builder-admin-card-link.component"),
   options
