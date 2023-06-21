@@ -1,5 +1,7 @@
 # OpenMRS ESM Form Builder App
 
+![OpenMRS CI](https://github.com/openmrs/openmrs-esm-form-builder/actions/workflows/node.js.yml/badge.svg)
+
 The Form Builder is a widget used to create OpenMRS form schemas. It enables users to both create new schemas and edit existing ones. It provides an embedded code editor that accepts JSON code. It also provides an interactive editor where users can construct a schema interactively without writing code.
 
 ## Form Builder User Guide
