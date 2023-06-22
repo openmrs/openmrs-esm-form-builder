@@ -134,4 +134,8 @@ export class FormBuilderPage {
     await this.formEncounterType().selectOption("Admission");
     await this.formSaveButton().click();
   }
+
+  async searchForm(formName: string) {
+    await this.page.getByRole('searchbox').fill(formName);
+  }
 }

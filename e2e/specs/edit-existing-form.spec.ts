@@ -23,7 +23,11 @@ test("Editing an existing form", async ({ page }) => {
     await formBuilderPage.gotoFormBuilder();
   });
 
-  await test.step("And I click the `Edit` button on an existing form", async () => {
+  await test.step("And I search for the form I need to edit", async () => {
+    await formBuilderPage.searchForm(form.name);
+  });
+
+  await test.step("And I click the `Edit` button on the form I need to edit", async () => {
     await page.getByTestId(`editSchema${form.uuid}`).click();
   });
 

@@ -23,6 +23,10 @@ test("Publish a form", async ({ page }) => {
     await formBuilderPage.gotoFormBuilder();
   });
 
+  await test.step("And I search for the form I need to publish", async () => {
+    await formBuilderPage.searchForm(form.name);
+  });
+
   await test.step("And I click on a form I need to publish", async () => {
     await page.getByTestId(`editSchema${form.uuid}`).click();
   });
