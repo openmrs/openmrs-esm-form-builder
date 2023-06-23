@@ -1,30 +1,40 @@
 import {
-  getAsyncLifecycle,
   defineConfigSchema,
+  getAsyncLifecycle,
   registerBreadcrumbs,
 } from "@openmrs/esm-framework";
 import { configSchema } from "./config-schema";
 
-const importTranslation = require.context(
+const moduleName = "@openmrs/esm-form-builder-app";
+
+const options = {
+  featureName: "form-builder",
+  moduleName,
+};
+
+export const importTranslation = require.context(
   "../translations",
-  false,
+  true,
   /.json$/,
   "lazy"
 );
 
-const backendDependencies = {
-  fhir2: "^1.2.0",
-  "webservices.rest": "^2.2.0",
-};
+export const root = getAsyncLifecycle(
+  () => import("./root.component"),
+  options
+);
 
-function setupOpenMRS() {
-  const moduleName = "@openmrs/esm-form-builder-app";
+export const formBuilderAppMenuLink = getAsyncLifecycle(
+  () => import("./form-builder-app-menu-link.component"),
+  options
+);
 
-  const options = {
-    featureName: "form-builder",
-    moduleName,
-  };
+export const systemAdministrationFormBuilderCardLink = getAsyncLifecycle(
+  () => import("./form-builder-admin-card-link.component"),
+  options
+);
 
+export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
 
   registerBreadcrumbs([
@@ -44,37 +54,4 @@ function setupOpenMRS() {
       parent: `${window.spaBase}/form-builder`,
     },
   ]);
-
-  return {
-    pages: [
-      {
-        load: getAsyncLifecycle(() => import("./root.component"), options),
-        route: "form-builder",
-      },
-    ],
-    extensions: [
-      {
-        id: "form-builder-app-menu-link",
-        slot: "app-menu-slot",
-        load: getAsyncLifecycle(
-          () => import("./form-builder-app-menu-link.component"),
-          options
-        ),
-        online: true,
-        offline: true,
-      },
-      {
-        id: "system-administration-form-builder-card-link",
-        slot: "system-admin-page-card-link-slot",
-        load: getAsyncLifecycle(
-          () => import("./form-builder-admin-card-link.component"),
-          options
-        ),
-        online: true,
-        offline: true,
-      },
-    ],
-  };
 }
-
-export { backendDependencies, importTranslation, setupOpenMRS };
