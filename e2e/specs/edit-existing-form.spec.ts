@@ -28,7 +28,7 @@ test("Editing an existing form", async ({ page }) => {
   });
 
   await test.step("And I click the `Edit` button on the form I need to edit", async () => {
-    await page.getByTestId(`editSchema${form.uuid}`).click();
+    await page.getByRole('row', { name: form.name }).getByRole('button').first().click();
   });
 
   await test.step("Then I click the `Save Form` button then the `Update existing version` button, and finally the `Save` button", async () => {
