@@ -23,8 +23,12 @@ test("Editing an existing form", async ({ page }) => {
     await formBuilderPage.gotoFormBuilder();
   });
 
-  await test.step("And I click the `Edit` button on an existing form", async () => {
-    await page.getByTestId(`editSchema${form.uuid}`).click();
+  await test.step("And I search for the form I need to edit", async () => {
+    await formBuilderPage.searchForm(form.name);
+  });
+
+  await test.step("And I click the `Edit` button on the form I need to edit", async () => {
+    await page.getByRole('row', { name: form.name }).getByLabel('Edit Schema').click();
   });
 
   await test.step("Then I click the `Save Form` button then the `Update existing version` button, and finally the `Save` button", async () => {
