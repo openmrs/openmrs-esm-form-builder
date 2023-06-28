@@ -502,7 +502,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                   items={questionToEdit?.questionOptions?.answers?.map(
                     (answer) => ({
                       id: answer.concept,
-                      text: answer.label,
+                      text: answer.label ?? "",
                     })
                   )}
                   onChange={({ selectedItems }) => {
