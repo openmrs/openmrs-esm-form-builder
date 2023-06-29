@@ -7,7 +7,7 @@ export const createForm = async (
 ) => {
   const formResponse = await api.post("form", {
     data: {
-      name: "A sample test form",
+      name: `A sample test form ${Math.floor(Math.random() * 10000)}`,
       version: "1.0",
       published: isFormPublished,
       description: "This is the form description",

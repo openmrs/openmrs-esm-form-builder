@@ -9,7 +9,6 @@ const FormBuilderCardLink: React.FC = () => {
   return (
     <Layer>
       <ClickableTile
-        id={`clickable-tile-${header}`}
         href={`${window.spaBase}/form-builder`}
         target="_blank"
         rel="noopener noreferrer"

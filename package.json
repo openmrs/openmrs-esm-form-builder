@@ -14,7 +14,7 @@
     "lint": "TIMING=1 eslint src --ext js,jsx,ts,tsx",
     "prettier": "prettier --write \"src/**/*.{ts,tsx}\"",
     "typescript": "tsc",
-    "test": "jest --config jest.config.json",
+    "test": "jest --config jest.config.js",
     "test-e2e": "playwright test",
     "verify": "turbo lint typescript coverage",
     "coverage": "yarn test --coverage --passWithNoTests",
