@@ -15,13 +15,6 @@
   ],
   "extensions": [
     {
-      "name": "form-builder-app-menu-link",
-      "slot": "app-menu-slot",
-      "component": "formBuilderAppMenuLink",
-      "online": true,
-      "offline": true
-    },
-    {
       "name": "system-administration-form-builder-card-link",
       "slot": "system-admin-page-card-link-slot",
       "component": "systemAdministrationFormBuilderCardLink",
