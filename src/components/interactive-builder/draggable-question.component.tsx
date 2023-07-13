@@ -1,0 +1,106 @@
+import React from "react";
+import { useDraggable } from "@dnd-kit/core";
+import { useTranslation } from "react-i18next";
+import { Button } from "@carbon/react";
+import { Edit, Replicate, TrashCan } from "@carbon/react/icons";
+import { Question } from "../../types";
+import { CSS } from "@dnd-kit/utilities";
+import styles from "./interactive-builder.scss";
+import draggableStyles from "./draggable-question.scss";
+
+type DraggableQuestionProps = {
+  allQuestions: Array<Question>;
+  question: Question;
+  pageIndex: number;
+  sectionIndex: number;
+  questionIndex: number;
+  duplicateQuestion: (
+    question: Question,
+    pageId: number,
+    sectionId: number
+  ) => void;
+  handleEditButtonClick: (question: Question) => void;
+  handleDeleteButtonClick: (question: Question) => void;
+};
+
+export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
+  question,
+  pageIndex,
+  sectionIndex,
+  questionIndex,
+  duplicateQuestion,
+  handleDeleteButtonClick,
+  handleEditButtonClick,
+  allQuestions,
+}) => {
+  const { t } = useTranslation();
+  const { attributes, listeners, setNodeRef, transform, isDragging } =
+    useDraggable({
+      id: `question-${pageIndex}-${sectionIndex}-${questionIndex}`,
+      disabled: allQuestions.length <= 1,
+    });
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    cursor: isDragging ? "grabbing" : "grab",
+  };
+
+  return (
+    <div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        <div
+          className={styles.editorContainer}
+          ref={setNodeRef}
+          style={style}
+          {...attributes}
+          {...listeners}
+          draggable={!isDragging}
+        >
+          <p className={styles.questionLabel}>{question.label}</p>
+        </div>
+        <div className={draggableStyles.buttonsContainer}>
+          <Button
+            kind="ghost"
+            size="sm"
+            enterDelayMs={200}
+            iconDescription={t("duplicateQuestion", "Duplicate question")}
+            onClick={() => {
+              if (!isDragging) {
+                duplicateQuestion(question, pageIndex, sectionIndex);
+              }
+            }}
+            renderIcon={(props) => <Replicate size={16} {...props} />}
+            hasIconOnly
+          />
+          <Button
+            kind="ghost"
+            size="sm"
+            enterDelayMs={200}
+            iconDescription={t("editQuestion", "Edit question")}
+            onClick={() => {
+              if (!isDragging) {
+                handleEditButtonClick(question);
+              }
+            }}
+            renderIcon={(props) => <Edit size={16} {...props} />}
+            hasIconOnly
+          />
+          <Button
+            hasIconOnly
+            enterDelayMs={200}
+            iconDescription={t("deleteQuestion", "Delete question")}
+            kind="ghost"
+            onClick={handleDeleteButtonClick}
+            renderIcon={(props) => <TrashCan size={16} {...props} />}
+            size="sm"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
