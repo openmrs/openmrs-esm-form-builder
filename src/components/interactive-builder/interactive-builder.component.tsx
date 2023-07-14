@@ -25,6 +25,7 @@ import NewFormModal from "./new-form-modal.component";
 import PageModal from "./page-modal.component";
 import SectionModal from "./section-modal.component";
 import { DraggableQuestion } from "./draggable-question.component";
+import { Droppable } from "./droppable-container.component";
 
 import styles from "./interactive-builder.scss";
 
@@ -278,6 +279,20 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     setQuestionIndex(questionIndex);
     setShowDeleteQuestionModal(true);
   };
+
+  const draggable = (question: Question, section, questionIndex) => (
+    <DraggableQuestion
+      key={question.id}
+      question={question}
+      pageIndex={pageIndex}
+      sectionIndex={sectionIndex}
+      questionIndex={questionIndex}
+      duplicateQuestion={duplicateQuestion}
+      handleEditButtonClick={handleEditButtonClick}
+      handleDeleteButtonClick={handleDeleteButtonClick}
+      allQuestions={section.questions}
+    />
+  );
   return (
     <div className={styles.container}>
       {isLoading ? (
@@ -520,21 +535,17 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                               {section.questions?.length ? (
                                 section.questions.map(
                                   (question, questionIndex) => (
-                                    <DraggableQuestion
-                                      key={question.id}
-                                      question={question}
-                                      pageIndex={pageIndex}
-                                      sectionIndex={sectionIndex}
-                                      questionIndex={questionIndex}
-                                      duplicateQuestion={duplicateQuestion}
-                                      handleEditButtonClick={
-                                        handleEditButtonClick
-                                      }
-                                      handleDeleteButtonClick={
-                                        handleDeleteButtonClick
-                                      }
-                                      allQuestions={section.questions}
-                                    />
+                                    <>
+                                      <Droppable
+                                        id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
+                                      >
+                                        {draggable(
+                                          question,
+                                          section,
+                                          questionIndex
+                                        )}
+                                      </Droppable>
+                                    </>
                                   )
                                 )
                               ) : (
@@ -545,6 +556,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                   )}
                                 </p>
                               )}
+
                               <Button
                                 className={styles.addQuestionButton}
                                 kind="primary"

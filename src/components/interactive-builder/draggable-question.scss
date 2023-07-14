@@ -1,7 +1,34 @@
 @use '@carbon/styles/scss/type';
+@use '@carbon/styles/scss/spacing';
 @import '~@openmrs/esm-styleguide/src/vars';
 
 .buttonsContainer {
   display: flex;
   align-items: center;
+}
+
+.questionContainer {
+  display: flex;
+  align-items: center;
+}
+
+.isDragged, .normal {
+  display: flex;
+  height: 3rem;
+  justify-content: space-between;
+  align-items: center;
+  margin: spacing.$spacing-02 spacing.$spacing-03;
+  width: 100%;
+}
+
+.normal:hover {
+  background-color: $ui-03;
+}
+.isDragged {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.552);
+}
+
+.draggableIcon {
+  margin: spacing.$spacing-05 0;
 }
