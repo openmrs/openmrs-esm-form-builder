@@ -3,7 +3,11 @@ import { useTranslation } from "react-i18next";
 import { Accordion, AccordionItem, Button, InlineLoading } from "@carbon/react";
 import { Add, Edit, Replicate, TrashCan } from "@carbon/react/icons";
 import { useParams } from "react-router-dom";
-import { showToast, showNotification } from "@openmrs/esm-framework";
+import {
+  showToast,
+  showNotification,
+  openmrsFetch,
+} from "@openmrs/esm-framework";
 import { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
 
 import type { RouteParams, Schema } from "../../types";
@@ -45,6 +49,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const [showDeletePageModal, setShowDeletePageModal] = useState(false);
   const [showDeleteSectionModal, setShowDeleteSectionModal] = useState(false);
   const [showDeleteQuestionModal, setShowDeleteQuestionModal] = useState(false);
+  const [responses, setResponses] = useState([]);
 
   const initializeSchema = useCallback(() => {
     const dummySchema: OHRIFormSchema = {
@@ -204,6 +209,80 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     [onSchemaChange, schema, t]
   );
 
+  const handleFormValidation = () => {
+    if (schema) {
+      const parsedForm =
+        typeof schema == "string" ? JSON.parse(schema) : schema;
+
+      for (let i = 0; i < parsedForm.pages.length; i++) {
+        for (let j = 0; j < parsedForm.pages[i].sections.length; j++) {
+          for (let k = 0; k < parsedForm.pages[i].sections[j].questions.length; k++) {
+            const questionObject = parsedForm.pages[i].sections[j].questions[k];
+            handleQuestionValidation(questionObject);
+            // console.log(questionObject)
+          }
+        }
+      }
+    } else {
+      console.log("Empty form!");
+    }
+  };
+
+  const handleQuestionValidation = (conceptObject) => {
+    conceptObject.questionOptions.concept
+      ? openmrsFetch(
+          `/ws/rest/v1/concept/${conceptObject.questionOptions.concept}`
+        )
+          .then((response) => {
+            conceptObject.questionOptions.concept === response.data.uuid
+              ? dataTypeChecker(conceptObject, response)
+              : resolver(
+                  conceptObject,
+                  "response UUID doesn't match concept UUID"
+                );
+          })
+          .catch((error) => {
+            resolver(conceptObject, "Concept not found in the backend");
+          })
+      : resolver(conceptObject, "No UUID");
+  };
+
+  const dataTypeChecker = (conceptObject, responseObject) => {
+    const renderTypes = {
+      Numeric: ["number", "fixed-value"],
+      Coded: [ "select", "checkbox", "radio", "toggle", "content-switcher", "fixed-value" ],
+      Text: ["text", "textarea", "fixed-value"],
+      Date: ["date", "fixed-value"],
+      Datetime: ["datetime", "fixed-value"],
+      Boolean: ["toggle", "select", "radio", "content-switcher", "fixed-value"],
+      Rule: ["repeating", "group"],
+    };
+
+    renderTypes.hasOwnProperty(responseObject.data.datatype.display) &&
+      renderTypes[responseObject.data.datatype.display].includes(
+        conceptObject.questionOptions.rendering
+      ) &&
+      resolver(conceptObject, "✅ datatype matches field control type");
+
+    renderTypes.hasOwnProperty(responseObject.data.datatype.display) &&
+      !renderTypes[responseObject.data.datatype.display].includes(
+        conceptObject.questionOptions.rendering
+      ) &&
+      resolver(conceptObject, "❌ datatype doesn't match field control");
+
+    // console.log(conceptObject)
+    console.log(responseObject.data)
+    
+  };
+
+  const resolver = (questionObject, message) => {
+    setResponses((prevState) => [
+      ...prevState,
+      { ...questionObject, resolution: message },
+    ]);
+    // console.log(responses);
+  };
+ 
   return (
     <div className={styles.container}>
       {isLoading ? (
@@ -211,8 +290,15 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           description={t("loadingSchema", "Loading schema") + "..."}
         />
       ) : null}
+      <div>
+        <ActionButtons schema={schema} t={t} />
 
-      <ActionButtons schema={schema} t={t} />
+        <Button
+          onClick={handleFormValidation}
+        >Validate Form
+        </Button>
+
+      </div>
 
       {showNewFormModal ? (
         <NewFormModal
@@ -455,6 +541,15 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                     <div className={styles.editorContainer}>
                                       <p className={styles.questionLabel}>
                                         {question.label}
+                                        <br />
+                                        <p className={
+                                          responses.find((item) => item.id === question.id)?.resolution.includes("✅")?
+                                          styles.approval : styles.validationError
+                                        }>
+                                          {
+                                          responses.find((item) => item.id === question.id)?.resolution
+                                          }
+                                          </p>
                                       </p>
                                       <div className={styles.buttonContainer}>
                                         <Button
