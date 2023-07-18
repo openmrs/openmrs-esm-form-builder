@@ -262,13 +262,13 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       renderTypes[responseObject.data.datatype.display].includes(
         conceptObject.questionOptions.rendering
       ) &&
-      resolver(conceptObject, "✅ datatype matches field control type");
+      resolver(conceptObject, `✅ datatype "${responseObject.data.datatype.display}" matches control type "${conceptObject.questionOptions.rendering}"`);
 
     renderTypes.hasOwnProperty(responseObject.data.datatype.display) &&
       !renderTypes[responseObject.data.datatype.display].includes(
         conceptObject.questionOptions.rendering
       ) &&
-      resolver(conceptObject, "❌ datatype doesn't match field control");
+      resolver(conceptObject, `❌ datatype "${responseObject.data.datatype.display}" doesn't match control type "${conceptObject.questionOptions.rendering}"`);
 
     // console.log(conceptObject)
     console.log(responseObject.data)
