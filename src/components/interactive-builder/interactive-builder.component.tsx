@@ -210,6 +210,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   );
 
   const handleFormValidation = () => {
+    setResponses([])
+    
     if (schema) {
       const parsedForm =
         typeof schema == "string" ? JSON.parse(schema) : schema;
