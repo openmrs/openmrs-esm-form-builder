@@ -35,7 +35,7 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           server-token: ${{ secrets.TURBO_SERVER_TOKEN }}
   
-      - run: yarn turbo verify
+      - run: yarn verify
       - run: yarn turbo build --color
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
