@@ -1,6 +1,6 @@
 const config = (module.exports = require("openmrs/default-webpack-config"));
 config.scriptRuleConfig.exclude = /(node_modules(?![/\\]@(?:openmrs|ohri)))/;
-config.override.resolve = {
+config.overrides.resolve = {
   extensions: [".tsx", ".ts", ".jsx", ".js", ".scss", ".json"],
   alias: {
     "@openmrs/esm-framework": "@openmrs/esm-framework/src/internal",
