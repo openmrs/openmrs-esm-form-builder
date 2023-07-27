@@ -4,9 +4,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { useTranslation } from "react-i18next";
 import { Button } from "@carbon/react";
 import { Edit, Replicate, TrashCan, Draggable } from "@carbon/react/icons";
-
-import { Question } from "../../types";
-
+import type { Question } from "../../types";
 import styles from "./draggable-question.scss";
 
 type DraggableQuestionProps = {
@@ -42,13 +40,12 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
       id: draggableId,
       disabled: allQuestions.length <= 1,
     });
-
   const style = {
     transform: CSS.Translate.toString(transform),
     cursor: isDragging ? "grabbing" : "grab",
   };
-
   const dragStyles = isDragging ? styles.isDragged : styles.normal;
+
   return (
     <div className={dragStyles} style={style}>
       <div
