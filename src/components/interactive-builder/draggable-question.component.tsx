@@ -42,22 +42,23 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
     });
   const style = {
     transform: CSS.Translate.toString(transform),
-    cursor: isDragging ? "grabbing" : "grab",
   };
+
   const dragStyles = isDragging ? styles.isDragged : styles.normal;
 
   return (
     <div className={dragStyles} style={style}>
-      <div
-        className={styles.questionContainer}
-        ref={setNodeRef}
-        {...attributes}
-        {...listeners}
-      >
-        <Draggable className={styles.draggableIcon} />
+      <div className={styles.iconAndName}>
+        <div
+          className={styles.dragIconContainer}
+          ref={setNodeRef}
+          {...attributes}
+          {...listeners}
+        >
+          <Draggable className={styles.dragIcon} size={16} />
+        </div>
         <p className={styles.questionLabel}>{question.label}</p>
       </div>
-
       <div className={styles.buttonsContainer}>
         <Button
           kind="ghost"

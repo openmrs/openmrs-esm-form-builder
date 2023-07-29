@@ -7,7 +7,7 @@
   align-items: center;
 }
 
-.questionContainer {
+.iconAndName {
   display: flex;
   align-items: center;
 }
@@ -30,6 +30,22 @@
   background-color: rgba(255, 255, 255, 0.552);
 }
 
-.draggableIcon {
+.dragIconContainer {
+  cursor: pointer;
+  margin-right: spacing.$spacing-03;
+
+
+
+  :hover {
+    background-color: $ui-02;
+  }
+}
+.dragIcon {
   margin: 0 spacing.$spacing-03;
+  padding: 0.25rem;
+  color: $ui-04;
+  margin-top: 0.2rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.25rem;
 }

@@ -12,7 +12,7 @@ export function Droppable({ id, children }: DroppableProps) {
   });
 
   const style = {
-    border: `1px solid ${isOver ? "#3ddbd9" : "transparent"}`,
+    border: `1px solid ${isOver ? "#005d5d" : "transparent"}`,
   };
 
   return (
