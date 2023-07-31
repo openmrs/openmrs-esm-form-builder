@@ -254,7 +254,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           .then((response) => {
             if (response.data.results.length > 0) {
               const [ resObject ] = response.data.results;
-              console.log(resObject);
 
               dataTypeChecker(conceptObject, resObject)
             } else {
@@ -265,14 +264,12 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
             }
           })
           .catch((error) => {
-            console.log(error);
+            console.log(error.message);
           })
       : resolver(conceptObject, "No UUID");
   };
 
   const dataTypeChecker = (conceptObject, responseObject) => {
-    console.log("concept object: ",conceptObject)
-    console.log("response object: ",responseObject)
 
     const renderTypes = {
       Numeric: ["number", "fixed-value"],
@@ -323,7 +320,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     ]);
   };
 
-  console.log(responses);
   return (
     <div className={styles.container}>
       {isLoading ? (
