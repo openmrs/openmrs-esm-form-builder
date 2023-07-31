@@ -37,11 +37,7 @@ type Status = "idle" | "formLoaded" | "schemaLoaded";
 const Error = ({ error, title }: ErrorProps) => {
   return (
     <InlineNotification
-      style={{
-        minWidth: "100%",
-        margin: "0rem",
-        padding: "0rem",
-      }}
+      className={styles.errorNotification}
       kind={"error"}
       lowContrast
       subtitle={error?.message}

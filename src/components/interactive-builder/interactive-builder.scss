@@ -11,6 +11,11 @@
   }
 }
 
+.flexContainer {
+  display: flex;
+  align-items: center;
+}
+
 .helperText {
   @include type.type-style('body-compact-01');
   margin: 1rem 0rem;
