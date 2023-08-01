@@ -227,7 +227,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
             if (questionObject.type === "obsGroup") {
               questionObject.questions.forEach((question) => {
-                // console.log(question)
                 handleQuestionValidation(question);
               });
             }
