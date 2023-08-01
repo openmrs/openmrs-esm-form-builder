@@ -123,6 +123,7 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema }) => {
           version: version,
           description: description,
           encounterType: encounterType,
+          uuid: newForm.uuid,
         };
 
         const newValueReference = await uploadSchema(updatedSchema);

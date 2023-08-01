@@ -1,17 +1,9 @@
-const path = require("path");
 const config = (module.exports = require("openmrs/default-webpack-config"));
-config.scriptRuleConfig.exclude =
-  path.sep == "/"
-    ? /(node_modules[^\/@openmrs\/esm\-patient\-common\-lib])/
-    : /(node_modules[^\\@openmrs\/esm\-patient\-common\-lib])/;
+config.scriptRuleConfig.exclude = /(node_modules(?![/\\]@(?:openmrs|ohri)))/;
 config.overrides.resolve = {
-  extensions: [".tsx", ".ts", ".jsx", ".js", ".scss"],
+  extensions: [".tsx", ".ts", ".jsx", ".js", ".scss", ".json"],
   alias: {
     "@openmrs/esm-framework": "@openmrs/esm-framework/src/internal",
-    "openmrs-esm-ohri-commons-lib": path.resolve(
-      __dirname,
-      "../esm-commons-lib/src/index"
-    ),
     "@openmrs/openmrs-form-engine-lib":
       "@openmrs/openmrs-form-engine-lib/src/index",
   },

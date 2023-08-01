@@ -498,7 +498,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       {schema?.pages?.length
         ? schema.pages.map((page, pageIndex) => (
             <div className={styles.editableFieldsContainer}>
-              <div style={{ display: "flex", alignItems: "center" }}>
+              <div className={styles.flexContainer}>
                 <div className={styles.editorContainer}>
                   <EditableValue
                     elementType="page"
@@ -534,9 +534,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                     <Accordion>
                       <AccordionItem title={section.label}>
                         <>
-                          <div
-                            style={{ display: "flex", alignItems: "center" }}
-                          >
+                          <div className={styles.flexContainer}>
                             <div className={styles.editorContainer}>
                               <EditableValue
                                 elementType="section"
