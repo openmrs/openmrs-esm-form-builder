@@ -224,6 +224,13 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
             k++
           ) {
             const questionObject = parsedForm.pages[i].sections[j].questions[k];
+
+            if (questionObject.type === "obsGroup") {
+              questionObject.questions.forEach((question) => {
+                // console.log(question)
+                handleQuestionValidation(question);
+              });
+            }
             handleQuestionValidation(questionObject);
           }
         }
@@ -253,9 +260,9 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         )
           .then((response) => {
             if (response.data.results.length > 0) {
-              const [ resObject ] = response.data.results;
+              const [resObject] = response.data.results;
 
-              dataTypeChecker(conceptObject, resObject)
+              dataTypeChecker(conceptObject, resObject);
             } else {
               resolver(
                 conceptObject,
@@ -270,7 +277,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   };
 
   const dataTypeChecker = (conceptObject, responseObject) => {
-
     const renderTypes = {
       Numeric: ["number", "fixed-value"],
       Coded: [
@@ -565,98 +571,146 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                             {section.questions?.length ? (
                               section.questions.map(
                                 (question, questionIndex) => (
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                    }}
-                                  >
-                                    <div className={styles.editorContainer}>
-                                      <p className={styles.questionLabel}>
-                                        {question.label}
-                                        <br />
-                                        <p
-                                          className={
-                                            responses
-                                              .find(
+                                  <>
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <div className={styles.editorContainer}>
+                                        <p className={styles.questionLabel}>
+                                          {question.label}
+                                          <br />
+                                          <p
+                                            className={
+                                              responses
+                                                .find(
+                                                  (item) =>
+                                                    item.id === question.id
+                                                )
+                                                ?.resolution.includes("✅")
+                                                ? styles.approval
+                                                : styles.validationError
+                                            }
+                                          >
+                                            {
+                                              responses.find(
                                                 (item) =>
                                                   item.id === question.id
-                                              )
-                                              ?.resolution.includes("✅")
-                                              ? styles.approval
-                                              : styles.validationError
-                                          }
-                                        >
-                                          {
-                                            responses.find(
-                                              (item) => item.id === question.id
-                                            )?.resolution
-                                          }
+                                              )?.resolution
+                                            }
+                                          </p>
                                         </p>
-                                      </p>
-                                      <div className={styles.buttonContainer}>
-                                        <Button
-                                          kind="ghost"
-                                          size="sm"
-                                          enterDelayMs={200}
-                                          iconDescription={t(
-                                            "duplicateQuestion",
-                                            "Duplicate question"
-                                          )}
-                                          onClick={() =>
-                                            duplicateQuestion(
-                                              question,
-                                              pageIndex,
-                                              sectionIndex
-                                            )
-                                          }
-                                          renderIcon={(props) => (
-                                            <Replicate size={16} {...props} />
-                                          )}
-                                          hasIconOnly
-                                        />
-                                        <Button
-                                          kind="ghost"
-                                          size="sm"
-                                          enterDelayMs={200}
-                                          iconDescription={t(
-                                            "editQuestion",
-                                            "Edit question"
-                                          )}
-                                          onClick={() => {
-                                            editQuestion();
-                                            setPageIndex(pageIndex);
-                                            setSectionIndex(sectionIndex);
-                                            setQuestionIndex(questionIndex);
-                                            setQuestionToEdit(question);
-                                          }}
-                                          renderIcon={(props) => (
-                                            <Edit size={16} {...props} />
-                                          )}
-                                          hasIconOnly
-                                        />
+                                        <div className={styles.buttonContainer}>
+                                          <Button
+                                            kind="ghost"
+                                            size="sm"
+                                            enterDelayMs={200}
+                                            iconDescription={t(
+                                              "duplicateQuestion",
+                                              "Duplicate question"
+                                            )}
+                                            onClick={() =>
+                                              duplicateQuestion(
+                                                question,
+                                                pageIndex,
+                                                sectionIndex
+                                              )
+                                            }
+                                            renderIcon={(props) => (
+                                              <Replicate size={16} {...props} />
+                                            )}
+                                            hasIconOnly
+                                          />
+                                          <Button
+                                            kind="ghost"
+                                            size="sm"
+                                            enterDelayMs={200}
+                                            iconDescription={t(
+                                              "editQuestion",
+                                              "Edit question"
+                                            )}
+                                            onClick={() => {
+                                              editQuestion();
+                                              setPageIndex(pageIndex);
+                                              setSectionIndex(sectionIndex);
+                                              setQuestionIndex(questionIndex);
+                                              setQuestionToEdit(question);
+                                            }}
+                                            renderIcon={(props) => (
+                                              <Edit size={16} {...props} />
+                                            )}
+                                            hasIconOnly
+                                          />
+                                        </div>
                                       </div>
+                                      <Button
+                                        hasIconOnly
+                                        enterDelayMs={200}
+                                        iconDescription={t(
+                                          "deleteQuestion",
+                                          "Delete question"
+                                        )}
+                                        kind="ghost"
+                                        onClick={() => {
+                                          setPageIndex(pageIndex);
+                                          setSectionIndex(sectionIndex);
+                                          setQuestionIndex(questionIndex);
+                                          setShowDeleteQuestionModal(true);
+                                        }}
+                                        renderIcon={(props) => (
+                                          <TrashCan size={16} {...props} />
+                                        )}
+                                        size="sm"
+                                      />
                                     </div>
-                                    <Button
-                                      hasIconOnly
-                                      enterDelayMs={200}
-                                      iconDescription={t(
-                                        "deleteQuestion",
-                                        "Delete question"
+                                    {question.type === "obsGroup" &&
+                                      question.questions?.map(
+                                        (obsQuestion, questionIndex) => (
+                                          <div
+                                            style={{
+                                              display: "flex",
+                                              alignItems: "center",
+                                            }}
+                                          >
+                                            <div
+                                              className={styles.editorContainer}
+                                            >
+                                              <p
+                                                className={styles.obsGroup}
+                                              >
+                                                {obsQuestion.label}
+                                                <br />
+                                                <p
+                                                  className={
+                                                    responses
+                                                      .find(
+                                                        (item) =>
+                                                          item.id ===
+                                                          obsQuestion.id
+                                                      )
+                                                      ?.resolution.includes(
+                                                        "✅"
+                                                      )
+                                                      ? styles.approval
+                                                      : styles.validationError
+                                                  }
+                                                >
+                                                  {
+                                                    responses.find(
+                                                      (item) =>
+                                                        item.id ===
+                                                        obsQuestion.id
+                                                    )?.resolution
+                                                  }
+                                                </p>
+                                              </p>
+                                            </div>
+                                          </div>
+                                        )
                                       )}
-                                      kind="ghost"
-                                      onClick={() => {
-                                        setPageIndex(pageIndex);
-                                        setSectionIndex(sectionIndex);
-                                        setQuestionIndex(questionIndex);
-                                        setShowDeleteQuestionModal(true);
-                                      }}
-                                      renderIcon={(props) => (
-                                        <TrashCan size={16} {...props} />
-                                      )}
-                                      size="sm"
-                                    />
-                                  </div>
+                                  </>
                                 )
                               )
                             ) : (

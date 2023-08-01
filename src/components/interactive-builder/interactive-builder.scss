@@ -105,6 +105,12 @@
 }
 
 .approval{
+  @include type.type-style('body-01');
   color: rgb(0, 152, 0) !important;
   font-size: 12px !important;
+}
+
+.obsGroup{
+  color: rgb(67, 67, 67) !important;
+  font-size: 13px !important;
 }

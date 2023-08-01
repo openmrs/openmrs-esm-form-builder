@@ -59,6 +59,22 @@ export interface Schema {
           min?: string;
           conceptMappings?: Array<Record<string, string>>;
         };
+        questions?: Array<{
+          id: string;
+          label: string;
+          type: string;
+          required?: boolean;
+          questionOptions: {
+          type?: string;
+          concept?: string;
+          answers?: Array<Record<string, string>>;
+          rendering: RenderType;
+          max?: string;
+          min?: string;
+          conceptMappings?: Array<Record<string, string>>;
+        };
+        }>;
+
         validators?: Array<Record<string, string>>;
       }>;
     }>;
