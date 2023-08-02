@@ -12,11 +12,6 @@
   }
 }
 
-.editorContainer {
-  height: 100vh;
-  width: 100%;
-}
-
 .errorContainer {
   @include type.type-style("body-compact-02");
   background-color: colors.$red-20;
