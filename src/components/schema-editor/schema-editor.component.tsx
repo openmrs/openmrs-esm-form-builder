@@ -167,7 +167,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
       ) : null}
 
       <AceEditor
-        className={styles.editorContainer}
+        style={{ height: "100vh", width: "100%" }}
         mode="json"
         theme="textmate"
         name="schemaEditor"
