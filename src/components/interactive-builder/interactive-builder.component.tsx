@@ -1,12 +1,19 @@
 import React, { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Accordion, AccordionItem, Button, InlineLoading } from "@carbon/react";
-import { Add, Edit, Replicate, TrashCan } from "@carbon/react/icons";
+import { Add, TrashCan } from "@carbon/react/icons";
 import { useParams } from "react-router-dom";
 import { showToast, showNotification } from "@openmrs/esm-framework";
 import { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
+import {
+  DndContext,
+  KeyboardSensor,
+  MouseSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 
-import type { RouteParams, Schema } from "../../types";
+import type { Question, RouteParams, Schema } from "../../types";
 import ActionButtons from "../action-buttons/action-buttons.component";
 import AddQuestionModal from "./add-question-modal.component";
 import DeleteSectionModal from "./delete-section-modal.component";
@@ -17,6 +24,9 @@ import EditableValue from "./editable-value.component";
 import NewFormModal from "./new-form-modal.component";
 import PageModal from "./page-modal.component";
 import SectionModal from "./section-modal.component";
+import { DraggableQuestion } from "./draggable-question.component";
+import { Droppable } from "./droppable-container.component";
+
 import styles from "./interactive-builder.scss";
 
 type InteractiveBuilderProps = {
@@ -30,6 +40,14 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   onSchemaChange,
   schema,
 }) => {
+  const mouseSensor = useSensor(MouseSensor, {
+    activationConstraint: {
+      distance: 10, // Enable sort function when dragging 10px   💡 here!!!
+    },
+  });
+  const keyboardSensor = useSensor(KeyboardSensor);
+  const sensors = useSensors(mouseSensor, keyboardSensor);
+
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
   const isEditingExistingForm = !!formUuid;
@@ -204,6 +222,77 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     [onSchemaChange, schema, t]
   );
 
+  const handleDragEnd = (event) => {
+    const { active, delta } = event;
+
+    if (active) {
+      // Get the source information
+      const activeIdParts = active.id.split("-");
+      const sourcePageIndex = parseInt(activeIdParts[1]);
+      const sourceSectionIndex = parseInt(activeIdParts[2]);
+      const sourceQuestionIndex = parseInt(activeIdParts[3]);
+
+      // Move the question within the same section
+      const questions =
+        schema.pages[sourcePageIndex].sections[sourceSectionIndex].questions;
+      const questionToMove = questions[sourceQuestionIndex];
+      questions.splice(sourceQuestionIndex, 1);
+      questions.splice(sourceQuestionIndex + delta.y, 0, questionToMove);
+
+      const updatedSchema = {
+        ...schema,
+        pages: schema.pages.map((page, pageIndex) => {
+          if (pageIndex === sourcePageIndex) {
+            return {
+              ...page,
+              sections: page.sections.map((section, sectionIndex) => {
+                if (sectionIndex === sourceSectionIndex) {
+                  return {
+                    ...section,
+                    questions: [...questions],
+                  };
+                }
+                return section;
+              }),
+            };
+          }
+          return page;
+        }),
+      };
+
+      // Update your state or data structure with the updated schema
+      onSchemaChange(updatedSchema);
+    }
+  };
+
+  const handleEditButtonClick = (question: Question) => {
+    editQuestion();
+    setPageIndex(pageIndex);
+    setSectionIndex(sectionIndex);
+    setQuestionIndex(questionIndex);
+    setQuestionToEdit(question);
+  };
+
+  const handleDeleteButtonClick = () => {
+    setPageIndex(pageIndex);
+    setSectionIndex(sectionIndex);
+    setQuestionIndex(questionIndex);
+    setShowDeleteQuestionModal(true);
+  };
+
+  const draggable = (question: Question, section, questionIndex) => (
+    <DraggableQuestion
+      key={question.id}
+      question={question}
+      pageIndex={pageIndex}
+      sectionIndex={sectionIndex}
+      questionIndex={questionIndex}
+      duplicateQuestion={duplicateQuestion}
+      handleEditButtonClick={handleEditButtonClick}
+      handleDeleteButtonClick={handleDeleteButtonClick}
+      allQuestions={section.questions}
+    />
+  );
   return (
     <div className={styles.container}>
       {isLoading ? (
@@ -370,201 +459,151 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           </Button>
         </div>
       )}
-
-      {schema?.pages?.length
-        ? schema.pages.map((page, pageIndex) => (
-            <div className={styles.editableFieldsContainer}>
-              <div className={styles.flexContainer}>
-                <div className={styles.editorContainer}>
-                  <EditableValue
-                    elementType="page"
-                    id="pageNameInput"
-                    value={schema.pages[pageIndex].label}
-                    onSave={(name) => renamePage(name, pageIndex)}
+      <DndContext onDragEnd={(event) => handleDragEnd(event)} sensors={sensors}>
+        {schema?.pages?.length
+          ? schema.pages.map((page, pageIndex) => (
+              <div className={styles.editableFieldsContainer}>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <div className={styles.editorContainer}>
+                    <EditableValue
+                      elementType="page"
+                      id="pageNameInput"
+                      value={schema.pages[pageIndex].label}
+                      onSave={(name) => renamePage(name, pageIndex)}
+                    />
+                  </div>
+                  <Button
+                    hasIconOnly
+                    enterDelayMs={200}
+                    iconDescription={t("deletePage", "Delete page")}
+                    kind="ghost"
+                    onClick={() => {
+                      setPageIndex(pageIndex);
+                      setShowDeletePageModal(true);
+                    }}
+                    renderIcon={(props) => <TrashCan size={16} {...props} />}
+                    size="sm"
                   />
                 </div>
-                <Button
-                  hasIconOnly
-                  enterDelayMs={200}
-                  iconDescription={t("deletePage", "Delete page")}
-                  kind="ghost"
-                  onClick={() => {
-                    setPageIndex(pageIndex);
-                    setShowDeletePageModal(true);
-                  }}
-                  renderIcon={(props) => <TrashCan size={16} {...props} />}
-                  size="sm"
-                />
-              </div>
-              <div>
-                {page?.sections?.length ? (
-                  <p className={styles.sectionExplainer}>
-                    {t(
-                      "expandSectionExplainer",
-                      "Below are the sections linked to this page. Expand each section to add questions to it."
-                    )}
-                  </p>
-                ) : null}
-                {page?.sections?.length ? (
-                  page.sections?.map((section, sectionIndex) => (
-                    <Accordion>
-                      <AccordionItem title={section.label}>
-                        <>
-                          <div className={styles.flexContainer}>
-                            <div className={styles.editorContainer}>
-                              <EditableValue
-                                elementType="section"
-                                id="sectionNameInput"
-                                value={section.label}
-                                onSave={(name) =>
-                                  renameSection(name, pageIndex, sectionIndex)
-                                }
+                <div>
+                  {page?.sections?.length ? (
+                    <p className={styles.sectionExplainer}>
+                      {t(
+                        "expandSectionExplainer",
+                        "Below are the sections linked to this page. Expand each section to add questions to it."
+                      )}
+                    </p>
+                  ) : null}
+                  {page?.sections?.length ? (
+                    page.sections?.map((section, sectionIndex) => (
+                      <Accordion>
+                        <AccordionItem title={section.label}>
+                          <>
+                            <div
+                              style={{ display: "flex", alignItems: "center" }}
+                            >
+                              <div className={styles.editorContainer}>
+                                <EditableValue
+                                  elementType="section"
+                                  id="sectionNameInput"
+                                  value={section.label}
+                                  onSave={(name) =>
+                                    renameSection(name, pageIndex, sectionIndex)
+                                  }
+                                />
+                              </div>
+                              <Button
+                                hasIconOnly
+                                enterDelayMs={200}
+                                iconDescription={t(
+                                  "deleteSection",
+                                  "Delete section"
+                                )}
+                                kind="ghost"
+                                onClick={() => {
+                                  setPageIndex(pageIndex);
+                                  setSectionIndex(sectionIndex);
+                                  setShowDeleteSectionModal(true);
+                                }}
+                                renderIcon={(props) => (
+                                  <TrashCan size={16} {...props} />
+                                )}
+                                size="sm"
                               />
                             </div>
-                            <Button
-                              hasIconOnly
-                              enterDelayMs={200}
-                              iconDescription={t(
-                                "deleteSection",
-                                "Delete section"
-                              )}
-                              kind="ghost"
-                              onClick={() => {
-                                setPageIndex(pageIndex);
-                                setSectionIndex(sectionIndex);
-                                setShowDeleteSectionModal(true);
-                              }}
-                              renderIcon={(props) => (
-                                <TrashCan size={16} {...props} />
-                              )}
-                              size="sm"
-                            />
-                          </div>
-                          <div>
-                            {section.questions?.length ? (
-                              section.questions.map(
-                                (question, questionIndex) => (
-                                  <div className={styles.flexContainer}>
-                                    <div className={styles.editorContainer}>
-                                      <p className={styles.questionLabel}>
-                                        {question.label}
-                                      </p>
-                                      <div className={styles.buttonContainer}>
-                                        <Button
-                                          kind="ghost"
-                                          size="sm"
-                                          enterDelayMs={200}
-                                          iconDescription={t(
-                                            "duplicateQuestion",
-                                            "Duplicate question"
-                                          )}
-                                          onClick={() =>
-                                            duplicateQuestion(
-                                              question,
-                                              pageIndex,
-                                              sectionIndex
-                                            )
-                                          }
-                                          renderIcon={(props) => (
-                                            <Replicate size={16} {...props} />
-                                          )}
-                                          hasIconOnly
-                                        />
-                                        <Button
-                                          kind="ghost"
-                                          size="sm"
-                                          enterDelayMs={200}
-                                          iconDescription={t(
-                                            "editQuestion",
-                                            "Edit question"
-                                          )}
-                                          onClick={() => {
-                                            editQuestion();
-                                            setPageIndex(pageIndex);
-                                            setSectionIndex(sectionIndex);
-                                            setQuestionIndex(questionIndex);
-                                            setQuestionToEdit(question);
-                                          }}
-                                          renderIcon={(props) => (
-                                            <Edit size={16} {...props} />
-                                          )}
-                                          hasIconOnly
-                                        />
-                                      </div>
-                                    </div>
-                                    <Button
-                                      hasIconOnly
-                                      enterDelayMs={200}
-                                      iconDescription={t(
-                                        "deleteQuestion",
-                                        "Delete question"
-                                      )}
-                                      kind="ghost"
-                                      onClick={() => {
-                                        setPageIndex(pageIndex);
-                                        setSectionIndex(sectionIndex);
-                                        setQuestionIndex(questionIndex);
-                                        setShowDeleteQuestionModal(true);
-                                      }}
-                                      renderIcon={(props) => (
-                                        <TrashCan size={16} {...props} />
-                                      )}
-                                      size="sm"
-                                    />
-                                  </div>
+                            <div>
+                              {section.questions?.length ? (
+                                section.questions.map(
+                                  (question, questionIndex) => (
+                                    <>
+                                      <Droppable
+                                        id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
+                                      >
+                                        {draggable(
+                                          question,
+                                          section,
+                                          questionIndex
+                                        )}
+                                      </Droppable>
+                                    </>
+                                  )
                                 )
-                              )
-                            ) : (
-                              <p className={styles.explainer}>
-                                {t(
-                                  "sectionExplainer",
-                                  "A section will typically contain one or more questions. Click the button below to add a question to this section."
+                              ) : (
+                                <p className={styles.explainer}>
+                                  {t(
+                                    "sectionExplainer",
+                                    "A section will typically contain one or more questions. Click the button below to add a question to this section."
+                                  )}
+                                </p>
+                              )}
+
+                              <Button
+                                className={styles.addQuestionButton}
+                                kind="primary"
+                                renderIcon={Add}
+                                onClick={() => {
+                                  addQuestion();
+                                  setQuestionIndex(questionIndex);
+                                  setPageIndex(pageIndex);
+                                  setSectionIndex(sectionIndex);
+                                }}
+                                iconDescription={t(
+                                  "addQuestion",
+                                  "Add Question"
                                 )}
-                              </p>
-                            )}
-                            <Button
-                              className={styles.addQuestionButton}
-                              kind="primary"
-                              renderIcon={Add}
-                              onClick={() => {
-                                addQuestion();
-                                setQuestionIndex(questionIndex);
-                                setPageIndex(pageIndex);
-                                setSectionIndex(sectionIndex);
-                              }}
-                              iconDescription={t("addQuestion", "Add Question")}
-                            >
-                              {t("addQuestion", "Add Question")}
-                            </Button>
-                          </div>
-                        </>
-                      </AccordionItem>
-                    </Accordion>
-                  ))
-                ) : (
-                  <p className={styles.explainer}>
-                    {t(
-                      "pageExplainer",
-                      "Pages typically have one or more sections. Click the button below to add a section to your page."
-                    )}
-                  </p>
-                )}
+                              >
+                                {t("addQuestion", "Add Question")}
+                              </Button>
+                            </div>
+                          </>
+                        </AccordionItem>
+                      </Accordion>
+                    ))
+                  ) : (
+                    <p className={styles.explainer}>
+                      {t(
+                        "pageExplainer",
+                        "Pages typically have one or more sections. Click the button below to add a section to your page."
+                      )}
+                    </p>
+                  )}
+                </div>
+                <Button
+                  className={styles.addSectionButton}
+                  kind="primary"
+                  renderIcon={Add}
+                  onClick={() => {
+                    addSection();
+                    setPageIndex(pageIndex);
+                  }}
+                  iconDescription={t("addSection", "Add Section")}
+                >
+                  {t("addSection", "Add Section")}
+                </Button>
               </div>
-              <Button
-                className={styles.addSectionButton}
-                kind="primary"
-                renderIcon={Add}
-                onClick={() => {
-                  addSection();
-                  setPageIndex(pageIndex);
-                }}
-                iconDescription={t("addSection", "Add Section")}
-              >
-                {t("addSection", "Add Section")}
-              </Button>
-            </div>
-          ))
-        : null}
+            ))
+          : null}
+      </DndContext>
     </div>
   );
 };
