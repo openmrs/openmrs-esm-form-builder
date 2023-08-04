@@ -1,0 +1,51 @@
+@use '@carbon/styles/scss/type';
+@use '@carbon/styles/scss/spacing';
+@import '~@openmrs/esm-styleguide/src/vars';
+
+.buttonsContainer {
+  display: flex;
+  align-items: center;
+}
+
+.iconAndName {
+  display: flex;
+  align-items: center;
+}
+
+.isDragged, .normal {
+  display: flex;
+  height: 3rem;
+  justify-content: space-between;
+  align-items: center;
+  margin: spacing.$spacing-02 spacing.$spacing-03;
+  width: 100%;
+}
+
+.normal:hover {
+  background-color: $ui-03;
+}
+
+.isDragged {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.552);
+}
+
+.dragIconContainer {
+  cursor: pointer;
+  margin-right: spacing.$spacing-03;
+
+
+
+  :hover {
+    background-color: $ui-02;
+  }
+}
+.dragIcon {
+  margin: 0 spacing.$spacing-03;
+  padding: 0.25rem;
+  color: $ui-04;
+  margin-top: 0.2rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.25rem;
+}

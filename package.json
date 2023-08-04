@@ -63,6 +63,10 @@
     "rxjs": "6.x"
   },
   "devDependencies": {
+    "@dnd-kit/core": "^6.0.8",
+    "@dnd-kit/modifiers": "^6.0.1",
+    "@dnd-kit/sortable": "^7.0.2",
+    "@dnd-kit/utilities": "^3.2.1",
     "@openmrs/esm-framework": "next",
     "@openmrs/esm-styleguide": "next",
     "@playwright/test": "^1.35.0",
