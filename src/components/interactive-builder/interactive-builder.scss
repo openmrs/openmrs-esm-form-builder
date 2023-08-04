@@ -107,12 +107,14 @@
 .validationError {
   color: red !important;
   font-size: 12px !important;
+  margin-left: 5px !important;
 }
 
 .approval{
   @include type.type-style('body-01');
   color: rgb(0, 152, 0) !important;
   font-size: 12px !important;
+  margin-left: 5px !important;
 }
 
 .obsGroup{

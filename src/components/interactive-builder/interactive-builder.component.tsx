@@ -567,7 +567,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                         </p>
                                         {question.type === "obsGroup" &&
                                           question.questions?.map(
-                                            (obsQuestion, questionIndex) => (
+                                            (obsQuestion) => (
                                               <div style={{display: "flex",alignItems: "center",}}>
                                                 <div className={styles.editorContainer}>
                                                   <p className={styles.obsGroup}>
