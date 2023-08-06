@@ -10,12 +10,12 @@ const config: PlaywrightTestConfig = {
     timeout: 20 * 1000,
   },
   fullyParallel: false,
-  outputDir: "test-results/results",
+  outputDir: "../test-results/results",
   forbidOnly: !!process.env.CI,
   retries: 0,
   reporter: process.env.CI
     ? [["junit", { outputFile: "results.xml" }], ["html"]]
-    : [["html", { outputFolder: "test-results/report" }]],
+    : [["html", { outputFolder: "../test-results/report" }]],
   globalSetup: require.resolve("./e2e/core/global-setup"),
   use: {
     baseURL: `${process.env.E2E_BASE_URL}/spa/`,
