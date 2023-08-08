@@ -71,7 +71,10 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const [responses, setResponses] = useState([]);
 
   const validateForm = () => {
-    handleFormValidation(schema).then(res => setResponses(res))
+    handleFormValidation(schema).then(response => {
+      const [questionResolutionsArray, answersResolutionsArray] = response
+      setResponses(questionResolutionsArray)
+    })
   }
 
   const initializeSchema = useCallback(() => {
