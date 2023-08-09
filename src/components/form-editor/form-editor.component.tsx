@@ -171,7 +171,7 @@ const FormEditor: React.FC = () => {
           </Column>
           <Column lg={8} md={8} className={styles.column}>
             <Tabs>
-              <TabList aria-label="Form preview">
+              <TabList aria-label="Form previews">
                 <Tab>{t("preview", "Preview")}</Tab>
                 <Tab>{t("interactiveBuilder", "Interactive Builder")}</Tab>
               </TabList>
@@ -179,7 +179,6 @@ const FormEditor: React.FC = () => {
                 <TabPanel>
                   <FormRenderer
                     schema={schema}
-                    onSchemaChange={updateSchema}
                     isLoading={isLoadingFormOrSchema}
                   />
                 </TabPanel>

@@ -14,8 +14,13 @@ import type { TFunction } from "react-i18next";
 import type { RouteParams, Schema } from "../../types";
 import { publishForm, unpublishForm } from "../../forms.resource";
 import { useForm } from "../../hooks/useForm";
-import SaveFormModal from "../modals/save-form.component";
+import SaveFormModal from "../modals/save-form-modal.component";
 import styles from "./action-buttons.scss";
+
+type ActionButtonsProps = {
+  schema: Schema;
+  t: TFunction;
+};
 
 type Status =
   | "idle"
@@ -24,11 +29,6 @@ type Status =
   | "unpublishing"
   | "unpublished"
   | "error";
-
-type ActionButtonsProps = {
-  schema: Schema;
-  t: TFunction;
-};
 
 function ActionButtons({ schema, t }: ActionButtonsProps) {
   const { formUuid } = useParams<RouteParams>();
