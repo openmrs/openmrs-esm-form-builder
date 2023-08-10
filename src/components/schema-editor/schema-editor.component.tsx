@@ -135,26 +135,28 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
           />
         ) : null}
 
-        {isNewSchema ? (
+        {isNewSchema && !stringifiedSchema ? (
           <Button kind="secondary" onClick={inputDummySchema}>
             {t("inputDummySchema", "Input dummy schema")}
           </Button>
         ) : null}
 
-        <Button
-          disabled={isRendering}
-          kind="primary"
-          onClick={renderSchemaChanges}
-        >
-          {isRendering ? (
-            <InlineLoading
-              className={styles.spinner}
-              description={t("rendering", "Rendering") + "..."}
-            />
-          ) : (
-            <span>{t("renderChanges", "Render changes")}</span>
-          )}
-        </Button>
+        {schema ? (
+          <Button
+            disabled={isRendering}
+            kind="primary"
+            onClick={renderSchemaChanges}
+          >
+            {isRendering ? (
+              <InlineLoading
+                className={styles.spinner}
+                description={t("render", "Render" + "...")}
+              />
+            ) : (
+              <span>{t("renderChanges", "Render changes")}</span>
+            )}
+          </Button>
+        ) : null}
       </div>
 
       {invalidJsonErrorMessage ? (
