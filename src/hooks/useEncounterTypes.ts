@@ -5,7 +5,7 @@ import type { EncounterType } from "../types";
 export const useEncounterTypes = () => {
   const url = `/ws/rest/v1/encountertype?v=custom:(uuid,name)`;
 
-  const { data, error } = useSWRImmutable<
+  const { data, error, isLoading } = useSWRImmutable<
     { data: { results: Array<EncounterType> } },
     Error
   >(url, openmrsFetch);
@@ -13,6 +13,6 @@ export const useEncounterTypes = () => {
   return {
     encounterTypes: data?.data?.results ?? [],
     encounterTypesError: error || null,
-    isEncounterTypesLoading: (!data && !error) || false,
+    isEncounterTypesLoading: isLoading,
   };
 };
