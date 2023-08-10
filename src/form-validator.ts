@@ -2,8 +2,8 @@ import { openmrsFetch } from "@openmrs/esm-framework";
 import { async } from "rxjs";
 
 export const handleFormValidation = async (schema) => {
-  const questionResolutionsArray = [];
-  const answersResolutionsArray = []
+
+  const errorsArray = [];
 
   if (schema) {
     const parsedForm = typeof schema == "string" ? JSON.parse(schema) : schema;
@@ -14,22 +14,23 @@ export const handleFormValidation = async (schema) => {
       page.sections?.forEach((section) =>
         section.questions?.forEach((question) => {
           asyncTasks.push(
-            handleQuestionValidation(question, questionResolutionsArray),
-            handleAnswerValidation(question, answersResolutionsArray)
+            handleQuestionValidation(question, errorsArray),
+            handleAnswerValidation(question, errorsArray)
           );
           question.type === "obsGroup" &&
             question.questions?.forEach((obsGrpQuestion) =>
               asyncTasks.push(
-                handleQuestionValidation(obsGrpQuestion, questionResolutionsArray),
-                handleAnswerValidation(question, answersResolutionsArray)
+                handleQuestionValidation(obsGrpQuestion, errorsArray),
+                handleAnswerValidation(question, errorsArray)
               )
             );
         })
       )
     );
+    console.log(asyncTasks)
     await Promise.all(asyncTasks);
-
-    return [questionResolutionsArray, answersResolutionsArray];
+    
+    return [errorsArray];
   }
 };
 
@@ -57,20 +58,24 @@ const handleQuestionValidation = async (conceptObject, array) => {
         dataTypeChecker(conceptObject, resObject, array);
       } else {
         array.push({
-          ...conceptObject,
-          resolution: `Concept "${conceptObject.questionOptions.concept}" not found`,
-          resolutionType: `Warning`
+            errorMessage : `❓ Concept "${conceptObject.questionOptions.concept}" not found`,
+            field: conceptObject
         });
       }
-    } catch (error) {}
+    } catch (error) {
+        console.error(error)
+    }
 
   } else {
-    array.push({ ...conceptObject, resolution: `No UUID`, resolutionType: `Warning` });
+    array.push({
+        errorMessage : `❓ No UUID`,
+        field: conceptObject
+    });
   }
 };
 
 const dataTypeChecker = (conceptObject, responseObject, array) => {
-  const renderTypes = {
+  const dataTypeToRenderingMap = {
     Numeric: ["number", "fixed-value"],
     Coded: [
       "select",
@@ -87,32 +92,20 @@ const dataTypeChecker = (conceptObject, responseObject, array) => {
     Rule: ["repeating", "group"],
   };
 
-  renderTypes.hasOwnProperty(responseObject.datatype.display) &&
-    renderTypes[responseObject.datatype.display].includes(
+  dataTypeToRenderingMap.hasOwnProperty(responseObject.datatype.name) &&
+    !dataTypeToRenderingMap[responseObject.datatype.name].includes(
       conceptObject.questionOptions.rendering
     ) &&
     array.push({
-      ...conceptObject,
-      resolution: `✅ ${conceptObject.questionOptions.concept}: datatype "${responseObject.datatype.display}" matches control type "${conceptObject.questionOptions.rendering}"`,
-      resolutionType: `Success`
+        errorMessage : `❓ ${conceptObject.questionOptions.concept}: datatype "${responseObject.datatype.name}" doesn't match control type "${conceptObject.questionOptions.rendering}"`,
+        field: conceptObject
     });
 
-  renderTypes.hasOwnProperty(responseObject.datatype.display) &&
-    !renderTypes[responseObject.datatype.display].includes(
-      conceptObject.questionOptions.rendering
-    ) &&
+  !dataTypeToRenderingMap.hasOwnProperty(responseObject.datatype.name) &&
     array.push({
-      ...conceptObject,
-      resolution: `❌ ${conceptObject.questionOptions.concept}: datatype "${responseObject.datatype.display}" doesn't match control type "${conceptObject.questionOptions.rendering}"`,
-      resolutionType: `Error`
-    });
-
-  !renderTypes.hasOwnProperty(responseObject.datatype.display) &&
-    array.push({
-      ...conceptObject,
-      resolution: `Untracked datatype "${responseObject.datatype.display}"`,
-      resolutionType: `Warning`
-    });
+        errorMessage : `❓ Untracked datatype "${responseObject.datatype.name}"`,
+        field: conceptObject
+        });
 };
 
 const handleAnswerValidation = (questionObject, array) => {
@@ -135,11 +128,11 @@ const handleAnswerValidation = (questionObject, array) => {
       openmrsFetch(
         `/ws/rest/v1/concept?references=${searchRef}&v=${conceptRepresentation}`
       ).then((response) => {
-        if (response.data.results.length) {
-          const [value] = response.data.results;
-          array.push({...questionObject, resolution: `concept "✅ ${answer.concept}" found`, resolutionType: `Success`});
-        } else {
-          array.push({...questionObject, resolution: `concept "❌ ${answer.concept}" not found`, resolutionType: `Error`})
+        if (!response.data.results.length) {
+          array.push({
+            errorMessage: `❌ concept "${answer.concept}" not found`,
+            field: answer
+        })
         }
       });
     });

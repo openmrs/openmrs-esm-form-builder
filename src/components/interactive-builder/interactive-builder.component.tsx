@@ -72,8 +72,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
   const validateForm = () => {
     handleFormValidation(schema).then(response => {
-      const [questionResolutionsArray, answersResolutionsArray] = response
-      setResponses(questionResolutionsArray)
+      const [errorsArray] = response
+      setResponses(errorsArray)
     })
   }
 
@@ -277,6 +277,10 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       onSchemaChange(updatedSchema);
     }
   };
+  
+  useEffect(()=>{
+    console.log(responses)
+  }, [responses])
 
   const handleEditButtonClick = (question: Question) => {
     editQuestion();
@@ -563,10 +567,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                         )}
                                       </Droppable>
                                       <br />
-                                        <p
-                                          className={responses.find((item) => item.id === question.id)?.resolution.includes("✅")? styles.approval: styles.validationError}
-                                        >
-                                          {responses.find((item) =>item.id === question.id)?.resolution}
+                                        <p className={styles.validationError} >
+                                          {responses.find((item) =>item.field.id === question.id)?.errorMessage}
                                         </p>
                                         {question.type === "obsGroup" &&
                                           question.questions?.map(
@@ -576,12 +578,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                                   <p className={styles.obsGroup}>
                                                     {obsQuestion.label}
                                                     <br />
-                                                    <p
-                                                      className={responses.find((item) =>item.id ===obsQuestion.id)?.resolution.includes("✅")
-                                                          ? styles.approval
-                                                          : styles.validationError }
-                                                    >
-                                                      {responses.find((item) =>item.id ===obsQuestion.id)?.resolution}
+                                                    <p className={styles.validationError} >
+                                                      {responses.find((item) =>item.field.id ===obsQuestion.id)?.errorMessage}
                                                     </p>
                                                   </p>
                                                 </div>
