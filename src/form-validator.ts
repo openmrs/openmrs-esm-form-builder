@@ -1,7 +1,7 @@
 import { openmrsFetch } from "@openmrs/esm-framework";
 import { async } from "rxjs";
 
-export const handleFormValidation = async (schema) => {
+export const handleFormValidation = async (schema, configObject) => {
 
   const errorsArray = [];
 
@@ -14,27 +14,26 @@ export const handleFormValidation = async (schema) => {
       page.sections?.forEach((section) =>
         section.questions?.forEach((question) => {
           asyncTasks.push(
-            handleQuestionValidation(question, errorsArray),
+            handleQuestionValidation(question, errorsArray, configObject),
             handleAnswerValidation(question, errorsArray)
           );
           question.type === "obsGroup" &&
             question.questions?.forEach((obsGrpQuestion) =>
               asyncTasks.push(
-                handleQuestionValidation(obsGrpQuestion, errorsArray),
+                handleQuestionValidation(obsGrpQuestion, errorsArray, configObject),
                 handleAnswerValidation(question, errorsArray)
               )
             );
         })
       )
     );
-    console.log(asyncTasks)
     await Promise.all(asyncTasks);
     
     return [errorsArray];
   }
 };
 
-const handleQuestionValidation = async (conceptObject, array) => {
+const handleQuestionValidation = async (conceptObject, array, configObject) => {
   const conceptRepresentation =
     "custom:(uuid,display,datatype,conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))";
 
@@ -55,7 +54,7 @@ const handleQuestionValidation = async (conceptObject, array) => {
       );
       if (data.results.length) {
         const [resObject] = data.results;
-        dataTypeChecker(conceptObject, resObject, array);
+        dataTypeChecker(conceptObject, resObject, array, configObject);
       } else {
         array.push({
             errorMessage : `❓ Concept "${conceptObject.questionOptions.concept}" not found`,
@@ -74,23 +73,7 @@ const handleQuestionValidation = async (conceptObject, array) => {
   }
 };
 
-const dataTypeChecker = (conceptObject, responseObject, array) => {
-  const dataTypeToRenderingMap = {
-    Numeric: ["number", "fixed-value"],
-    Coded: [
-      "select",
-      "checkbox",
-      "radio",
-      "toggle",
-      "content-switcher",
-      "fixed-value",
-    ],
-    Text: ["text", "textarea", "fixed-value"],
-    Date: ["date", "fixed-value"],
-    Datetime: ["datetime", "fixed-value"],
-    Boolean: ["toggle", "select", "radio", "content-switcher", "fixed-value"],
-    Rule: ["repeating", "group"],
-  };
+const dataTypeChecker = (conceptObject, responseObject, array, dataTypeToRenderingMap) => {
 
   dataTypeToRenderingMap.hasOwnProperty(responseObject.datatype.name) &&
     !dataTypeToRenderingMap[responseObject.datatype.name].includes(

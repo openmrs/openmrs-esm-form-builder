@@ -7,6 +7,8 @@ import {
   showToast,
   showNotification,
   openmrsFetch,
+  ConfigObject,
+  useConfig,
 } from "@openmrs/esm-framework";
 import { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
 import {
@@ -55,6 +57,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
+  const { dataTypeToRenderingMap } = useConfig() as ConfigObject
   const isEditingExistingForm = !!formUuid;
   const [pageIndex, setPageIndex] = useState(0);
   const [sectionIndex, setSectionIndex] = useState(0);
@@ -71,9 +74,22 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const [responses, setResponses] = useState([]);
 
   const validateForm = () => {
-    handleFormValidation(schema).then(response => {
+    handleFormValidation(schema, dataTypeToRenderingMap).then(response => {
       const [errorsArray] = response
       setResponses(errorsArray)
+      errorsArray.length 
+      ? showToast({
+          title: "Validation completed",
+          kind: "error",
+          critical: true,
+          description: "Errors found during validation",
+        }) 
+      : showToast({
+          title: "Validation completed",
+          kind: "success",
+          critical: true,
+          description: "No errors found during form validation",
+        });
     })
   }
 
@@ -277,10 +293,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       onSchemaChange(updatedSchema);
     }
   };
-  
-  useEffect(()=>{
-    console.log(responses)
-  }, [responses])
 
   const handleEditButtonClick = (question: Question) => {
     editQuestion();
