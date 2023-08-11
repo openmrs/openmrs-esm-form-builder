@@ -329,10 +329,13 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           description={t("loadingSchema", "Loading schema") + "..."}
         />
       ) : null}
-      <div>
+      <div className={styles.validator}>
         <ActionButtons schema={schema} t={t} />
-
-        <Button onClick={validateForm}> Validate Form </Button>
+        <Button
+          className = {styles.validateButton}
+          onClick={validateForm}>
+            Validate Form
+        </Button>
       </div>
 
       {showNewFormModal ? (
