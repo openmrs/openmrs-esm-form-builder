@@ -77,6 +77,10 @@ const NewFormModal: React.FC<NewFormModalProps> = ({
               <TextInput
                 id="formName"
                 labelText={t("formName", "Form name")}
+                placeholder={t(
+                  "formNamePlaceholder",
+                  "What the form is called in the system"
+                )}
                 value={formName}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                   setFormName(event.target.value)
@@ -87,6 +91,10 @@ const NewFormModal: React.FC<NewFormModalProps> = ({
               <TextInput
                 id="formDescription"
                 labelText={t("formDescription", "Form description")}
+                placeholder={t(
+                  "formDescriptionPlaceholder",
+                  "A short description of the form e.g. A form for collecting COVID-19 symptoms"
+                )}
                 value={formDescription}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                   setFormDescription(event.target.value)
