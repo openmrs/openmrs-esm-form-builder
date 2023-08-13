@@ -8,6 +8,7 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
+  Stack,
   TextInput,
 } from "@carbon/react";
 import { showToast, showNotification } from "@openmrs/esm-framework";
@@ -16,8 +17,8 @@ import type { Schema } from "../../types";
 type NewFormModalProps = {
   schema: Schema;
   onSchemaChange: (schema: Schema) => void;
-  showModal: boolean;
   onModalChange: (showModal: boolean) => void;
+  showModal: boolean;
 };
 
 const NewFormModal: React.FC<NewFormModalProps> = ({
@@ -28,11 +29,12 @@ const NewFormModal: React.FC<NewFormModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const [formName, setFormName] = useState("");
+  const [formDescription, setFormDescription] = useState("");
 
-  const updateFormName = () => {
+  const updateSchema = (updates: Partial<Schema>) => {
     try {
-      schema.name = formName;
-      onSchemaChange({ ...schema });
+      const updatedSchema = { ...schema, ...updates };
+      onSchemaChange(updatedSchema);
 
       showToast({
         title: t("success", "Success!"),
@@ -50,6 +52,17 @@ const NewFormModal: React.FC<NewFormModalProps> = ({
     }
   };
 
+  const handleCreateForm = () => {
+    if (formName) {
+      updateSchema({
+        name: formName,
+        description: formDescription,
+      });
+
+      onModalChange(false);
+    }
+  };
+
   return (
     <ComposedModal
       open={showModal}
@@ -59,27 +72,35 @@ const NewFormModal: React.FC<NewFormModalProps> = ({
       <ModalHeader title={t("createNewForm", "Create a new form")} />
       <Form onSubmit={(event) => event.preventDefault()}>
         <ModalBody>
-          <FormGroup legendText={""}>
-            <TextInput
-              id="formName"
-              labelText={t("formName", "Form name")}
-              value={formName}
-              onChange={(event) => setFormName(event.target.value)}
-            />
-          </FormGroup>
+          <Stack gap={5}>
+            <FormGroup legendText={""}>
+              <TextInput
+                id="formName"
+                labelText={t("formName", "Form name")}
+                value={formName}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                  setFormName(event.target.value)
+                }
+              />
+            </FormGroup>
+            <FormGroup legendText={""}>
+              <TextInput
+                id="formDescription"
+                labelText={t("formDescription", "Form description")}
+                value={formDescription}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                  setFormDescription(event.target.value)
+                }
+              />
+            </FormGroup>
+          </Stack>
         </ModalBody>
       </Form>
       <ModalFooter>
         <Button kind="secondary" onClick={() => onModalChange(false)}>
           {t("cancel", "Cancel")}
         </Button>
-        <Button
-          disabled={!formName}
-          onClick={() => {
-            updateFormName();
-            onModalChange(false);
-          }}
-        >
+        <Button disabled={!formName} onClick={handleCreateForm}>
           <span>{t("createForm", "Create Form")}</span>
         </Button>
       </ModalFooter>
