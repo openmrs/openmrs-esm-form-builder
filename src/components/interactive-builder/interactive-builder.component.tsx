@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Accordion, AccordionItem, Button, InlineLoading } from "@carbon/react";
 import { Add, TrashCan } from "@carbon/react/icons";
@@ -6,7 +6,6 @@ import { useParams } from "react-router-dom";
 import {
   showToast,
   showNotification,
-  openmrsFetch,
   ConfigObject,
   useConfig,
 } from "@openmrs/esm-framework";
@@ -49,7 +48,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   onSchemaChange,
   schema,
   isFormValidating,
-  setIsFormValidating
+  setIsFormValidating,
 }) => {
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
@@ -78,26 +77,26 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const [responses, setResponses] = useState([]);
 
   const validateForm = () => {
-    handleFormValidation(schema, dataTypeToRenderingMap).then(response => {
-      const [errorsArray] = response
-      setResponses(errorsArray)
-      errorsArray.length 
-      ? showToast({
-          title: "Validation completed",
-          kind: "error",
-          critical: true,
-          description: "Errors found during validation",
-        }) 
-      : showToast({
-          title: "Validation completed",
-          kind: "success",
-          critical: true,
-          description: "No errors found during form validation",
-        });
-    }).then(
-      setIsFormValidating()
-    )
-  }
+    handleFormValidation(schema, dataTypeToRenderingMap)
+      .then((response) => {
+        const [errorsArray] = response;
+        setResponses(errorsArray);
+        errorsArray.length
+          ? showToast({
+              title: "Validation completed",
+              kind: "error",
+              critical: true,
+              description: "Errors found during validation",
+            })
+          : showToast({
+              title: "Validation completed",
+              kind: "success",
+              critical: true,
+              description: "No errors found during form validation",
+            });
+      })
+      .then(setIsFormValidating());
+  };
 
   const initializeSchema = useCallback(() => {
     const dummySchema: OHRIFormSchema = {
@@ -329,8 +328,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     />
   );
 
-  isFormValidating && validateForm()
-  
+  isFormValidating && validateForm();
+
   return (
     <div className={styles.container}>
       {isLoading ? (
@@ -340,7 +339,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       ) : null}
       <div className={styles.validator}>
         <ActionButtons schema={schema} t={t} />
-        
       </div>
 
       {showNewFormModal ? (

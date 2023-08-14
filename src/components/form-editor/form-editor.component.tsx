@@ -54,7 +54,7 @@ const FormEditor: React.FC = () => {
   const { form, formError, isLoadingForm } = useForm(formUuid);
   const { clobdata, clobdataError, isLoadingClobdata } = useClobdata(form);
   const [status, setStatus] = useState<Status>("idle");
-  const [isValidating, setIsValidating] = useState<boolean>(false)
+  const [isValidating, setIsValidating] = useState<boolean>(false);
 
   const isLoadingFormOrSchema =
     formUuid && (isLoadingClobdata || isLoadingForm);
@@ -99,9 +99,9 @@ const FormEditor: React.FC = () => {
     localStorage.setItem("formJSON", JSON.stringify(updatedSchema));
   }, []);
 
-  const validationSetter = ()=>{
-    setIsValidating(prevState => !prevState)
-  }
+  const validationSetter = () => {
+    setIsValidating((prevState) => !prevState);
+  };
 
   const DraftSchemaModal = () => {
     return (

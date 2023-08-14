@@ -1,8 +1,6 @@
 import { openmrsFetch } from "@openmrs/esm-framework";
-import { async } from "rxjs";
 
 export const handleFormValidation = async (schema, configObject) => {
-
   const errorsArray = [];
 
   if (schema) {
@@ -20,7 +18,11 @@ export const handleFormValidation = async (schema, configObject) => {
           question.type === "obsGroup" &&
             question.questions?.forEach((obsGrpQuestion) =>
               asyncTasks.push(
-                handleQuestionValidation(obsGrpQuestion, errorsArray, configObject),
+                handleQuestionValidation(
+                  obsGrpQuestion,
+                  errorsArray,
+                  configObject
+                ),
                 handleAnswerValidation(question, errorsArray)
               )
             );
@@ -28,7 +30,7 @@ export const handleFormValidation = async (schema, configObject) => {
       )
     );
     await Promise.all(asyncTasks);
-    
+
     return [errorsArray];
   }
 };
@@ -57,38 +59,47 @@ const handleQuestionValidation = async (conceptObject, array, configObject) => {
         dataTypeChecker(conceptObject, resObject, array, configObject);
       } else {
         array.push({
-            errorMessage : `❓ Concept "${conceptObject.questionOptions.concept}" not found`,
-            field: conceptObject
+          errorMessage: `❓ Concept "${conceptObject.questionOptions.concept}" not found`,
+          field: conceptObject,
         });
       }
     } catch (error) {
-        console.error(error)
+      console.error(error);
     }
-
   } else {
     array.push({
-        errorMessage : `❓ No UUID`,
-        field: conceptObject
+      errorMessage: `❓ No UUID`,
+      field: conceptObject,
     });
   }
 };
 
-const dataTypeChecker = (conceptObject, responseObject, array, dataTypeToRenderingMap) => {
-
-  dataTypeToRenderingMap.hasOwnProperty(responseObject.datatype.name) &&
+const dataTypeChecker = (
+  conceptObject,
+  responseObject,
+  array,
+  dataTypeToRenderingMap
+) => {
+  Object.prototype.hasOwnProperty.call(
+    dataTypeToRenderingMap,
+    responseObject.datatype.name
+  ) &&
     !dataTypeToRenderingMap[responseObject.datatype.name].includes(
       conceptObject.questionOptions.rendering
     ) &&
     array.push({
-        errorMessage : `❓ ${conceptObject.questionOptions.concept}: datatype "${responseObject.datatype.name}" doesn't match control type "${conceptObject.questionOptions.rendering}"`,
-        field: conceptObject
+      errorMessage: `❓ ${conceptObject.questionOptions.concept}: datatype "${responseObject.datatype.name}" doesn't match control type "${conceptObject.questionOptions.rendering}"`,
+      field: conceptObject,
     });
 
-  !dataTypeToRenderingMap.hasOwnProperty(responseObject.datatype.name) &&
+  !Object.prototype.hasOwnProperty.call(
+    dataTypeToRenderingMap,
+    responseObject.datatype.name
+  ) &&
     array.push({
-        errorMessage : `❓ Untracked datatype "${responseObject.datatype.name}"`,
-        field: conceptObject
-        });
+      errorMessage: `❓ Untracked datatype "${responseObject.datatype.name}"`,
+      field: conceptObject,
+    });
 };
 
 const handleAnswerValidation = (questionObject, array) => {
@@ -114,8 +125,8 @@ const handleAnswerValidation = (questionObject, array) => {
         if (!response.data.results.length) {
           array.push({
             errorMessage: `❌ concept "${answer.concept}" not found`,
-            field: answer
-        })
+            field: answer,
+          });
         }
       });
     });

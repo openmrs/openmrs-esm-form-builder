@@ -65,14 +65,14 @@ export interface Schema {
           type: string;
           required?: boolean;
           questionOptions: {
-          type?: string;
-          concept?: string;
-          answers?: Array<Record<string, string>>;
-          rendering: RenderType;
-          max?: string;
-          min?: string;
-          conceptMappings?: Array<Record<string, string>>;
-        };
+            type?: string;
+            concept?: string;
+            answers?: Array<Record<string, string>>;
+            rendering: RenderType;
+            max?: string;
+            min?: string;
+            conceptMappings?: Array<Record<string, string>>;
+          };
         }>;
 
         validators?: Array<Record<string, string>>;

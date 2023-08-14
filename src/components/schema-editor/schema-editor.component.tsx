@@ -21,7 +21,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   isLoading,
   onSchemaChange,
   schema,
-  validateStateSetter
+  validateStateSetter,
 }) => {
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
@@ -145,28 +145,27 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
 
         {schema ? (
           <ButtonSet>
-              <Button
-              onClick={()=> validateStateSetter()}
-              disabled={schema? false : true}
-              >
-                Validate Form
+            <Button
+              onClick={() => validateStateSetter()}
+              disabled={schema ? false : true}
+            >
+              Validate Form
             </Button>
-             <Button
-            disabled={isRendering}
-            kind="primary"
-            onClick={renderSchemaChanges}
-          >
-            {isRendering ? (
-              <InlineLoading
-                className={styles.spinner}
-                description={t("render", "Render" + "...")}
-              />
-            ) : (
-              <span>{t("renderChanges", "Render changes")}</span>
-            )}
-          </Button>
+            <Button
+              disabled={isRendering}
+              kind="primary"
+              onClick={renderSchemaChanges}
+            >
+              {isRendering ? (
+                <InlineLoading
+                  className={styles.spinner}
+                  description={t("render", "Render" + "...")}
+                />
+              ) : (
+                <span>{t("renderChanges", "Render changes")}</span>
+              )}
+            </Button>
           </ButtonSet>
-         
         ) : null}
       </div>
 
