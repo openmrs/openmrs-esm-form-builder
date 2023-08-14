@@ -57,7 +57,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
-  const { dataTypeToRenderingMap } = useConfig() as ConfigObject
+  const { dataTypeToRenderingMap } = useConfig() as ConfigObject;
   const isEditingExistingForm = !!formUuid;
   const [pageIndex, setPageIndex] = useState(0);
   const [sectionIndex, setSectionIndex] = useState(0);
@@ -74,24 +74,24 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const [responses, setResponses] = useState([]);
 
   const validateForm = () => {
-    handleFormValidation(schema, dataTypeToRenderingMap).then(response => {
-      const [errorsArray] = response
-      setResponses(errorsArray)
-      errorsArray.length 
-      ? showToast({
-          title: "Validation completed",
-          kind: "error",
-          critical: true,
-          description: "Errors found during validation",
-        }) 
-      : showToast({
-          title: "Validation completed",
-          kind: "success",
-          critical: true,
-          description: "No errors found during form validation",
-        });
-    })
-  }
+    handleFormValidation(schema, dataTypeToRenderingMap).then((response) => {
+      const [errorsArray] = response;
+      setResponses(errorsArray);
+      errorsArray.length
+        ? showToast({
+            title: "Validation completed",
+            kind: "error",
+            critical: true,
+            description: "Errors found during validation",
+          })
+        : showToast({
+            title: "Validation completed",
+            kind: "success",
+            critical: true,
+            description: "No errors found during form validation",
+          });
+    });
+  };
 
   const initializeSchema = useCallback(() => {
     const dummySchema: OHRIFormSchema = {
@@ -333,7 +333,9 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         <ActionButtons schema={schema} t={t} />
         <Button
           className = {styles.validateButton}
-          onClick={validateForm}>
+          onClick={validateForm}
+          disabled={schema? false : true}
+          >
             Validate Form
         </Button>
       </div>
@@ -582,25 +584,49 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                         )}
                                       </Droppable>
                                       <br />
-                                        <p className={styles.validationError} >
-                                          {responses.find((item) =>item.field.id === question.id)?.errorMessage}
-                                        </p>
-                                        {question.type === "obsGroup" &&
-                                          question.questions?.map(
-                                            (obsQuestion) => (
-                                              <div style={{display: "flex",alignItems: "center",}}>
-                                                <div className={styles.editorContainer}>
-                                                  <p className={styles.obsGroup}>
-                                                    {obsQuestion.label}
-                                                    <br />
-                                                    <p className={styles.validationError} >
-                                                      {responses.find((item) =>item.field.id ===obsQuestion.id)?.errorMessage}
-                                                    </p>
+                                      <p className={styles.validationError}>
+                                        {
+                                          responses.find(
+                                            (item) =>
+                                              item.field.id === question.id
+                                          )?.errorMessage
+                                        }
+                                      </p>
+                                      {question.type === "obsGroup" &&
+                                        question.questions?.map(
+                                          (obsQuestion) => (
+                                            <div
+                                              style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                              }}
+                                            >
+                                              <div
+                                                className={
+                                                  styles.editorContainer
+                                                }
+                                              >
+                                                <p className={styles.obsGroup}>
+                                                  {obsQuestion.label}
+                                                  <br />
+                                                  <p
+                                                    className={
+                                                      styles.validationError
+                                                    }
+                                                  >
+                                                    {
+                                                      responses.find(
+                                                        (item) =>
+                                                          item.field.id ===
+                                                          obsQuestion.id
+                                                      )?.errorMessage
+                                                    }
                                                   </p>
-                                                </div>
+                                                </p>
                                               </div>
-                                            )
-                                          )}
+                                            </div>
+                                          )
+                                        )}
                                     </>
                                   )
                                 )
