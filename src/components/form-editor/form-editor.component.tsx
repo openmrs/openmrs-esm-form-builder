@@ -54,6 +54,7 @@ const FormEditor: React.FC = () => {
   const { form, formError, isLoadingForm } = useForm(formUuid);
   const { clobdata, clobdataError, isLoadingClobdata } = useClobdata(form);
   const [status, setStatus] = useState<Status>("idle");
+  const [isValidating, setIsValidating] = useState<boolean>(false)
 
   const isLoadingFormOrSchema =
     formUuid && (isLoadingClobdata || isLoadingForm);
@@ -97,6 +98,10 @@ const FormEditor: React.FC = () => {
     setSchema(updatedSchema);
     localStorage.setItem("formJSON", JSON.stringify(updatedSchema));
   }, []);
+
+  const validationSetter = ()=>{
+    setIsValidating(prevState => !prevState)
+  }
 
   const DraftSchemaModal = () => {
     return (
@@ -163,6 +168,7 @@ const FormEditor: React.FC = () => {
                       schema={schema}
                       onSchemaChange={updateSchema}
                       isLoading={isLoadingFormOrSchema}
+                      validateStateSetter={validationSetter}
                     />
                   </>
                 </TabPanel>
@@ -187,6 +193,8 @@ const FormEditor: React.FC = () => {
                     schema={schema}
                     onSchemaChange={updateSchema}
                     isLoading={isLoadingFormOrSchema}
+                    isFormValidating={isValidating}
+                    setIsFormValidating={validationSetter}
                   />
                 </TabPanel>
               </TabPanels>

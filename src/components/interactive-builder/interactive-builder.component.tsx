@@ -40,12 +40,16 @@ type InteractiveBuilderProps = {
   isLoading: boolean;
   onSchemaChange: (schema: Schema) => void;
   schema: Schema;
+  isFormValidating;
+  setIsFormValidating;
 };
 
 const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   isLoading,
   onSchemaChange,
   schema,
+  isFormValidating,
+  setIsFormValidating
 }) => {
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
@@ -74,24 +78,26 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const [responses, setResponses] = useState([]);
 
   const validateForm = () => {
-    handleFormValidation(schema, dataTypeToRenderingMap).then((response) => {
-      const [errorsArray] = response;
-      setResponses(errorsArray);
-      errorsArray.length
-        ? showToast({
-            title: "Validation completed",
-            kind: "error",
-            critical: true,
-            description: "Errors found during validation",
-          })
-        : showToast({
-            title: "Validation completed",
-            kind: "success",
-            critical: true,
-            description: "No errors found during form validation",
-          });
-    });
-  };
+    handleFormValidation(schema, dataTypeToRenderingMap).then(response => {
+      const [errorsArray] = response
+      setResponses(errorsArray)
+      errorsArray.length 
+      ? showToast({
+          title: "Validation completed",
+          kind: "error",
+          critical: true,
+          description: "Errors found during validation",
+        }) 
+      : showToast({
+          title: "Validation completed",
+          kind: "success",
+          critical: true,
+          description: "No errors found during form validation",
+        });
+    }).then(
+      setIsFormValidating()
+    )
+  }
 
   const initializeSchema = useCallback(() => {
     const dummySchema: OHRIFormSchema = {
@@ -322,6 +328,9 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       allQuestions={section.questions}
     />
   );
+
+  isFormValidating && validateForm()
+  
   return (
     <div className={styles.container}>
       {isLoading ? (
@@ -331,13 +340,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       ) : null}
       <div className={styles.validator}>
         <ActionButtons schema={schema} t={t} />
-        <Button
-          className = {styles.validateButton}
-          onClick={validateForm}
-          disabled={schema? false : true}
-          >
-            Validate Form
-        </Button>
+        
       </div>
 
       {showNewFormModal ? (
