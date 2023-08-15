@@ -18,7 +18,7 @@
     "test-e2e": "playwright test",
     "verify": "turbo lint typescript coverage",
     "coverage": "yarn test --coverage --passWithNoTests",
-    "prepare": "husky install",
+    "postinstall": "husky install",
     "extract-translations": "i18next 'src/**/*.component.tsx' --config ./i18next-parser.config.js",
     "ci:bump-form-engine-lib": "yarn up @openmrs/openmrs-form-engine-lib@next"
   },
