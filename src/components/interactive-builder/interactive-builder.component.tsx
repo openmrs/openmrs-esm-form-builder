@@ -40,7 +40,7 @@ type InteractiveBuilderProps = {
   onSchemaChange: (schema: Schema) => void;
   schema: Schema;
   isFormValidating;
-  setIsFormValidating;
+  setIsValidating;
 };
 
 const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
@@ -48,7 +48,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   onSchemaChange,
   schema,
   isFormValidating,
-  setIsFormValidating,
+  setIsValidating,
 }) => {
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
@@ -95,7 +95,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
               description: "No errors found during form validation",
             });
       })
-      .then(setIsFormValidating((prevState) => !prevState));
+      .then(setIsValidating((prevState) => !prevState));
   };
 
   const initializeSchema = useCallback(() => {

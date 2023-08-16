@@ -14,14 +14,14 @@ type SchemaEditorProps = {
   isLoading: boolean;
   onSchemaChange: (schema: Schema) => void;
   schema: Schema;
-  validateStateSetter;
+  setIsValidating;
 };
 
 const SchemaEditor: React.FC<SchemaEditorProps> = ({
   isLoading,
   onSchemaChange,
   schema,
-  validateStateSetter,
+  setIsValidating,
 }) => {
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
@@ -146,7 +146,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
         {schema ? (
           <ButtonSet>
             <Button
-              onClick={() => validateStateSetter((prevState) => !prevState)}
+              onClick={() => setIsValidating((prevState) => !prevState)}
               disabled={schema ? false : true}
             >
               Validate Form

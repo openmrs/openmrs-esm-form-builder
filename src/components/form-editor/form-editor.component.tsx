@@ -164,7 +164,7 @@ const FormEditor: React.FC = () => {
                       schema={schema}
                       onSchemaChange={updateSchema}
                       isLoading={isLoadingFormOrSchema}
-                      validateStateSetter={setIsValidating}
+                      setIsValidating={setIsValidating}
                     />
                   </>
                 </TabPanel>
@@ -190,7 +190,7 @@ const FormEditor: React.FC = () => {
                     onSchemaChange={updateSchema}
                     isLoading={isLoadingFormOrSchema}
                     isFormValidating={isValidating}
-                    setIsFormValidating={setIsValidating}
+                    setIsValidating={setIsValidating}
                   />
                 </TabPanel>
               </TabPanels>
