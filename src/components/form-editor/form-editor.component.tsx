@@ -54,6 +54,7 @@ const FormEditor: React.FC = () => {
   const { form, formError, isLoadingForm } = useForm(formUuid);
   const { clobdata, clobdataError, isLoadingClobdata } = useClobdata(form);
   const [status, setStatus] = useState<Status>("idle");
+  const [isValidating, setIsValidating] = useState<boolean>(false);
 
   const isLoadingFormOrSchema =
     formUuid && (isLoadingClobdata || isLoadingForm);
@@ -163,6 +164,7 @@ const FormEditor: React.FC = () => {
                       schema={schema}
                       onSchemaChange={updateSchema}
                       isLoading={isLoadingFormOrSchema}
+                      setIsValidating={setIsValidating}
                     />
                   </>
                 </TabPanel>
@@ -187,6 +189,8 @@ const FormEditor: React.FC = () => {
                     schema={schema}
                     onSchemaChange={updateSchema}
                     isLoading={isLoadingFormOrSchema}
+                    isFormValidating={isValidating}
+                    setIsValidating={setIsValidating}
                   />
                 </TabPanel>
               </TabPanels>

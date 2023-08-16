@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import AceEditor from "react-ace";
 import "ace-builds/webpack-resolver";
 import "ace-builds/src-noconflict/ext-language_tools";
-import { Button, InlineLoading } from "@carbon/react";
+import { Button, InlineLoading, ButtonSet } from "@carbon/react";
 import { useTranslation } from "react-i18next";
 import { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
 
@@ -14,12 +14,14 @@ type SchemaEditorProps = {
   isLoading: boolean;
   onSchemaChange: (schema: Schema) => void;
   schema: Schema;
+  setIsValidating;
 };
 
 const SchemaEditor: React.FC<SchemaEditorProps> = ({
   isLoading,
   onSchemaChange,
   schema,
+  setIsValidating,
 }) => {
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
@@ -142,20 +144,28 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
         ) : null}
 
         {schema ? (
-          <Button
-            disabled={isRendering}
-            kind="primary"
-            onClick={renderSchemaChanges}
-          >
-            {isRendering ? (
-              <InlineLoading
-                className={styles.spinner}
-                description={t("render", "Render" + "...")}
-              />
-            ) : (
-              <span>{t("renderChanges", "Render changes")}</span>
-            )}
-          </Button>
+          <ButtonSet>
+            <Button
+              onClick={() => setIsValidating((prevState) => !prevState)}
+              disabled={schema ? false : true}
+            >
+              Validate Form
+            </Button>
+            <Button
+              disabled={isRendering}
+              kind="primary"
+              onClick={renderSchemaChanges}
+            >
+              {isRendering ? (
+                <InlineLoading
+                  className={styles.spinner}
+                  description={t("render", "Render" + "...")}
+                />
+              ) : (
+                <span>{t("renderChanges", "Render changes")}</span>
+              )}
+            </Button>
+          </ButtonSet>
         ) : null}
       </div>
 

@@ -3,7 +3,12 @@ import { useTranslation } from "react-i18next";
 import { Accordion, AccordionItem, Button, InlineLoading } from "@carbon/react";
 import { Add, TrashCan } from "@carbon/react/icons";
 import { useParams } from "react-router-dom";
-import { showToast, showNotification } from "@openmrs/esm-framework";
+import {
+  showToast,
+  showNotification,
+  ConfigObject,
+  useConfig,
+} from "@openmrs/esm-framework";
 import { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
 import {
   DndContext,
@@ -13,6 +18,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 
+import { handleFormValidation } from "../../form-validator";
 import type { Question, RouteParams, Schema } from "../../types";
 import ActionButtons from "../action-buttons/action-buttons.component";
 import AddQuestionModal from "./add-question-modal.component";
@@ -33,12 +39,16 @@ type InteractiveBuilderProps = {
   isLoading: boolean;
   onSchemaChange: (schema: Schema) => void;
   schema: Schema;
+  isFormValidating;
+  setIsValidating;
 };
 
 const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   isLoading,
   onSchemaChange,
   schema,
+  isFormValidating,
+  setIsValidating,
 }) => {
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
@@ -50,6 +60,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
   const { t } = useTranslation();
   const { formUuid } = useParams<RouteParams>();
+  const { dataTypeToRenderingMap } = useConfig() as ConfigObject;
   const isEditingExistingForm = !!formUuid;
   const [pageIndex, setPageIndex] = useState(0);
   const [sectionIndex, setSectionIndex] = useState(0);
@@ -63,6 +74,29 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const [showDeletePageModal, setShowDeletePageModal] = useState(false);
   const [showDeleteSectionModal, setShowDeleteSectionModal] = useState(false);
   const [showDeleteQuestionModal, setShowDeleteQuestionModal] = useState(false);
+  const [responses, setResponses] = useState([]);
+
+  const validateForm = () => {
+    handleFormValidation(schema, dataTypeToRenderingMap)
+      .then((response) => {
+        const [errorsArray] = response;
+        setResponses(errorsArray);
+        errorsArray.length
+          ? showToast({
+              title: "Validation completed",
+              kind: "error",
+              critical: true,
+              description: "Errors found during validation",
+            })
+          : showToast({
+              title: "Validation completed",
+              kind: "success",
+              critical: true,
+              description: "No errors found during form validation",
+            });
+      })
+      .then(setIsValidating((prevState) => !prevState));
+  };
 
   const initializeSchema = useCallback(() => {
     const dummySchema: OHRIFormSchema = {
@@ -293,6 +327,9 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       allQuestions={section.questions}
     />
   );
+
+  isFormValidating && validateForm();
+
   return (
     <div className={styles.container}>
       {isLoading ? (
@@ -300,8 +337,9 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           description={t("loadingSchema", "Loading schema") + "..."}
         />
       ) : null}
-
-      <ActionButtons schema={schema} t={t} />
+      <div className={styles.validator}>
+        <ActionButtons schema={schema} t={t} />
+      </div>
 
       {showNewFormModal ? (
         <NewFormModal
@@ -459,6 +497,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           </Button>
         </div>
       )}
+
       <DndContext onDragEnd={(event) => handleDragEnd(event)} sensors={sensors}>
         {schema?.pages?.length
           ? schema.pages.map((page, pageIndex) => (
@@ -545,6 +584,50 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                           questionIndex
                                         )}
                                       </Droppable>
+                                      <br />
+                                      <p className={styles.validationError}>
+                                        {
+                                          responses.find(
+                                            (item) =>
+                                              item.field.id === question.id
+                                          )?.errorMessage
+                                        }
+                                      </p>
+                                      {question.type === "obsGroup" &&
+                                        question.questions?.map(
+                                          (obsQuestion) => (
+                                            <div
+                                              style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                              }}
+                                            >
+                                              <div
+                                                className={
+                                                  styles.editorContainer
+                                                }
+                                              >
+                                                <p className={styles.obsGroup}>
+                                                  {obsQuestion.label}
+                                                  <br />
+                                                  <p
+                                                    className={
+                                                      styles.validationError
+                                                    }
+                                                  >
+                                                    {
+                                                      responses.find(
+                                                        (item) =>
+                                                          item.field.id ===
+                                                          obsQuestion.id
+                                                      )?.errorMessage
+                                                    }
+                                                  </p>
+                                                </p>
+                                              </div>
+                                            </div>
+                                          )
+                                        )}
                                     </>
                                   )
                                 )
