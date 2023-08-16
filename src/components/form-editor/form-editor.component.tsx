@@ -99,10 +99,6 @@ const FormEditor: React.FC = () => {
     localStorage.setItem("formJSON", JSON.stringify(updatedSchema));
   }, []);
 
-  const validationSetter = () => {
-    setIsValidating((prevState) => !prevState);
-  };
-
   const DraftSchemaModal = () => {
     return (
       <ComposedModal
@@ -168,7 +164,7 @@ const FormEditor: React.FC = () => {
                       schema={schema}
                       onSchemaChange={updateSchema}
                       isLoading={isLoadingFormOrSchema}
-                      validateStateSetter={validationSetter}
+                      validateStateSetter={setIsValidating}
                     />
                   </>
                 </TabPanel>
@@ -194,7 +190,7 @@ const FormEditor: React.FC = () => {
                     onSchemaChange={updateSchema}
                     isLoading={isLoadingFormOrSchema}
                     isFormValidating={isValidating}
-                    setIsFormValidating={validationSetter}
+                    setIsFormValidating={setIsValidating}
                   />
                 </TabPanel>
               </TabPanels>

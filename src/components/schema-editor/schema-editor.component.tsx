@@ -146,7 +146,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
         {schema ? (
           <ButtonSet>
             <Button
-              onClick={() => validateStateSetter()}
+              onClick={() => validateStateSetter((prevState) => !prevState)}
               disabled={schema ? false : true}
             >
               Validate Form

@@ -95,7 +95,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
               description: "No errors found during form validation",
             });
       })
-      .then(setIsFormValidating());
+      .then(setIsFormValidating((prevState) => !prevState));
   };
 
   const initializeSchema = useCallback(() => {
