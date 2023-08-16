@@ -37,6 +37,8 @@ export class FormBuilderPage {
     this.page.getByRole("button", { name: /start building/i });
   readonly interactiveFormNameInput = () =>
     this.page.getByRole("textbox", { name: /form name/i });
+  readonly interactiveFormDescriptionInput = () =>
+    this.page.getByRole("textbox", { name: /form description/i });
   readonly createFormButton = () =>
     this.page.getByRole("button", { name: /create form/i });
   readonly addPageButton = () =>
@@ -91,6 +93,9 @@ export class FormBuilderPage {
     await this.interactiveBuilderTab().click();
     await this.startBuildingButton().click();
     await this.interactiveFormNameInput().fill("Covid-19 Screening");
+    await this.interactiveFormDescriptionInput().fill(
+      "A test form for recording COVID-19 screening information"
+    );
     await this.createFormButton().click();
     await expect(this.page.getByText(/form created/i)).toBeVisible();
 
@@ -129,13 +134,11 @@ export class FormBuilderPage {
     await this.formNameInput().fill(formName);
     await this.formVersionInput().click();
     await this.formVersionInput().fill("1.0");
-    await this.formDescriptionInput().click();
-    await this.formDescriptionInput().fill("this is test form description");
     await this.formEncounterType().selectOption("Admission");
     await this.formSaveButton().click();
   }
 
   async searchForm(formName: string) {
-    await this.page.getByRole('searchbox').fill(formName);
+    await this.page.getByRole("searchbox").fill(formName);
   }
 }
