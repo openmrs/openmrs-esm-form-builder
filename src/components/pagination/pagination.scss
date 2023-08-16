@@ -10,7 +10,7 @@
   @include type.type-style('body-compact-01');
   display: flex;
   justify-content: space-between;
-  color: colors.$gray-20;
+  color: colors.$gray-70;
   background-color: colors.$white-0;
   padding-left: 1rem;
   align-items: center;
@@ -49,7 +49,7 @@
 .pagination {
   @include type.type-style('body-compact-01');
   background-color: colors.$white-0;
-  color: colors.$gray-20;
+  color: colors.$gray-70;
   display: flex;
 }
 

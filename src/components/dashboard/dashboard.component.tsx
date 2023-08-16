@@ -399,7 +399,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
       <DataTable
         rows={tableRows}
         headers={tableHeaders}
-        size={isTablet ? "lg" : "xs"}
+        size={isTablet ? "lg" : "sm"}
         useZebraStyles
       >
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (

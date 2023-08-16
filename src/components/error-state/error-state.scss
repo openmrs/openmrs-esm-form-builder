@@ -12,20 +12,20 @@
 .errorCopy {
   margin-bottom: spacing.$spacing-03;
   @include type.type-style("body-01");
-  color: colors.$gray-20;
+  color: colors.$gray-70;
 }
 
 .desktopHeading {
   h4 {
     @include type.type-style('heading-compact-02');
-    color: colors.$gray-20;
+    color: colors.$gray-70;
   }
 }
 
 .tabletHeading {
   h4 {
     @include type.type-style('heading-03');
-    color: colors.$gray-20;
+    color: colors.$gray-70;
   }
 }
 
