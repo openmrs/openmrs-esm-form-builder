@@ -1,6 +1,6 @@
-@use '@carbon/styles/scss/type';
+@use '@carbon/styles/scss/colors';
 @use '@carbon/styles/scss/spacing';
-@import '~@openmrs/esm-styleguide/src/vars';
+@use '@carbon/styles/scss/type';
 
 .buttonsContainer {
   display: flex;
@@ -12,17 +12,20 @@
   align-items: center;
 }
 
+.questionLabel {
+  @include type.type-style('body-01');
+}
+
 .isDragged, .normal {
   display: flex;
   height: 3rem;
   justify-content: space-between;
   align-items: center;
-  margin: spacing.$spacing-02 spacing.$spacing-03;
   width: 100%;
 }
 
 .normal:hover {
-  background-color: $ui-03;
+  background-color: colors.$gray-20;
 }
 
 .isDragged {
@@ -32,18 +35,16 @@
 
 .dragIconContainer {
   cursor: pointer;
-  margin-right: spacing.$spacing-03;
-
-
 
   :hover {
-    background-color: $ui-02;
+    background-color: colors.$white-0;
   }
 }
+
 .dragIcon {
   margin: 0 spacing.$spacing-03;
   padding: 0.25rem;
-  color: $ui-04;
+  color: colors.$gray-50;
   margin-top: 0.2rem;
   width: 1.5rem;
   height: 1.5rem;

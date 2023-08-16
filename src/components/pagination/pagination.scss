@@ -1,6 +1,6 @@
+@use '@carbon/styles/scss/colors';
 @use '@carbon/styles/scss/spacing';
 @use '@carbon/styles/scss/type';
-@import '~@openmrs/esm-styleguide/src/vars';
 
 .bodyShort01 {
   @include type.type-style("body-compact-01");
@@ -10,8 +10,8 @@
   @include type.type-style('body-compact-01');
   display: flex;
   justify-content: space-between;
-  color: $text-02;
-  background-color: $ui-02;
+  color: colors.$gray-20;
+  background-color: colors.$white-0;
   padding-left: 1rem;
   align-items: center;
 }
@@ -48,8 +48,8 @@
 
 .pagination {
   @include type.type-style('body-compact-01');
-  background-color: $ui-02;
-  color: $text-02;
+  background-color: colors.$white-0;
+  color: colors.$gray-20;
   display: flex;
 }
 

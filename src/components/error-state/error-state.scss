@@ -1,6 +1,6 @@
+@use '@carbon/styles/scss/colors';
 @use '@carbon/styles/scss/spacing';
 @use '@carbon/styles/scss/type';
-@import '~@openmrs/esm-styleguide/src/vars';
 
 .errorMessage {
   @include type.type-style("heading-compact-02");
@@ -12,20 +12,20 @@
 .errorCopy {
   margin-bottom: spacing.$spacing-03;
   @include type.type-style("body-01");
-  color: $text-02;
+  color: colors.$gray-20;
 }
 
 .desktopHeading {
   h4 {
     @include type.type-style('heading-compact-02');
-    color: $text-02;
+    color: colors.$gray-20;
   }
 }
 
 .tabletHeading {
   h4 {
     @include type.type-style('heading-03');
-    color: $text-02;
+    color: colors.$gray-20;
   }
 }
 
@@ -45,5 +45,5 @@
 
 .tile {
   text-align: center;
-  border: 1px solid $ui-03;
+  border: 1px solid colors.$gray-20;
 }

@@ -1,5 +1,4 @@
 @use '@carbon/styles/scss/type';
-@import '~@openmrs/esm-styleguide/src/vars';
 
 .schemaLabel {
   @include type.type-style('heading-03');

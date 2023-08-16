@@ -1,5 +1,5 @@
+@use '@carbon/styles/scss/colors';
 @use '@carbon/styles/scss/type';
-@import '~@openmrs/esm-styleguide/src/vars';
 
 .container {
   :global(.cds--modal-content:focus) {
@@ -51,7 +51,7 @@
 
 .editableFieldsContainer {
   margin: 1rem 0;
-  border-bottom: 1px solid $ui-03;
+  border-bottom: 1px solid colors.$gray-20;
 }
 
 .addQuestionButton {
@@ -96,10 +96,6 @@
   }
 }
 
-.questionLabel {
-  @include type.type-style('body-01');
-}
-
 .addSectionButton {
-  margin: 1.5rem 1rem;
+  margin: 1rem 1rem;
 }

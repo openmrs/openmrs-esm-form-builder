@@ -61,6 +61,7 @@ type Mutator = KeyedMutator<{
 type ActionButtonsProps = {
   form: FormType;
   mutate: Mutator;
+  responsiveSize: string;
   t: TFunction;
 };
 
@@ -89,7 +90,12 @@ function CustomTag({ condition }: { condition: boolean }) {
   );
 }
 
-function ActionButtons({ form, mutate, t }: ActionButtonsProps) {
+function ActionButtons({
+  form,
+  mutate,
+  responsiveSize,
+  t,
+}: ActionButtonsProps) {
   const { clobdata } = useClobdata(form);
   const formResources = form?.resources;
   const [showDeleteFormModal, setShowDeleteFormModal] = useState(false);
@@ -144,6 +150,7 @@ function ActionButtons({ form, mutate, t }: ActionButtonsProps) {
         kind={"ghost"}
         iconDescription={t("import", "Import")}
         hasIconOnly
+        size={responsiveSize}
       />
     );
   };
@@ -161,6 +168,7 @@ function ActionButtons({ form, mutate, t }: ActionButtonsProps) {
         kind={"ghost"}
         iconDescription={t("editSchema", "Edit schema")}
         hasIconOnly
+        size={responsiveSize}
         tooltipAlignment="start"
       />
     );
@@ -179,6 +187,7 @@ function ActionButtons({ form, mutate, t }: ActionButtonsProps) {
           kind={"ghost"}
           iconDescription={t("downloadSchema", "Download schema")}
           hasIconOnly
+          size={responsiveSize}
           tooltipAlignment="start"
         />
       </a>
@@ -194,6 +203,7 @@ function ActionButtons({ form, mutate, t }: ActionButtonsProps) {
         kind={"ghost"}
         iconDescription={t("deleteSchema", "Delete schema")}
         hasIconOnly
+        size={responsiveSize}
         tooltipAlignment="start"
       />
     );
@@ -266,6 +276,7 @@ function ActionButtons({ form, mutate, t }: ActionButtonsProps) {
 function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
   const config = useConfig();
   const isTablet = useLayoutType() === "tablet";
+  const responsiveSize = isTablet ? "lg" : "sm";
   const [filter, setFilter] = useState("");
   const [searchString, setSearchString] = useState("");
   const pageSize = 10;
@@ -329,7 +340,14 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
     id: form?.uuid,
     published: <CustomTag condition={form?.published} />,
     retired: <CustomTag condition={form?.retired} />,
-    actions: <ActionButtons form={form} mutate={mutate} t={t} />,
+    actions: (
+      <ActionButtons
+        form={form}
+        mutate={mutate}
+        responsiveSize={responsiveSize}
+        t={t}
+      />
+    ),
   }));
 
   const handlePublishStatusChange = ({
@@ -368,6 +386,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
             titleText={
               t("filterByPublishedStatus", "Filter by publish status") + ":"
             }
+            size={responsiveSize}
             type="inline"
             items={["All", "Published", "Unpublished"]}
             onChange={handlePublishStatusChange}
@@ -380,7 +399,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
       <DataTable
         rows={tableRows}
         headers={tableHeaders}
-        size={isTablet ? "sm" : "lg"}
+        size={isTablet ? "lg" : "xs"}
         useZebraStyles
       >
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
@@ -390,9 +409,13 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
               data-testid="forms-table"
             >
               <div className={styles.toolbarWrapper}>
-                <TableToolbar className={styles.tableToolbar}>
-                  <TableToolbarContent>
+                <TableToolbar
+                  className={styles.tableToolbar}
+                  size={responsiveSize}
+                >
+                  <TableToolbarContent className={styles.headerContainer}>
                     <TableToolbarSearch
+                      className={styles.searchbox}
                       onChange={handleSearch}
                       placeholder={t("searchThisList", "Search this list")}
                     />
@@ -400,6 +423,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
                       kind="primary"
                       iconDescription={t("createNewForm", "Create a new form")}
                       renderIcon={(props) => <Add size={16} {...props} />}
+                      size={responsiveSize}
                       onClick={() =>
                         navigate({
                           to: `${window.spaBase}/form-builder/new`,

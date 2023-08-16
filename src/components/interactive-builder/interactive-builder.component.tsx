@@ -14,7 +14,6 @@ import {
 } from "@dnd-kit/core";
 
 import type { Question, RouteParams, Schema } from "../../types";
-import ActionButtons from "../action-buttons/action-buttons.component";
 import AddQuestionModal from "./add-question-modal.component";
 import DeleteSectionModal from "./delete-section-modal.component";
 import DeletePageModal from "./delete-page-modal.component";
@@ -42,7 +41,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 }) => {
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
-      distance: 10, // Enable sort function when dragging 10px   💡 here!!!
+      distance: 10, // Enable sort function when dragging 10px 💡 here!!!
     },
   });
   const keyboardSensor = useSensor(KeyboardSensor);
@@ -301,8 +300,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         />
       ) : null}
 
-      <ActionButtons schema={schema} t={t} />
-
       {showNewFormModal ? (
         <NewFormModal
           schema={schema}
@@ -422,7 +419,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
               </p>
             </div>
             <Button
-              kind="primary"
+              kind="ghost"
               renderIcon={Add}
               onClick={addPage}
               iconDescription={t("addPage", "Add Page")}
@@ -453,7 +450,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           <Button
             onClick={launchNewFormModal}
             className={styles.startButton}
-            kind="primary"
+            kind="ghost"
           >
             {t("startBuilding", "Start building")}
           </Button>
@@ -559,7 +556,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
                               <Button
                                 className={styles.addQuestionButton}
-                                kind="primary"
+                                kind="ghost"
                                 renderIcon={Add}
                                 onClick={() => {
                                   addQuestion();
@@ -590,7 +587,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                 </div>
                 <Button
                   className={styles.addSectionButton}
-                  kind="primary"
+                  kind="ghost"
                   renderIcon={Add}
                   onClick={() => {
                     addSection();
