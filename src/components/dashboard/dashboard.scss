@@ -1,5 +1,6 @@
 @use '@carbon/styles/scss/type';
 @use '@carbon/styles/scss/spacing';
+@use '@carbon/styles/scss/colors';
 @import '~@openmrs/esm-styleguide/src/vars';
 
 .container {
@@ -26,6 +27,16 @@
 .tableToolbar {
   width: 20%;
   min-width: 12.5rem;
+}
+
+.headerContainer {
+  background-color: colors.$gray-10;
+}
+
+.searchbox {
+  input {
+    outline: 2px solid colors.$orange-40 !important;
+  }
 }
 
 .table tr:last-of-type {

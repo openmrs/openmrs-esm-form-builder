@@ -391,8 +391,9 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
             >
               <div className={styles.toolbarWrapper}>
                 <TableToolbar className={styles.tableToolbar}>
-                  <TableToolbarContent>
+                  <TableToolbarContent className={styles.headerContainer}>
                     <TableToolbarSearch
+                      className={styles.searchbox}
                       onChange={handleSearch}
                       placeholder={t("searchThisList", "Search this list")}
                     />
