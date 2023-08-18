@@ -1,10 +1,10 @@
 @use '@carbon/styles/scss/type';
 @use '@carbon/styles/scss/spacing';
-@import '~@openmrs/esm-styleguide/src/vars';
+@use '@carbon/styles/scss/colors';
 
 .container {
   padding: 2rem;
-  background-color: $ui-01;
+  background-color: colors.$gray-10;
 }
 
 .backgroundDataFetchingIndicator {
@@ -19,8 +19,19 @@
 .toolbarWrapper {
   position: relative;
   display: flex;
-  height: spacing.$spacing-09;
   justify-content: flex-end;
+}
+
+:global(.omrs-breakpoint-lt-desktop) {
+  .toolbarWrapper {
+    height: spacing.$spacing-09;
+  }
+}
+ 
+:global(.omrs-breakpoint-gt-tablet) {
+  .toolbarWrapper {
+    height: spacing.$spacing-07;
+  }
 }
 
 .tableToolbar {
@@ -28,9 +39,29 @@
   min-width: 12.5rem;
 }
 
-.table tr:last-of-type {
+.headerContainer {
+  background-color: colors.$gray-10;
+}
+
+.searchbox {
+  input {
+    outline: 2px solid colors.$orange-40 !important;
+  }
+}
+
+
+.table {
+  tr {
+    &:last-of-type {
+      td {
+        border-bottom: none;
+      }
+    }
+  }
+
   td {
-    border-bottom: none;
+    padding-top: 0;
+    padding-bottom: 0;
   }
 }
 
@@ -42,7 +73,7 @@
   position: relative;
   display: flex;
   width: 100%;
-  min-height: 3rem;
+  min-height: 2rem;
   margin-bottom: 0.5rem;
 }
 
@@ -57,7 +88,7 @@
   padding: 0;
 
   :global(.cds--data-table-content) {
-    border: 1px solid $ui-03;
+    border: 1px solid colors.$gray-20;
     border-bottom: none;
     overflow: visible;
   }
@@ -65,7 +96,7 @@
   :global(.cds--table-toolbar) {
     position: relative;
     height: 2rem;
-    min-height: 0rem;
+    min-height: 0rem;  
     overflow: visible;
     top: 0;
   }
@@ -89,13 +120,13 @@
 
 .content {
   @include type.type-style('heading-compact-02');
-  color: $text-02;
+  color: colors.$gray-70;
   margin-bottom: 0.5rem;
 }
 
 .tileContainer {
-  background-color: $ui-02;
-  border-top: 1px solid $ui-03;
+  background-color: colors.$white-0;
+  border-top: 1px solid colors.$gray-70;
   padding: 5rem 0;
 }
 

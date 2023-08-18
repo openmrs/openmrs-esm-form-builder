@@ -1,6 +1,6 @@
+@use "@carbon/styles/scss/colors";
 @use "@carbon/styles/scss/spacing";
 @use "@carbon/styles/scss/type";
-@import '~@openmrs/esm-styleguide/src/vars';
 
 .container {
   padding: 2rem;
@@ -10,7 +10,7 @@
 
 .breadcrumbsContainer {
   nav {
-    background-color: $ui-02;
+    background-color: colors.$white-0;
   }
 }
 
@@ -22,7 +22,7 @@
   max-width: 100%;
 
   :global(.cds--tabs__nav-item--selected) {
-    border-bottom: 2px solid var(--cds-border-interactive, #005d5d);
+    border-bottom: 2px solid var(--cds-border-interactive, colors.$teal-70);
     outline: none !important;
   }
 }
@@ -36,4 +36,28 @@
   min-width: 100%;
   margin: 0;
   padding: 0;
+}
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 1rem 0;
+
+  button {
+    margin-left: 1rem
+  }
+}
+
+.editorContainer {
+  padding: 1rem;
+}
+
+.tabHeading {
+  display: flex;
+  align-items: center;
+  @include type.type-style('heading-compact-01');
+  min-height: 2.5rem;
+  width: 100%;
+  padding: 0.75rem;
 }

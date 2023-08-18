@@ -1,5 +1,5 @@
+@use '@carbon/styles/scss/colors';
 @use '@carbon/styles/scss/type';
-@import '~@openmrs/esm-styleguide/src/vars';
 
 .label {
   margin-bottom: 0.5rem;
@@ -18,20 +18,20 @@
 }
 
 .conceptList {
-  background: white;
+  background: colors.$white-0;
   max-height: 14rem;
   overflow-y: auto;
-  border: 1px solid $ui-03;
+  border: 1px solid colors.$gray-20;
   border-top: none;
 }
 
 .conceptList li:hover {
-  background-color: $ui-03;
+  background-color: colors.$gray-20;
 }
 
 .concept {
   padding: 0.75rem;
-  border-bottom: 1px solid $ui-03;
+  border-bottom: 1px solid colors.$gray-20;
 
   &:last-of-type {
     border-bottom: none;
@@ -40,7 +40,7 @@
 
 .emptyResults {
   @include type.type-style("body-compact-01");
-  color: $text-02;
+  color: colors.$gray-70;
   min-height: 1rem;
 }
 
@@ -49,15 +49,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: $ui-04;
+  background-color: colors.$gray-50;
 
   p {
-    color: $ui-02;
+    color: colors.$white-0;
   }
 }
 
 .oclLink {
-  color: $color-blue-10;
+  color: colors.$blue-10;
   display: flex;
   align-items: center;
 
@@ -70,13 +70,13 @@
   width: 100%;
 
   tr {
-    background-color: $ui-02;
-    border: 1px solid $ui-03;
+    background-color: colors.$white-0;
+    border: 1px solid colors.$gray-20;
   }
   
   td, th {
     padding: 0.25rem;
-    border: 1px solid $ui-03;
+    border: 1px solid colors.$gray-20;
     max-width: 10rem;
     text-align: left;
   }  
@@ -90,7 +90,7 @@
   }
 
   tbody > tr:nth-child(odd) {
-    background-color: $ui-01;
+    background-color: colors.$gray-10;
   }
 }
 
