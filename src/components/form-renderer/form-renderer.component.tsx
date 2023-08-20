@@ -3,19 +3,17 @@ import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
 import { Button, InlineLoading, Tile } from "@carbon/react";
 import { OHRIFormSchema, OHRIForm } from "@openmrs/openmrs-form-engine-lib";
-
-import ActionButtons from "../action-buttons/action-buttons.component";
 import styles from "./form-renderer.scss";
+
+type ErrorFallbackProps = {
+  error: Error;
+  resetErrorBoundary: () => void;
+};
 
 type FormRendererProps = {
   isLoading: boolean;
   onSchemaChange?: (schema: OHRIFormSchema) => void;
   schema: OHRIFormSchema;
-};
-
-type ErrorFallbackProps = {
-  error: Error;
-  resetErrorBoundary: () => void;
 };
 
 const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
@@ -72,34 +70,26 @@ const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
   }
 
   return (
-    <>
-      <ActionButtons schema={schema} t={t} />
-
-      <div className={styles.container}>
-        {!schema && (
-          <Tile className={styles.emptyStateTile}>
-            <h4 className={styles.heading}>
-              {t("noSchemaLoaded", "No schema loaded")}
-            </h4>
-            <p className={styles.helperText}>
-              {t(
-                "formRendererHelperText",
-                "Load a form schema in the Schema Editor to the left to see it rendered here by the Form Engine."
-              )}
-            </p>
-          </Tile>
-        )}
-        {schema === schemaToRender && (
-          <ErrorBoundary FallbackComponent={ErrorFallback}>
-            <OHRIForm
-              formJson={schemaToRender}
-              mode={"enter"}
-              patientUUID={""}
-            />
-          </ErrorBoundary>
-        )}
-      </div>
-    </>
+    <div className={styles.container}>
+      {!schema && (
+        <Tile className={styles.emptyStateTile}>
+          <h4 className={styles.heading}>
+            {t("noSchemaLoaded", "No schema loaded")}
+          </h4>
+          <p className={styles.helperText}>
+            {t(
+              "formRendererHelperText",
+              "Load a form schema in the Schema Editor to the left to see it rendered here by the Form Engine."
+            )}
+          </p>
+        </Tile>
+      )}
+      {schema === schemaToRender && (
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <OHRIForm formJson={schemaToRender} mode={"enter"} patientUUID={""} />
+        </ErrorBoundary>
+      )}
+    </div>
   );
 };
 
