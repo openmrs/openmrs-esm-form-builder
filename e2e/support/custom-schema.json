@@ -25,5 +25,6 @@
   ],
   "processor": "EncounterFormProcessor",
   "referencedForms": [],
-  "uuid": "xxx"
+  "uuid": "xxx",
+  "version": 1
 }
