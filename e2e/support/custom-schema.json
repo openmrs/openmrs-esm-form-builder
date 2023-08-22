@@ -1,5 +1,5 @@
 {
-  "encounterType": "",
+  "encounterType": "e22e39fd-7db2-45e7-80f1-60fa0d5a4378",
   "name": "UI Select Form Test",
   "pages": [
     {
@@ -25,5 +25,7 @@
   ],
   "processor": "EncounterFormProcessor",
   "referencedForms": [],
-  "uuid": "xxx"
+  "uuid": "xxx",
+  "version": "1",
+  "description": "This is test description"
 }

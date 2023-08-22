@@ -18,14 +18,13 @@ test("Create a schema using the interactive builder", async ({ page }) => {
 
   await test.step("Then I should see the new schema in the schema editor and a success notification", async () => {
     await expect(page.getByText(/new question created/i)).toBeVisible();
-    await expect(
-      page
-        .getByRole("tabpanel", { name: "Schema Editor" })
-        .locator("div")
-        .filter({
-          hasText: '{ "name": "Covid-19 Screening"',
-        })
-        .nth(2)
-    ).toBeVisible();
+    await page
+      .locator("#schemaEditor div")
+      .filter({
+        hasText:
+          '{ "name": "Covid-19 Screening", "pages": [ { "label": "Screening", "sections": [',
+      })
+      .nth(1)
+      .click();
   });
 });
