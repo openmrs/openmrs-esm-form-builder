@@ -255,11 +255,9 @@ const FormEditor: React.FC = () => {
                 </Button>
               ) : null}
 
-              {schema ? (
-                <Button kind="ghost" onClick={renderSchemaChanges}>
-                  <span>{t("renderChanges", "Render changes")}</span>
-                </Button>
-              ) : null}
+              <Button kind="ghost" onClick={renderSchemaChanges}>
+                <span>{t("renderChanges", "Render changes")}</span>
+              </Button>
             </div>
             <div>
               <span className={styles.tabHeading}>
