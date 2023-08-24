@@ -181,7 +181,6 @@ function ActionButtons({
         href={window.URL.createObjectURL(downloadableSchema)}
       >
         <Button
-          className={styles.downloadButton}
           enterDelayMs={300}
           renderIcon={Download}
           kind={"ghost"}
