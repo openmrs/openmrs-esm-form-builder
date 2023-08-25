@@ -471,7 +471,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                   </div>
                   <Button
                     hasIconOnly
-                    enterDelayMs={200}
+                    enterDelayMs={300}
                     iconDescription={t("deletePage", "Delete page")}
                     kind="ghost"
                     onClick={() => {
@@ -511,7 +511,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                               </div>
                               <Button
                                 hasIconOnly
-                                enterDelayMs={200}
+                                enterDelayMs={300}
                                 iconDescription={t(
                                   "deleteSection",
                                   "Delete section"
