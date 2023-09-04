@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Button,
   Column,
@@ -16,6 +16,7 @@ import {
   TabPanels,
   TabPanel,
 } from "@carbon/react";
+import { Download, Replicate } from "@carbon/react/icons";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ExtensionSlot } from "@openmrs/esm-framework";
@@ -233,6 +234,18 @@ const FormEditor: React.FC = () => {
     );
   };
 
+  const downloadableSchema = useMemo(
+    () =>
+      new Blob([JSON.stringify(schema, null, 2)], {
+        type: "application/json",
+      }),
+    [schema]
+  );
+
+  const handleCopySchema = useCallback(() => {
+    navigator.clipboard.writeText(stringifiedSchema);
+  }, [stringifiedSchema]);
+
   return (
     <>
       <div className={styles.breadcrumbsContainer}>
@@ -260,9 +273,38 @@ const FormEditor: React.FC = () => {
               </Button>
             </div>
             <div>
-              <span className={styles.tabHeading}>
-                {t("schemaEditor", "Schema Editor")}
-              </span>
+              <div className={styles.heading}>
+                <span className={styles.tabHeading}>
+                  {t("schemaEditor", "Schema Editor")}
+                </span>
+                {schema ? (
+                  <>
+                    <Button
+                      kind="ghost"
+                      size="md"
+                      enterDelayMs={300}
+                      iconDescription={t("copySchema", "Copy schema")}
+                      onClick={handleCopySchema}
+                      renderIcon={(props) => <Replicate size={16} {...props} />}
+                      hasIconOnly
+                    />
+                    <a
+                      download={`${form?.name}.json`}
+                      href={window.URL.createObjectURL(downloadableSchema)}
+                    >
+                      <Button
+                        enterDelayMs={300}
+                        renderIcon={Download}
+                        kind={"ghost"}
+                        iconDescription={t("downloadSchema", "Download schema")}
+                        hasIconOnly
+                        size="md"
+                        tooltipAlignment="start"
+                      />
+                    </a>
+                  </>
+                ) : null}
+              </div>
               {formError ? (
                 <Error
                   error={formError}

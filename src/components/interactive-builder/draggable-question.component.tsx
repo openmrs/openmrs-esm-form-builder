@@ -63,7 +63,7 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
         <Button
           kind="ghost"
           size="sm"
-          enterDelayMs={200}
+          enterDelayMs={300}
           iconDescription={t("duplicateQuestion", "Duplicate question")}
           onClick={() => {
             if (!isDragging) {
@@ -76,7 +76,7 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
         <Button
           kind="ghost"
           size="sm"
-          enterDelayMs={200}
+          enterDelayMs={300}
           iconDescription={t("editQuestion", "Edit question")}
           onClick={() => {
             if (!isDragging) {
@@ -88,7 +88,7 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
         />
         <Button
           hasIconOnly
-          enterDelayMs={200}
+          enterDelayMs={300}
           iconDescription={t("deleteQuestion", "Delete question")}
           kind="ghost"
           onClick={handleDeleteButtonClick}
