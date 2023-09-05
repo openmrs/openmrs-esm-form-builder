@@ -1,10 +1,5 @@
 import React, { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Accordion, AccordionItem, Button, InlineLoading } from "@carbon/react";
-import { Add, TrashCan } from "@carbon/react/icons";
-import { useParams } from "react-router-dom";
-import { showToast, showNotification } from "@openmrs/esm-framework";
-import { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
 import {
   DndContext,
   KeyboardSensor,
@@ -12,6 +7,11 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { Accordion, AccordionItem, Button, InlineLoading } from "@carbon/react";
+import { Add, TrashCan } from "@carbon/react/icons";
+import { useParams } from "react-router-dom";
+import { showToast, showNotification } from "@openmrs/esm-framework";
+import { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
 
 import type { Question, RouteParams, Schema } from "../../types";
 import AddQuestionModal from "./add-question-modal.component";
@@ -279,19 +279,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     setShowDeleteQuestionModal(true);
   };
 
-  const draggable = (question: Question, section, questionIndex) => (
-    <DraggableQuestion
-      key={question.id}
-      question={question}
-      pageIndex={pageIndex}
-      sectionIndex={sectionIndex}
-      questionIndex={questionIndex}
-      duplicateQuestion={duplicateQuestion}
-      handleEditButtonClick={handleEditButtonClick}
-      handleDeleteButtonClick={handleDeleteButtonClick}
-      allQuestions={section.questions}
-    />
-  );
   return (
     <div className={styles.container}>
       {isLoading ? (
@@ -456,6 +443,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           </Button>
         </div>
       )}
+
       <DndContext onDragEnd={(event) => handleDragEnd(event)} sensors={sensors}>
         {schema?.pages?.length
           ? schema.pages.map((page, pageIndex) => (
@@ -532,17 +520,27 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                               {section.questions?.length ? (
                                 section.questions.map(
                                   (question, questionIndex) => (
-                                    <>
-                                      <Droppable
-                                        id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
-                                      >
-                                        {draggable(
-                                          question,
-                                          section,
-                                          questionIndex
-                                        )}
-                                      </Droppable>
-                                    </>
+                                    <Droppable
+                                      id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
+                                    >
+                                      <DraggableQuestion
+                                        key={question.id}
+                                        question={question}
+                                        pageIndex={pageIndex}
+                                        sectionIndex={sectionIndex}
+                                        questionIndex={questionIndex}
+                                        handleDuplicateQuestion={
+                                          duplicateQuestion
+                                        }
+                                        handleEditButtonClick={
+                                          handleEditButtonClick
+                                        }
+                                        handleDeleteButtonClick={
+                                          handleDeleteButtonClick
+                                        }
+                                        questionCount={section.questions.length}
+                                      />
+                                    </Droppable>
                                   )
                                 )
                               ) : (

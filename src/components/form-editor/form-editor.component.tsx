@@ -3,6 +3,7 @@ import {
   Button,
   Column,
   ComposedModal,
+  CopyButton,
   InlineLoading,
   InlineNotification,
   Form,
@@ -16,12 +17,11 @@ import {
   TabPanels,
   TabPanel,
 } from "@carbon/react";
-import { Download, Replicate } from "@carbon/react/icons";
+import { Download } from "@carbon/react/icons";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ExtensionSlot } from "@openmrs/esm-framework";
 import type { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
-
 import type { Schema, RouteParams } from "../../types";
 import { useClobdata } from "../../hooks/useClobdata";
 import { useForm } from "../../hooks/useForm";
@@ -62,6 +62,7 @@ const FormEditor: React.FC = () => {
   const [stringifiedSchema, setStringifiedSchema] = useState(
     schema ? JSON.stringify(schema, null, 2) : ""
   );
+  const [copied, setCopied] = useState(false);
 
   const isLoadingFormOrSchema =
     formUuid && (isLoadingClobdata || isLoadingForm);
@@ -244,6 +245,7 @@ const FormEditor: React.FC = () => {
 
   const handleCopySchema = useCallback(() => {
     navigator.clipboard.writeText(stringifiedSchema);
+    setCopied(true);
   }, [stringifiedSchema]);
 
   return (
@@ -275,18 +277,17 @@ const FormEditor: React.FC = () => {
             <div>
               <div className={styles.heading}>
                 <span className={styles.tabHeading}>
-                  {t("schemaEditor", "Schema Editor")}
+                  {t("schemaEditor", "Schema editor")}
                 </span>
                 {schema ? (
                   <>
-                    <Button
-                      kind="ghost"
-                      size="md"
+                    <CopyButton
+                      align="top"
+                      className="cds--btn--md"
                       enterDelayMs={300}
                       iconDescription={t("copySchema", "Copy schema")}
+                      kind="ghost"
                       onClick={handleCopySchema}
-                      renderIcon={(props) => <Replicate size={16} {...props} />}
-                      hasIconOnly
                     />
                     <a
                       download={`${form?.name}.json`}
