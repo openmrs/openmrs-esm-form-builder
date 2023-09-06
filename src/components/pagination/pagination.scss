@@ -1,6 +1,6 @@
-@use '@carbon/styles/scss/colors';
-@use '@carbon/styles/scss/spacing';
-@use '@carbon/styles/scss/type';
+@use '@carbon/colors';
+@use '@carbon/layout';
+@use "@carbon/type";
 
 .bodyShort01 {
   @include type.type-style("body-compact-01");
@@ -43,7 +43,7 @@
 .configurableLink {
   text-decoration: none;
   @extend .bodyShort01;
-  padding: 0 spacing.$spacing-03;
+  padding: 0 layout.$spacing-03;
 }
 
 .pagination {

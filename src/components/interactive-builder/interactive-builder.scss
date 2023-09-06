@@ -1,5 +1,5 @@
-@use '@carbon/styles/scss/colors';
-@use '@carbon/styles/scss/type';
+@use '@carbon/colors';
+@use '@carbon/type';
 
 .container {
   :global(.cds--modal-content:focus) {
@@ -97,5 +97,5 @@
 }
 
 .addSectionButton {
-  margin: 1rem 1rem;
+  margin: 1rem;
 }

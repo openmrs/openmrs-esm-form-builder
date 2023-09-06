@@ -231,344 +231,335 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
         onSubmit={(event) => event.preventDefault()}
       >
         <ModalBody hasScrollingContent>
-          <FormGroup legendText={""}>
-            <Stack gap={5}>
-              <TextInput
-                defaultValue={questionToEdit.label}
-                id={questionToEdit.id}
-                labelText={t("questionLabel", "Label")}
-                onChange={(event) => setQuestionLabel(event.target.value)}
-                required
+          <Stack gap={5}>
+            <TextInput
+              defaultValue={questionToEdit.label}
+              id={questionToEdit.id}
+              labelText={t("questionLabel", "Label")}
+              onChange={(event) => setQuestionLabel(event.target.value)}
+              required
+            />
+
+            <TextInput
+              defaultValue={questionToEdit.id}
+              id="questionId"
+              invalid={questionIdExists(questionId)}
+              invalidText={t(
+                "questionIdExists",
+                "This question ID already exists in your schema"
+              )}
+              labelText={t(
+                "questionId",
+                "Question ID (prefer using camel-case for IDs)"
+              )}
+              onChange={(event) => setQuestionId(event.target.value)}
+              placeholder={t(
+                "questionIdPlaceholder",
+                'Enter a unique ID e.g. "anaesthesiaType" for a question asking about the type of anaesthesia.'
+              )}
+              required
+            />
+
+            <RadioButtonGroup
+              defaultSelected={
+                /true/.test(questionToEdit?.required?.toString())
+                  ? "required"
+                  : "optional"
+              }
+              name="isQuestionRequired"
+              legendText={t(
+                "isQuestionRequiredOrOptional",
+                "Is this question a required or optional field? Required fields must be answered before the form can be submitted."
+              )}
+            >
+              <RadioButton
+                id="questionIsNotRequired"
+                defaultChecked={true}
+                labelText={t("optional", "Optional")}
+                onClick={() => setIsQuestionRequired(false)}
+                value="optional"
               />
-
-              <TextInput
-                defaultValue={questionToEdit.id}
-                id="questionId"
-                invalid={questionIdExists(questionId)}
-                invalidText={t(
-                  "questionIdExists",
-                  "This question ID already exists in your schema"
-                )}
-                labelText={t(
-                  "questionId",
-                  "Question ID (prefer using camel-case for IDs)"
-                )}
-                onChange={(event) => setQuestionId(event.target.value)}
-                placeholder={t(
-                  "questionIdPlaceholder",
-                  'Enter a unique ID e.g. "anaesthesiaType" for a question asking about the type of anaesthesia.'
-                )}
-                required
+              <RadioButton
+                id="questionIsRequired"
+                defaultChecked={false}
+                labelText={t("required", "Required")}
+                onClick={() => setIsQuestionRequired(true)}
+                value="required"
               />
+            </RadioButtonGroup>
 
-              <RadioButtonGroup
-                defaultSelected={
-                  /true/.test(questionToEdit?.required?.toString())
-                    ? "required"
-                    : "optional"
-                }
-                name="isQuestionRequired"
-                legendText={t(
-                  "isQuestionRequiredOrOptional",
-                  "Is this question a required or optional field? Required fields must be answered before the form can be submitted."
-                )}
-              >
-                <RadioButton
-                  id="questionIsNotRequired"
-                  defaultChecked={true}
-                  labelText={t("optional", "Optional")}
-                  onClick={() => setIsQuestionRequired(false)}
-                  value="optional"
+            <Select
+              defaultValue={questionToEdit.type}
+              onChange={(event) => setQuestionType(event.target.value)}
+              id={"questionType"}
+              invalidText={t("typeRequired", "Type is required")}
+              labelText={t("questionType", "Question type")}
+              required
+            >
+              {!questionType && (
+                <SelectItem
+                  text={t("chooseQuestionType", "Choose a question type")}
+                  value=""
                 />
-                <RadioButton
-                  id="questionIsRequired"
-                  defaultChecked={false}
-                  labelText={t("required", "Required")}
-                  onClick={() => setIsQuestionRequired(true)}
-                  value="required"
+              )}
+              {questionTypes.map((questionType, key) => (
+                <SelectItem
+                  text={questionType}
+                  value={questionType}
+                  key={key}
                 />
-              </RadioButtonGroup>
+              ))}
+            </Select>
 
-              <Select
-                defaultValue={questionToEdit.type}
-                onChange={(event) => setQuestionType(event.target.value)}
-                id={"questionType"}
-                invalidText={t("typeRequired", "Type is required")}
-                labelText={t("questionType", "Question type")}
-                required
-              >
-                {!questionType && (
-                  <SelectItem
-                    text={t("chooseQuestionType", "Choose a question type")}
-                    value=""
-                  />
-                )}
-                {questionTypes.map((questionType, key) => (
-                  <SelectItem
-                    text={questionType}
-                    value={questionType}
-                    key={key}
-                  />
-                ))}
-              </Select>
+            <Select
+              defaultValue={questionToEdit.questionOptions.rendering}
+              onChange={(event) => setFieldType(event.target.value)}
+              id="renderingType"
+              invalidText={t(
+                "validFieldTypeRequired",
+                "A valid field type value is required"
+              )}
+              labelText={t("fieldType", "Field type")}
+              required
+            >
+              {!fieldType && (
+                <SelectItem
+                  text={t("chooseFieldType", "Choose a field type")}
+                  value=""
+                />
+              )}
+              {fieldTypes.map((fieldType, key) => (
+                <SelectItem text={fieldType} value={fieldType} key={key} />
+              ))}
+            </Select>
 
-              <Select
-                defaultValue={questionToEdit.questionOptions.rendering}
-                onChange={(event) => setFieldType(event.target.value)}
-                id="renderingType"
-                invalidText={t(
-                  "validFieldTypeRequired",
-                  "A valid field type value is required"
-                )}
-                labelText={t("fieldType", "Field type")}
-                required
-              >
-                {!fieldType && (
-                  <SelectItem
-                    text={t("chooseFieldType", "Choose a field type")}
-                    value=""
-                  />
-                )}
-                {fieldTypes.map((fieldType, key) => (
-                  <SelectItem text={fieldType} value={fieldType} key={key} />
-                ))}
-              </Select>
-
-              {fieldType === "number" ? (
-                <>
-                  <TextInput
-                    id="min"
-                    labelText="Min"
-                    value={min || ""}
-                    onChange={(event) => setMin(event.target.value)}
-                    required
-                  />
-                  <TextInput
-                    id="max"
-                    labelText="Max"
-                    value={max || ""}
-                    onChange={(event) => setMax(event.target.value)}
-                    required
-                  />
-                </>
-              ) : fieldType === "textarea" ? (
+            {fieldType === "number" ? (
+              <>
                 <TextInput
-                  id="textAreaRows"
-                  labelText={t("rows", "Rows")}
-                  value={rows || ""}
-                  onChange={(event) => setRows(event.target.value)}
+                  id="min"
+                  labelText="Min"
+                  value={min || ""}
+                  onChange={(event) => setMin(event.target.value)}
                   required
                 />
-              ) : null}
-
-              {fieldType !== "ui-select-extended" && (
-                <div>
-                  <FormLabel className={styles.label}>
-                    {t(
-                      "searchForBackingConcept",
-                      "Search for a backing concept"
-                    )}
-                  </FormLabel>
-                  {isLoadingConceptName ? (
-                    <InlineLoading
-                      className={styles.loader}
-                      description={t("loading", "Loading") + "..."}
-                    />
-                  ) : (
-                    <>
-                      <Search
-                        defaultValue={conceptName}
-                        id="conceptLookup"
-                        onClear={() => setSelectedConcept(null)}
-                        onChange={(e) =>
-                          handleConceptChange(e.target.value?.trim())
-                        }
-                        placeholder={t(
-                          "searchConcept",
-                          "Search using a concept name or UUID"
-                        )}
-                        required
-                        size="md"
-                        value={selectedConcept?.display}
-                      />
-                      {(() => {
-                        if (!conceptToLookup) return null;
-                        if (isLoadingConcepts)
-                          return (
-                            <InlineLoading
-                              className={styles.loader}
-                              description={t("searching", "Searching") + "..."}
-                            />
-                          );
-                        if (
-                          concepts &&
-                          concepts?.length &&
-                          !isLoadingConcepts
-                        ) {
-                          return (
-                            <ul className={styles.conceptList}>
-                              {concepts?.map((concept, index) => (
-                                <li
-                                  role="menuitem"
-                                  className={styles.concept}
-                                  key={index}
-                                  onClick={() => handleConceptSelect(concept)}
-                                >
-                                  {concept.display}
-                                </li>
-                              ))}
-                            </ul>
-                          );
-                        }
-                        return (
-                          <Layer>
-                            <Tile className={styles.emptyResults}>
-                              <span>
-                                {t(
-                                  "noMatchingConcepts",
-                                  "No concepts were found that match"
-                                )}{" "}
-                                <strong>"{conceptToLookup}".</strong>
-                              </span>
-                            </Tile>
-
-                            <div className={styles.oclLauncherBanner}>
-                              {
-                                <p className={styles.bodyShort01}>
-                                  {t(
-                                    "conceptSearchHelpText",
-                                    "Can't find a concept?"
-                                  )}
-                                </p>
-                              }
-                              <a
-                                className={styles.oclLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                href={"https://app.openconceptlab.org/"}
-                              >
-                                {t("searchInOCL", "Search in OCL")}
-                                <ArrowUpRight size={16} />
-                              </a>
-                            </div>
-                          </Layer>
-                        );
-                      })()}
-                    </>
-                  )}
-                </div>
-              )}
-
-              {conceptMappings && conceptMappings.length ? (
-                <FormGroup>
-                  <FormLabel className={styles.label}>
-                    {t("mappings", "Mappings")}
-                  </FormLabel>
-                  <table className={styles.tableStriped}>
-                    <thead>
-                      <tr>
-                        <th>{t("relationship", "Relationship")}</th>
-                        <th>{t("source", "Source")}</th>
-                        <th>{t("code", "Code")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {conceptMappings.map((mapping, index) => (
-                        <tr key={`mapping-${index}`}>
-                          <td>{mapping.relationship ?? "--"}</td>
-                          <td>{mapping.type ?? "--"}</td>
-                          <td>{mapping.value ?? "--"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </FormGroup>
-              ) : null}
-
-              {!hasConceptChanged &&
-              questionToEdit?.questionOptions?.answers &&
-              questionToEdit?.questionOptions.answers?.length ? (
-                <MultiSelect
-                  className={styles.multiSelect}
-                  direction="top"
-                  id="selectAnswers"
-                  itemToString={(item) => item.text}
-                  initialSelectedItems={questionToEdit?.questionOptions?.answers?.map(
-                    (answer) => ({
-                      id: answer.concept,
-                      text: answer.label,
-                    })
-                  )}
-                  items={questionToEdit?.questionOptions?.answers?.map(
-                    (answer) => ({
-                      id: answer.concept,
-                      text: answer.label ?? "",
-                    })
-                  )}
-                  onChange={({ selectedItems }) => {
-                    setAnswersChanged(true);
-                    setSelectedAnswers(selectedItems.sort());
-                  }}
-                  size="md"
-                  titleText={t(
-                    "selectAnswersToDisplay",
-                    "Select answers to display"
-                  )}
+                <TextInput
+                  id="max"
+                  labelText="Max"
+                  value={max || ""}
+                  onChange={(event) => setMax(event.target.value)}
+                  required
                 />
-              ) : null}
+              </>
+            ) : fieldType === "textarea" ? (
+              <TextInput
+                id="textAreaRows"
+                labelText={t("rows", "Rows")}
+                value={rows || ""}
+                onChange={(event) => setRows(event.target.value)}
+                required
+              />
+            ) : null}
 
-              {!hasConceptChanged &&
-              questionToEdit?.questionOptions?.answers?.length &&
-              !answersChanged ? (
-                <div>
-                  {questionToEdit?.questionOptions?.answers?.map((answer) => (
-                    <Tag
-                      className={styles.tag}
-                      key={answer?.concept}
-                      type={"blue"}
-                    >
-                      {answer?.label}
-                    </Tag>
-                  ))}
-                </div>
-              ) : null}
+            {fieldType !== "ui-select-extended" && (
+              <div>
+                <FormLabel className={styles.label}>
+                  {t("searchForBackingConcept", "Search for a backing concept")}
+                </FormLabel>
+                {isLoadingConceptName ? (
+                  <InlineLoading
+                    className={styles.loader}
+                    description={t("loading", "Loading") + "..."}
+                  />
+                ) : (
+                  <>
+                    <Search
+                      defaultValue={conceptName}
+                      id="conceptLookup"
+                      onClear={() => setSelectedConcept(null)}
+                      onChange={(e) =>
+                        handleConceptChange(e.target.value?.trim())
+                      }
+                      placeholder={t(
+                        "searchConcept",
+                        "Search using a concept name or UUID"
+                      )}
+                      required
+                      size="md"
+                      value={selectedConcept?.display}
+                    />
+                    {(() => {
+                      if (!conceptToLookup) return null;
+                      if (isLoadingConcepts)
+                        return (
+                          <InlineLoading
+                            className={styles.loader}
+                            description={t("searching", "Searching") + "..."}
+                          />
+                        );
+                      if (concepts && concepts?.length && !isLoadingConcepts) {
+                        return (
+                          <ul className={styles.conceptList}>
+                            {concepts?.map((concept, index) => (
+                              <li
+                                role="menuitem"
+                                className={styles.concept}
+                                key={index}
+                                onClick={() => handleConceptSelect(concept)}
+                              >
+                                {concept.display}
+                              </li>
+                            ))}
+                          </ul>
+                        );
+                      }
+                      return (
+                        <Layer>
+                          <Tile className={styles.emptyResults}>
+                            <span>
+                              {t(
+                                "noMatchingConcepts",
+                                "No concepts were found that match"
+                              )}{" "}
+                              <strong>"{conceptToLookup}".</strong>
+                            </span>
+                          </Tile>
 
-              {hasConceptChanged && answersFromConcept.length ? (
-                <MultiSelect
-                  className={styles.multiSelect}
-                  direction="top"
-                  id="selectAnswers"
-                  itemToString={(item) => item.text}
-                  items={answersFromConcept.map((answer) => ({
+                          <div className={styles.oclLauncherBanner}>
+                            {
+                              <p className={styles.bodyShort01}>
+                                {t(
+                                  "conceptSearchHelpText",
+                                  "Can't find a concept?"
+                                )}
+                              </p>
+                            }
+                            <a
+                              className={styles.oclLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              href={"https://app.openconceptlab.org/"}
+                            >
+                              {t("searchInOCL", "Search in OCL")}
+                              <ArrowUpRight size={16} />
+                            </a>
+                          </div>
+                        </Layer>
+                      );
+                    })()}
+                  </>
+                )}
+              </div>
+            )}
+
+            {conceptMappings && conceptMappings.length ? (
+              <FormGroup>
+                <FormLabel className={styles.label}>
+                  {t("mappings", "Mappings")}
+                </FormLabel>
+                <table className={styles.tableStriped}>
+                  <thead>
+                    <tr>
+                      <th>{t("relationship", "Relationship")}</th>
+                      <th>{t("source", "Source")}</th>
+                      <th>{t("code", "Code")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {conceptMappings.map((mapping, index) => (
+                      <tr key={`mapping-${index}`}>
+                        <td>{mapping.relationship ?? "--"}</td>
+                        <td>{mapping.type ?? "--"}</td>
+                        <td>{mapping.value ?? "--"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </FormGroup>
+            ) : null}
+
+            {!hasConceptChanged &&
+            questionToEdit?.questionOptions?.answers &&
+            questionToEdit?.questionOptions.answers?.length ? (
+              <MultiSelect
+                className={styles.multiSelect}
+                direction="top"
+                id="selectAnswers"
+                itemToString={(item) => item.text}
+                initialSelectedItems={questionToEdit?.questionOptions?.answers?.map(
+                  (answer) => ({
                     id: answer.concept,
                     text: answer.label,
-                  }))}
-                  onChange={({ selectedItems }) =>
-                    setSelectedAnswers(selectedItems.sort())
-                  }
-                  size="md"
-                  titleText={t(
-                    "selectAnswersToDisplay",
-                    "Select answers to display"
-                  )}
-                />
-              ) : null}
+                  })
+                )}
+                items={questionToEdit?.questionOptions?.answers?.map(
+                  (answer) => ({
+                    id: answer.concept,
+                    text: answer.label ?? "",
+                  })
+                )}
+                onChange={({ selectedItems }) => {
+                  setAnswersChanged(true);
+                  setSelectedAnswers(selectedItems.sort());
+                }}
+                size="md"
+                titleText={t(
+                  "selectAnswersToDisplay",
+                  "Select answers to display"
+                )}
+              />
+            ) : null}
 
-              {(hasConceptChanged || answersChanged) && (
-                <div>
-                  {selectedAnswers.map((selectedAnswer) => (
-                    <Tag
-                      className={styles.tag}
-                      key={selectedAnswer.id}
-                      type={"blue"}
-                    >
-                      {selectedAnswer.text}
-                    </Tag>
-                  ))}
-                </div>
-              )}
-            </Stack>
-          </FormGroup>
+            {!hasConceptChanged &&
+            questionToEdit?.questionOptions?.answers?.length &&
+            !answersChanged ? (
+              <div>
+                {questionToEdit?.questionOptions?.answers?.map((answer) => (
+                  <Tag
+                    className={styles.tag}
+                    key={answer?.concept}
+                    type={"blue"}
+                  >
+                    {answer?.label}
+                  </Tag>
+                ))}
+              </div>
+            ) : null}
+
+            {hasConceptChanged && answersFromConcept.length ? (
+              <MultiSelect
+                className={styles.multiSelect}
+                direction="top"
+                id="selectAnswers"
+                itemToString={(item) => item.text}
+                items={answersFromConcept.map((answer) => ({
+                  id: answer.concept,
+                  text: answer.label,
+                }))}
+                onChange={({ selectedItems }) =>
+                  setSelectedAnswers(selectedItems.sort())
+                }
+                size="md"
+                titleText={t(
+                  "selectAnswersToDisplay",
+                  "Select answers to display"
+                )}
+              />
+            ) : null}
+
+            {(hasConceptChanged || answersChanged) && (
+              <div>
+                {selectedAnswers.map((selectedAnswer) => (
+                  <Tag
+                    className={styles.tag}
+                    key={selectedAnswer.id}
+                    type={"blue"}
+                  >
+                    {selectedAnswer.text}
+                  </Tag>
+                ))}
+              </div>
+            )}
+          </Stack>
         </ModalBody>
         <ModalFooter>
           <Button onClick={() => onModalChange(false)} kind="secondary">

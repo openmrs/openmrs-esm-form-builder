@@ -1,6 +1,6 @@
-@use '@carbon/styles/scss/type';
-@use '@carbon/styles/scss/spacing';
-@use '@carbon/styles/scss/colors';
+@use '@carbon/colors';
+@use '@carbon/layout';
+@use "@carbon/type";
 
 .container {
   padding: 2rem;
@@ -24,13 +24,13 @@
 
 :global(.omrs-breakpoint-lt-desktop) {
   .toolbarWrapper {
-    height: spacing.$spacing-09;
+    height: layout.$spacing-09;
   }
 }
  
 :global(.omrs-breakpoint-gt-tablet) {
   .toolbarWrapper {
-    height: spacing.$spacing-07;
+    height: layout.$spacing-07;
   }
 }
 
