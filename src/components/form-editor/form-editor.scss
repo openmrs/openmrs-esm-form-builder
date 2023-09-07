@@ -1,6 +1,6 @@
-@use "@carbon/styles/scss/colors";
-@use "@carbon/styles/scss/spacing";
-@use "@carbon/styles/scss/type";
+@use '@carbon/colors';
+@use '@carbon/layout';
+@use "@carbon/type";
 
 .container {
   padding: 2rem;

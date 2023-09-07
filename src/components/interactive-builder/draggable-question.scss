@@ -1,6 +1,6 @@
-@use '@carbon/styles/scss/colors';
-@use '@carbon/styles/scss/spacing';
-@use '@carbon/styles/scss/type';
+@use '@carbon/colors';
+@use '@carbon/layout';
+@use "@carbon/type";
 
 .buttonsContainer {
   display: flex;
@@ -24,10 +24,6 @@
   width: 100%;
 }
 
-.normal:hover {
-  background-color: colors.$gray-70;
-}
-
 .isDragged {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   background-color: rgba(255, 255, 255, 0.552);
@@ -42,10 +38,10 @@
 }
 
 .dragIcon {
-  margin: 0 spacing.$spacing-03;
+  margin: 0 layout.$spacing-03;
   padding: 0.25rem;
   color: colors.$gray-50;
-  margin-top: 0.2rem;
+  margin-top: 0.25rem;
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 0.25rem;
