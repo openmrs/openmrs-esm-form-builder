@@ -18,7 +18,7 @@
 }
 
 .conceptList {
-  background: colors.$white-0;
+  background: colors.$gray-20;
   max-height: 14rem;
   overflow-y: auto;
   border: 1px solid colors.$gray-20;
@@ -90,7 +90,7 @@
   }
 
   tbody > tr:nth-child(odd) {
-    background-color: colors.$gray-10;
+    background-color: colors.$gray-20;
   }
 }
 
