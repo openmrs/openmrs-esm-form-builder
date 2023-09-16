@@ -13,14 +13,14 @@ import {
 import { showToast, showNotification } from "@openmrs/esm-framework";
 import type { Schema } from "../../types";
 
-type SectionModalProps = {
+interface SectionModalProps {
   schema: Schema;
   onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
   resetIndices: () => void;
   showModal: boolean;
   onModalChange: (showModal: boolean) => void;
-};
+}
 
 const SectionModal: React.FC<SectionModalProps> = ({
   schema,
@@ -56,12 +56,14 @@ const SectionModal: React.FC<SectionModalProps> = ({
         description: t("sectionCreated", "New section created"),
       });
     } catch (error) {
-      showNotification({
-        title: t("errorCreatingSection", "Error creating section"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
+      if (error instanceof Error) {
+        showNotification({
+          title: t("errorCreatingSection", "Error creating section"),
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
+      }
     }
   };
 
@@ -72,14 +74,16 @@ const SectionModal: React.FC<SectionModalProps> = ({
       preventCloseOnClickOutside
     >
       <ModalHeader title={t("createNewSection", "Create a new section")} />
-      <Form onSubmit={(event) => event.preventDefault()}>
+      <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
           <FormGroup legendText={""}>
             <TextInput
               id="sectionTitle"
               labelText={t("enterSectionTitle", "Enter a section title")}
               value={sectionTitle}
-              onChange={(event) => setSectionTitle(event.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                setSectionTitle(event.target.value)
+              }
             />
           </FormGroup>
         </ModalBody>

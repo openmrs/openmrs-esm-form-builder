@@ -1,16 +1,36 @@
 {
-  "parser": "@typescript-eslint/parser",
-  "plugins": [
-    "@typescript-eslint"
-  ],
-  "root": true,
   "extends": [
     "eslint:recommended",
     "plugin:prettier/recommended",
     "plugin:@typescript-eslint/recommended",
-    "ts-react-important-stuff"
+    "plugin:@typescript-eslint/recommended-requiring-type-checking"
   ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": true,
+    "tsconfigRootDir": "__dirname"
+  },
+  "plugins": ["@typescript-eslint"],
+  "root": true,
   "rules": {
+    "@typescript-eslint/no-unsafe-assignment": "off",
+    "@typescript-eslint/no-unsafe-call": "off", 
+    "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/unbound-method": "off",
+    "@typescript-eslint/consistent-type-exports": "error",
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports",
+        "disallowTypeAnnotations": true
+      }
+    ],
+    "@typescript-eslint/array-type": [
+      "error",
+      {
+        "default": "generic"
+      }
+    ],
     "no-restricted-imports": [
       "error",
       {

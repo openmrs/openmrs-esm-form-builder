@@ -7,7 +7,7 @@ import { Draggable, Edit, TrashCan } from "@carbon/react/icons";
 import type { Question } from "../../types";
 import styles from "./draggable-question.scss";
 
-type DraggableQuestionProps = {
+interface DraggableQuestionProps {
   question: Question;
   pageIndex: number;
   sectionIndex: number;
@@ -15,12 +15,12 @@ type DraggableQuestionProps = {
   handleDuplicateQuestion: (
     question: Question,
     pageId: number,
-    sectionId: number
+    sectionId: number,
   ) => void;
   handleEditButtonClick: (question: Question) => void;
   handleDeleteButtonClick: (question: Question) => void;
   questionCount: number;
-};
+}
 
 export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   question,

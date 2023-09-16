@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import flattenDeep from "lodash-es/flattenDeep";
 import {
   Button,
   ComposedModal,
@@ -23,9 +24,8 @@ import {
   Tile,
 } from "@carbon/react";
 import { ArrowUpRight } from "@carbon/react/icons";
-import flattenDeep from "lodash-es/flattenDeep";
 import { showNotification, showToast, useConfig } from "@openmrs/esm-framework";
-import { RenderType } from "@openmrs/openmrs-form-engine-lib";
+import type { RenderType } from "@openmrs/openmrs-form-engine-lib";
 
 import type {
   Answer,
@@ -37,7 +37,7 @@ import type {
 import { useConceptLookup } from "../../hooks/useConceptLookup";
 import styles from "./question-modal.scss";
 
-type AddQuestionModalProps = {
+interface AddQuestionModalProps {
   onModalChange: (showModal: boolean) => void;
   onQuestionEdit: (question: Question) => void;
   onSchemaChange: (schema: Schema) => void;
@@ -47,7 +47,16 @@ type AddQuestionModalProps = {
   schema: Schema;
   sectionIndex: number;
   showModal: boolean;
-};
+}
+
+interface Config {
+  fieldTypes: Array<RenderType>;
+  questionTypes: Array<string>;
+}
+
+interface Item {
+  text: string;
+}
 
 const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   schema,
@@ -60,20 +69,29 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   onModalChange,
 }) => {
   const { t } = useTranslation();
-  const { fieldTypes, questionTypes } = useConfig();
+  const { fieldTypes, questionTypes }: Config = useConfig();
+
+  const [answers, setAnswers] = useState<Array<Answer>>([]);
+  const [conceptMappings, setConceptMappings] = useState<Array<ConceptMapping>>(
+    [],
+  );
+  const [conceptToLookup, setConceptToLookup] = useState("");
+  const [fieldType, setFieldType] = useState<RenderType | null>(null);
+  const [isQuestionRequired, setIsQuestionRequired] = useState(false);
   const [max, setMax] = useState("");
   const [min, setMin] = useState("");
-  const [questionLabel, setQuestionLabel] = useState("");
-  const [questionType, setQuestionType] = useState("");
-  const [isQuestionRequired, setIsQuestionRequired] = useState(false);
-  const [fieldType, setFieldType] = useState<RenderType>(null);
   const [questionId, setQuestionId] = useState("");
-  const [answers, setAnswers] = useState<Answer[]>([]);
-  const [selectedConcept, setSelectedConcept] = useState(null);
-  const [conceptMappings, setConceptMappings] = useState<ConceptMapping[]>([]);
-  const [rows, setRows] = useState(2);
-  const [conceptToLookup, setConceptToLookup] = useState("");
-  const [selectedAnswers, setSelectedAnswers] = useState([]);
+  const [questionLabel, setQuestionLabel] = useState("");
+  const [questionType, setQuestionType] = useState<string | null>(null);
+  const [rows, setRows] = useState("");
+  const [selectedConcept, setSelectedConcept] = useState<Concept | null>(null);
+  const [selectedAnswers, setSelectedAnswers] = useState<
+    Array<{
+      id: string;
+      text: string;
+    }>
+  >([]);
+
   const { concepts, isLoadingConcepts } = useConceptLookup(conceptToLookup);
 
   const handleConceptChange = (event: React.ChangeEvent<HTMLInputElement>) =>
@@ -86,7 +104,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       concept?.answers?.map((answer) => ({
         concept: answer?.uuid,
         label: answer?.display,
-      }))
+      })),
     );
     setConceptMappings(
       concept?.mappings?.map((conceptMapping) => {
@@ -96,7 +114,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           type: data[0],
           value: data[1],
         };
-      })
+      }),
     );
   };
 
@@ -109,7 +127,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       });
     });
 
-    const questionIds = flattenDeep(nestedIds);
+    const questionIds: Array<string> = flattenDeep(nestedIds);
 
     return questionIds.includes(idToTest);
   };
@@ -132,9 +150,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         id: questionId ?? computedQuestionId,
         questionOptions: {
           rendering: fieldType,
-          concept: selectedConcept.uuid,
+          concept: selectedConcept?.uuid,
           conceptMappings: conceptMappings,
-          answers: selectedAnswers.map((answer) => ({
+          answers: selectedAnswers?.map((answer) => ({
             concept: answer.id,
             label: answer.text,
           })),
@@ -162,12 +180,14 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         description: t("questionCreated", "New question created"),
       });
     } catch (error) {
-      showNotification({
-        title: t("errorCreatingQuestion", "Error creating question"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
+      if (error instanceof Error) {
+        showNotification({
+          title: t("errorCreatingQuestion", "Error creating question"),
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
+      }
     }
   };
 
@@ -180,7 +200,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       <ModalHeader title={t("createNewQuestion", "Create a new question")} />
       <Form
         className={styles.form}
-        onSubmit={(event) => event.preventDefault()}
+        onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}
       >
         <ModalBody hasScrollingContent>
           <FormGroup legendText={""}>
@@ -190,7 +210,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 labelText={t("questionLabel", "Label")}
                 placeholder={t("labelPlaceholder", "e.g. Type of Anaesthesia")}
                 value={questionLabel}
-                onChange={(event) => setQuestionLabel(event.target.value)}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                  setQuestionLabel(event.target.value)
+                }
                 required
               />
 
@@ -199,19 +221,19 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 invalid={questionIdExists(questionId)}
                 invalidText={t(
                   "questionIdExists",
-                  "This question ID already exists in your schema"
+                  "This question ID already exists in your schema",
                 )}
                 labelText={t(
                   "questionId",
-                  "Question ID (prefer using camel-case for IDs)"
+                  "Question ID (prefer using camel-case for IDs)",
                 )}
                 value={questionId}
-                onChange={(event) => {
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                   setQuestionId(event.target.value);
                 }}
                 placeholder={t(
                   "questionIdPlaceholder",
-                  'Enter a unique ID e.g. "anaesthesiaType" for a question asking about the type of anaesthesia.'
+                  'Enter a unique ID e.g. "anaesthesiaType" for a question asking about the type of anaesthesia.',
                 )}
                 required
               />
@@ -221,7 +243,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 name="isQuestionRequired"
                 legendText={t(
                   "isQuestionRequiredOrOptional",
-                  "Is this question a required or optional field? Required fields must be answered before the form can be submitted."
+                  "Is this question a required or optional field? Required fields must be answered before the form can be submitted.",
                 )}
               >
                 <RadioButton
@@ -242,7 +264,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
               <Select
                 value={questionType}
-                onChange={(event) => setQuestionType(event.target.value)}
+                onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+                  setQuestionType(event.target.value)
+                }
                 id="questionType"
                 invalidText={t("typeRequired", "Type is required")}
                 labelText={t("questionType", "Question type")}
@@ -265,11 +289,13 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
               <Select
                 value={fieldType}
-                onChange={(event) => setFieldType(event.target.value)}
+                onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+                  setFieldType(event.target.value as RenderType)
+                }
                 id="renderingType"
                 invalidText={t(
                   "validFieldTypeRequired",
-                  "A valid field type value is required"
+                  "A valid field type value is required",
                 )}
                 labelText={t("fieldType", "Field type")}
                 required
@@ -291,14 +317,18 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                     id="min"
                     labelText="Min"
                     value={min || ""}
-                    onChange={(event) => setMin(event.target.value)}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                      setMin(event.target.value)
+                    }
                     required
                   />
                   <TextInput
                     id="max"
                     labelText="Max"
                     value={max || ""}
-                    onChange={(event) => setMax(event.target.value)}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                      setMax(event.target.value)
+                    }
                     required
                   />
                 </>
@@ -307,7 +337,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   id="textAreaRows"
                   labelText={t("rows", "Rows")}
                   value={rows || ""}
-                  onChange={(event) => setRows(event.target.value)}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                    setRows(event.target.value)
+                  }
                   required
                 />
               ) : null}
@@ -317,7 +349,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   <FormLabel className={styles.label}>
                     {t(
                       "searchForBackingConcept",
-                      "Search for a backing concept"
+                      "Search for a backing concept",
                     )}
                   </FormLabel>
                   <Search
@@ -327,7 +359,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                     onChange={handleConceptChange}
                     placeholder={t(
                       "searchConcept",
-                      "Search using a concept name or UUID"
+                      "Search using a concept name or UUID",
                     )}
                     value={(() => {
                       if (conceptToLookup) {
@@ -349,7 +381,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                           description={t("searching", "Searching") + "..."}
                         />
                       );
-                    if (concepts && concepts?.length && !isLoadingConcepts) {
+                    if (concepts?.length && !isLoadingConcepts) {
                       return (
                         <ul className={styles.conceptList}>
                           {concepts?.map((concept, index) => (
@@ -371,7 +403,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                           <span>
                             {t(
                               "noMatchingConcepts",
-                              "No concepts were found that match"
+                              "No concepts were found that match",
                             )}{" "}
                             <strong>"{conceptToLookup}".</strong>
                           </span>
@@ -382,7 +414,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                             <p className={styles.bodyShort01}>
                               {t(
                                 "conceptSearchHelpText",
-                                "Can't find a concept?"
+                                "Can't find a concept?",
                               )}
                             </p>
                           }
@@ -402,7 +434,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 </div>
               )}
 
-              {conceptMappings && conceptMappings.length ? (
+              {conceptMappings?.length ? (
                 <FormGroup>
                   <FormLabel className={styles.label}>
                     {t("mappings", "Mappings")}
@@ -428,23 +460,28 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 </FormGroup>
               ) : null}
 
-              {answers && answers.length ? (
+              {answers?.length ? (
                 <MultiSelect
                   className={styles.multiSelect}
                   direction="top"
                   id="selectAnswers"
-                  itemToString={(item) => item.text}
+                  itemToString={(item: Item) => item.text}
                   items={answers.map((answer) => ({
                     id: answer.concept,
                     text: answer.label,
                   }))}
-                  onChange={({ selectedItems }) =>
-                    setSelectedAnswers(selectedItems.sort())
-                  }
+                  onChange={({
+                    selectedItems,
+                  }: {
+                    selectedItems: Array<{
+                      id: string;
+                      text: string;
+                    }>;
+                  }) => setSelectedAnswers(selectedItems.sort())}
                   size="md"
                   titleText={t(
                     "selectAnswersToDisplay",
-                    "Select answers to display"
+                    "Select answers to display",
                   )}
                 />
               ) : null}

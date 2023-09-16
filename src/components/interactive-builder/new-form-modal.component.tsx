@@ -14,12 +14,12 @@ import {
 import { showToast, showNotification } from "@openmrs/esm-framework";
 import type { Schema } from "../../types";
 
-type NewFormModalProps = {
+interface NewFormModalProps {
   schema: Schema;
   onSchemaChange: (schema: Schema) => void;
   onModalChange: (showModal: boolean) => void;
   showModal: boolean;
-};
+}
 
 const NewFormModal: React.FC<NewFormModalProps> = ({
   schema,
@@ -43,12 +43,14 @@ const NewFormModal: React.FC<NewFormModalProps> = ({
         description: t("formCreated", "New form created"),
       });
     } catch (error) {
-      showNotification({
-        title: t("errorCreatingForm", "Error creating form"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
+      if (error instanceof Error) {
+        showNotification({
+          title: t("errorCreatingForm", "Error creating form"),
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
+      }
     }
   };
 
@@ -70,7 +72,7 @@ const NewFormModal: React.FC<NewFormModalProps> = ({
       preventCloseOnClickOutside
     >
       <ModalHeader title={t("createNewForm", "Create a new form")} />
-      <Form onSubmit={(event) => event.preventDefault()}>
+      <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
           <Stack gap={5}>
             <FormGroup legendText={""}>
@@ -78,8 +80,8 @@ const NewFormModal: React.FC<NewFormModalProps> = ({
                 id="formName"
                 labelText={t("formName", "Form name")}
                 placeholder={t(
-                  "formNamePlaceholder",
-                  "What the form is called in the system"
+                  "namePlaceholder",
+                  "What the form is called in the system",
                 )}
                 value={formName}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -93,7 +95,7 @@ const NewFormModal: React.FC<NewFormModalProps> = ({
                 labelText={t("formDescription", "Form description")}
                 placeholder={t(
                   "formDescriptionPlaceholder",
-                  "A short description of the form e.g. A form for collecting COVID-19 symptoms"
+                  "A short description of the form e.g. A form for collecting COVID-19 symptoms",
                 )}
                 value={formDescription}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) =>

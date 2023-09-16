@@ -1,7 +1,7 @@
 import useSWR from "swr";
 import { openmrsFetch } from "@openmrs/esm-framework";
 
-export function useConceptName(conceptId: string) {
+export function useConceptName(conceptId: string | undefined) {
   const customRepresentation = "custom:(name:(display))";
   const url = `/ws/rest/v1/concept/${conceptId}?v=${customRepresentation}`;
 
@@ -12,7 +12,7 @@ export function useConceptName(conceptId: string) {
 
   return {
     conceptName: data?.data?.name?.display ?? null,
-    conceptNameLookupError: error || null,
+    conceptNameLookupError: error,
     isLoadingConceptName: (!data && !error) || false,
   };
 }

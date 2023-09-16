@@ -16,17 +16,17 @@ export const importTranslation = require.context(
   "../translations",
   true,
   /.json$/,
-  "lazy"
+  "lazy",
 );
 
 export const root = getAsyncLifecycle(
   () => import("./root.component"),
-  options
+  options,
 );
 
 export const systemAdministrationFormBuilderCardLink = getAsyncLifecycle(
   () => import("./form-builder-admin-card-link.component"),
-  options
+  options,
 );
 
 export function startupApp() {

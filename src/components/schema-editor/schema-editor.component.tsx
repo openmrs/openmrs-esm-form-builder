@@ -5,12 +5,12 @@ import "ace-builds/src-noconflict/ext-language_tools";
 import { useTranslation } from "react-i18next";
 import styles from "./schema-editor.scss";
 
-type SchemaEditorProps = {
+interface SchemaEditorProps {
   isLoading: boolean;
   invalidJsonErrorMessage: string;
   onSchemaChange: (stringifiedSchema: string) => void;
   stringifiedSchema: string;
-};
+}
 
 const SchemaEditor: React.FC<SchemaEditorProps> = ({
   invalidJsonErrorMessage,

@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { TFunction, useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   ComposedModal,
@@ -33,7 +34,7 @@ import {
   TrashCan,
 } from "@carbon/react/icons";
 import {
-  FetchResponse,
+  type FetchResponse,
   navigate,
   showNotification,
   showToast,
@@ -58,21 +59,21 @@ type Mutator = KeyedMutator<{
   };
 }>;
 
-type ActionButtonsProps = {
+interface ActionButtonsProps {
   form: FormType;
   mutate: Mutator;
   responsiveSize: string;
   t: TFunction;
-};
+}
 
-type FormsListProps = {
+interface FormsListProps {
   forms: Array<FormType>;
   isValidating: boolean;
   mutate: Mutator;
   t: TFunction;
-};
+}
 
-function CustomTag({ condition }: { condition: boolean }) {
+function CustomTag({ condition }: { condition?: boolean }) {
   const { t } = useTranslation();
 
   if (condition) {
@@ -106,13 +107,13 @@ function ActionButtons({
       new Blob([JSON.stringify(clobdata, null, 2)], {
         type: "application/json",
       }),
-    [clobdata]
+    [clobdata],
   );
 
   const handleDeleteForm = useCallback(
     (formUuid: string) => {
       deleteForm(formUuid)
-        .then((res: FetchResponse) => {
+        .then(async (res: FetchResponse) => {
           if (res.status === 204) {
             showToast({
               title: t("formDeleted", "Form deleted"),
@@ -123,7 +124,7 @@ function ActionButtons({
                 t("formDeletedSuccessfully", "deleted successfully"),
             });
 
-            mutate();
+            await mutate();
             setShowDeleteFormModal(false);
           }
         })
@@ -133,11 +134,11 @@ function ActionButtons({
             kind: "error",
             critical: true,
             description: e?.message,
-          })
+          }),
         )
         .finally(() => setIsDeleting(false));
     },
-    [form.name, mutate, t]
+    [form.name, mutate, t],
   );
 
   const ImportButton = () => {
@@ -217,12 +218,14 @@ function ActionButtons({
         preventCloseOnClickOutside
       >
         <ModalHeader title={t("deleteForm", "Delete form")} />
-        <Form onSubmit={(event) => event.preventDefault()}>
+        <Form
+          onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}
+        >
           <ModalBody>
             <p>
               {t(
                 "deleteFormConfirmation",
-                "Are you sure you want to delete this form?"
+                "Are you sure you want to delete this form?",
               )}
             </p>
           </ModalBody>
@@ -267,7 +270,7 @@ function ActionButtons({
         </>
       )}
       <DeleteButton />
-      {setShowDeleteFormModal && <DeleteFormModal />}
+      {showDeleteFormModal && <DeleteFormModal />}
     </>
   );
 }
@@ -322,7 +325,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
   const searchResults = useMemo(() => {
     if (searchString && searchString.trim() !== "") {
       return filteredRows.filter((form) =>
-        form.name.toLowerCase().includes(searchString.toLowerCase())
+        form.name.toLowerCase().includes(searchString.toLowerCase()),
       );
     }
 
@@ -331,14 +334,14 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
 
   const { paginated, goTo, results, currentPage } = usePagination(
     searchResults,
-    pageSize
+    pageSize,
   );
 
   const tableRows = results?.map((form: FormType) => ({
     ...form,
     id: form?.uuid,
-    published: <CustomTag condition={form?.published} />,
-    retired: <CustomTag condition={form?.retired} />,
+    published: <CustomTag condition={form.published} />,
+    retired: <CustomTag condition={form.retired} />,
     actions: (
       <ActionButtons
         form={form}
@@ -356,11 +359,11 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
   }) => setFilter(selectedItem);
 
   const handleSearch = useCallback(
-    (e) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       goTo(1);
       setSearchString(e.target.value);
     },
-    [goTo, setSearchString]
+    [goTo, setSearchString],
   );
 
   return (
@@ -372,7 +375,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
           lowContrast
           title={t(
             "schemaSaveWarningMessage",
-            "The dev3 server is ephemeral at best and can't be relied upon to save your schemas permanently. To avoid losing your work, please save your schemas to your local machine. Alternatively, upload your schema to the distro repo to have it persisted across server resets."
+            "The dev3 server is ephemeral at best and can't be relied upon to save your schemas permanently. To avoid losing your work, please save your schemas to your local machine. Alternatively, upload your schema to the distro repo to have it persisted across server resets.",
           )}
         />
       )}
@@ -421,7 +424,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
                     <Button
                       kind="primary"
                       iconDescription={t("createNewForm", "Create a new form")}
-                      renderIcon={(props) => <Add size={16} {...props} />}
+                      renderIcon={() => <Add size={16} />}
                       size={responsiveSize}
                       onClick={() =>
                         navigate({
@@ -445,8 +448,9 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {rows.map((row, i) => (
+                  {rows.map((row) => (
                     <TableRow
+                      key="row.id"
                       {...getRowProps({ row })}
                       data-testid={`form-row-${row.id}`}
                     >
@@ -465,7 +469,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
                     <p className={styles.content}>
                       {t(
                         "noMatchingFormsToDisplay",
-                        "No matching forms to display"
+                        "No matching forms to display",
                       )}
                     </p>
                     <p className={styles.helper}>

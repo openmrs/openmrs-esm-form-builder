@@ -10,7 +10,7 @@ import {
 import { showNotification, showToast } from "@openmrs/esm-framework";
 import type { Schema } from "../../types";
 
-type DeleteSectionModal = {
+interface DeleteSectionModal {
   onModalChange: (showModal: boolean) => void;
   onSchemaChange: (schema: Schema) => void;
   resetIndices: () => void;
@@ -18,7 +18,7 @@ type DeleteSectionModal = {
   sectionIndex: number;
   schema: Schema;
   showModal: boolean;
-};
+}
 
 const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
   onModalChange,
@@ -45,12 +45,14 @@ const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
         description: t("SectionDeleted", "Section deleted"),
       });
     } catch (error) {
-      showNotification({
-        title: t("errorDeletingSection", "Error deleting section"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
+      if (error instanceof Error) {
+        showNotification({
+          title: t("errorDeletingSection", "Error deleting section"),
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
+      }
     }
   };
 
@@ -63,14 +65,14 @@ const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
       <ModalHeader
         title={t(
           "deleteSectionConfirmation",
-          "Are you sure you want to delete this section?"
+          "Are you sure you want to delete this section?",
         )}
       />
       <ModalBody>
         <p>
           {t(
             "deleteSectionExplainerText",
-            "Deleting this section will delete all the questions associated with it. This action cannot be undone."
+            "Deleting this section will delete all the questions associated with it. This action cannot be undone.",
           )}
         </p>
       </ModalBody>

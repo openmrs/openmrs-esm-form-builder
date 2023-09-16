@@ -1,42 +1,50 @@
-import { openmrsFetch, FetchResponse } from "@openmrs/esm-framework";
+import { openmrsFetch, type FetchResponse } from "@openmrs/esm-framework";
 import type { Form, Schema } from "./types";
 
+interface SavePayload {
+  name: string;
+  description?: string;
+  version?: string;
+  published?: boolean;
+  encounterType?: string;
+}
+
 export async function deleteClobdata(
-  valueReference: string
+  valueReference: string,
 ): Promise<FetchResponse<Schema>> {
   const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/clobdata/${valueReference}`,
     {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-    }
+    },
   );
   return response;
 }
 
 export async function deleteForm(
-  formUuid: string
+  formUuid: string,
 ): Promise<FetchResponse<Record<string, never>>> {
   const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${formUuid}`,
     {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-    }
+    },
   );
   return response;
 }
 
 export async function deleteResource(
   formUuid: string,
-  resourceUuid: string
+  resourceUuid: string,
 ): Promise<FetchResponse<Record<string, never>>> {
   const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${formUuid}/resource/${resourceUuid}`,
     {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-    }
+    },
   );
   return response;
 }
@@ -62,7 +70,7 @@ export async function uploadSchema(schema: Schema): Promise<string> {
 
 export async function getResourceUuid(
   formUuid: string,
-  valueReference: string
+  valueReference: string,
 ): Promise<FetchResponse<Schema>> {
   const body = {
     name: "JSON schema",
@@ -76,18 +84,18 @@ export async function getResourceUuid(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: body,
-    }
+    },
   );
 
   return response;
 }
 
 export async function updateForm(
-  formUuid,
-  name,
-  version,
-  description,
-  encounterTypeUuid
+  formUuid: string,
+  name: string,
+  version: string,
+  description: string,
+  encounterTypeUuid: string,
 ): Promise<FetchResponse<Schema>> {
   const abortController = new AbortController();
   const body = {
@@ -106,7 +114,7 @@ export async function updateForm(
       headers: { "Content-Type": "application/json" },
       body: body,
       signal: abortController.signal,
-    }
+    },
   );
 
   return response;
@@ -117,24 +125,25 @@ export async function saveNewForm(
   version: string,
   published?: boolean,
   description?: string,
-  encounterType?: string
+  encounterType?: string,
 ): Promise<Form> {
   const abortController = new AbortController();
 
-  const body = {
+  const body: SavePayload = {
     name: name,
     version: version,
-    published: published || false,
-    description: description || "",
+    published: published ?? false,
+    description: description ?? "",
   };
+
   if (encounterType) {
-    body["encounterType"] = encounterType;
+    body.encounterType = encounterType;
   }
   const headers = {
     "Content-Type": "application/json",
   };
 
-  const response: FetchResponse = await openmrsFetch(`/ws/rest/v1/form`, {
+  const response: FetchResponse<Form> = await openmrsFetch(`/ws/rest/v1/form`, {
     method: "POST",
     headers: headers,
     body: body,
@@ -152,13 +161,13 @@ export async function publishForm(uuid: string): Promise<FetchResponse<Form>> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: body,
-    }
+    },
   );
   return response;
 }
 
 export async function unpublishForm(
-  uuid: string
+  uuid: string,
 ): Promise<FetchResponse<Form>> {
   const body = { published: false };
   const response: FetchResponse = await openmrsFetch(
@@ -167,7 +176,7 @@ export async function unpublishForm(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: body,
-    }
+    },
   );
   return response;
 }

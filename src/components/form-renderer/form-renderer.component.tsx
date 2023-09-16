@@ -2,19 +2,22 @@ import React, { useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
 import { Button, InlineLoading, Tile } from "@carbon/react";
-import { OHRIFormSchema, OHRIForm } from "@openmrs/openmrs-form-engine-lib";
+import {
+  type OHRIFormSchema,
+  OHRIForm,
+} from "@openmrs/openmrs-form-engine-lib";
 import styles from "./form-renderer.scss";
 
-type ErrorFallbackProps = {
+interface ErrorFallbackProps {
   error: Error;
   resetErrorBoundary: () => void;
-};
+}
 
-type FormRendererProps = {
+interface FormRendererProps {
   isLoading: boolean;
   onSchemaChange?: (schema: OHRIFormSchema) => void;
   schema: OHRIFormSchema;
-};
+}
 
 const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
   const { t } = useTranslation();
@@ -79,7 +82,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
           <p className={styles.helperText}>
             {t(
               "formRendererHelperText",
-              "Load a form schema in the Schema Editor to the left to see it rendered here by the Form Engine."
+              "Load a form schema in the Schema Editor to the left to see it rendered here by the Form Engine.",
             )}
           </p>
         </Tile>
@@ -100,7 +103,7 @@ function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
       <h4 className={styles.heading}>
         {t(
           "problemLoadingPreview",
-          "There was a problem loading the schema preview"
+          "There was a problem loading the form preview",
         )}
       </h4>
       <p className={styles.helperText}>

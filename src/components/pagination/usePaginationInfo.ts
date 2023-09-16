@@ -5,7 +5,7 @@ export function usePaginationInfo(
   pageSize: number,
   totalItems: number,
   pageNumber: number,
-  currentItems: number
+  currentItems: number,
 ) {
   const { t } = useTranslation();
 

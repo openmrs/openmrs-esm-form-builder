@@ -23,7 +23,7 @@ export const FormBuilderPagination: React.FC<FormBuilderPaginationProps> = ({
     pageSize,
     totalItems,
     pageNumber,
-    currentItems
+    currentItems,
   );
   const isTablet = useLayoutType() === "tablet";
 

@@ -59,12 +59,12 @@ describe("Dashboard", () => {
     await waitForLoadingToFinish();
 
     expect(
-      screen.getByRole("heading", { name: /form builder/i })
+      screen.getByRole("heading", { name: /form builder/i }),
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /forms/i })).toBeInTheDocument();
     expect(screen.getByTitle(/empty data illustration/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/there are no forms to display/i)
+      screen.getByText(/there are no forms to display/i),
     ).toBeInTheDocument();
     expect(screen.getByText(/create a new form/i)).toBeInTheDocument();
   });
@@ -95,10 +95,10 @@ describe("Dashboard", () => {
     }));
 
     await waitFor(() =>
-      expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument(),
     );
     expect(
-      screen.getByText(/no matching forms to display/i)
+      screen.getByText(/no matching forms to display/i),
     ).toBeInTheDocument();
   });
 
@@ -121,7 +121,7 @@ describe("Dashboard", () => {
 
     await waitFor(() => user.click(publishStatusFilter));
     await waitFor(() =>
-      user.click(screen.getByRole("option", { name: /unpublished/i }))
+      user.click(screen.getByRole("option", { name: /unpublished/i })),
     );
 
     mockUsePagination.mockImplementation(() => ({
@@ -132,7 +132,7 @@ describe("Dashboard", () => {
 
     expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument();
     expect(
-      screen.getByText(/no matching forms to display/i)
+      screen.getByText(/no matching forms to display/i),
     ).toBeInTheDocument();
   });
 
@@ -154,22 +154,22 @@ describe("Dashboard", () => {
     await waitForLoadingToFinish();
 
     expect(
-      screen.getByRole("heading", { name: /form builder/i })
+      screen.getByRole("heading", { name: /form builder/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("combobox", { name: /filter by publish status/i })
+      screen.getByRole("combobox", { name: /filter by publish status/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /create a new form/i })
+      screen.getByRole("button", { name: /create a new form/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /edit schema/i })
+      screen.getByRole("button", { name: /edit schema/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /download schema/i })
+      screen.getByRole("button", { name: /download schema/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("searchbox", { name: /filter table/i })
+      screen.getByRole("searchbox", { name: /filter table/i }),
     ).toBeInTheDocument();
     expect(screen.queryByRole("table")).toBeInTheDocument();
     expect(screen.getByText(/Test Form 1/i)).toBeInTheDocument();
@@ -291,15 +291,15 @@ describe("Dashboard", () => {
     expect(modal).toBeInTheDocument();
     expect(modal).toHaveTextContent(/delete form/i);
     expect(modal).toHaveTextContent(
-      /are you sure you want to delete this form?/i
+      /are you sure you want to delete this form?/i,
     );
     expect(screen.getByRole("button", { name: /cancel/i })).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /danger delete/i })
+      screen.getByRole("button", { name: /danger delete/i }),
     ).toBeInTheDocument();
 
     await waitFor(() =>
-      user.click(screen.getByRole("button", { name: /danger delete/i }))
+      user.click(screen.getByRole("button", { name: /danger delete/i })),
     );
   });
 });

@@ -26,7 +26,7 @@ const ErrorState: React.FC<ErrorStateProps> = ({ error }) => {
         <p className={styles.errorCopy}>
           {t(
             "errorCopy",
-            "Sorry, there was a problem displaying this information. You can try to reload this page, or contact the site administrator and quote the error code above."
+            "Sorry, there was a problem displaying this information. You can try to reload this page, or contact the site administrator and quote the error code above.",
           )}
         </p>
       </Tile>

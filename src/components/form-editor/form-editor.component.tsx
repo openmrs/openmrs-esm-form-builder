@@ -22,7 +22,7 @@ import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ExtensionSlot } from "@openmrs/esm-framework";
 import type { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
-import type { Schema, RouteParams } from "../../types";
+import type { Schema } from "../../types";
 import { useClobdata } from "../../hooks/useClobdata";
 import { useForm } from "../../hooks/useForm";
 import ActionButtons from "../action-buttons/action-buttons.component";
@@ -31,14 +31,14 @@ import InteractiveBuilder from "../interactive-builder/interactive-builder.compo
 import SchemaEditor from "../schema-editor/schema-editor.component";
 import styles from "./form-editor.scss";
 
-type ErrorProps = {
+interface ErrorProps {
   error: Error;
   title: string;
-};
+}
 
 type Status = "idle" | "formLoaded" | "schemaLoaded";
 
-const Error = ({ error, title }: ErrorProps) => {
+const ErrorNotification = ({ error, title }: ErrorProps) => {
   return (
     <InlineNotification
       className={styles.errorNotification}
@@ -52,7 +52,7 @@ const Error = ({ error, title }: ErrorProps) => {
 
 const FormEditor: React.FC = () => {
   const { t } = useTranslation();
-  const { formUuid } = useParams<RouteParams>();
+  const { formUuid } = useParams<{ formUuid: string }>();
   const isNewSchema = !formUuid;
   const [schema, setSchema] = useState<Schema>();
   const [showDraftSchemaModal, setShowDraftSchemaModal] = useState(false);
@@ -60,12 +60,11 @@ const FormEditor: React.FC = () => {
   const { clobdata, clobdataError, isLoadingClobdata } = useClobdata(form);
   const [status, setStatus] = useState<Status>("idle");
   const [stringifiedSchema, setStringifiedSchema] = useState(
-    schema ? JSON.stringify(schema, null, 2) : ""
+    schema ? JSON.stringify(schema, null, 2) : "",
   );
-  const [copied, setCopied] = useState(false);
 
   const isLoadingFormOrSchema =
-    formUuid && (isLoadingClobdata || isLoadingForm);
+    Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
   useEffect(() => {
     if (formUuid) {
@@ -102,15 +101,25 @@ const FormEditor: React.FC = () => {
 
   const handleLoadDraftSchema = useCallback(() => {
     setShowDraftSchemaModal(false);
-    const draftSchema = localStorage.getItem("formJSON");
-    setSchema(JSON.parse(draftSchema));
+
+    try {
+      const draftSchema = localStorage.getItem("formJSON");
+      if (draftSchema) {
+        setSchema(JSON.parse(draftSchema) as Schema);
+      }
+    } catch (e) {
+      console.error(
+        "Error fetching draft schema from localStorage: ",
+        e?.message,
+      );
+    }
   }, []);
 
   const handleSchemaChange = useCallback((updatedSchema: string) => {
     setStringifiedSchema(updatedSchema);
   }, []);
 
-  const updateSchema = useCallback((updatedSchema) => {
+  const updateSchema = useCallback((updatedSchema: Schema) => {
     setSchema(updatedSchema);
     localStorage.setItem("formJSON", JSON.stringify(updatedSchema));
   }, []);
@@ -132,13 +141,13 @@ const FormEditor: React.FC = () => {
               isExpanded: "true",
               questions: [
                 {
+                  id: "sampleQuestion",
                   label: "A Question of type obs that renders a text input",
                   type: "obs",
                   questionOptions: {
                     rendering: "text",
                     concept: "a-system-defined-concept-uuid",
                   },
-                  id: "sampleQuestion",
                 },
               ],
             },
@@ -147,6 +156,7 @@ const FormEditor: React.FC = () => {
               isExpanded: "true",
               questions: [
                 {
+                  id: "anotherSampleQuestion",
                   label:
                     "Another Question of type obs whose answers get rendered as radio inputs",
                   type: "obs",
@@ -171,7 +181,6 @@ const FormEditor: React.FC = () => {
                       },
                     ],
                   },
-                  id: "anotherSampleQuestion",
                 },
               ],
             },
@@ -197,8 +206,10 @@ const FormEditor: React.FC = () => {
       const parsedJson: Schema = JSON.parse(stringifiedSchema);
       updateSchema(parsedJson);
       setStringifiedSchema(JSON.stringify(parsedJson, null, 2));
-    } catch (error) {
-      setInvalidJsonErrorMessage(error.message);
+    } catch (e) {
+      if (e instanceof Error) {
+        setInvalidJsonErrorMessage(e.message);
+      }
     }
   }, [stringifiedSchema, updateSchema, resetErrorMessage]);
 
@@ -210,12 +221,14 @@ const FormEditor: React.FC = () => {
         preventCloseOnClickOutside
       >
         <ModalHeader title={t("schemaNotFound", "Schema not found")} />
-        <Form onSubmit={(event) => event.preventDefault()}>
+        <Form
+          onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}
+        >
           <ModalBody>
             <p>
               {t(
                 "schemaNotFoundText",
-                "The schema originally associated with this form could not be found. A draft schema was found saved in your browser's local storage. Would you like to load it instead?"
+                "The schema originally associated with this form could not be found. A draft schema was found saved in your browser's local storage. Would you like to load it instead?",
               )}
             </p>
           </ModalBody>
@@ -240,12 +253,11 @@ const FormEditor: React.FC = () => {
       new Blob([JSON.stringify(schema, null, 2)], {
         type: "application/json",
       }),
-    [schema]
+    [schema],
   );
 
-  const handleCopySchema = useCallback(() => {
-    navigator.clipboard.writeText(stringifiedSchema);
-    setCopied(true);
+  const handleCopySchema = useCallback(async () => {
+    await navigator.clipboard.writeText(stringifiedSchema);
   }, [stringifiedSchema]);
 
   return (
@@ -307,13 +319,13 @@ const FormEditor: React.FC = () => {
                 ) : null}
               </div>
               {formError ? (
-                <Error
+                <ErrorNotification
                   error={formError}
                   title={t("formError", "Error loading form metadata")}
                 />
               ) : null}
               {clobdataError ? (
-                <Error
+                <ErrorNotification
                   error={clobdataError}
                   title={t("schemaLoadError", "Error loading schema")}
                 />

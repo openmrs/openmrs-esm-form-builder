@@ -4,13 +4,13 @@ import { Button, TextInput } from "@carbon/react";
 import { Close, Save } from "@carbon/react/icons";
 import styles from "./value-editor.scss";
 
-type ValueEditorProps = {
+interface ValueEditorProps {
   id: string;
   handleCancel: () => void;
   handleSave: (value: string) => void;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   value: string;
-};
+}
 
 const ValueEditor: React.FC<ValueEditorProps> = ({
   id,
@@ -27,7 +27,9 @@ const ValueEditor: React.FC<ValueEditorProps> = ({
         id={id}
         labelText=""
         value={tmpValue}
-        onChange={(event) => setTmpValue(event.target.value)}
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+          setTmpValue(event.target.value)
+        }
       />
       <div className={styles.actionButtons}>
         <Button

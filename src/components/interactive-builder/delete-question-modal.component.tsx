@@ -10,7 +10,7 @@ import {
 import { showNotification, showToast } from "@openmrs/esm-framework";
 import type { Schema } from "../../types";
 
-type DeleteQuestionModal = {
+interface DeleteQuestionModal {
   onModalChange: (showModal: boolean) => void;
   onSchemaChange: (schema: Schema) => void;
   resetIndices: () => void;
@@ -19,7 +19,7 @@ type DeleteQuestionModal = {
   questionIndex: number;
   schema: Schema;
   showModal: boolean;
-};
+}
 
 const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
   onModalChange,
@@ -36,12 +36,12 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
   const deleteQuestion = (
     pageIndex: number,
     sectionIndex: number,
-    questionIndex: number
+    questionIndex: number,
   ) => {
     try {
       schema.pages[pageIndex].sections[sectionIndex].questions.splice(
         questionIndex,
-        1
+        1,
       );
 
       onSchemaChange({ ...schema });
@@ -54,12 +54,14 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
         description: t("QuestionDeleted", "Question deleted"),
       });
     } catch (error) {
-      showNotification({
-        title: t("errorDeletingQuestion", "Error deleting question"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
+      if (error instanceof Error) {
+        showNotification({
+          title: t("errorDeletingQuestion", "Error deleting question"),
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
+      }
     }
   };
 
@@ -72,7 +74,7 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
       <ModalHeader
         title={t(
           "deleteQuestionConfirmation",
-          "Are you sure you want to delete this question?"
+          "Are you sure you want to delete this question?",
         )}
       />
       <ModalBody>

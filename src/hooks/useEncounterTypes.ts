@@ -12,7 +12,7 @@ export const useEncounterTypes = () => {
 
   return {
     encounterTypes: data?.data?.results ?? [],
-    encounterTypesError: error || null,
+    encounterTypesError: error,
     isEncounterTypesLoading: isLoading,
   };
 };

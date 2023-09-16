@@ -10,14 +10,14 @@ import {
 import { showNotification, showToast } from "@openmrs/esm-framework";
 import type { Schema } from "../../types";
 
-type DeletePageModalProps = {
+interface DeletePageModalProps {
   onModalChange: (showModal: boolean) => void;
   onSchemaChange: (schema: Schema) => void;
   resetIndices: () => void;
   pageIndex: number;
   schema: Schema;
   showModal: boolean;
-};
+}
 
 const DeletePageModal: React.FC<DeletePageModalProps> = ({
   onModalChange,
@@ -43,12 +43,14 @@ const DeletePageModal: React.FC<DeletePageModalProps> = ({
         description: t("pageDeleted", "Page deleted"),
       });
     } catch (error) {
-      showNotification({
-        title: t("errorDeletingPage", "Error deleting page"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
+      if (error instanceof Error) {
+        showNotification({
+          title: t("errorDeletingPage", "Error deleting page"),
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
+      }
     }
   };
 
@@ -61,14 +63,14 @@ const DeletePageModal: React.FC<DeletePageModalProps> = ({
       <ModalHeader
         title={t(
           "deletePageConfirmation",
-          "Are you sure you want to delete this page?"
+          "Are you sure you want to delete this page?",
         )}
       />
       <ModalBody>
         <p>
           {t(
             "deletePageExplainerText",
-            "Deleting this page will delete all the sections and questions associated with it. This action cannot be undone."
+            "Deleting this page will delete all the sections and questions associated with it. This action cannot be undone.",
           )}
         </p>
       </ModalBody>

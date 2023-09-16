@@ -7,12 +7,12 @@ export function useConceptLookup(conceptId: string) {
 
   const { data, error } = useSWR<{ data: { results: Array<Concept> } }, Error>(
     conceptId ? url : null,
-    openmrsFetch
+    openmrsFetch,
   );
 
   return {
     concepts: data?.data?.results ?? [],
-    conceptLookupError: error || null,
+    conceptLookupError: error,
     isLoadingConcepts: (!data && !error) || false,
   };
 }

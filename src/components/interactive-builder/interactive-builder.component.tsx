@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { DragEndEvent } from "@dnd-kit/core";
 import {
   DndContext,
   KeyboardSensor,
@@ -11,9 +12,9 @@ import { Accordion, AccordionItem, Button, InlineLoading } from "@carbon/react";
 import { Add, TrashCan } from "@carbon/react/icons";
 import { useParams } from "react-router-dom";
 import { showToast, showNotification } from "@openmrs/esm-framework";
-import { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
+import type { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
 
-import type { Question, RouteParams, Schema } from "../../types";
+import type { Schema, Question } from "../../types";
 import AddQuestionModal from "./add-question-modal.component";
 import DeleteSectionModal from "./delete-section-modal.component";
 import DeletePageModal from "./delete-page-modal.component";
@@ -25,14 +26,13 @@ import PageModal from "./page-modal.component";
 import SectionModal from "./section-modal.component";
 import { DraggableQuestion } from "./draggable-question.component";
 import { Droppable } from "./droppable-container.component";
-
 import styles from "./interactive-builder.scss";
 
-type InteractiveBuilderProps = {
+interface InteractiveBuilderProps {
   isLoading: boolean;
   onSchemaChange: (schema: Schema) => void;
   schema: Schema;
-};
+}
 
 const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   isLoading,
@@ -48,24 +48,25 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const sensors = useSensors(mouseSensor, keyboardSensor);
 
   const { t } = useTranslation();
-  const { formUuid } = useParams<RouteParams>();
-  const isEditingExistingForm = !!formUuid;
+  const { formUuid } = useParams<{ formUuid: string }>();
+  const isEditingExistingForm = Boolean(formUuid);
+
   const [pageIndex, setPageIndex] = useState(0);
-  const [sectionIndex, setSectionIndex] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [questionToEdit, setQuestionToEdit] = useState(null);
-  const [showNewFormModal, setShowNewFormModal] = useState(false);
+  const [questionToEdit, setQuestionToEdit] = useState<Question>();
+  const [sectionIndex, setSectionIndex] = useState(0);
   const [showAddPageModal, setShowAddPageModal] = useState(false);
   const [showAddQuestionModal, setShowAddQuestionModal] = useState(false);
-  const [showEditQuestionModal, setShowEditQuestionModal] = useState(false);
   const [showAddSectionModal, setShowAddSectionModal] = useState(false);
   const [showDeletePageModal, setShowDeletePageModal] = useState(false);
-  const [showDeleteSectionModal, setShowDeleteSectionModal] = useState(false);
   const [showDeleteQuestionModal, setShowDeleteQuestionModal] = useState(false);
+  const [showDeleteSectionModal, setShowDeleteSectionModal] = useState(false);
+  const [showEditQuestionModal, setShowEditQuestionModal] = useState(false);
+  const [showNewFormModal, setShowNewFormModal] = useState(false);
 
   const initializeSchema = useCallback(() => {
     const dummySchema: OHRIFormSchema = {
-      name: null,
+      name: "",
       pages: [],
       processor: "EncounterFormProcessor",
       encounterType: "",
@@ -129,7 +130,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         });
       }
     },
-    [onSchemaChange, schema, t]
+    [onSchemaChange, schema, t],
   );
 
   const renamePage = useCallback(
@@ -148,15 +149,17 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           description: t("pageRenamed", "Page renamed"),
         });
       } catch (error) {
-        showNotification({
-          title: t("errorRenamingPage", "Error renaming page"),
-          kind: "error",
-          critical: true,
-          description: error?.message,
-        });
+        if (error instanceof Error) {
+          showNotification({
+            title: t("errorRenamingPage", "Error renaming page"),
+            kind: "error",
+            critical: true,
+            description: error?.message,
+          });
+        }
       }
     },
-    [onSchemaChange, schema, t]
+    [onSchemaChange, schema, t],
   );
 
   const renameSection = useCallback(
@@ -176,25 +179,29 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           description: t("sectionRenamed", "Section renamed"),
         });
       } catch (error) {
-        showNotification({
-          title: t("errorRenamingSection", "Error renaming section"),
-          kind: "error",
-          critical: true,
-          description: error?.message,
-        });
+        if (error instanceof Error) {
+          showNotification({
+            title: t("errorRenamingSection", "Error renaming section"),
+            kind: "error",
+            critical: true,
+            description: error?.message,
+          });
+        }
       }
     },
-    [onSchemaChange, schema, t]
+    [onSchemaChange, schema, t],
   );
 
   const duplicateQuestion = useCallback(
-    (question, pageId: number, sectionId: number) => {
+    (question: Question, pageId: number, sectionId: number) => {
       try {
-        const questionToDuplicate = JSON.parse(JSON.stringify(question));
+        const questionToDuplicate: Question = JSON.parse(
+          JSON.stringify(question),
+        );
         questionToDuplicate.id = questionToDuplicate.id + "Duplicate";
 
         schema.pages[pageId].sections[sectionId].questions.push(
-          questionToDuplicate
+          questionToDuplicate,
         );
 
         onSchemaChange({ ...schema });
@@ -206,27 +213,29 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           critical: true,
           description: t(
             "questionDuplicated",
-            "Question duplicated. Please change the duplicated question's ID to a unique, camelcased value"
+            "Question duplicated. Please change the duplicated question's ID to a unique, camelcased value",
           ),
         });
       } catch (error) {
-        showNotification({
-          title: t("errorDuplicatingQuestion", "Error duplicating question"),
-          kind: "error",
-          critical: true,
-          description: error?.message,
-        });
+        if (error instanceof Error) {
+          showNotification({
+            title: t("errorDuplicatingQuestion", "Error duplicating question"),
+            kind: "error",
+            critical: true,
+            description: error?.message,
+          });
+        }
       }
     },
-    [onSchemaChange, schema, t]
+    [onSchemaChange, schema, t],
   );
 
-  const handleDragEnd = (event) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, delta } = event;
 
     if (active) {
       // Get the source information
-      const activeIdParts = active.id.split("-");
+      const activeIdParts = active.id.toString().split("-");
       const sourcePageIndex = parseInt(activeIdParts[1]);
       const sourceSectionIndex = parseInt(activeIdParts[2]);
       const sourceQuestionIndex = parseInt(activeIdParts[3]);
@@ -388,13 +397,13 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
               <p>
                 {t(
                   "welcomeHeading",
-                  "Welcome to the Interactive Schema builder"
+                  "Welcome to the Interactive Schema builder",
                 )}
               </p>
               <p>
                 {t(
                   "welcomeExplainer",
-                  "Add pages, sections and questions to your form. The Preview tab automatically updates as you build your form. For a detailed explanation of what constitutes an OpenMRS form schema, please read through the "
+                  "Add pages, sections and questions to your form. The Preview tab automatically updates as you build your form. For a detailed explanation of what constitutes an OpenMRS form schema, please read through the ",
                 )}{" "}
                 <a
                   target="_blank"
@@ -430,7 +439,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           <p className={styles.explainer}>
             {t(
               "interactiveBuilderHelperText",
-              "The Interactive Builder lets you build your form schema without writing JSON code. The Preview tab automatically updates as you build your form. When done, click Save Form to save your form."
+              "The Interactive Builder lets you build your form schema without writing JSON code. The Preview tab automatically updates as you build your form. When done, click Save Form to save your form.",
             )}
           </p>
 
@@ -444,7 +453,10 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         </div>
       )}
 
-      <DndContext onDragEnd={(event) => handleDragEnd(event)} sensors={sensors}>
+      <DndContext
+        onDragEnd={(event: DragEndEvent) => handleDragEnd(event)}
+        sensors={sensors}
+      >
         {schema?.pages?.length
           ? schema.pages.map((page, pageIndex) => (
               <div className={styles.editableFieldsContainer}>
@@ -475,7 +487,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                     <p className={styles.sectionExplainer}>
                       {t(
                         "expandSectionExplainer",
-                        "Below are the sections linked to this page. Expand each section to add questions to it."
+                        "Below are the sections linked to this page. Expand each section to add questions to it.",
                       )}
                     </p>
                   ) : null}
@@ -502,7 +514,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                 enterDelayMs={300}
                                 iconDescription={t(
                                   "deleteSection",
-                                  "Delete section"
+                                  "Delete section",
                                 )}
                                 kind="ghost"
                                 onClick={() => {
@@ -541,13 +553,13 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                         questionCount={section.questions.length}
                                       />
                                     </Droppable>
-                                  )
+                                  ),
                                 )
                               ) : (
                                 <p className={styles.explainer}>
                                   {t(
                                     "sectionExplainer",
-                                    "A section will typically contain one or more questions. Click the button below to add a question to this section."
+                                    "A section will typically contain one or more questions. Click the button below to add a question to this section.",
                                   )}
                                 </p>
                               )}
@@ -564,7 +576,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                 }}
                                 iconDescription={t(
                                   "addQuestion",
-                                  "Add Question"
+                                  "Add Question",
                                 )}
                               >
                                 {t("addQuestion", "Add Question")}
@@ -578,7 +590,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                     <p className={styles.explainer}>
                       {t(
                         "pageExplainer",
-                        "Pages typically have one or more sections. Click the button below to add a section to your page."
+                        "Pages typically have one or more sections. Click the button below to add a section to your page.",
                       )}
                     </p>
                   )}

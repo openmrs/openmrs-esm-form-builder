@@ -4,9 +4,10 @@ import type { Form, Schema } from "../types";
 
 export const useClobdata = (form?: Form) => {
   const valueReferenceUuid = form?.resources?.find(
-    ({ name }) => name === "JSON schema"
+    ({ name }) => name === "JSON schema",
   )?.valueReference;
-  const formHasResources = form?.resources.length > 0 && valueReferenceUuid;
+  const formHasResources =
+    form && form?.resources?.length > 0 && valueReferenceUuid;
   const url = `/ws/rest/v1/clobdata/${valueReferenceUuid}`;
 
   const { data, error, isLoading, isValidating, mutate } = useSWRImmutable<
@@ -16,7 +17,7 @@ export const useClobdata = (form?: Form) => {
 
   return {
     clobdata: data?.data,
-    clobdataError: error || null,
+    clobdataError: error,
     isLoadingClobdata: isLoading,
     isValidatingClobdata: isValidating,
     mutate: mutate,

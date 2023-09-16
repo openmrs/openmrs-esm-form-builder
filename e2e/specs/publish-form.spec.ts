@@ -28,7 +28,10 @@ test("Publish a form", async ({ page }) => {
   });
 
   await test.step("And I click on a form I need to publish", async () => {
-    await page.getByRole('row', { name: form.name }).getByLabel('Edit Schema').click();
+    await page
+      .getByRole("row", { name: form.name })
+      .getByLabel("Edit Schema")
+      .click();
   });
 
   await test.step("Then I click on the publish form button", async () => {

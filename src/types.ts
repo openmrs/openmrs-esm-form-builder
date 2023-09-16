@@ -13,8 +13,6 @@ export interface Form {
   display?: string;
 }
 
-export type RouteParams = { formUuid: string };
-
 export interface FilterProps {
   rowIds: Array<string>;
   headers: Array<Record<string, string>>;
@@ -38,6 +36,18 @@ export interface Resource {
   valueReference: string;
 }
 
+export type QuestionType =
+  | "complex-obs"
+  | "control"
+  | "encounterDatetime"
+  | "encounterLocation"
+  | "encounterProvider"
+  | "obs"
+  | "obsGroup"
+  | "personAttribute"
+  | "testOrder"
+  | "patientIdentifier";
+
 export interface Schema {
   name: string;
   pages: Array<{
@@ -48,6 +58,7 @@ export interface Schema {
       questions: Array<{
         id: string;
         label: string;
+        // TODO: This should be a union of all question types i.e QuestionType
         type: string;
         required?: boolean;
         questionOptions: {
@@ -93,7 +104,7 @@ export interface Question {
   type: string;
   questionOptions: QuestionOptions;
   required?: boolean;
-  validators?: Array<Record<string, string | Array<string>>>;
+  validators?: Array<Record<string, string>>;
 }
 
 export interface QuestionOptions {

@@ -5,12 +5,12 @@ import { Edit } from "@carbon/react/icons";
 import ValueEditor from "./value-editor.component";
 import styles from "./editable-value.scss";
 
-type EditableValueProps = {
+interface EditableValueProps {
   elementType?: "schema" | "page" | "section";
   id: string;
   value: string;
   onSave: (value: string) => void;
-};
+}
 
 const EditableValue: React.FC<EditableValueProps> = ({
   elementType,
