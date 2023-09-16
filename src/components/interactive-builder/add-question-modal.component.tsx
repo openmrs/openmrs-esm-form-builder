@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import flattenDeep from "lodash-es/flattenDeep";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import flattenDeep from 'lodash-es/flattenDeep';
 import {
   Button,
   ComposedModal,
@@ -22,10 +22,10 @@ import {
   Tag,
   TextInput,
   Tile,
-} from "@carbon/react";
-import { ArrowUpRight } from "@carbon/react/icons";
-import { showNotification, showToast, useConfig } from "@openmrs/esm-framework";
-import type { RenderType } from "@openmrs/openmrs-form-engine-lib";
+} from '@carbon/react';
+import { ArrowUpRight } from '@carbon/react/icons';
+import { showNotification, showToast, useConfig } from '@openmrs/esm-framework';
+import type { RenderType } from '@openmrs/openmrs-form-engine-lib';
 
 import type {
   Answer,
@@ -33,9 +33,9 @@ import type {
   ConceptMapping,
   Question,
   Schema,
-} from "../../types";
-import { useConceptLookup } from "../../hooks/useConceptLookup";
-import styles from "./question-modal.scss";
+} from '../../types';
+import { useConceptLookup } from '../../hooks/useConceptLookup';
+import styles from './question-modal.scss';
 
 interface AddQuestionModalProps {
   onModalChange: (showModal: boolean) => void;
@@ -75,15 +75,15 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [conceptMappings, setConceptMappings] = useState<Array<ConceptMapping>>(
     [],
   );
-  const [conceptToLookup, setConceptToLookup] = useState("");
+  const [conceptToLookup, setConceptToLookup] = useState('');
   const [fieldType, setFieldType] = useState<RenderType | null>(null);
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
-  const [max, setMax] = useState("");
-  const [min, setMin] = useState("");
-  const [questionId, setQuestionId] = useState("");
-  const [questionLabel, setQuestionLabel] = useState("");
+  const [max, setMax] = useState('');
+  const [min, setMin] = useState('');
+  const [questionId, setQuestionId] = useState('');
+  const [questionLabel, setQuestionLabel] = useState('');
   const [questionType, setQuestionType] = useState<string | null>(null);
-  const [rows, setRows] = useState("");
+  const [rows, setRows] = useState('');
   const [selectedConcept, setSelectedConcept] = useState<Concept | null>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<
     Array<{
@@ -98,7 +98,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     setConceptToLookup(event.target.value);
 
   const handleConceptSelect = (concept: Concept) => {
-    setConceptToLookup("");
+    setConceptToLookup('');
     setSelectedConcept(concept);
     setAnswers(
       concept?.answers?.map((answer) => ({
@@ -108,7 +108,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     );
     setConceptMappings(
       concept?.mappings?.map((conceptMapping) => {
-        const data = conceptMapping.display.split(": ");
+        const data = conceptMapping.display.split(': ');
         return {
           relationship: conceptMapping.conceptMapType.display,
           type: data[0],
@@ -163,8 +163,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       onSchemaChange({ ...schema });
 
       resetIndices();
-      setQuestionLabel("");
-      setQuestionId("");
+      setQuestionLabel('');
+      setQuestionId('');
       setIsQuestionRequired(false);
       setQuestionType(null);
       setFieldType(null);
@@ -174,16 +174,16 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       setSelectedAnswers([]);
 
       showToast({
-        title: t("success", "Success!"),
-        kind: "success",
+        title: t('success', 'Success!'),
+        kind: 'success',
         critical: true,
-        description: t("questionCreated", "New question created"),
+        description: t('questionCreated', 'New question created'),
       });
     } catch (error) {
       if (error instanceof Error) {
         showNotification({
-          title: t("errorCreatingQuestion", "Error creating question"),
-          kind: "error",
+          title: t('errorCreatingQuestion', 'Error creating question'),
+          kind: 'error',
           critical: true,
           description: error?.message,
         });
@@ -197,18 +197,18 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       onClose={() => onModalChange(false)}
       preventCloseOnClickOutside
     >
-      <ModalHeader title={t("createNewQuestion", "Create a new question")} />
+      <ModalHeader title={t('createNewQuestion', 'Create a new question')} />
       <Form
         className={styles.form}
         onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}
       >
         <ModalBody hasScrollingContent>
-          <FormGroup legendText={""}>
+          <FormGroup legendText={''}>
             <Stack gap={5}>
               <TextInput
                 id="questionLabel"
-                labelText={t("questionLabel", "Label")}
-                placeholder={t("labelPlaceholder", "e.g. Type of Anaesthesia")}
+                labelText={t('questionLabel', 'Label')}
+                placeholder={t('labelPlaceholder', 'e.g. Type of Anaesthesia')}
                 value={questionLabel}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                   setQuestionLabel(event.target.value)
@@ -220,19 +220,19 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 id="questionId"
                 invalid={questionIdExists(questionId)}
                 invalidText={t(
-                  "questionIdExists",
-                  "This question ID already exists in your schema",
+                  'questionIdExists',
+                  'This question ID already exists in your schema',
                 )}
                 labelText={t(
-                  "questionId",
-                  "Question ID (prefer using camel-case for IDs)",
+                  'questionId',
+                  'Question ID (prefer using camel-case for IDs)',
                 )}
                 value={questionId}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                   setQuestionId(event.target.value);
                 }}
                 placeholder={t(
-                  "questionIdPlaceholder",
+                  'questionIdPlaceholder',
                   'Enter a unique ID e.g. "anaesthesiaType" for a question asking about the type of anaesthesia.',
                 )}
                 required
@@ -242,21 +242,21 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 defaultSelected="optional"
                 name="isQuestionRequired"
                 legendText={t(
-                  "isQuestionRequiredOrOptional",
-                  "Is this question a required or optional field? Required fields must be answered before the form can be submitted.",
+                  'isQuestionRequiredOrOptional',
+                  'Is this question a required or optional field? Required fields must be answered before the form can be submitted.',
                 )}
               >
                 <RadioButton
                   id="questionIsNotRequired"
                   defaultChecked={true}
-                  labelText={t("optional", "Optional")}
+                  labelText={t('optional', 'Optional')}
                   onClick={() => setIsQuestionRequired(false)}
                   value="optional"
                 />
                 <RadioButton
                   id="questionIsRequired"
                   defaultChecked={false}
-                  labelText={t("required", "Required")}
+                  labelText={t('required', 'Required')}
                   onClick={() => setIsQuestionRequired(true)}
                   value="required"
                 />
@@ -268,13 +268,13 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   setQuestionType(event.target.value)
                 }
                 id="questionType"
-                invalidText={t("typeRequired", "Type is required")}
-                labelText={t("questionType", "Question type")}
+                invalidText={t('typeRequired', 'Type is required')}
+                labelText={t('questionType', 'Question type')}
                 required
               >
                 {!questionType && (
                   <SelectItem
-                    text={t("chooseQuestionType", "Choose a question type")}
+                    text={t('chooseQuestionType', 'Choose a question type')}
                     value=""
                   />
                 )}
@@ -294,15 +294,15 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 }
                 id="renderingType"
                 invalidText={t(
-                  "validFieldTypeRequired",
-                  "A valid field type value is required",
+                  'validFieldTypeRequired',
+                  'A valid field type value is required',
                 )}
-                labelText={t("fieldType", "Field type")}
+                labelText={t('fieldType', 'Field type')}
                 required
               >
                 {!fieldType && (
                   <SelectItem
-                    text={t("chooseFieldType", "Choose a field type")}
+                    text={t('chooseFieldType', 'Choose a field type')}
                     value=""
                   />
                 )}
@@ -311,12 +311,12 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 ))}
               </Select>
 
-              {fieldType === "number" ? (
+              {fieldType === 'number' ? (
                 <>
                   <TextInput
                     id="min"
                     labelText="Min"
-                    value={min || ""}
+                    value={min || ''}
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                       setMin(event.target.value)
                     }
@@ -325,18 +325,18 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   <TextInput
                     id="max"
                     labelText="Max"
-                    value={max || ""}
+                    value={max || ''}
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                       setMax(event.target.value)
                     }
                     required
                   />
                 </>
-              ) : fieldType === "textarea" ? (
+              ) : fieldType === 'textarea' ? (
                 <TextInput
                   id="textAreaRows"
-                  labelText={t("rows", "Rows")}
-                  value={rows || ""}
+                  labelText={t('rows', 'Rows')}
+                  value={rows || ''}
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                     setRows(event.target.value)
                   }
@@ -344,12 +344,12 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 />
               ) : null}
 
-              {fieldType !== "ui-select-extended" && (
+              {fieldType !== 'ui-select-extended' && (
                 <div>
                   <FormLabel className={styles.label}>
                     {t(
-                      "searchForBackingConcept",
-                      "Search for a backing concept",
+                      'searchForBackingConcept',
+                      'Search for a backing concept',
                     )}
                   </FormLabel>
                   <Search
@@ -358,8 +358,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                     onClear={() => setSelectedConcept(null)}
                     onChange={handleConceptChange}
                     placeholder={t(
-                      "searchConcept",
-                      "Search using a concept name or UUID",
+                      'searchConcept',
+                      'Search using a concept name or UUID',
                     )}
                     value={(() => {
                       if (conceptToLookup) {
@@ -368,7 +368,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                       if (selectedConcept) {
                         return selectedConcept.display;
                       }
-                      return "";
+                      return '';
                     })()}
                     required
                   />
@@ -378,7 +378,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                       return (
                         <InlineLoading
                           className={styles.loader}
-                          description={t("searching", "Searching") + "..."}
+                          description={t('searching', 'Searching') + '...'}
                         />
                       );
                     if (concepts?.length && !isLoadingConcepts) {
@@ -402,9 +402,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                         <Tile className={styles.emptyResults}>
                           <span>
                             {t(
-                              "noMatchingConcepts",
-                              "No concepts were found that match",
-                            )}{" "}
+                              'noMatchingConcepts',
+                              'No concepts were found that match',
+                            )}{' '}
                             <strong>"{conceptToLookup}".</strong>
                           </span>
                         </Tile>
@@ -413,7 +413,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                           {
                             <p className={styles.bodyShort01}>
                               {t(
-                                "conceptSearchHelpText",
+                                'conceptSearchHelpText',
                                 "Can't find a concept?",
                               )}
                             </p>
@@ -422,9 +422,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                             className={styles.oclLink}
                             target="_blank"
                             rel="noopener noreferrer"
-                            href={"https://app.openconceptlab.org/"}
+                            href={'https://app.openconceptlab.org/'}
                           >
-                            {t("searchInOCL", "Search in OCL")}
+                            {t('searchInOCL', 'Search in OCL')}
                             <ArrowUpRight size={16} />
                           </a>
                         </div>
@@ -437,14 +437,14 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
               {conceptMappings?.length ? (
                 <FormGroup>
                   <FormLabel className={styles.label}>
-                    {t("mappings", "Mappings")}
+                    {t('mappings', 'Mappings')}
                   </FormLabel>
                   <table className={styles.tableStriped}>
                     <thead>
                       <tr>
-                        <th>{t("relationship", "Relationship")}</th>
-                        <th>{t("source", "Source")}</th>
-                        <th>{t("code", "Code")}</th>
+                        <th>{t('relationship', 'Relationship')}</th>
+                        <th>{t('source', 'Source')}</th>
+                        <th>{t('code', 'Code')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -480,8 +480,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   }) => setSelectedAnswers(selectedItems.sort())}
                   size="md"
                   titleText={t(
-                    "selectAnswersToDisplay",
-                    "Select answers to display",
+                    'selectAnswersToDisplay',
+                    'Select answers to display',
                   )}
                 />
               ) : null}
@@ -489,7 +489,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
               {selectedAnswers.length ? (
                 <div>
                   {selectedAnswers.map((answer) => (
-                    <Tag className={styles.tag} key={answer.id} type={"blue"}>
+                    <Tag className={styles.tag} key={answer.id} type={'blue'}>
                       {answer.text}
                     </Tag>
                   ))}
@@ -501,7 +501,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       </Form>
       <ModalFooter>
         <Button onClick={() => onModalChange(false)} kind="secondary">
-          {t("cancel", "Cancel")}
+          {t('cancel', 'Cancel')}
         </Button>
         <Button
           disabled={
@@ -509,11 +509,11 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             !questionId ||
             questionIdExists(questionId) ||
             !fieldType ||
-            (fieldType !== "ui-select-extended" && !selectedConcept)
+            (fieldType !== 'ui-select-extended' && !selectedConcept)
           }
           onClick={handleCreateQuestion}
         >
-          <span>{t("save", "Save")}</span>
+          <span>{t('save', 'Save')}</span>
         </Button>
       </ModalFooter>
     </ComposedModal>

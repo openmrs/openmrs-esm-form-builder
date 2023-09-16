@@ -1,5 +1,5 @@
-import { openmrsFetch, type FetchResponse } from "@openmrs/esm-framework";
-import type { Form, Schema } from "./types";
+import { openmrsFetch, type FetchResponse } from '@openmrs/esm-framework';
+import type { Form, Schema } from './types';
 
 interface SavePayload {
   name: string;
@@ -15,8 +15,8 @@ export async function deleteClobdata(
   const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/clobdata/${valueReference}`,
     {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
     },
   );
   return response;
@@ -28,8 +28,8 @@ export async function deleteForm(
   const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${formUuid}`,
     {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
     },
   );
   return response;
@@ -42,8 +42,8 @@ export async function deleteResource(
   const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${formUuid}/resource/${resourceUuid}`,
     {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
     },
   );
   return response;
@@ -54,12 +54,12 @@ export async function uploadSchema(schema: Schema): Promise<string> {
     type: undefined,
   });
   const body = new FormData();
-  body.append("file", schemaBlob);
+  body.append('file', schemaBlob);
 
   const response = await window
     .fetch(`${window.openmrsBase}/ws/rest/v1/clobdata`, {
       body,
-      method: "POST",
+      method: 'POST',
     })
     .then((response) => {
       return response.text();
@@ -73,16 +73,16 @@ export async function getResourceUuid(
   valueReference: string,
 ): Promise<FetchResponse<Schema>> {
   const body = {
-    name: "JSON schema",
-    dataType: "AmpathJsonSchema",
+    name: 'JSON schema',
+    dataType: 'AmpathJsonSchema',
     valueReference: valueReference,
   };
 
   const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${formUuid}/resource`,
     {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: body,
     },
   );
@@ -110,8 +110,8 @@ export async function updateForm(
   const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${formUuid}`,
     {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: body,
       signal: abortController.signal,
     },
@@ -133,18 +133,18 @@ export async function saveNewForm(
     name: name,
     version: version,
     published: published ?? false,
-    description: description ?? "",
+    description: description ?? '',
   };
 
   if (encounterType) {
     body.encounterType = encounterType;
   }
   const headers = {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   };
 
   const response: FetchResponse<Form> = await openmrsFetch(`/ws/rest/v1/form`, {
-    method: "POST",
+    method: 'POST',
     headers: headers,
     body: body,
     signal: abortController.signal,
@@ -158,8 +158,8 @@ export async function publishForm(uuid: string): Promise<FetchResponse<Form>> {
   const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${uuid}`,
     {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: body,
     },
   );
@@ -173,8 +173,8 @@ export async function unpublishForm(
   const response: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/form/${uuid}`,
     {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: body,
     },
   );

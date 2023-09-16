@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   ComposedModal,
@@ -9,9 +9,9 @@ import {
   ModalFooter,
   ModalHeader,
   TextInput,
-} from "@carbon/react";
-import { showToast, showNotification } from "@openmrs/esm-framework";
-import type { Schema } from "../../types";
+} from '@carbon/react';
+import { showToast, showNotification } from '@openmrs/esm-framework';
+import type { Schema } from '../../types';
 
 interface PageModalProps {
   schema: Schema;
@@ -27,7 +27,7 @@ const PageModal: React.FC<PageModalProps> = ({
   onModalChange,
 }) => {
   const { t } = useTranslation();
-  const [pageTitle, setPageTitle] = useState("");
+  const [pageTitle, setPageTitle] = useState('');
 
   const handleUpdatePageTitle = () => {
     updatePages();
@@ -43,19 +43,19 @@ const PageModal: React.FC<PageModalProps> = ({
         });
 
         onSchemaChange({ ...schema });
-        setPageTitle("");
+        setPageTitle('');
       }
       showToast({
-        title: t("success", "Success!"),
-        kind: "success",
+        title: t('success', 'Success!'),
+        kind: 'success',
         critical: true,
-        description: t("pageCreated", "New page created"),
+        description: t('pageCreated', 'New page created'),
       });
     } catch (error) {
       if (error instanceof Error) {
         showNotification({
-          title: t("errorCreatingPage", "Error creating page"),
-          kind: "error",
+          title: t('errorCreatingPage', 'Error creating page'),
+          kind: 'error',
           critical: true,
           description: error?.message,
         });
@@ -69,13 +69,13 @@ const PageModal: React.FC<PageModalProps> = ({
       onClose={() => onModalChange(false)}
       preventCloseOnClickOutside
     >
-      <ModalHeader title={t("createNewPage", "Create a new page")} />
+      <ModalHeader title={t('createNewPage', 'Create a new page')} />
       <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
-          <FormGroup legendText={""}>
+          <FormGroup legendText={''}>
             <TextInput
               id="pageTitle"
-              labelText={t("enterPageTitle", "Enter a title for your new page")}
+              labelText={t('enterPageTitle', 'Enter a title for your new page')}
               value={pageTitle}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                 setPageTitle(event.target.value)
@@ -86,10 +86,10 @@ const PageModal: React.FC<PageModalProps> = ({
       </Form>
       <ModalFooter>
         <Button onClick={() => onModalChange(false)} kind="secondary">
-          {t("cancel", "Cancel")}
+          {t('cancel', 'Cancel')}
         </Button>
         <Button disabled={!pageTitle} onClick={handleUpdatePageTitle}>
-          <span>{t("save", "Save")}</span>
+          <span>{t('save', 'Save')}</span>
         </Button>
       </ModalFooter>
     </ComposedModal>

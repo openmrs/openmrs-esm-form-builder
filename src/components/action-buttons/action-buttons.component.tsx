@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Button,
   ComposedModal,
@@ -6,16 +6,16 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
-} from "@carbon/react";
-import type { TFunction } from "i18next";
-import { useParams } from "react-router-dom";
-import { showToast, showNotification } from "@openmrs/esm-framework";
+} from '@carbon/react';
+import type { TFunction } from 'i18next';
+import { useParams } from 'react-router-dom';
+import { showToast, showNotification } from '@openmrs/esm-framework';
 
-import type { Schema } from "../../types";
-import { publishForm, unpublishForm } from "../../forms.resource";
-import { useForm } from "../../hooks/useForm";
-import SaveFormModal from "../modals/save-form-modal.component";
-import styles from "./action-buttons.scss";
+import type { Schema } from '../../types';
+import { publishForm, unpublishForm } from '../../forms.resource';
+import { useForm } from '../../hooks/useForm';
+import SaveFormModal from '../modals/save-form-modal.component';
+import styles from './action-buttons.scss';
 
 interface ActionButtonsProps {
   schema: Schema;
@@ -23,17 +23,17 @@ interface ActionButtonsProps {
 }
 
 type Status =
-  | "idle"
-  | "publishing"
-  | "published"
-  | "unpublishing"
-  | "unpublished"
-  | "error";
+  | 'idle'
+  | 'publishing'
+  | 'published'
+  | 'unpublishing'
+  | 'unpublished'
+  | 'error';
 
 function ActionButtons({ schema, t }: ActionButtonsProps) {
   const { formUuid } = useParams<{ formUuid?: string }>();
   const { form, mutate } = useForm(formUuid);
-  const [status, setStatus] = useState<Status>("idle");
+  const [status, setStatus] = useState<Status>('idle');
   const [showUnpublishModal, setShowUnpublishModal] = useState(false);
 
   const launchUnpublishModal = () => {
@@ -41,59 +41,59 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
   };
 
   async function handlePublish() {
-    setStatus("publishing");
+    setStatus('publishing');
     try {
       await publishForm(form.uuid);
       showToast({
-        title: t("formPublished", "Form published"),
-        kind: "success",
+        title: t('formPublished', 'Form published'),
+        kind: 'success',
         critical: true,
         description:
           `${form.name} ` +
-          t("formPublishedSuccessfully", "form was published successfully"),
+          t('formPublishedSuccessfully', 'form was published successfully'),
       });
 
-      setStatus("published");
+      setStatus('published');
       await mutate();
     } catch (error) {
       if (error instanceof Error) {
         showNotification({
-          title: t("errorPublishingForm", "Error publishing form"),
-          kind: "error",
+          title: t('errorPublishingForm', 'Error publishing form'),
+          kind: 'error',
           critical: true,
           description: error?.message,
         });
-        setStatus("error");
+        setStatus('error');
       }
     }
   }
 
   async function handleUnpublish() {
-    setStatus("unpublishing");
+    setStatus('unpublishing');
 
     try {
       await unpublishForm(form.uuid);
 
       showToast({
-        title: t("formUnpublished", "Form unpublished"),
-        kind: "success",
+        title: t('formUnpublished', 'Form unpublished'),
+        kind: 'success',
         critical: true,
         description:
           `${form.name} ` +
-          t("formUnpublishedSuccessfully", "form was unpublished successfully"),
+          t('formUnpublishedSuccessfully', 'form was unpublished successfully'),
       });
 
-      setStatus("unpublished");
+      setStatus('unpublished');
       await mutate();
     } catch (error) {
       if (error instanceof Error) {
         showNotification({
-          title: t("errorUnpublishingForm", "Error unpublishing form"),
-          kind: "error",
+          title: t('errorUnpublishingForm', 'Error unpublishing form'),
+          kind: 'error',
           critical: true,
           description: error?.message,
         });
-        setStatus("error");
+        setStatus('error');
       }
     }
     setShowUnpublishModal(false);
@@ -108,15 +108,15 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
           <Button
             kind="secondary"
             onClick={handlePublish}
-            disabled={status === "publishing"}
+            disabled={status === 'publishing'}
           >
-            {status === "publishing" && !form?.published ? (
+            {status === 'publishing' && !form?.published ? (
               <InlineLoading
                 className={styles.spinner}
-                description={t("publishing", "Publishing") + "..."}
+                description={t('publishing', 'Publishing') + '...'}
               />
             ) : (
-              <span>{t("publishForm", "Publish form")}</span>
+              <span>{t('publishForm', 'Publish form')}</span>
             )}
           </Button>
         ) : null}
@@ -125,9 +125,9 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
           <Button
             kind="danger"
             onClick={launchUnpublishModal}
-            disabled={status === "unpublishing"}
+            disabled={status === 'unpublishing'}
           >
-            {t("unpublishForm", "Unpublish form")}
+            {t('unpublishForm', 'Unpublish form')}
           </Button>
         ) : null}
 
@@ -139,15 +139,15 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
           >
             <ModalHeader
               title={t(
-                "unpublishConfirmation",
-                "Are you sure you want to unpublish this form?",
+                'unpublishConfirmation',
+                'Are you sure you want to unpublish this form?',
               )}
             ></ModalHeader>
             <ModalBody>
               <p>
                 {t(
-                  "unpublishExplainerText",
-                  "Unpublishing a form means you can no longer access it from your frontend. Unpublishing forms does not delete their associated schemas, it only affects whether or not you can access them in your frontend.",
+                  'unpublishExplainerText',
+                  'Unpublishing a form means you can no longer access it from your frontend. Unpublishing forms does not delete their associated schemas, it only affects whether or not you can access them in your frontend.',
                 )}
               </p>
             </ModalBody>
@@ -156,20 +156,20 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
                 kind="secondary"
                 onClick={() => setShowUnpublishModal(false)}
               >
-                {t("cancel", "Cancel")}
+                {t('cancel', 'Cancel')}
               </Button>
               <Button
-                disabled={status === "unpublishing"}
-                kind={status === "unpublishing" ? "secondary" : "danger"}
+                disabled={status === 'unpublishing'}
+                kind={status === 'unpublishing' ? 'secondary' : 'danger'}
                 onClick={handleUnpublish}
               >
-                {status === "unpublishing" ? (
+                {status === 'unpublishing' ? (
                   <InlineLoading
                     className={styles.spinner}
-                    description={t("unpublishing", "Unpublishing") + "..."}
+                    description={t('unpublishing', 'Unpublishing') + '...'}
                   />
                 ) : (
-                  <span>{t("unpublishForm", "Unpublish form")}</span>
+                  <span>{t('unpublishForm', 'Unpublish form')}</span>
                 )}
               </Button>
             </ModalFooter>

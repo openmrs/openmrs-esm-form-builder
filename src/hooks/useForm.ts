@@ -1,6 +1,6 @@
-import useSWR from "swr/immutable";
-import { openmrsFetch } from "@openmrs/esm-framework";
-import type { Form } from "../types";
+import useSWR from 'swr/immutable';
+import { openmrsFetch } from '@openmrs/esm-framework';
+import type { Form } from '../types';
 
 export const useForm = (uuid: string) => {
   const url = `/ws/rest/v1/form/${uuid}?v=full`;

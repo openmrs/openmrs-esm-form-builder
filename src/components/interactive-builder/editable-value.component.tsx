@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Button } from "@carbon/react";
-import { Edit } from "@carbon/react/icons";
-import ValueEditor from "./value-editor.component";
-import styles from "./editable-value.scss";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Button } from '@carbon/react';
+import { Edit } from '@carbon/react/icons';
+import ValueEditor from './value-editor.component';
+import styles from './editable-value.scss';
 
 interface EditableValueProps {
-  elementType?: "schema" | "page" | "section";
+  elementType?: 'schema' | 'page' | 'section';
   id: string;
   value: string;
   onSave: (value: string) => void;
@@ -41,12 +41,12 @@ const EditableValue: React.FC<EditableValueProps> = ({
 
   return (
     <>
-      <h1 className={styles[`${elementType}` + "Label"]}>{value}</h1>
+      <h1 className={styles[`${elementType}` + 'Label']}>{value}</h1>
       <Button
         kind="ghost"
         size="sm"
         enterDelayMs={300}
-        iconDescription={t("editButton", "Edit {elementType}", {
+        iconDescription={t('editButton', 'Edit {elementType}', {
           elementType: elementType,
         })}
         onClick={() => setEditing(true)}

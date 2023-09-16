@@ -2,7 +2,7 @@ import type {
   APIRequestContext,
   PlaywrightWorkerArgs,
   WorkerFixture,
-} from "@playwright/test";
+} from '@playwright/test';
 
 /**
  * A fixture which initializes an [`APIRequestContext`](https://playwright.dev/docs/api/class-apirequestcontext)

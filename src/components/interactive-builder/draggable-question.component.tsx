@@ -1,11 +1,11 @@
-import React from "react";
-import { useDraggable } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
-import { useTranslation } from "react-i18next";
-import { Button, CopyButton } from "@carbon/react";
-import { Draggable, Edit, TrashCan } from "@carbon/react/icons";
-import type { Question } from "../../types";
-import styles from "./draggable-question.scss";
+import React from 'react';
+import { useDraggable } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
+import { useTranslation } from 'react-i18next';
+import { Button, CopyButton } from '@carbon/react';
+import { Draggable, Edit, TrashCan } from '@carbon/react/icons';
+import type { Question } from '../../types';
+import styles from './draggable-question.scss';
 
 interface DraggableQuestionProps {
   question: Question;
@@ -64,8 +64,8 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
         <CopyButton
           align="top"
           className="cds--btn--sm"
-          feedback={t("duplicated", "Duplicated") + "!"}
-          iconDescription={t("duplicateQuestion", "Duplicate question")}
+          feedback={t('duplicated', 'Duplicated') + '!'}
+          iconDescription={t('duplicateQuestion', 'Duplicate question')}
           kind="ghost"
           onClick={() =>
             !isDragging &&
@@ -75,7 +75,7 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
         <Button
           enterDelayMs={300}
           hasIconOnly
-          iconDescription={t("editQuestion", "Edit question")}
+          iconDescription={t('editQuestion', 'Edit question')}
           kind="ghost"
           onClick={() => {
             if (!isDragging) {
@@ -88,7 +88,7 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
         <Button
           enterDelayMs={300}
           hasIconOnly
-          iconDescription={t("deleteQuestion", "Delete question")}
+          iconDescription={t('deleteQuestion', 'Delete question')}
           kind="ghost"
           onClick={handleDeleteButtonClick}
           renderIcon={(props) => <TrashCan size={16} {...props} />}

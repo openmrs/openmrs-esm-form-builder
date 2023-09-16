@@ -6,19 +6,20 @@ The Form Builder is a widget used to create OpenMRS form schemas. It enables use
 
 ## Form Builder User Guide
 
-* See the thorough User Guide for the Form Builder here: https://ampath-forms.vercel.app/docs/quickstart
-* Prerequisites & dependencies are covered here: https://ampath-forms.vercel.app/docs/developer-guide/run-form-engine-in-openmrs3#prerequisites 
+* See the thorough User Guide for the Form Builder here: <https://ampath-forms.vercel.app/docs/quickstart>
+* Prerequisites & dependencies are covered here: <https://ampath-forms.vercel.app/docs/developer-guide/run-form-engine-in-openmrs3#prerequisites>
 
 ## Running this code
+
 Under the hood, the Form Builder uses the [OHRI form engine](https://www.npmjs.com/package/@openmrs/openmrs-form-engine-lib) to render a visual representation of your schema. This visual preview gets progressively updated as you build your schema. When done building, you can save your schema to an OpenMRS server. You can also publish your schema to make it available to your frontend.
 
 To set up environment variables for the project, follow these steps:
 
 1. Create a copy of the .env.example file by running the following command:
 
-  ```bash
-  cp example.env .env
-  ```
+    ```bash
+    cp example.env .env
+    ```
 
 2. Open the newly created .env file in the root of the project.
 
@@ -35,17 +36,49 @@ yarn start  # Launches a dev server
 
 Once the dev server launches, log in and select a location. You will get redirected to the home page. Once there, you can either:
 
-- Click the App Switcher icon in the top right corner and then click `Form Builder` to launch the app.
-- Manually navigate to the `/openmrs/spa/form-builder` URL.
+* Click the App Switcher icon in the top right corner and then click the `System Administration` link to go the Admin page. Click on the `Form Builder` tile to launch the app.
+* Manually navigate to the `/openmrs/spa/form-builder` URL.
 
 ## Running tests
 
 ### Unit tests
 
-To run unit tests, use:
+To run tests for all packages, run:
 
-```sh
-yarn test
+```bash
+yarn turbo test
+```
+
+To run tests in `watch` mode, run:
+
+```bash
+yarn turbo test:watch
+```
+
+To run a specific test file, run:
+
+```bash
+yarn turbo test -- dashboard
+```
+
+The above command will only run tests in the file or files that match the provided string.
+
+You can also run the matching tests from above in watch mode by running:
+
+```bash
+yarn turbo test:watch -- dashboard
+```
+
+To generate a `coverage` report, run:
+
+```bash
+yarn turbo coverage
+```
+
+By default, `turbo` will cache test runs. This means that re-running tests wihout changing any of the related files will return the cached logs from the last run. To bypass the cache, run tests with the `force` flag, as follows:
+
+```bash
+yarn turbo test --force
 ```
 
 ### E2E tests
@@ -64,15 +97,8 @@ yarn test-e2e --headed
 
 Please read [our e2e docs](e2e/README.md) for more information about E2E testing.
 
-
 ## Building
 
 ```sh
 yarn build
-```
-
-## Running tests
-
-```sh
-yarn test 
 ```

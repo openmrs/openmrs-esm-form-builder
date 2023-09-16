@@ -1,14 +1,14 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   ComposedModal,
   ModalBody,
   ModalFooter,
   ModalHeader,
-} from "@carbon/react";
-import { showNotification, showToast } from "@openmrs/esm-framework";
-import type { Schema } from "../../types";
+} from '@carbon/react';
+import { showNotification, showToast } from '@openmrs/esm-framework';
+import type { Schema } from '../../types';
 
 interface DeleteSectionModal {
   onModalChange: (showModal: boolean) => void;
@@ -39,16 +39,16 @@ const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
       resetIndices();
 
       showToast({
-        title: t("success", "Success!"),
-        kind: "success",
+        title: t('success', 'Success!'),
+        kind: 'success',
         critical: true,
-        description: t("SectionDeleted", "Section deleted"),
+        description: t('SectionDeleted', 'Section deleted'),
       });
     } catch (error) {
       if (error instanceof Error) {
         showNotification({
-          title: t("errorDeletingSection", "Error deleting section"),
-          kind: "error",
+          title: t('errorDeletingSection', 'Error deleting section'),
+          kind: 'error',
           critical: true,
           description: error?.message,
         });
@@ -64,21 +64,21 @@ const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
     >
       <ModalHeader
         title={t(
-          "deleteSectionConfirmation",
-          "Are you sure you want to delete this section?",
+          'deleteSectionConfirmation',
+          'Are you sure you want to delete this section?',
         )}
       />
       <ModalBody>
         <p>
           {t(
-            "deleteSectionExplainerText",
-            "Deleting this section will delete all the questions associated with it. This action cannot be undone.",
+            'deleteSectionExplainerText',
+            'Deleting this section will delete all the questions associated with it. This action cannot be undone.',
           )}
         </p>
       </ModalBody>
       <ModalFooter>
         <Button kind="secondary" onClick={() => onModalChange(false)}>
-          {t("cancel", "Cancel")}
+          {t('cancel', 'Cancel')}
         </Button>
         <Button
           kind="danger"
@@ -87,7 +87,7 @@ const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
             onModalChange(false);
           }}
         >
-          <span>{t("deleteSection", "Delete section")}</span>
+          <span>{t('deleteSection', 'Delete section')}</span>
         </Button>
       </ModalFooter>
     </ComposedModal>

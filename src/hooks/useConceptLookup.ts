@@ -1,6 +1,6 @@
-import useSWR from "swr";
-import { openmrsFetch } from "@openmrs/esm-framework";
-import type { Concept } from "../types";
+import useSWR from 'swr';
+import { openmrsFetch } from '@openmrs/esm-framework';
+import type { Concept } from '../types';
 
 export function useConceptLookup(conceptId: string) {
   const url = `/ws/rest/v1/concept?q=${conceptId}&v=full`;

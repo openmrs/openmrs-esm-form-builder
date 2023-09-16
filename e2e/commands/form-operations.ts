@@ -1,18 +1,19 @@
-import { APIRequestContext, expect } from "@playwright/test";
-import customSchema from "../support/custom-schema.json";
+import type { APIRequestContext } from '@playwright/test';
+import { expect } from '@playwright/test';
+import customSchema from '../support/custom-schema.json';
 
 export const createForm = async (
   api: APIRequestContext,
-  isFormPublished: boolean
+  isFormPublished: boolean,
 ) => {
-  const formResponse = await api.post("form", {
+  const formResponse = await api.post('form', {
     data: {
       name: `A sample test form ${Math.floor(Math.random() * 10000)}`,
-      version: "1.0",
+      version: '1.0',
       published: isFormPublished,
-      description: "This is the form description",
+      description: 'This is the form description',
       encounterType: {
-        uuid: "e22e39fd-7db2-45e7-80f1-60fa0d5a4378",
+        uuid: 'e22e39fd-7db2-45e7-80f1-60fa0d5a4378',
       },
     },
   });
@@ -25,12 +26,12 @@ export const createForm = async (
 export const addFormResources = async (
   api: APIRequestContext,
   valueReference: string,
-  formUuid: string
+  formUuid: string,
 ) => {
   const formResourcesRes = await api.post(`form/${formUuid}/resource`, {
     data: {
-      name: "JSON schema",
-      dataType: "AmpathJsonSchema",
+      name: 'JSON schema',
+      dataType: 'AmpathJsonSchema',
       valueReference: valueReference,
     },
   });
@@ -39,21 +40,21 @@ export const addFormResources = async (
 
 export const createValueReference = async (api: APIRequestContext) => {
   const boundary =
-    "--------------------------" + Math.floor(Math.random() * 1e16);
-  const delimiter = "\r\n--" + boundary + "\r\n";
-  const closeDelimiter = "\r\n--" + boundary + "--";
+    '--------------------------' + Math.floor(Math.random() * 1e16);
+  const delimiter = '\r\n--' + boundary + '\r\n';
+  const closeDelimiter = '\r\n--' + boundary + '--';
 
   const body =
     delimiter +
     'Content-Disposition: form-data; name="file"; filename="schema.json"\r\n' +
-    "Content-Type: application/json\r\n\r\n" +
+    'Content-Type: application/json\r\n\r\n' +
     JSON.stringify(customSchema) +
     closeDelimiter;
 
-  const valueReference = await api.post("clobdata", {
+  const valueReference = await api.post('clobdata', {
     data: body,
     headers: {
-      "Content-Type": "multipart/form-data; boundary=" + boundary,
+      'Content-Type': 'multipart/form-data; boundary=' + boundary,
     },
   });
   await expect(valueReference.ok()).toBeTruthy();

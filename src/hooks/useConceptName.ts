@@ -1,8 +1,8 @@
-import useSWR from "swr";
-import { openmrsFetch } from "@openmrs/esm-framework";
+import useSWR from 'swr';
+import { openmrsFetch } from '@openmrs/esm-framework';
 
 export function useConceptName(conceptId: string | undefined) {
-  const customRepresentation = "custom:(name:(display))";
+  const customRepresentation = 'custom:(name:(display))';
   const url = `/ws/rest/v1/concept/${conceptId}?v=${customRepresentation}`;
 
   const { data, error } = useSWR<

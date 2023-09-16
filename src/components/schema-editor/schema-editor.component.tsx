@@ -1,9 +1,9 @@
-import React from "react";
-import AceEditor from "react-ace";
-import "ace-builds/webpack-resolver";
-import "ace-builds/src-noconflict/ext-language_tools";
-import { useTranslation } from "react-i18next";
-import styles from "./schema-editor.scss";
+import React from 'react';
+import AceEditor from 'react-ace';
+import 'ace-builds/webpack-resolver';
+import 'ace-builds/src-noconflict/ext-language_tools';
+import { useTranslation } from 'react-i18next';
+import styles from './schema-editor.scss';
 
 interface SchemaEditorProps {
   isLoading: boolean;
@@ -24,14 +24,14 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
       {invalidJsonErrorMessage ? (
         <div className={styles.errorContainer}>
           <p className={styles.heading}>
-            {t("schemaError", "There's an error in your schema.")}
+            {t('schemaError', "There's an error in your schema.")}
           </p>
           <p>{invalidJsonErrorMessage}</p>
         </div>
       ) : null}
 
       <AceEditor
-        style={{ height: "100vh", width: "100%" }}
+        style={{ height: '100vh', width: '100%' }}
         mode="json"
         theme="textmate"
         name="schemaEditor"

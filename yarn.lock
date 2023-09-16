@@ -3197,7 +3197,7 @@ __metadata:
     eslint-config-ts-react-important-stuff: ^3.0.0
     eslint-plugin-prettier: ^5.0.0
     file-loader: ^6.2.0
-    husky: ^8.0.0
+    husky: ^8.0.3
     i18next: ^23.5.1
     i18next-parser: ^8.7.0
     identity-obj-proxy: ^3.0.0
@@ -3207,7 +3207,6 @@ __metadata:
     lint-staged: ^14.0.1
     lodash-es: ^4.17.21
     openmrs: next
-    pinst: ^3.0.0
     prettier: ^3.0.3
     react: ^18.2.0
     react-ace: ^10.1.0
@@ -11060,7 +11059,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"husky@npm:^8.0.0":
+"husky@npm:^8.0.3":
   version: 8.0.3
   resolution: "husky@npm:8.0.3"
   bin:
@@ -14892,15 +14891,6 @@ __metadata:
   version: 2.0.4
   resolution: "pinkie@npm:2.0.4"
   checksum: b12b10afea1177595aab036fc220785488f67b4b0fc49e7a27979472592e971614fa1c728e63ad3e7eb748b4ec3c3dbd780819331dad6f7d635c77c10537b9db
-  languageName: node
-  linkType: hard
-
-"pinst@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "pinst@npm:3.0.0"
-  bin:
-    pinst: bin.js
-  checksum: 4ae48a6a60f79c37071233af51b4d91bfc85cfa3c12b66ccda60cdb642b4d14a4ab0cb3587afc55b1f6192cea1772a5e4822026a0d0d3528296edef00cc2d61f
   languageName: node
   linkType: hard
 

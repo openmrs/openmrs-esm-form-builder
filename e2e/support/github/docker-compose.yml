@@ -1,12 +1,12 @@
 # This docker compose file is used to create a backend environment for the e2e.yml workflow.
 # The images are pre-filled with data so that the backend environment can be started within a short time.
-version: "3.7"
+version: '3.7'
 
 services:
   gateway:
     image: openmrs/openmrs-reference-application-3-gateway:${TAG:-nightly}
     ports:
-      - "8080:80"
+      - '8080:80'
 
   frontend:
     build:

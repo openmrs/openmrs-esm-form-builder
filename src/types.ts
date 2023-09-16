@@ -1,4 +1,4 @@
-import type { RenderType } from "@openmrs/openmrs-form-engine-lib";
+import type { RenderType } from '@openmrs/openmrs-form-engine-lib';
 
 export interface Form {
   uuid: string;
@@ -37,16 +37,16 @@ export interface Resource {
 }
 
 export type QuestionType =
-  | "complex-obs"
-  | "control"
-  | "encounterDatetime"
-  | "encounterLocation"
-  | "encounterProvider"
-  | "obs"
-  | "obsGroup"
-  | "personAttribute"
-  | "testOrder"
-  | "patientIdentifier";
+  | 'complex-obs'
+  | 'control'
+  | 'encounterDatetime'
+  | 'encounterLocation'
+  | 'encounterProvider'
+  | 'obs'
+  | 'obsGroup'
+  | 'personAttribute'
+  | 'testOrder'
+  | 'patientIdentifier';
 
 export interface Schema {
   name: string;

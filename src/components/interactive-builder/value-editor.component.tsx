@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Button, TextInput } from "@carbon/react";
-import { Close, Save } from "@carbon/react/icons";
-import styles from "./value-editor.scss";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Button, TextInput } from '@carbon/react';
+import { Close, Save } from '@carbon/react/icons';
+import styles from './value-editor.scss';
 
 interface ValueEditorProps {
   id: string;
@@ -38,7 +38,7 @@ const ValueEditor: React.FC<ValueEditorProps> = ({
           kind="primary"
           onClick={() => handleSave(tmpValue)}
         >
-          {t("saveButtonText", "Save")}
+          {t('saveButtonText', 'Save')}
         </Button>
         <Button
           size="md"
@@ -46,7 +46,7 @@ const ValueEditor: React.FC<ValueEditorProps> = ({
           kind="secondary"
           onClick={handleCancel}
         >
-          {t("cancelButtonText", "Cancel")}
+          {t('cancelButtonText', 'Cancel')}
         </Button>
       </div>
     </>

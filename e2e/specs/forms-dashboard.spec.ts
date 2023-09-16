@@ -1,13 +1,13 @@
-import { test } from "../core";
-import { expect } from "@playwright/test";
-import { FormBuilderPage } from "../pages";
+import { test } from '../core';
+import { expect } from '@playwright/test';
+import { FormBuilderPage } from '../pages';
 import {
   createForm,
   createValueReference,
   addFormResources,
   deleteForm,
-} from "../commands/form-operations";
-import type { Form } from "../../src/types";
+} from '../commands/form-operations';
+import type { Form } from '../../src/types';
 
 let form: Form = null;
 test.beforeEach(async ({ api }) => {
@@ -16,24 +16,24 @@ test.beforeEach(async ({ api }) => {
   await addFormResources(api, valueReference, form.uuid);
 });
 
-test("Filter forms based on publish status", async ({ page }) => {
+test('Filter forms based on publish status', async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
 
-  await test.step("When I visit the form builder", async () => {
+  await test.step('When I visit the form builder', async () => {
     await formBuilderPage.gotoFormBuilder();
   });
 
   // Test the filter functionality
-  await test.step("Then I click the publish filter dropdown", async () => {
+  await test.step('Then I click the publish filter dropdown', async () => {
     await page
-      .getByRole("combobox", {
-        name: "Filter by publish status: All Open menu",
+      .getByRole('combobox', {
+        name: 'Filter by publish status: All Open menu',
       })
       .click();
   });
 
-  await test.step("And I click the Unpublished option", async () =>
-    await page.getByText("Unpublished").click());
+  await test.step('And I click the Unpublished option', async () =>
+    await page.getByText('Unpublished').click());
 
   // Expect the publish status to be "No"
   const tagElements = await page.$$('div[data-testid="no-tag"]');
@@ -41,29 +41,29 @@ test("Filter forms based on publish status", async ({ page }) => {
 
   // Get the inner text of the tag element
   const innerText = await firstTagElement.innerText();
-  await test.step("Then the forms list should only show unpublished forms", () => {
-    expect(innerText).toBe("No");
+  await test.step('Then the forms list should only show unpublished forms', () => {
+    expect(innerText).toBe('No');
   });
 });
 
-test("Search forms by name", async ({ page }) => {
+test('Search forms by name', async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
-  await test.step("When I visit the form builder", async () => {
+  await test.step('When I visit the form builder', async () => {
     await formBuilderPage.gotoFormBuilder();
   });
 
-  await test.step("Then I click the `Search` button", async () => {
-    await page.getByPlaceholder("Search this list").click();
+  await test.step('Then I click the `Search` button', async () => {
+    await page.getByPlaceholder('Search this list').click();
   });
 
-  await test.step("And I type `A sample test form` into it", async () =>
-    await page.getByPlaceholder("Search this list").fill("a sample test form"));
+  await test.step('And I type `A sample test form` into it', async () =>
+    await page.getByPlaceholder('Search this list').fill('a sample test form'));
 
-  const formNameElement = await page.locator("tr:nth-child(1) > td").nth(0);
+  const formNameElement = await page.locator('tr:nth-child(1) > td').nth(0);
   const innerNameText = await formNameElement.innerText();
 
-  await test.step("Then the forms list should show only the forms with the text `a sample test form` in their name", () => {
-    expect(innerNameText).toContain("A sample test form");
+  await test.step('Then the forms list should show only the forms with the text `a sample test form` in their name', () => {
+    expect(innerNameText).toContain('A sample test form');
   });
 });
 
