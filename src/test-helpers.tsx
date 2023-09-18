@@ -1,11 +1,6 @@
 import React from 'react';
 import { SWRConfig } from 'swr';
-import {
-  type RenderOptions,
-  render,
-  screen,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
+import { type RenderOptions, render, screen, waitForElementToBeRemoved } from '@testing-library/react';
 
 // This component wraps whatever component is passed to it with an SWRConfig context which provides a global configuration for all SWR hooks.
 const swrWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -24,17 +19,12 @@ const swrWrapper = ({ children }: { children: React.ReactNode }) => {
 };
 
 // Render the provided component within the wrapper we created above
-export const renderWithSwr = (
-  ui: React.ReactElement,
-  options?: RenderOptions,
-) => render(ui, { wrapper: swrWrapper, ...options });
+export const renderWithSwr = (ui: React.ReactElement, options?: RenderOptions) =>
+  render(ui, { wrapper: swrWrapper, ...options });
 
 // Helper function that waits for a loading state to disappear from the screen
 export function waitForLoadingToFinish() {
-  return waitForElementToBeRemoved(
-    () => [...screen.queryAllByRole('progressbar')],
-    {
-      timeout: 4000,
-    },
-  );
+  return waitForElementToBeRemoved(() => [...screen.queryAllByRole('progressbar')], {
+    timeout: 4000,
+  });
 }

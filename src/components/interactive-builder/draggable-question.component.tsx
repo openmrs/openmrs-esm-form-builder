@@ -12,11 +12,7 @@ interface DraggableQuestionProps {
   pageIndex: number;
   sectionIndex: number;
   questionIndex: number;
-  handleDuplicateQuestion: (
-    question: Question,
-    pageId: number,
-    sectionId: number,
-  ) => void;
+  handleDuplicateQuestion: (question: Question, pageId: number, sectionId: number) => void;
   handleEditButtonClick: (question: Question) => void;
   handleDeleteButtonClick: (question: Question) => void;
   questionCount: number;
@@ -35,11 +31,10 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   const { t } = useTranslation();
   const draggableId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
 
-  const { attributes, listeners, transform, isDragging, setNodeRef } =
-    useDraggable({
-      id: draggableId,
-      disabled: questionCount <= 1,
-    });
+  const { attributes, listeners, transform, isDragging, setNodeRef } = useDraggable({
+    id: draggableId,
+    disabled: questionCount <= 1,
+  });
 
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -50,12 +45,7 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   return (
     <div className={dragStyles} style={style}>
       <div className={styles.iconAndName}>
-        <div
-          className={styles.dragIconContainer}
-          ref={setNodeRef}
-          {...attributes}
-          {...listeners}
-        >
+        <div className={styles.dragIconContainer} ref={setNodeRef} {...attributes} {...listeners}>
           <Draggable className={styles.dragIcon} size={16} />
         </div>
         <p className={styles.questionLabel}>{question.label}</p>
@@ -67,10 +57,7 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           feedback={t('duplicated', 'Duplicated') + '!'}
           iconDescription={t('duplicateQuestion', 'Duplicate question')}
           kind="ghost"
-          onClick={() =>
-            !isDragging &&
-            handleDuplicateQuestion(question, pageIndex, sectionIndex)
-          }
+          onClick={() => !isDragging && handleDuplicateQuestion(question, pageIndex, sectionIndex)}
         />
         <Button
           enterDelayMs={300}

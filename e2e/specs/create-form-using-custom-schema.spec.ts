@@ -4,7 +4,7 @@ import { deleteForm } from '../commands/form-operations';
 import { FormBuilderPage } from '../pages';
 import customSchema from '../support/custom-schema.json';
 
-let formUuid = null;
+let formUuid = '';
 
 test('Create a form using a custom JSON schema', async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
@@ -18,9 +18,7 @@ test('Create a form using a custom JSON schema', async ({ page }) => {
   });
 
   await test.step('Then I paste in a custom JSON schema into the schema editor and click the `Render Changes` button', async () => {
-    await formBuilderPage
-      .schemaInput()
-      .fill(JSON.stringify(customSchema, null, 2));
+    await formBuilderPage.schemaInput().fill(JSON.stringify(customSchema, null, 2));
     await formBuilderPage.renderChangesButton().click();
   });
 
@@ -33,7 +31,7 @@ test('Create a form using a custom JSON schema', async ({ page }) => {
     const editFormPageURLRegex = new RegExp('/edit/');
     await expect(page.getByText('Form created')).toBeVisible();
     await page.waitForURL(editFormPageURLRegex);
-    const editFormPageURL = await page.url();
+    const editFormPageURL = page.url();
     formUuid = editFormPageURL.split('/').slice(-1)[0];
   });
 });

@@ -12,9 +12,9 @@ dotenv.config();
 
 async function globalSetup() {
   const requestContext = await request.newContext();
-  const token = Buffer.from(
-    `${process.env.E2E_USER_ADMIN_USERNAME}:${process.env.E2E_USER_ADMIN_PASSWORD}`,
-  ).toString('base64');
+  const token = Buffer.from(`${process.env.E2E_USER_ADMIN_USERNAME}:${process.env.E2E_USER_ADMIN_PASSWORD}`).toString(
+    'base64',
+  );
   await requestContext.post(`${process.env.E2E_BASE_URL}/ws/rest/v1/session`, {
     data: {
       sessionLocation: process.env.E2E_LOGIN_DEFAULT_LOCATION_UUID,

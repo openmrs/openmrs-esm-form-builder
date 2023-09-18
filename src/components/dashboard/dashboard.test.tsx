@@ -58,14 +58,10 @@ describe('Dashboard', () => {
 
     await waitForLoadingToFinish();
 
-    expect(
-      screen.getByRole('heading', { name: /form builder/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /form builder/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /forms/i })).toBeInTheDocument();
     expect(screen.getByTitle(/empty data illustration/i)).toBeInTheDocument();
-    expect(
-      screen.getByText(/there are no forms to display/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/there are no forms to display/i)).toBeInTheDocument();
     expect(screen.getByText(/create a new form/i)).toBeInTheDocument();
   });
 
@@ -94,12 +90,8 @@ describe('Dashboard', () => {
       results: formsResponse.filter((form) => form.name === searchbox.value),
     }));
 
-    await waitFor(() =>
-      expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument(),
-    );
-    expect(
-      screen.getByText(/no matching forms to display/i),
-    ).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument());
+    expect(screen.getByText(/no matching forms to display/i)).toBeInTheDocument();
   });
 
   it('filters the list of forms by "published" status', async () => {
@@ -120,9 +112,7 @@ describe('Dashboard', () => {
     });
 
     await waitFor(() => user.click(publishStatusFilter));
-    await waitFor(() =>
-      user.click(screen.getByRole('option', { name: /unpublished/i })),
-    );
+    await waitFor(() => user.click(screen.getByRole('option', { name: /unpublished/i })));
 
     mockUsePagination.mockImplementation(() => ({
       currentPage: 1,
@@ -131,9 +121,7 @@ describe('Dashboard', () => {
     }));
 
     expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument();
-    expect(
-      screen.getByText(/no matching forms to display/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/no matching forms to display/i)).toBeInTheDocument();
   });
 
   it('renders a list of forms fetched from the server', async () => {
@@ -153,24 +141,12 @@ describe('Dashboard', () => {
 
     await waitForLoadingToFinish();
 
-    expect(
-      screen.getByRole('heading', { name: /form builder/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('combobox', { name: /filter by publish status/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /create a new form/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /edit schema/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /download schema/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('searchbox', { name: /filter table/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /form builder/i })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /filter by publish status/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /create a new form/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /edit schema/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /download schema/i })).toBeInTheDocument();
+    expect(screen.getByRole('searchbox', { name: /filter table/i })).toBeInTheDocument();
     expect(screen.queryByRole('table')).toBeInTheDocument();
     expect(screen.getByText(/Test Form 1/i)).toBeInTheDocument();
   });
@@ -290,17 +266,11 @@ describe('Dashboard', () => {
     const modal = screen.getByRole('presentation');
     expect(modal).toBeInTheDocument();
     expect(modal).toHaveTextContent(/delete form/i);
-    expect(modal).toHaveTextContent(
-      /are you sure you want to delete this form?/i,
-    );
+    expect(modal).toHaveTextContent(/are you sure you want to delete this form?/i);
     expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /danger delete/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /danger delete/i })).toBeInTheDocument();
 
-    await waitFor(() =>
-      user.click(screen.getByRole('button', { name: /danger delete/i })),
-    );
+    await waitFor(() => user.click(screen.getByRole('button', { name: /danger delete/i })));
   });
 });
 

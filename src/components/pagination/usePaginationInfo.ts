@@ -1,12 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export function usePaginationInfo(
-  pageSize: number,
-  totalItems: number,
-  pageNumber: number,
-  currentItems: number,
-) {
+export function usePaginationInfo(pageSize: number, totalItems: number, pageNumber: number, currentItems: number) {
   const { t } = useTranslation();
 
   const pageSizes = useMemo(() => {

@@ -1,3 +1,5 @@
-e2e/**
-src/**/*.test.tsx
+**/dist/*
+**/node_modules/*
 **/*.d.tsx
+src/**/*.test.tsx
+__mocks__/*

@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Button,
-  ComposedModal,
-  Form,
-  FormGroup,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  TextInput,
-} from '@carbon/react';
+import { Button, ComposedModal, Form, FormGroup, ModalBody, ModalFooter, ModalHeader, TextInput } from '@carbon/react';
 import { showToast, showNotification } from '@openmrs/esm-framework';
 import type { Schema } from '../../types';
 
@@ -68,11 +59,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
   };
 
   return (
-    <ComposedModal
-      open={showModal}
-      onClose={() => onModalChange(false)}
-      preventCloseOnClickOutside
-    >
+    <ComposedModal open={showModal} onClose={() => onModalChange(false)} preventCloseOnClickOutside>
       <ModalHeader title={t('createNewSection', 'Create a new section')} />
       <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
@@ -81,9 +68,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
               id="sectionTitle"
               labelText={t('enterSectionTitle', 'Enter a section title')}
               value={sectionTitle}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                setSectionTitle(event.target.value)
-              }
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setSectionTitle(event.target.value)}
             />
           </FormGroup>
         </ModalBody>

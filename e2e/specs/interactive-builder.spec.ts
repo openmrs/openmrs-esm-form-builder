@@ -21,8 +21,7 @@ test('Create a schema using the interactive builder', async ({ page }) => {
     await page
       .locator('#schemaEditor div')
       .filter({
-        hasText:
-          '{ "name": "Covid-19 Screening", "pages": [ { "label": "Screening", "sections": [',
+        hasText: '{ "name": "Covid-19 Screening", "pages": [ { "label": "Screening", "sections": [',
       })
       .nth(1)
       .click();

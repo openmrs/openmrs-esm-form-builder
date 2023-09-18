@@ -1,12 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Button,
-  ComposedModal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-} from '@carbon/react';
+import { Button, ComposedModal, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 import { showNotification, showToast } from '@openmrs/esm-framework';
 import type { Schema } from '../../types';
 
@@ -55,17 +49,8 @@ const DeletePageModal: React.FC<DeletePageModalProps> = ({
   };
 
   return (
-    <ComposedModal
-      open={showModal}
-      onClose={() => onModalChange(false)}
-      preventCloseOnClickOutside
-    >
-      <ModalHeader
-        title={t(
-          'deletePageConfirmation',
-          'Are you sure you want to delete this page?',
-        )}
-      />
+    <ComposedModal open={showModal} onClose={() => onModalChange(false)} preventCloseOnClickOutside>
+      <ModalHeader title={t('deletePageConfirmation', 'Are you sure you want to delete this page?')} />
       <ModalBody>
         <p>
           {t(

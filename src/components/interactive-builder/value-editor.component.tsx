@@ -12,12 +12,7 @@ interface ValueEditorProps {
   value: string;
 }
 
-const ValueEditor: React.FC<ValueEditorProps> = ({
-  id,
-  handleCancel,
-  handleSave,
-  value,
-}) => {
+const ValueEditor: React.FC<ValueEditorProps> = ({ id, handleCancel, handleSave, value }) => {
   const { t } = useTranslation();
   const [tmpValue, setTmpValue] = useState(value);
 
@@ -27,9 +22,7 @@ const ValueEditor: React.FC<ValueEditorProps> = ({
         id={id}
         labelText=""
         value={tmpValue}
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-          setTmpValue(event.target.value)
-        }
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTmpValue(event.target.value)}
       />
       <div className={styles.actionButtons}>
         <Button

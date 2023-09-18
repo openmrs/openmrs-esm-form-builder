@@ -1,11 +1,6 @@
 import { test } from '../core';
 import { expect } from '@playwright/test';
-import {
-  createForm,
-  createValueReference,
-  addFormResources,
-  deleteForm,
-} from '../commands/form-operations';
+import { createForm, createValueReference, addFormResources, deleteForm } from '../commands/form-operations';
 import { FormBuilderPage } from '../pages';
 import type { Form } from '../../src/types';
 
@@ -28,10 +23,7 @@ test('Unpublish a form', async ({ page }) => {
   });
 
   await test.step('And I click on a form I need to unpublish', async () => {
-    await page
-      .getByRole('row', { name: form.name })
-      .getByLabel('Edit Schema')
-      .click();
+    await page.getByRole('row', { name: form.name }).getByLabel('Edit Schema').click();
   });
 
   await test.step('Then I click on the unpublish form button and confirms the unpublication', async () => {

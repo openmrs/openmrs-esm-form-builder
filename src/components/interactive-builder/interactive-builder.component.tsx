@@ -1,13 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { DragEndEvent } from '@dnd-kit/core';
-import {
-  DndContext,
-  KeyboardSensor,
-  MouseSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
+import { DndContext, KeyboardSensor, MouseSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { Accordion, AccordionItem, Button, InlineLoading } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
@@ -34,11 +28,7 @@ interface InteractiveBuilderProps {
   schema: Schema;
 }
 
-const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
-  isLoading,
-  onSchemaChange,
-  schema,
-}) => {
+const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({ isLoading, onSchemaChange, schema }) => {
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 10, // Enable sort function when dragging 10px 💡 here!!!
@@ -195,14 +185,10 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const duplicateQuestion = useCallback(
     (question: Question, pageId: number, sectionId: number) => {
       try {
-        const questionToDuplicate: Question = JSON.parse(
-          JSON.stringify(question),
-        );
+        const questionToDuplicate: Question = JSON.parse(JSON.stringify(question));
         questionToDuplicate.id = questionToDuplicate.id + 'Duplicate';
 
-        schema.pages[pageId].sections[sectionId].questions.push(
-          questionToDuplicate,
-        );
+        schema.pages[pageId].sections[sectionId].questions.push(questionToDuplicate);
 
         onSchemaChange({ ...schema });
         resetIndices();
@@ -241,8 +227,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       const sourceQuestionIndex = parseInt(activeIdParts[3]);
 
       // Move the question within the same section
-      const questions =
-        schema.pages[sourcePageIndex].sections[sourceSectionIndex].questions;
+      const questions = schema.pages[sourcePageIndex].sections[sourceSectionIndex].questions;
       const questionToMove = questions[sourceQuestionIndex];
       questions.splice(sourceQuestionIndex, 1);
       questions.splice(sourceQuestionIndex + delta.y, 0, questionToMove);
@@ -290,11 +275,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
   return (
     <div className={styles.container}>
-      {isLoading ? (
-        <InlineLoading
-          description={t('loadingSchema', 'Loading schema') + '...'}
-        />
-      ) : null}
+      {isLoading ? <InlineLoading description={t('loadingSchema', 'Loading schema') + '...'} /> : null}
 
       {showNewFormModal ? (
         <NewFormModal
@@ -394,32 +375,18 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         <>
           <div className={styles.header}>
             <div className={styles.explainer}>
-              <p>
-                {t(
-                  'welcomeHeading',
-                  'Welcome to the Interactive Schema builder',
-                )}
-              </p>
+              <p>{t('welcomeHeading', 'Welcome to the Interactive Schema builder')}</p>
               <p>
                 {t(
                   'welcomeExplainer',
                   'Add pages, sections and questions to your form. The Preview tab automatically updates as you build your form. For a detailed explanation of what constitutes an OpenMRS form schema, please read through the ',
                 )}{' '}
-                <a
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={'https://ohri-docs.globalhealthapp.net/'}
-                >
+                <a target="_blank" rel="noopener noreferrer" href={'https://ohri-docs.globalhealthapp.net/'}>
                   {t('formBuilderDocs', 'form builder documentation')}.
                 </a>
               </p>
             </div>
-            <Button
-              kind="ghost"
-              renderIcon={Add}
-              onClick={addPage}
-              iconDescription={t('addPage', 'Add Page')}
-            >
+            <Button kind="ghost" renderIcon={Add} onClick={addPage} iconDescription={t('addPage', 'Add Page')}>
               {t('addPage', 'Add Page')}
             </Button>
           </div>
@@ -443,20 +410,13 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
             )}
           </p>
 
-          <Button
-            onClick={launchNewFormModal}
-            className={styles.startButton}
-            kind="ghost"
-          >
+          <Button onClick={launchNewFormModal} className={styles.startButton} kind="ghost">
             {t('startBuilding', 'Start building')}
           </Button>
         </div>
       )}
 
-      <DndContext
-        onDragEnd={(event: DragEndEvent) => handleDragEnd(event)}
-        sensors={sensors}
-      >
+      <DndContext onDragEnd={(event: DragEndEvent) => handleDragEnd(event)} sensors={sensors}>
         {schema?.pages?.length
           ? schema.pages.map((page, pageIndex) => (
               <div className={styles.editableFieldsContainer}>
@@ -496,65 +456,46 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                       <Accordion>
                         <AccordionItem title={section.label}>
                           <>
-                            <div
-                              style={{ display: 'flex', alignItems: 'center' }}
-                            >
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
                               <div className={styles.editorContainer}>
                                 <EditableValue
                                   elementType="section"
                                   id="sectionNameInput"
                                   value={section.label}
-                                  onSave={(name) =>
-                                    renameSection(name, pageIndex, sectionIndex)
-                                  }
+                                  onSave={(name) => renameSection(name, pageIndex, sectionIndex)}
                                 />
                               </div>
                               <Button
                                 hasIconOnly
                                 enterDelayMs={300}
-                                iconDescription={t(
-                                  'deleteSection',
-                                  'Delete section',
-                                )}
+                                iconDescription={t('deleteSection', 'Delete section')}
                                 kind="ghost"
                                 onClick={() => {
                                   setPageIndex(pageIndex);
                                   setSectionIndex(sectionIndex);
                                   setShowDeleteSectionModal(true);
                                 }}
-                                renderIcon={(props) => (
-                                  <TrashCan size={16} {...props} />
-                                )}
+                                renderIcon={(props) => <TrashCan size={16} {...props} />}
                                 size="sm"
                               />
                             </div>
                             <div>
                               {section.questions?.length ? (
-                                section.questions.map(
-                                  (question, questionIndex) => (
-                                    <Droppable
-                                      id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
-                                    >
-                                      <DraggableQuestion
-                                        key={question.id}
-                                        question={question}
-                                        pageIndex={pageIndex}
-                                        sectionIndex={sectionIndex}
-                                        questionIndex={questionIndex}
-                                        handleDuplicateQuestion={
-                                          duplicateQuestion
-                                        }
-                                        handleEditButtonClick={
-                                          handleEditButtonClick
-                                        }
-                                        handleDeleteButtonClick={
-                                          handleDeleteButtonClick
-                                        }
-                                        questionCount={section.questions.length}
-                                      />
-                                    </Droppable>
-                                  ),
-                                )
+                                section.questions.map((question, questionIndex) => (
+                                  <Droppable id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}>
+                                    <DraggableQuestion
+                                      key={question.id}
+                                      question={question}
+                                      pageIndex={pageIndex}
+                                      sectionIndex={sectionIndex}
+                                      questionIndex={questionIndex}
+                                      handleDuplicateQuestion={duplicateQuestion}
+                                      handleEditButtonClick={handleEditButtonClick}
+                                      handleDeleteButtonClick={handleDeleteButtonClick}
+                                      questionCount={section.questions.length}
+                                    />
+                                  </Droppable>
+                                ))
                               ) : (
                                 <p className={styles.explainer}>
                                   {t(
@@ -574,10 +515,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                   setPageIndex(pageIndex);
                                   setSectionIndex(sectionIndex);
                                 }}
-                                iconDescription={t(
-                                  'addQuestion',
-                                  'Add Question',
-                                )}
+                                iconDescription={t('addQuestion', 'Add Question')}
                               >
                                 {t('addQuestion', 'Add Question')}
                               </Button>

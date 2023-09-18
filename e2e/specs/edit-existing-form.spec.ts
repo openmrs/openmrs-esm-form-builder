@@ -1,11 +1,6 @@
 import { test } from '../core';
 import { expect } from '@playwright/test';
-import {
-  createForm,
-  createValueReference,
-  addFormResources,
-  deleteForm,
-} from '../commands/form-operations';
+import { createForm, createValueReference, addFormResources, deleteForm } from '../commands/form-operations';
 import { FormBuilderPage } from '../pages';
 import type { Form } from '../../src/types';
 
@@ -28,10 +23,7 @@ test('Editing an existing form', async ({ page }) => {
   });
 
   await test.step('And I click the `Edit` button on the form I need to edit', async () => {
-    await page
-      .getByRole('row', { name: form.name })
-      .getByLabel('Edit Schema')
-      .click();
+    await page.getByRole('row', { name: form.name }).getByLabel('Edit Schema').click();
   });
 
   await test.step('Then I click the `Save Form` button then the `Update existing version` button, and finally the `Save` button', async () => {

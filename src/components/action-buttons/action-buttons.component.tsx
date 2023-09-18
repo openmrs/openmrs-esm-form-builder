@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Button,
-  ComposedModal,
-  InlineLoading,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-} from '@carbon/react';
+import { Button, ComposedModal, InlineLoading, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 import type { TFunction } from 'i18next';
 import { useParams } from 'react-router-dom';
 import { showToast, showNotification } from '@openmrs/esm-framework';
@@ -22,13 +15,7 @@ interface ActionButtonsProps {
   t: TFunction;
 }
 
-type Status =
-  | 'idle'
-  | 'publishing'
-  | 'published'
-  | 'unpublishing'
-  | 'unpublished'
-  | 'error';
+type Status = 'idle' | 'publishing' | 'published' | 'unpublishing' | 'unpublished' | 'error';
 
 function ActionButtons({ schema, t }: ActionButtonsProps) {
   const { formUuid } = useParams<{ formUuid?: string }>();
@@ -48,9 +35,7 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
         title: t('formPublished', 'Form published'),
         kind: 'success',
         critical: true,
-        description:
-          `${form.name} ` +
-          t('formPublishedSuccessfully', 'form was published successfully'),
+        description: `${form.name} ` + t('formPublishedSuccessfully', 'form was published successfully'),
       });
 
       setStatus('published');
@@ -78,9 +63,7 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
         title: t('formUnpublished', 'Form unpublished'),
         kind: 'success',
         critical: true,
-        description:
-          `${form.name} ` +
-          t('formUnpublishedSuccessfully', 'form was unpublished successfully'),
+        description: `${form.name} ` + t('formUnpublishedSuccessfully', 'form was unpublished successfully'),
       });
 
       setStatus('unpublished');
@@ -105,16 +88,9 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
 
       <>
         {form && !form.published ? (
-          <Button
-            kind="secondary"
-            onClick={handlePublish}
-            disabled={status === 'publishing'}
-          >
+          <Button kind="secondary" onClick={handlePublish} disabled={status === 'publishing'}>
             {status === 'publishing' && !form?.published ? (
-              <InlineLoading
-                className={styles.spinner}
-                description={t('publishing', 'Publishing') + '...'}
-              />
+              <InlineLoading className={styles.spinner} description={t('publishing', 'Publishing') + '...'} />
             ) : (
               <span>{t('publishForm', 'Publish form')}</span>
             )}
@@ -122,26 +98,15 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
         ) : null}
 
         {form && form.published ? (
-          <Button
-            kind="danger"
-            onClick={launchUnpublishModal}
-            disabled={status === 'unpublishing'}
-          >
+          <Button kind="danger" onClick={launchUnpublishModal} disabled={status === 'unpublishing'}>
             {t('unpublishForm', 'Unpublish form')}
           </Button>
         ) : null}
 
         {showUnpublishModal ? (
-          <ComposedModal
-            open={true}
-            onClose={() => setShowUnpublishModal(false)}
-            preventCloseOnClickOutside
-          >
+          <ComposedModal open={true} onClose={() => setShowUnpublishModal(false)} preventCloseOnClickOutside>
             <ModalHeader
-              title={t(
-                'unpublishConfirmation',
-                'Are you sure you want to unpublish this form?',
-              )}
+              title={t('unpublishConfirmation', 'Are you sure you want to unpublish this form?')}
             ></ModalHeader>
             <ModalBody>
               <p>
@@ -152,10 +117,7 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
               </p>
             </ModalBody>
             <ModalFooter>
-              <Button
-                kind="secondary"
-                onClick={() => setShowUnpublishModal(false)}
-              >
+              <Button kind="secondary" onClick={() => setShowUnpublishModal(false)}>
                 {t('cancel', 'Cancel')}
               </Button>
               <Button
@@ -164,10 +126,7 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
                 onClick={handleUnpublish}
               >
                 {status === 'unpublishing' ? (
-                  <InlineLoading
-                    className={styles.spinner}
-                    description={t('unpublishing', 'Unpublishing') + '...'}
-                  />
+                  <InlineLoading className={styles.spinner} description={t('unpublishing', 'Unpublishing') + '...'} />
                 ) : (
                   <span>{t('unpublishForm', 'Unpublish form')}</span>
                 )}

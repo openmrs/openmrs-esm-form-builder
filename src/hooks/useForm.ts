@@ -5,10 +5,10 @@ import type { Form } from '../types';
 export const useForm = (uuid: string) => {
   const url = `/ws/rest/v1/form/${uuid}?v=full`;
 
-  const { data, error, isLoading, isValidating, mutate } = useSWR<
-    { data: Form },
-    Error
-  >(uuid ? url : null, openmrsFetch);
+  const { data, error, isLoading, isValidating, mutate } = useSWR<{ data: Form }, Error>(
+    uuid ? url : null,
+    openmrsFetch,
+  );
 
   return {
     form: data?.data,

@@ -21,12 +21,7 @@ interface NewFormModalProps {
   showModal: boolean;
 }
 
-const NewFormModal: React.FC<NewFormModalProps> = ({
-  schema,
-  onSchemaChange,
-  showModal,
-  onModalChange,
-}) => {
+const NewFormModal: React.FC<NewFormModalProps> = ({ schema, onSchemaChange, showModal, onModalChange }) => {
   const { t } = useTranslation();
   const [formName, setFormName] = useState('');
   const [formDescription, setFormDescription] = useState('');
@@ -66,11 +61,7 @@ const NewFormModal: React.FC<NewFormModalProps> = ({
   };
 
   return (
-    <ComposedModal
-      open={showModal}
-      onClose={() => onModalChange(false)}
-      preventCloseOnClickOutside
-    >
+    <ComposedModal open={showModal} onClose={() => onModalChange(false)} preventCloseOnClickOutside>
       <ModalHeader title={t('createNewForm', 'Create a new form')} />
       <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
@@ -79,14 +70,9 @@ const NewFormModal: React.FC<NewFormModalProps> = ({
               <TextInput
                 id="formName"
                 labelText={t('formName', 'Form name')}
-                placeholder={t(
-                  'namePlaceholder',
-                  'What the form is called in the system',
-                )}
+                placeholder={t('namePlaceholder', 'What the form is called in the system')}
                 value={formName}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                  setFormName(event.target.value)
-                }
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setFormName(event.target.value)}
               />
             </FormGroup>
             <FormGroup legendText={''}>
@@ -98,9 +84,7 @@ const NewFormModal: React.FC<NewFormModalProps> = ({
                   'A short description of the form e.g. A form for collecting COVID-19 symptoms',
                 )}
                 value={formDescription}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                  setFormDescription(event.target.value)
-                }
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setFormDescription(event.target.value)}
               />
             </FormGroup>
           </Stack>

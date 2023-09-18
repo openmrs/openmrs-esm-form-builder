@@ -16,10 +16,7 @@ export interface Form {
 export interface FilterProps {
   rowIds: Array<string>;
   headers: Array<Record<string, string>>;
-  cellsById: Record<
-    string,
-    Record<string, boolean | string | null | Record<string, unknown>>
-  >;
+  cellsById: Record<string, Record<string, boolean | string | null | Record<string, unknown>>>;
   inputValue: string;
   getCellId: (row, key) => string;
 }

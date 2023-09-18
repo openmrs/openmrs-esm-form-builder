@@ -1,12 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Button,
-  ComposedModal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-} from '@carbon/react';
+import { Button, ComposedModal, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 import { showNotification, showToast } from '@openmrs/esm-framework';
 import type { Schema } from '../../types';
 
@@ -57,17 +51,8 @@ const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
   };
 
   return (
-    <ComposedModal
-      open={showModal}
-      onClose={() => onModalChange(false)}
-      preventCloseOnClickOutside
-    >
-      <ModalHeader
-        title={t(
-          'deleteSectionConfirmation',
-          'Are you sure you want to delete this section?',
-        )}
-      />
+    <ComposedModal open={showModal} onClose={() => onModalChange(false)} preventCloseOnClickOutside>
+      <ModalHeader title={t('deleteSectionConfirmation', 'Are you sure you want to delete this section?')} />
       <ModalBody>
         <p>
           {t(

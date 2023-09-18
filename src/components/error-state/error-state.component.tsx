@@ -15,9 +15,7 @@ const ErrorState: React.FC<ErrorStateProps> = ({ error }) => {
   return (
     <Layer>
       <Tile className={styles.tile}>
-        <div
-          className={isTablet ? styles.tabletHeading : styles.desktopHeading}
-        >
+        <div className={isTablet ? styles.tabletHeading : styles.desktopHeading}>
           <h4>{t('forms', 'Forms')}</h4>
         </div>
         <p className={styles.errorMessage}>

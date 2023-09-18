@@ -3,11 +3,9 @@
 const React = require('react');
 const reactI18next = require('react-i18next');
 
-const hasChildren = (node) =>
-  node && (node.children || (node.props && node.props.children));
+const hasChildren = (node) => node && (node.children || (node.props && node.props.children));
 
-const getChildren = (node) =>
-  node && node.children ? node.children : node.props && node.props.children;
+const getChildren = (node) => (node && node.children ? node.children : node.props && node.props.children);
 
 const renderNodes = (reactNodes) => {
   if (typeof reactNodes === 'string') {
@@ -26,10 +24,7 @@ const renderNodes = (reactNodes) => {
       return React.cloneElement(child, { ...child.props, key: i }, inner);
     }
     if (typeof child === 'object' && !isElement) {
-      return Object.keys(child).reduce(
-        (str, childKey) => `${str}${child[childKey]}`,
-        '',
-      );
+      return Object.keys(child).reduce((str, childKey) => `${str}${child[childKey]}`, '');
     }
 
     return child;

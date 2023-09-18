@@ -12,20 +12,14 @@ interface SchemaEditorProps {
   stringifiedSchema: string;
 }
 
-const SchemaEditor: React.FC<SchemaEditorProps> = ({
-  invalidJsonErrorMessage,
-  onSchemaChange,
-  stringifiedSchema,
-}) => {
+const SchemaEditor: React.FC<SchemaEditorProps> = ({ invalidJsonErrorMessage, onSchemaChange, stringifiedSchema }) => {
   const { t } = useTranslation();
 
   return (
     <>
       {invalidJsonErrorMessage ? (
         <div className={styles.errorContainer}>
-          <p className={styles.heading}>
-            {t('schemaError', "There's an error in your schema.")}
-          </p>
+          <p className={styles.heading}>{t('schemaError', "There's an error in your schema.")}</p>
           <p>{invalidJsonErrorMessage}</p>
         </div>
       ) : null}

@@ -3195,6 +3195,7 @@ __metadata:
     eslint: ^8.49.0
     eslint-config-prettier: ^9.0.0
     eslint-config-ts-react-important-stuff: ^3.0.0
+    eslint-plugin-playwright: ^0.16.0
     eslint-plugin-prettier: ^5.0.0
     file-loader: ^6.2.0
     husky: ^8.0.3
@@ -9484,6 +9485,19 @@ __metadata:
   peerDependencies:
     eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8
   checksum: baae7377f0e25a0cc9b34dc333a3dc6ead9ee8365e445451eff554c3ca267a0a6cb88127fe90395c578ab1b92cfed246aef7dc8d2b48b603389e10181799e144
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-playwright@npm:^0.16.0":
+  version: 0.16.0
+  resolution: "eslint-plugin-playwright@npm:0.16.0"
+  peerDependencies:
+    eslint: ">=7"
+    eslint-plugin-jest: ">=25"
+  peerDependenciesMeta:
+    eslint-plugin-jest:
+      optional: true
+  checksum: d01aed6fc5f089ba9592d9875e8d72f4966bca562e3478cb8aca815d911e7df1de40f23b41981d8b16f53dc90cd4ce1a58619195e3e1c049bf4be248b31e8045
   languageName: node
   linkType: hard
 

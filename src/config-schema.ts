@@ -3,8 +3,7 @@ import { Type } from '@openmrs/esm-framework';
 export const configSchema = {
   questionTypes: {
     _type: Type.Array,
-    _description:
-      'Provides information that the processor uses to render a field',
+    _description: 'Provides information that the processor uses to render a field',
     _default: [
       'complex-obs',
       'control',
@@ -42,7 +41,6 @@ export const configSchema = {
   showSchemaSaveWarning: {
     _type: Type.Boolean,
     _default: true,
-    _description:
-      'Whether to show a warning about possibly losing data in the forms dashboard',
+    _description: 'Whether to show a warning about possibly losing data in the forms dashboard',
   },
 };

@@ -13,15 +13,11 @@ function EmptyState() {
   return (
     <Layer>
       <Tile className={styles.tile}>
-        <div
-          className={isTablet ? styles.tabletHeading : styles.desktopHeading}
-        >
+        <div className={isTablet ? styles.tabletHeading : styles.desktopHeading}>
           <h4>{t('forms', 'Forms')}</h4>
         </div>
         <EmptyDataIllustration />
-        <p className={styles.content}>
-          {t('noFormsToDisplay', 'There are no forms to display.')}
-        </p>
+        <p className={styles.content}>{t('noFormsToDisplay', 'There are no forms to display.')}</p>
         <p className={styles.action}>
           <Link
             onClick={() =>

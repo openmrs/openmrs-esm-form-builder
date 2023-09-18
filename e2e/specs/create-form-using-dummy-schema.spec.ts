@@ -3,11 +3,9 @@ import { expect } from '@playwright/test';
 import { deleteForm } from '../commands/form-operations';
 import { FormBuilderPage } from '../pages';
 
-let formUuid = null;
+let formUuid = '';
 
-test('Create a form using the `Input Dummy Schema` feature', async ({
-  page,
-}) => {
+test('Create a form using the `Input Dummy Schema` feature', async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
 
   await test.step('When I visit the form builder', async () => {
@@ -31,7 +29,7 @@ test('Create a form using the `Input Dummy Schema` feature', async ({
     const editFormPageURLRegex = new RegExp('/edit/');
     await expect(page.getByText('Form created')).toBeVisible();
     await page.waitForURL(editFormPageURLRegex);
-    const editFormPageURL = await page.url();
+    const editFormPageURL = page.url();
     formUuid = editFormPageURL.split('/').slice(-1)[0];
   });
 });

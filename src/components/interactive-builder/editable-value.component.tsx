@@ -12,12 +12,7 @@ interface EditableValueProps {
   onSave: (value: string) => void;
 }
 
-const EditableValue: React.FC<EditableValueProps> = ({
-  elementType,
-  id,
-  value,
-  onSave,
-}) => {
+const EditableValue: React.FC<EditableValueProps> = ({ elementType, id, value, onSave }) => {
   const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
 

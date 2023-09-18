@@ -26,13 +26,7 @@ import {
   Tag,
   Tile,
 } from '@carbon/react';
-import {
-  Add,
-  DocumentImport,
-  Download,
-  Edit,
-  TrashCan,
-} from '@carbon/react/icons';
+import { Add, DocumentImport, Download, Edit, TrashCan } from '@carbon/react/icons';
 import {
   type FetchResponse,
   navigate,
@@ -91,12 +85,7 @@ function CustomTag({ condition }: { condition?: boolean }) {
   );
 }
 
-function ActionButtons({
-  form,
-  mutate,
-  responsiveSize,
-  t,
-}: ActionButtonsProps) {
+function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) {
   const { clobdata } = useClobdata(form);
   const formResources = form?.resources;
   const [showDeleteFormModal, setShowDeleteFormModal] = useState(false);
@@ -119,9 +108,7 @@ function ActionButtons({
               title: t('formDeleted', 'Form deleted'),
               kind: 'success',
               critical: true,
-              description:
-                `${form.name} ` +
-                t('formDeletedSuccessfully', 'deleted successfully'),
+              description: `${form.name} ` + t('formDeletedSuccessfully', 'deleted successfully'),
             });
 
             await mutate();
@@ -145,9 +132,7 @@ function ActionButtons({
     return (
       <Button
         renderIcon={DocumentImport}
-        onClick={() =>
-          navigate({ to: `${window.spaBase}/form-builder/edit/${form.uuid}` })
-        }
+        onClick={() => navigate({ to: `${window.spaBase}/form-builder/edit/${form.uuid}` })}
         kind={'ghost'}
         iconDescription={t('import', 'Import')}
         hasIconOnly
@@ -177,10 +162,7 @@ function ActionButtons({
 
   const DownloadSchemaButton = () => {
     return (
-      <a
-        download={`${form?.name}.json`}
-        href={window.URL.createObjectURL(downloadableSchema)}
-      >
+      <a download={`${form?.name}.json`} href={window.URL.createObjectURL(downloadableSchema)}>
         <Button
           enterDelayMs={300}
           renderIcon={Download}
@@ -218,23 +200,13 @@ function ActionButtons({
         preventCloseOnClickOutside
       >
         <ModalHeader title={t('deleteForm', 'Delete form')} />
-        <Form
-          onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}
-        >
+        <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
           <ModalBody>
-            <p>
-              {t(
-                'deleteFormConfirmation',
-                'Are you sure you want to delete this form?',
-              )}
-            </p>
+            <p>{t('deleteFormConfirmation', 'Are you sure you want to delete this form?')}</p>
           </ModalBody>
         </Form>
         <ModalFooter>
-          <Button
-            kind="secondary"
-            onClick={() => setShowDeleteFormModal(false)}
-          >
+          <Button kind="secondary" onClick={() => setShowDeleteFormModal(false)}>
             {t('cancel', 'Cancel')}
           </Button>
           <Button
@@ -246,10 +218,7 @@ function ActionButtons({
             }}
           >
             {isDeleting ? (
-              <InlineLoading
-                className={styles.spinner}
-                description={t('deleting', 'Deleting') + '...'}
-              />
+              <InlineLoading className={styles.spinner} description={t('deleting', 'Deleting') + '...'} />
             ) : (
               <span>{t('delete', 'Delete')}</span>
             )}
@@ -324,39 +293,23 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
 
   const searchResults = useMemo(() => {
     if (searchString && searchString.trim() !== '') {
-      return filteredRows.filter((form) =>
-        form.name.toLowerCase().includes(searchString.toLowerCase()),
-      );
+      return filteredRows.filter((form) => form.name.toLowerCase().includes(searchString.toLowerCase()));
     }
 
     return filteredRows;
   }, [searchString, filteredRows]);
 
-  const { paginated, goTo, results, currentPage } = usePagination(
-    searchResults,
-    pageSize,
-  );
+  const { paginated, goTo, results, currentPage } = usePagination(searchResults, pageSize);
 
   const tableRows = results?.map((form: FormType) => ({
     ...form,
     id: form?.uuid,
     published: <CustomTag condition={form.published} />,
     retired: <CustomTag condition={form.retired} />,
-    actions: (
-      <ActionButtons
-        form={form}
-        mutate={mutate}
-        responsiveSize={responsiveSize}
-        t={t}
-      />
-    ),
+    actions: <ActionButtons form={form} mutate={mutate} responsiveSize={responsiveSize} t={t} />,
   }));
 
-  const handlePublishStatusChange = ({
-    selectedItem,
-  }: {
-    selectedItem: string;
-  }) => setFilter(selectedItem);
+  const handlePublishStatusChange = ({ selectedItem }: { selectedItem: string }) => setFilter(selectedItem);
 
   const handleSearch = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -385,9 +338,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
             id="publishStatusFilter"
             initialSelectedItem={'All'}
             label=""
-            titleText={
-              t('filterByPublishedStatus', 'Filter by publish status') + ':'
-            }
+            titleText={t('filterByPublishedStatus', 'Filter by publish status') + ':'}
             size={responsiveSize}
             type="inline"
             items={['All', 'Published', 'Unpublished']}
@@ -398,23 +349,12 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
           <span>{isValidating ? <InlineLoading /> : null}</span>
         </div>
       </div>
-      <DataTable
-        rows={tableRows}
-        headers={tableHeaders}
-        size={isTablet ? 'lg' : 'sm'}
-        useZebraStyles
-      >
+      <DataTable rows={tableRows} headers={tableHeaders} size={isTablet ? 'lg' : 'sm'} useZebraStyles>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <>
-            <TableContainer
-              className={styles.tableContainer}
-              data-testid="forms-table"
-            >
+            <TableContainer className={styles.tableContainer} data-testid="forms-table">
               <div className={styles.toolbarWrapper}>
-                <TableToolbar
-                  className={styles.tableToolbar}
-                  size={responsiveSize}
-                >
+                <TableToolbar className={styles.tableToolbar} size={responsiveSize}>
                   <TableToolbarContent className={styles.headerContainer}>
                     <TableToolbarSearch
                       className={styles.searchbox}
@@ -441,19 +381,13 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
                 <TableHead>
                   <TableRow>
                     {headers.map((header) => (
-                      <TableHeader {...getHeaderProps({ header })}>
-                        {header.header}
-                      </TableHeader>
+                      <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
                     ))}
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {rows.map((row) => (
-                    <TableRow
-                      key="row.id"
-                      {...getRowProps({ row })}
-                      data-testid={`form-row-${row.id}`}
-                    >
+                    <TableRow key="row.id" {...getRowProps({ row })} data-testid={`form-row-${row.id}`}>
                       {row.cells.map((cell) => (
                         <TableCell key={cell.id}>{cell.value}</TableCell>
                       ))}
@@ -466,15 +400,8 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
               <div className={styles.tileContainer}>
                 <Tile className={styles.tile}>
                   <div className={styles.tileContent}>
-                    <p className={styles.content}>
-                      {t(
-                        'noMatchingFormsToDisplay',
-                        'No matching forms to display',
-                      )}
-                    </p>
-                    <p className={styles.helper}>
-                      {t('checkFilters', 'Check the filters above')}
-                    </p>
+                    <p className={styles.content}>{t('noMatchingFormsToDisplay', 'No matching forms to display')}</p>
+                    <p className={styles.helper}>{t('checkFilters', 'Check the filters above')}</p>
                   </div>
                 </Tile>
               </div>
@@ -517,14 +444,7 @@ const Dashboard: React.FC = () => {
           return <EmptyState />;
         }
 
-        return (
-          <FormsList
-            forms={forms}
-            isValidating={isValidating}
-            mutate={mutate}
-            t={t}
-          />
-        );
+        return <FormsList forms={forms} isValidating={isValidating} mutate={mutate} t={t} />;
       })()}
     </div>
   );

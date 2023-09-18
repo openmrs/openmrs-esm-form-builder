@@ -59,12 +59,9 @@ const FormEditor: React.FC = () => {
   const { form, formError, isLoadingForm } = useForm(formUuid);
   const { clobdata, clobdataError, isLoadingClobdata } = useClobdata(form);
   const [status, setStatus] = useState<Status>('idle');
-  const [stringifiedSchema, setStringifiedSchema] = useState(
-    schema ? JSON.stringify(schema, null, 2) : '',
-  );
+  const [stringifiedSchema, setStringifiedSchema] = useState(schema ? JSON.stringify(schema, null, 2) : '');
 
-  const isLoadingFormOrSchema =
-    Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
+  const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
   useEffect(() => {
     if (formUuid) {
@@ -72,11 +69,7 @@ const FormEditor: React.FC = () => {
         setStatus('formLoaded');
       }
 
-      if (
-        status === 'formLoaded' &&
-        !isLoadingClobdata &&
-        clobdata === undefined
-      ) {
+      if (status === 'formLoaded' && !isLoadingClobdata && clobdata === undefined) {
         setShowDraftSchemaModal(true);
       }
 
@@ -86,14 +79,7 @@ const FormEditor: React.FC = () => {
         localStorage.setItem('formJSON', JSON.stringify(clobdata));
       }
     }
-  }, [
-    clobdata,
-    form,
-    formUuid,
-    isLoadingClobdata,
-    isLoadingFormOrSchema,
-    status,
-  ]);
+  }, [clobdata, form, formUuid, isLoadingClobdata, isLoadingFormOrSchema, status]);
 
   useEffect(() => {
     setStringifiedSchema(JSON.stringify(schema, null, 2));
@@ -108,10 +94,7 @@ const FormEditor: React.FC = () => {
         setSchema(JSON.parse(draftSchema) as Schema);
       }
     } catch (e) {
-      console.error(
-        'Error fetching draft schema from localStorage: ',
-        e?.message,
-      );
+      console.error('Error fetching draft schema from localStorage: ', e?.message);
     }
   }, []);
 
@@ -157,8 +140,7 @@ const FormEditor: React.FC = () => {
               questions: [
                 {
                   id: 'anotherSampleQuestion',
-                  label:
-                    'Another Question of type obs whose answers get rendered as radio inputs',
+                  label: 'Another Question of type obs whose answers get rendered as radio inputs',
                   type: 'obs',
                   questionOptions: {
                     rendering: 'radio',
@@ -221,9 +203,7 @@ const FormEditor: React.FC = () => {
         preventCloseOnClickOutside
       >
         <ModalHeader title={t('schemaNotFound', 'Schema not found')} />
-        <Form
-          onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}
-        >
+        <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
           <ModalBody>
             <p>
               {t(
@@ -234,10 +214,7 @@ const FormEditor: React.FC = () => {
           </ModalBody>
         </Form>
         <ModalFooter>
-          <Button
-            onClick={() => setShowDraftSchemaModal(false)}
-            kind="secondary"
-          >
+          <Button onClick={() => setShowDraftSchemaModal(false)} kind="secondary">
             {t('cancel', 'Cancel')}
           </Button>
           <Button onClick={handleLoadDraftSchema}>
@@ -271,9 +248,7 @@ const FormEditor: React.FC = () => {
           <Column lg={8} md={8} className={styles.column}>
             <div className={styles.actionButtons}>
               {isLoadingFormOrSchema ? (
-                <InlineLoading
-                  description={t('loadingSchema', 'Loading schema') + '...'}
-                />
+                <InlineLoading description={t('loadingSchema', 'Loading schema') + '...'} />
               ) : null}
 
               {isNewSchema && !schema ? (
@@ -288,9 +263,7 @@ const FormEditor: React.FC = () => {
             </div>
             <div>
               <div className={styles.heading}>
-                <span className={styles.tabHeading}>
-                  {t('schemaEditor', 'Schema editor')}
-                </span>
+                <span className={styles.tabHeading}>{t('schemaEditor', 'Schema editor')}</span>
                 {schema ? (
                   <>
                     <CopyButton
@@ -301,10 +274,7 @@ const FormEditor: React.FC = () => {
                       kind="ghost"
                       onClick={handleCopySchema}
                     />
-                    <a
-                      download={`${form?.name}.json`}
-                      href={window.URL.createObjectURL(downloadableSchema)}
-                    >
+                    <a download={`${form?.name}.json`} href={window.URL.createObjectURL(downloadableSchema)}>
                       <Button
                         enterDelayMs={300}
                         renderIcon={Download}
@@ -319,16 +289,10 @@ const FormEditor: React.FC = () => {
                 ) : null}
               </div>
               {formError ? (
-                <ErrorNotification
-                  error={formError}
-                  title={t('formError', 'Error loading form metadata')}
-                />
+                <ErrorNotification error={formError} title={t('formError', 'Error loading form metadata')} />
               ) : null}
               {clobdataError ? (
-                <ErrorNotification
-                  error={clobdataError}
-                  title={t('schemaLoadError', 'Error loading schema')}
-                />
+                <ErrorNotification error={clobdataError} title={t('schemaLoadError', 'Error loading schema')} />
               ) : null}
               <div className={styles.editorContainer}>
                 <SchemaEditor
@@ -349,17 +313,10 @@ const FormEditor: React.FC = () => {
               </TabList>
               <TabPanels>
                 <TabPanel>
-                  <FormRenderer
-                    schema={schema}
-                    isLoading={isLoadingFormOrSchema}
-                  />
+                  <FormRenderer schema={schema} isLoading={isLoadingFormOrSchema} />
                 </TabPanel>
                 <TabPanel>
-                  <InteractiveBuilder
-                    schema={schema}
-                    onSchemaChange={updateSchema}
-                    isLoading={isLoadingFormOrSchema}
-                  />
+                  <InteractiveBuilder schema={schema} onSchemaChange={updateSchema} isLoading={isLoadingFormOrSchema} />
                 </TabPanel>
               </TabPanels>
             </Tabs>

@@ -1,12 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Button,
-  ComposedModal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-} from '@carbon/react';
+import { Button, ComposedModal, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 import { showNotification, showToast } from '@openmrs/esm-framework';
 import type { Schema } from '../../types';
 
@@ -33,16 +27,9 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
 }) => {
   const { t } = useTranslation();
 
-  const deleteQuestion = (
-    pageIndex: number,
-    sectionIndex: number,
-    questionIndex: number,
-  ) => {
+  const deleteQuestion = (pageIndex: number, sectionIndex: number, questionIndex: number) => {
     try {
-      schema.pages[pageIndex].sections[sectionIndex].questions.splice(
-        questionIndex,
-        1,
-      );
+      schema.pages[pageIndex].sections[sectionIndex].questions.splice(questionIndex, 1);
 
       onSchemaChange({ ...schema });
       resetIndices();
@@ -66,21 +53,10 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
   };
 
   return (
-    <ComposedModal
-      open={showModal}
-      onClose={() => onModalChange(false)}
-      preventCloseOnClickOutside
-    >
-      <ModalHeader
-        title={t(
-          'deleteQuestionConfirmation',
-          'Are you sure you want to delete this question?',
-        )}
-      />
+    <ComposedModal open={showModal} onClose={() => onModalChange(false)} preventCloseOnClickOutside>
+      <ModalHeader title={t('deleteQuestionConfirmation', 'Are you sure you want to delete this question?')} />
       <ModalBody>
-        <p>
-          {t('deleteQuestionExplainerText', 'This action cannot be undone.')}
-        </p>
+        <p>{t('deleteQuestionExplainerText', 'This action cannot be undone.')}</p>
       </ModalBody>
       <ModalFooter>
         <Button kind="secondary" onClick={() => onModalChange(false)}>

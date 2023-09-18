@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Button,
-  ComposedModal,
-  Form,
-  FormGroup,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  TextInput,
-} from '@carbon/react';
+import { Button, ComposedModal, Form, FormGroup, ModalBody, ModalFooter, ModalHeader, TextInput } from '@carbon/react';
 import { showToast, showNotification } from '@openmrs/esm-framework';
 import type { Schema } from '../../types';
 
@@ -20,12 +11,7 @@ interface PageModalProps {
   onModalChange: (showModal: boolean) => void;
 }
 
-const PageModal: React.FC<PageModalProps> = ({
-  schema,
-  onSchemaChange,
-  showModal,
-  onModalChange,
-}) => {
+const PageModal: React.FC<PageModalProps> = ({ schema, onSchemaChange, showModal, onModalChange }) => {
   const { t } = useTranslation();
   const [pageTitle, setPageTitle] = useState('');
 
@@ -64,11 +50,7 @@ const PageModal: React.FC<PageModalProps> = ({
   };
 
   return (
-    <ComposedModal
-      open={showModal}
-      onClose={() => onModalChange(false)}
-      preventCloseOnClickOutside
-    >
+    <ComposedModal open={showModal} onClose={() => onModalChange(false)} preventCloseOnClickOutside>
       <ModalHeader title={t('createNewPage', 'Create a new page')} />
       <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
@@ -77,9 +59,7 @@ const PageModal: React.FC<PageModalProps> = ({
               id="pageTitle"
               labelText={t('enterPageTitle', 'Enter a title for your new page')}
               value={pageTitle}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                setPageTitle(event.target.value)
-              }
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setPageTitle(event.target.value)}
             />
           </FormGroup>
         </ModalBody>

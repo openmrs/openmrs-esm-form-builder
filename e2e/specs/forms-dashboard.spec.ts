@@ -1,12 +1,7 @@
 import { test } from '../core';
 import { expect } from '@playwright/test';
 import { FormBuilderPage } from '../pages';
-import {
-  createForm,
-  createValueReference,
-  addFormResources,
-  deleteForm,
-} from '../commands/form-operations';
+import { createForm, createValueReference, addFormResources, deleteForm } from '../commands/form-operations';
 import type { Form } from '../../src/types';
 
 let form: Form = null;
@@ -32,8 +27,7 @@ test('Filter forms based on publish status', async ({ page }) => {
       .click();
   });
 
-  await test.step('And I click the Unpublished option', async () =>
-    await page.getByText('Unpublished').click());
+  await test.step('And I click the Unpublished option', async () => await page.getByText('Unpublished').click());
 
   // Expect the publish status to be "No"
   const tagElements = await page.$$('div[data-testid="no-tag"]');
@@ -59,7 +53,7 @@ test('Search forms by name', async ({ page }) => {
   await test.step('And I type `A sample test form` into it', async () =>
     await page.getByPlaceholder('Search this list').fill('a sample test form'));
 
-  const formNameElement = await page.locator('tr:nth-child(1) > td').nth(0);
+  const formNameElement = page.locator('tr:nth-child(1) > td').nth(0);
   const innerNameText = await formNameElement.innerText();
 
   await test.step('Then the forms list should show only the forms with the text `a sample test form` in their name', () => {
