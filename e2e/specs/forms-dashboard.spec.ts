@@ -20,11 +20,7 @@ test('Filter forms based on publish status', async ({ page }) => {
 
   // Test the filter functionality
   await test.step('Then I click the publish filter dropdown', async () => {
-    await page
-      .getByRole('combobox', {
-        name: 'Filter by publish status: All Open menu',
-      })
-      .click();
+    await page.getByText('Filter by publish status:').click();
   });
 
   await test.step('And I click the Unpublished option', async () => await page.getByText('Unpublished').click());

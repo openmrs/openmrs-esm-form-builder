@@ -5,6 +5,7 @@ import { FormBuilderPage } from '../pages';
 import type { Form } from '../../src/types';
 
 let form: Form = null;
+
 test.beforeEach(async ({ api }) => {
   form = await createForm(api, false);
   const valueReference = await createValueReference(api);
@@ -19,11 +20,14 @@ test('Publish a form', async ({ page }) => {
   });
 
   await test.step('And I search for the form I need to publish', async () => {
-    await formBuilderPage.searchForm(form.name);
+    await formBuilderPage.searchForForm(form.name);
   });
 
   await test.step('And I click on a form I need to publish', async () => {
-    await page.getByRole('row', { name: form.name }).getByLabel('Edit Schema').click();
+    await page
+      .getByRole('row', { name: form.name })
+      .getByLabel(/edit schema/i)
+      .click();
   });
 
   await test.step('Then I click on the publish form button', async () => {
@@ -31,7 +35,7 @@ test('Publish a form', async ({ page }) => {
   });
 
   await test.step('Then I should see the form published notification and the unpublish form button', async () => {
-    await expect(page.getByText('Form published')).toBeVisible();
+    await expect(page.getByText(/form published/i)).toBeVisible();
     await expect(formBuilderPage.unpublishFormButton()).toBeVisible();
   });
 });

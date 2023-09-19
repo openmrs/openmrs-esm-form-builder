@@ -1,24 +1,25 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 
 export class FormBuilderPage {
   constructor(readonly page: Page) {}
 
-  readonly createNewFormButton = () => this.page.getByRole('button', { name: 'Create a new form' });
+  readonly createNewFormButton = () => this.page.getByRole('button', { name: /create a new form/i });
   readonly schemaInput = () => this.page.locator('.ace_text-input');
-  readonly renderChangesButton = () => this.page.getByRole('button', { name: 'Render changes' });
-  readonly inputDummySchemaButton = () => this.page.getByRole('button', { name: 'Input dummy schema' });
-  readonly saveFormButton = () => this.page.getByRole('button', { name: 'Save Form' });
-  readonly publishFormButton = () => this.page.getByRole('button', { name: 'Publish Form' });
-  readonly unpublishFormButton = () => this.page.getByRole('button', { name: 'Unpublish Form' });
+  readonly renderChangesButton = () => this.page.getByRole('button', { name: /render changes/i });
+  readonly inputDummySchemaButton = () => this.page.getByRole('button', { name: /input dummy schema/i });
+  readonly saveFormButton = () => this.page.getByRole('button', { name: /save form/i });
+  readonly publishFormButton = () => this.page.getByRole('button', { name: /^publish form$/i });
+  readonly unpublishFormButton = () => this.page.getByRole('button', { name: /unpublish form/i });
   readonly unpublishFormConfirmationButton = () =>
-    this.page.getByRole('dialog').getByRole('button', { name: 'Unpublish Form' });
-  readonly updateExistingFormButton = () => this.page.getByRole('button', { name: 'Update existing version' });
-  readonly formNameInput = () => this.page.getByLabel('Form name');
-  readonly formVersionInput = () => this.page.getByLabel('Version');
-  readonly formDescriptionInput = () => this.page.getByLabel('Description');
-  readonly formEncounterType = () => this.page.getByRole('combobox', { name: 'Encounter Type' });
-  readonly formSaveButton = () => this.page.getByRole('dialog').getByRole('button', { name: 'Save' });
+    this.page.getByRole('dialog').getByRole('button', { name: /confirm/i });
+  readonly updateExistingFormButton = () => this.page.getByRole('button', { name: /update existing version/i });
+  readonly formNameInput = () => this.page.getByLabel(/form name/i);
+  readonly formVersionInput = () => this.page.getByLabel(/version/i);
+  readonly formDescriptionInput = () => this.page.getByLabel(/description/i);
+  readonly formEncounterType = () => this.page.getByRole('combobox', { name: /encounter type/i });
+  readonly formSaveButton = () => this.page.getByRole('dialog').getByRole('button', { name: /save/i });
 
   readonly previewTab = () => this.page.getByRole('tab', { name: /preview/i });
   readonly interactiveBuilderTab = () => this.page.getByRole('tab', { name: /interactive builder/i });
@@ -50,9 +51,9 @@ export class FormBuilderPage {
   readonly conceptSearchInput = () => this.page.getByPlaceholder(/search using a concept name or uuid/i);
   readonly selectAnswersDropdown = () =>
     this.page.getByRole('button', {
-      name: 'Select answers to display Open menu',
+      name: /select answers to display Open menu/i,
     });
-  readonly answer = () => this.page.getByRole('menuitem', { name: 'Tested for COVID 19' });
+  readonly answer = () => this.page.getByRole('menuitem', { name: /tested for covid 19/i });
   readonly questionIdInput = () => this.page.getByRole('textbox', { name: /question id/i });
   readonly questionCreatedMessage = () => this.page.getByText(/new question created/i);
   readonly saveQuestionButton = () => this.page.getByRole('button', { name: /^save$/i, exact: true });
@@ -107,7 +108,7 @@ export class FormBuilderPage {
     await this.formSaveButton().click();
   }
 
-  async searchForm(formName: string) {
+  async searchForForm(formName: string) {
     await this.page.getByRole('searchbox').fill(formName);
   }
 }

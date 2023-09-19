@@ -13,6 +13,7 @@
   "code": "Code",
   "conceptDoesNotExist": "The linked concept does not exist in your dictionary.",
   "conceptSearchHelpText": "Can't find a concept?",
+  "confirm": "Confirm",
   "copySchema": "Copy schema",
   "createForm": "Create Form",
   "createNewForm": "Create a new form",

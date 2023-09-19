@@ -31,6 +31,7 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
     setStatus('publishing');
     try {
       await publishForm(form.uuid);
+
       showToast({
         title: t('formPublished', 'Form published'),
         kind: 'success',
@@ -128,7 +129,7 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
                 {status === 'unpublishing' ? (
                   <InlineLoading className={styles.spinner} description={t('unpublishing', 'Unpublishing') + '...'} />
                 ) : (
-                  <span>{t('unpublishForm', 'Unpublish form')}</span>
+                  <span>{t('confirm', 'Confirm')}</span>
                 )}
               </Button>
             </ModalFooter>

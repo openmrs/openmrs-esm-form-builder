@@ -19,11 +19,14 @@ test('Unpublish a form', async ({ page }) => {
   });
 
   await test.step('And I search for the form I need to unpublish', async () => {
-    await formBuilderPage.searchForm(form.name);
+    await formBuilderPage.searchForForm(form.name);
   });
 
   await test.step('And I click on a form I need to unpublish', async () => {
-    await page.getByRole('row', { name: form.name }).getByLabel('Edit Schema').click();
+    await page
+      .getByRole('row', { name: form.name })
+      .getByLabel(/edit schema/i)
+      .click();
   });
 
   await test.step('Then I click on the unpublish form button and confirms the unpublication', async () => {

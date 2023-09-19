@@ -19,7 +19,7 @@ test('Editing an existing form', async ({ page }) => {
   });
 
   await test.step('And I search for the form I need to edit', async () => {
-    await formBuilderPage.searchForm(form.name);
+    await formBuilderPage.searchForForm(form.name);
   });
 
   await test.step('And I click the `Edit` button on the form I need to edit', async () => {
