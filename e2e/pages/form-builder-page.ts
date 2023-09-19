@@ -49,10 +49,7 @@ export class FormBuilderPage {
       name: /field type/i,
     });
   readonly conceptSearchInput = () => this.page.getByPlaceholder(/search using a concept name or uuid/i);
-  readonly selectAnswersDropdown = () =>
-    this.page.getByRole('button', {
-      name: /select answers to display Open menu/i,
-    });
+  readonly selectAnswersDropdown = () => this.page.getByText(/select answers to display/i);
   readonly answer = () => this.page.getByRole('menuitem', { name: /tested for covid 19/i });
   readonly questionIdInput = () => this.page.getByRole('textbox', { name: /question id/i });
   readonly questionCreatedMessage = () => this.page.getByText(/new question created/i);
@@ -83,6 +80,7 @@ export class FormBuilderPage {
     await this.page.getByRole('button', { name: /^testing history$/i }).click();
     await this.addQuestionButton().click();
     await this.questionLabelInput().fill('Have you been ever been tested for COVID-19?');
+    await this.questionIdInput().fill('everTestedForCovid19');
     await this.questionTypeDropdown().selectOption('obs');
     await this.fieldTypeDropdown().selectOption('radio');
     await this.conceptSearchInput().fill('Tested for COVID 19');
@@ -91,7 +89,6 @@ export class FormBuilderPage {
     await this.selectAnswersDropdown().click();
     await this.page.getByRole('option', { name: 'No' }).click();
     await this.page.getByRole('option', { name: 'Yes' }).click();
-    await this.questionIdInput().fill('everTestedForCovid19');
     await this.saveQuestionButton().click();
   }
 
