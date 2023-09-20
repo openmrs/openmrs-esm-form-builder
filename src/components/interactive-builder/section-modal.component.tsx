@@ -1,26 +1,17 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import {
-  Button,
-  ComposedModal,
-  Form,
-  FormGroup,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  TextInput,
-} from "@carbon/react";
-import { showToast, showNotification } from "@openmrs/esm-framework";
-import type { Schema } from "../../types";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Button, ComposedModal, Form, FormGroup, ModalBody, ModalFooter, ModalHeader, TextInput } from '@carbon/react';
+import { showToast, showNotification } from '@openmrs/esm-framework';
+import type { Schema } from '../../types';
 
-type SectionModalProps = {
+interface SectionModalProps {
   schema: Schema;
   onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
   resetIndices: () => void;
   showModal: boolean;
   onModalChange: (showModal: boolean) => void;
-};
+}
 
 const SectionModal: React.FC<SectionModalProps> = ({
   schema,
@@ -31,7 +22,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
   onModalChange,
 }) => {
   const { t } = useTranslation();
-  const [sectionTitle, setSectionTitle] = useState("");
+  const [sectionTitle, setSectionTitle] = useState('');
 
   const handleUpdatePageSections = () => {
     updateSections();
@@ -42,54 +33,52 @@ const SectionModal: React.FC<SectionModalProps> = ({
     try {
       schema.pages[pageIndex]?.sections?.push({
         label: sectionTitle,
-        isExpanded: "true",
+        isExpanded: 'true',
         questions: [],
       });
       onSchemaChange({ ...schema });
-      setSectionTitle("");
+      setSectionTitle('');
       resetIndices();
 
       showToast({
-        title: t("success", "Success!"),
-        kind: "success",
+        title: t('success', 'Success!'),
+        kind: 'success',
         critical: true,
-        description: t("sectionCreated", "New section created"),
+        description: t('sectionCreated', 'New section created'),
       });
     } catch (error) {
-      showNotification({
-        title: t("errorCreatingSection", "Error creating section"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
+      if (error instanceof Error) {
+        showNotification({
+          title: t('errorCreatingSection', 'Error creating section'),
+          kind: 'error',
+          critical: true,
+          description: error?.message,
+        });
+      }
     }
   };
 
   return (
-    <ComposedModal
-      open={showModal}
-      onClose={() => onModalChange(false)}
-      preventCloseOnClickOutside
-    >
-      <ModalHeader title={t("createNewSection", "Create a new section")} />
-      <Form onSubmit={(event) => event.preventDefault()}>
+    <ComposedModal open={showModal} onClose={() => onModalChange(false)} preventCloseOnClickOutside>
+      <ModalHeader title={t('createNewSection', 'Create a new section')} />
+      <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
-          <FormGroup legendText={""}>
+          <FormGroup legendText={''}>
             <TextInput
               id="sectionTitle"
-              labelText={t("enterSectionTitle", "Enter a section title")}
+              labelText={t('enterSectionTitle', 'Enter a section title')}
               value={sectionTitle}
-              onChange={(event) => setSectionTitle(event.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setSectionTitle(event.target.value)}
             />
           </FormGroup>
         </ModalBody>
       </Form>
       <ModalFooter>
         <Button onClick={() => onModalChange(false)} kind="secondary">
-          {t("cancel", "Cancel")}
+          {t('cancel', 'Cancel')}
         </Button>
         <Button disabled={!sectionTitle} onClick={handleUpdatePageSections}>
-          <span>{t("save", "Save")}</span>
+          <span>{t('save', 'Save')}</span>
         </Button>
       </ModalFooter>
     </ComposedModal>

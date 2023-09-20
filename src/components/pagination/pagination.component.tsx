@@ -1,8 +1,8 @@
-import React from "react";
-import { Pagination } from "@carbon/react";
-import { useLayoutType } from "@openmrs/esm-framework";
-import { usePaginationInfo } from "./usePaginationInfo";
-import styles from "./pagination.scss";
+import React from 'react';
+import { Pagination } from '@carbon/react';
+import { useLayoutType } from '@openmrs/esm-framework';
+import { usePaginationInfo } from './usePaginationInfo';
+import styles from './pagination.scss';
 
 interface FormBuilderPaginationProps {
   currentItems: number;
@@ -19,13 +19,8 @@ export const FormBuilderPagination: React.FC<FormBuilderPaginationProps> = ({
   pageNumber,
   currentItems,
 }) => {
-  const { itemsDisplayed, pageSizes } = usePaginationInfo(
-    pageSize,
-    totalItems,
-    pageNumber,
-    currentItems
-  );
-  const isTablet = useLayoutType() === "tablet";
+  const { itemsDisplayed, pageSizes } = usePaginationInfo(pageSize, totalItems, pageNumber, currentItems);
+  const isTablet = useLayoutType() === 'tablet';
 
   return (
     <>
@@ -39,7 +34,7 @@ export const FormBuilderPagination: React.FC<FormBuilderPaginationProps> = ({
             pageSizes={pageSizes}
             totalItems={totalItems}
             onChange={onPageNumberChange}
-            size={isTablet ? "lg" : "sm"}
+            size={isTablet ? 'lg' : 'sm'}
           />
         </div>
       )}

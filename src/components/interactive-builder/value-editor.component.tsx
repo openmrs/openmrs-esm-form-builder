@@ -1,23 +1,18 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { Button, TextInput } from "@carbon/react";
-import { Close, Save } from "@carbon/react/icons";
-import styles from "./value-editor.scss";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Button, TextInput } from '@carbon/react';
+import { Close, Save } from '@carbon/react/icons';
+import styles from './value-editor.scss';
 
-type ValueEditorProps = {
+interface ValueEditorProps {
   id: string;
   handleCancel: () => void;
   handleSave: (value: string) => void;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   value: string;
-};
+}
 
-const ValueEditor: React.FC<ValueEditorProps> = ({
-  id,
-  handleCancel,
-  handleSave,
-  value,
-}) => {
+const ValueEditor: React.FC<ValueEditorProps> = ({ id, handleCancel, handleSave, value }) => {
   const { t } = useTranslation();
   const [tmpValue, setTmpValue] = useState(value);
 
@@ -27,7 +22,7 @@ const ValueEditor: React.FC<ValueEditorProps> = ({
         id={id}
         labelText=""
         value={tmpValue}
-        onChange={(event) => setTmpValue(event.target.value)}
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTmpValue(event.target.value)}
       />
       <div className={styles.actionButtons}>
         <Button
@@ -36,7 +31,7 @@ const ValueEditor: React.FC<ValueEditorProps> = ({
           kind="primary"
           onClick={() => handleSave(tmpValue)}
         >
-          {t("saveButtonText", "Save")}
+          {t('saveButtonText', 'Save')}
         </Button>
         <Button
           size="md"
@@ -44,7 +39,7 @@ const ValueEditor: React.FC<ValueEditorProps> = ({
           kind="secondary"
           onClick={handleCancel}
         >
-          {t("cancelButtonText", "Cancel")}
+          {t('cancelButtonText', 'Cancel')}
         </Button>
       </div>
     </>

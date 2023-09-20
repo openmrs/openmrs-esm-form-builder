@@ -1,10 +1,10 @@
-import React from "react";
-import { useDroppable } from "@dnd-kit/core";
+import React from 'react';
+import { useDroppable } from '@dnd-kit/core';
 
-type DroppableProps = {
+interface DroppableProps {
   id: string;
   children: React.ReactNode;
-};
+}
 
 export function Droppable({ id, children }: DroppableProps) {
   const { isOver, setNodeRef } = useDroppable({
@@ -12,7 +12,7 @@ export function Droppable({ id, children }: DroppableProps) {
   });
 
   const style = {
-    border: `1px solid ${isOver ? "#005d5d" : "transparent"}`,
+    border: `1px solid ${isOver ? '#005d5d' : 'transparent'}`,
   };
 
   return (

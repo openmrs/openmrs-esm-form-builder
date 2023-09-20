@@ -1,44 +1,34 @@
-import React, { useCallback, useState } from "react";
-import { useTranslation } from "react-i18next";
-import {
-  DndContext,
-  KeyboardSensor,
-  MouseSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import { Accordion, AccordionItem, Button, InlineLoading } from "@carbon/react";
-import { Add, TrashCan } from "@carbon/react/icons";
-import { useParams } from "react-router-dom";
-import { showToast, showNotification } from "@openmrs/esm-framework";
-import { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
+import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { DragEndEvent } from '@dnd-kit/core';
+import { DndContext, KeyboardSensor, MouseSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { Accordion, AccordionItem, Button, InlineLoading } from '@carbon/react';
+import { Add, TrashCan } from '@carbon/react/icons';
+import { useParams } from 'react-router-dom';
+import { showToast, showNotification } from '@openmrs/esm-framework';
+import type { OHRIFormSchema } from '@openmrs/openmrs-form-engine-lib';
 
-import type { Question, RouteParams, Schema } from "../../types";
-import AddQuestionModal from "./add-question-modal.component";
-import DeleteSectionModal from "./delete-section-modal.component";
-import DeletePageModal from "./delete-page-modal.component";
-import DeleteQuestionModal from "./delete-question-modal.component";
-import EditQuestionModal from "./edit-question-modal.component";
-import EditableValue from "./editable-value.component";
-import NewFormModal from "./new-form-modal.component";
-import PageModal from "./page-modal.component";
-import SectionModal from "./section-modal.component";
-import { DraggableQuestion } from "./draggable-question.component";
-import { Droppable } from "./droppable-container.component";
+import type { Schema, Question } from '../../types';
+import AddQuestionModal from './add-question-modal.component';
+import DeleteSectionModal from './delete-section-modal.component';
+import DeletePageModal from './delete-page-modal.component';
+import DeleteQuestionModal from './delete-question-modal.component';
+import EditQuestionModal from './edit-question-modal.component';
+import EditableValue from './editable-value.component';
+import NewFormModal from './new-form-modal.component';
+import PageModal from './page-modal.component';
+import SectionModal from './section-modal.component';
+import { DraggableQuestion } from './draggable-question.component';
+import { Droppable } from './droppable-container.component';
+import styles from './interactive-builder.scss';
 
-import styles from "./interactive-builder.scss";
-
-type InteractiveBuilderProps = {
+interface InteractiveBuilderProps {
   isLoading: boolean;
   onSchemaChange: (schema: Schema) => void;
   schema: Schema;
-};
+}
 
-const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
-  isLoading,
-  onSchemaChange,
-  schema,
-}) => {
+const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({ isLoading, onSchemaChange, schema }) => {
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 10, // Enable sort function when dragging 10px 💡 here!!!
@@ -48,29 +38,30 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const sensors = useSensors(mouseSensor, keyboardSensor);
 
   const { t } = useTranslation();
-  const { formUuid } = useParams<RouteParams>();
-  const isEditingExistingForm = !!formUuid;
+  const { formUuid } = useParams<{ formUuid: string }>();
+  const isEditingExistingForm = Boolean(formUuid);
+
   const [pageIndex, setPageIndex] = useState(0);
-  const [sectionIndex, setSectionIndex] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [questionToEdit, setQuestionToEdit] = useState(null);
-  const [showNewFormModal, setShowNewFormModal] = useState(false);
+  const [questionToEdit, setQuestionToEdit] = useState<Question>();
+  const [sectionIndex, setSectionIndex] = useState(0);
   const [showAddPageModal, setShowAddPageModal] = useState(false);
   const [showAddQuestionModal, setShowAddQuestionModal] = useState(false);
-  const [showEditQuestionModal, setShowEditQuestionModal] = useState(false);
   const [showAddSectionModal, setShowAddSectionModal] = useState(false);
   const [showDeletePageModal, setShowDeletePageModal] = useState(false);
-  const [showDeleteSectionModal, setShowDeleteSectionModal] = useState(false);
   const [showDeleteQuestionModal, setShowDeleteQuestionModal] = useState(false);
+  const [showDeleteSectionModal, setShowDeleteSectionModal] = useState(false);
+  const [showEditQuestionModal, setShowEditQuestionModal] = useState(false);
+  const [showNewFormModal, setShowNewFormModal] = useState(false);
 
   const initializeSchema = useCallback(() => {
     const dummySchema: OHRIFormSchema = {
-      name: null,
+      name: '',
       pages: [],
-      processor: "EncounterFormProcessor",
-      encounterType: "",
+      processor: 'EncounterFormProcessor',
+      encounterType: '',
       referencedForms: [],
-      uuid: "",
+      uuid: '',
     };
 
     if (!schema) {
@@ -115,21 +106,21 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         onSchemaChange({ ...schema });
 
         showToast({
-          title: t("success", "Success!"),
-          kind: "success",
+          title: t('success', 'Success!'),
+          kind: 'success',
           critical: true,
-          description: t("formRenamed", "Form renamed"),
+          description: t('formRenamed', 'Form renamed'),
         });
       } catch (error) {
         showNotification({
-          title: t("errorRenamingForm", "Error renaming form"),
-          kind: "error",
+          title: t('errorRenamingForm', 'Error renaming form'),
+          kind: 'error',
           critical: true,
           description: error?.message,
         });
       }
     },
-    [onSchemaChange, schema, t]
+    [onSchemaChange, schema, t],
   );
 
   const renamePage = useCallback(
@@ -142,21 +133,23 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         onSchemaChange({ ...schema });
 
         showToast({
-          title: t("success", "Success!"),
-          kind: "success",
+          title: t('success', 'Success!'),
+          kind: 'success',
           critical: true,
-          description: t("pageRenamed", "Page renamed"),
+          description: t('pageRenamed', 'Page renamed'),
         });
       } catch (error) {
-        showNotification({
-          title: t("errorRenamingPage", "Error renaming page"),
-          kind: "error",
-          critical: true,
-          description: error?.message,
-        });
+        if (error instanceof Error) {
+          showNotification({
+            title: t('errorRenamingPage', 'Error renaming page'),
+            kind: 'error',
+            critical: true,
+            description: error?.message,
+          });
+        }
       }
     },
-    [onSchemaChange, schema, t]
+    [onSchemaChange, schema, t],
   );
 
   const renameSection = useCallback(
@@ -170,70 +163,71 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         resetIndices();
 
         showToast({
-          title: t("success", "Success!"),
-          kind: "success",
+          title: t('success', 'Success!'),
+          kind: 'success',
           critical: true,
-          description: t("sectionRenamed", "Section renamed"),
+          description: t('sectionRenamed', 'Section renamed'),
         });
       } catch (error) {
-        showNotification({
-          title: t("errorRenamingSection", "Error renaming section"),
-          kind: "error",
-          critical: true,
-          description: error?.message,
-        });
+        if (error instanceof Error) {
+          showNotification({
+            title: t('errorRenamingSection', 'Error renaming section'),
+            kind: 'error',
+            critical: true,
+            description: error?.message,
+          });
+        }
       }
     },
-    [onSchemaChange, schema, t]
+    [onSchemaChange, schema, t],
   );
 
   const duplicateQuestion = useCallback(
-    (question, pageId: number, sectionId: number) => {
+    (question: Question, pageId: number, sectionId: number) => {
       try {
-        const questionToDuplicate = JSON.parse(JSON.stringify(question));
-        questionToDuplicate.id = questionToDuplicate.id + "Duplicate";
+        const questionToDuplicate: Question = JSON.parse(JSON.stringify(question));
+        questionToDuplicate.id = questionToDuplicate.id + 'Duplicate';
 
-        schema.pages[pageId].sections[sectionId].questions.push(
-          questionToDuplicate
-        );
+        schema.pages[pageId].sections[sectionId].questions.push(questionToDuplicate);
 
         onSchemaChange({ ...schema });
         resetIndices();
 
         showToast({
-          title: t("success", "Success!"),
-          kind: "success",
+          title: t('success', 'Success!'),
+          kind: 'success',
           critical: true,
           description: t(
-            "questionDuplicated",
-            "Question duplicated. Please change the duplicated question's ID to a unique, camelcased value"
+            'questionDuplicated',
+            "Question duplicated. Please change the duplicated question's ID to a unique, camelcased value",
           ),
         });
       } catch (error) {
-        showNotification({
-          title: t("errorDuplicatingQuestion", "Error duplicating question"),
-          kind: "error",
-          critical: true,
-          description: error?.message,
-        });
+        if (error instanceof Error) {
+          showNotification({
+            title: t('errorDuplicatingQuestion', 'Error duplicating question'),
+            kind: 'error',
+            critical: true,
+            description: error?.message,
+          });
+        }
       }
     },
-    [onSchemaChange, schema, t]
+    [onSchemaChange, schema, t],
   );
 
-  const handleDragEnd = (event) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, delta } = event;
 
     if (active) {
       // Get the source information
-      const activeIdParts = active.id.split("-");
+      const activeIdParts = active.id.toString().split('-');
       const sourcePageIndex = parseInt(activeIdParts[1]);
       const sourceSectionIndex = parseInt(activeIdParts[2]);
       const sourceQuestionIndex = parseInt(activeIdParts[3]);
 
       // Move the question within the same section
-      const questions =
-        schema.pages[sourcePageIndex].sections[sourceSectionIndex].questions;
+      const questions = schema.pages[sourcePageIndex].sections[sourceSectionIndex].questions;
       const questionToMove = questions[sourceQuestionIndex];
       questions.splice(sourceQuestionIndex, 1);
       questions.splice(sourceQuestionIndex + delta.y, 0, questionToMove);
@@ -281,11 +275,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
   return (
     <div className={styles.container}>
-      {isLoading ? (
-        <InlineLoading
-          description={t("loadingSchema", "Loading schema") + "..."}
-        />
-      ) : null}
+      {isLoading ? <InlineLoading description={t('loadingSchema', 'Loading schema') + '...'} /> : null}
 
       {showNewFormModal ? (
         <NewFormModal
@@ -385,33 +375,19 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         <>
           <div className={styles.header}>
             <div className={styles.explainer}>
+              <p>{t('welcomeHeading', 'Welcome to the Interactive Schema builder')}</p>
               <p>
                 {t(
-                  "welcomeHeading",
-                  "Welcome to the Interactive Schema builder"
-                )}
-              </p>
-              <p>
-                {t(
-                  "welcomeExplainer",
-                  "Add pages, sections and questions to your form. The Preview tab automatically updates as you build your form. For a detailed explanation of what constitutes an OpenMRS form schema, please read through the "
-                )}{" "}
-                <a
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={"https://ohri-docs.globalhealthapp.net/"}
-                >
-                  {t("formBuilderDocs", "form builder documentation")}.
+                  'welcomeExplainer',
+                  'Add pages, sections and questions to your form. The Preview tab automatically updates as you build your form. For a detailed explanation of what constitutes an OpenMRS form schema, please read through the ',
+                )}{' '}
+                <a target="_blank" rel="noopener noreferrer" href={'https://ohri-docs.globalhealthapp.net/'}>
+                  {t('formBuilderDocs', 'form builder documentation')}.
                 </a>
               </p>
             </div>
-            <Button
-              kind="ghost"
-              renderIcon={Add}
-              onClick={addPage}
-              iconDescription={t("addPage", "Add Page")}
-            >
-              {t("addPage", "Add Page")}
+            <Button kind="ghost" renderIcon={Add} onClick={addPage} iconDescription={t('addPage', 'Add Page')}>
+              {t('addPage', 'Add Page')}
             </Button>
           </div>
           <div className={styles.editorContainer}>
@@ -429,26 +405,22 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         <div className={styles.header}>
           <p className={styles.explainer}>
             {t(
-              "interactiveBuilderHelperText",
-              "The Interactive Builder lets you build your form schema without writing JSON code. The Preview tab automatically updates as you build your form. When done, click Save Form to save your form."
+              'interactiveBuilderHelperText',
+              'The Interactive Builder lets you build your form schema without writing JSON code. The Preview tab automatically updates as you build your form. When done, click Save Form to save your form.',
             )}
           </p>
 
-          <Button
-            onClick={launchNewFormModal}
-            className={styles.startButton}
-            kind="ghost"
-          >
-            {t("startBuilding", "Start building")}
+          <Button onClick={launchNewFormModal} className={styles.startButton} kind="ghost">
+            {t('startBuilding', 'Start building')}
           </Button>
         </div>
       )}
 
-      <DndContext onDragEnd={(event) => handleDragEnd(event)} sensors={sensors}>
+      <DndContext onDragEnd={(event: DragEndEvent) => handleDragEnd(event)} sensors={sensors}>
         {schema?.pages?.length
           ? schema.pages.map((page, pageIndex) => (
               <div className={styles.editableFieldsContainer}>
-                <div style={{ display: "flex", alignItems: "center" }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
                   <div className={styles.editorContainer}>
                     <EditableValue
                       elementType="page"
@@ -460,7 +432,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                   <Button
                     hasIconOnly
                     enterDelayMs={300}
-                    iconDescription={t("deletePage", "Delete page")}
+                    iconDescription={t('deletePage', 'Delete page')}
                     kind="ghost"
                     onClick={() => {
                       setPageIndex(pageIndex);
@@ -474,8 +446,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                   {page?.sections?.length ? (
                     <p className={styles.sectionExplainer}>
                       {t(
-                        "expandSectionExplainer",
-                        "Below are the sections linked to this page. Expand each section to add questions to it."
+                        'expandSectionExplainer',
+                        'Below are the sections linked to this page. Expand each section to add questions to it.',
                       )}
                     </p>
                   ) : null}
@@ -484,70 +456,51 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                       <Accordion>
                         <AccordionItem title={section.label}>
                           <>
-                            <div
-                              style={{ display: "flex", alignItems: "center" }}
-                            >
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
                               <div className={styles.editorContainer}>
                                 <EditableValue
                                   elementType="section"
                                   id="sectionNameInput"
                                   value={section.label}
-                                  onSave={(name) =>
-                                    renameSection(name, pageIndex, sectionIndex)
-                                  }
+                                  onSave={(name) => renameSection(name, pageIndex, sectionIndex)}
                                 />
                               </div>
                               <Button
                                 hasIconOnly
                                 enterDelayMs={300}
-                                iconDescription={t(
-                                  "deleteSection",
-                                  "Delete section"
-                                )}
+                                iconDescription={t('deleteSection', 'Delete section')}
                                 kind="ghost"
                                 onClick={() => {
                                   setPageIndex(pageIndex);
                                   setSectionIndex(sectionIndex);
                                   setShowDeleteSectionModal(true);
                                 }}
-                                renderIcon={(props) => (
-                                  <TrashCan size={16} {...props} />
-                                )}
+                                renderIcon={(props) => <TrashCan size={16} {...props} />}
                                 size="sm"
                               />
                             </div>
                             <div>
                               {section.questions?.length ? (
-                                section.questions.map(
-                                  (question, questionIndex) => (
-                                    <Droppable
-                                      id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
-                                    >
-                                      <DraggableQuestion
-                                        key={question.id}
-                                        question={question}
-                                        pageIndex={pageIndex}
-                                        sectionIndex={sectionIndex}
-                                        questionIndex={questionIndex}
-                                        handleDuplicateQuestion={
-                                          duplicateQuestion
-                                        }
-                                        handleEditButtonClick={
-                                          handleEditButtonClick
-                                        }
-                                        handleDeleteButtonClick={
-                                          handleDeleteButtonClick
-                                        }
-                                        questionCount={section.questions.length}
-                                      />
-                                    </Droppable>
-                                  )
-                                )
+                                section.questions.map((question, questionIndex) => (
+                                  <Droppable id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}>
+                                    <DraggableQuestion
+                                      key={question.id}
+                                      question={question}
+                                      pageIndex={pageIndex}
+                                      sectionIndex={sectionIndex}
+                                      questionIndex={questionIndex}
+                                      handleDuplicateQuestion={duplicateQuestion}
+                                      handleEditButtonClick={handleEditButtonClick}
+                                      handleDeleteButtonClick={handleDeleteButtonClick}
+                                      questionCount={section.questions.length}
+                                    />
+                                  </Droppable>
+                                ))
                               ) : (
                                 <p className={styles.explainer}>
                                   {t(
-                                    "sectionExplainer",
-                                    "A section will typically contain one or more questions. Click the button below to add a question to this section."
+                                    'sectionExplainer',
+                                    'A section will typically contain one or more questions. Click the button below to add a question to this section.',
                                   )}
                                 </p>
                               )}
@@ -562,12 +515,9 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                   setPageIndex(pageIndex);
                                   setSectionIndex(sectionIndex);
                                 }}
-                                iconDescription={t(
-                                  "addQuestion",
-                                  "Add Question"
-                                )}
+                                iconDescription={t('addQuestion', 'Add Question')}
                               >
-                                {t("addQuestion", "Add Question")}
+                                {t('addQuestion', 'Add Question')}
                               </Button>
                             </div>
                           </>
@@ -577,8 +527,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                   ) : (
                     <p className={styles.explainer}>
                       {t(
-                        "pageExplainer",
-                        "Pages typically have one or more sections. Click the button below to add a section to your page."
+                        'pageExplainer',
+                        'Pages typically have one or more sections. Click the button below to add a section to your page.',
                       )}
                     </p>
                   )}
@@ -591,9 +541,9 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                     addSection();
                     setPageIndex(pageIndex);
                   }}
-                  iconDescription={t("addSection", "Add Section")}
+                  iconDescription={t('addSection', 'Add Section')}
                 >
-                  {t("addSection", "Add Section")}
+                  {t('addSection', 'Add Section')}
                 </Button>
               </div>
             ))
