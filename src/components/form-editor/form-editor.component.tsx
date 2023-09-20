@@ -30,6 +30,7 @@ import FormRenderer from "../form-renderer/form-renderer.component";
 import InteractiveBuilder from "../interactive-builder/interactive-builder.component";
 import SchemaEditor from "../schema-editor/schema-editor.component";
 import styles from "./form-editor.scss";
+import AuditForm from "../audit-form/audit-form.component";
 
 type ErrorProps = {
   error: Error;
@@ -334,6 +335,7 @@ const FormEditor: React.FC = () => {
               <TabList aria-label="Form previews">
                 <Tab>{t("preview", "Preview")}</Tab>
                 <Tab>{t("interactiveBuilder", "Interactive Builder")}</Tab>
+                <Tab>{t("auditForm")}</Tab>
               </TabList>
               <TabPanels>
                 <TabPanel>
@@ -348,6 +350,9 @@ const FormEditor: React.FC = () => {
                     onSchemaChange={updateSchema}
                     isLoading={isLoadingFormOrSchema}
                   />
+                </TabPanel>
+                <TabPanel>
+                  <AuditForm form={form} schema={schema} />
                 </TabPanel>
               </TabPanels>
             </Tabs>

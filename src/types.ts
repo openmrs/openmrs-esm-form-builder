@@ -11,6 +11,7 @@ export interface Form {
   retired?: boolean;
   formFields?: Array<string>;
   display?: string;
+  auditInfo: string;
 }
 
 export type RouteParams = { formUuid: string };
