@@ -30,6 +30,7 @@ export interface FilterProps {
 export interface EncounterType {
   uuid: string;
   name: string;
+  display: string;
 }
 
 export interface Resource {

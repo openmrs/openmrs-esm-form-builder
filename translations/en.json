@@ -39,6 +39,7 @@
   "duplicateQuestion": "Duplicate question",
   "editButton": "Edit {elementType}",
   "editedBy": "Last Edited By",
+  "editedByDescription": "e.g. Bruce Wayne",
   "editQuestion": "Edit question",
   "editSchema": "Edit schema",
   "encounterType": "Encounter Type",

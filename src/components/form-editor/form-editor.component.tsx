@@ -352,7 +352,7 @@ const FormEditor: React.FC = () => {
                   />
                 </TabPanel>
                 <TabPanel>
-                  <AuditForm form={form} schema={schema} />
+                  <AuditForm form={form} />
                 </TabPanel>
               </TabPanels>
             </Tabs>
