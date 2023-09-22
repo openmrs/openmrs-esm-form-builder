@@ -76,9 +76,11 @@ const AuditForm: React.FC<AuditFormProps> = ({ form }) => {
           <StructuredListRow>
             <StructuredListCell>{t("editedBy")}</StructuredListCell>
             <StructuredListCell>
-              {`${form?.auditInfo?.changedBy?.display} on ${formatDatetime(
-                parseDate(form?.auditInfo?.dateChanged)
-              )}`}
+              {form?.auditInfo?.changedBy?.display
+                ? `${form?.auditInfo?.changedBy?.display} on ${formatDatetime(
+                    parseDate(form?.auditInfo?.dateChanged)
+                  )}`
+                : "This form has never been editted"}
             </StructuredListCell>
           </StructuredListRow>
         </StructuredListBody>

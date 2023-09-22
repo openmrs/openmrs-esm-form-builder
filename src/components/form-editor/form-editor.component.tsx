@@ -335,7 +335,7 @@ const FormEditor: React.FC = () => {
               <TabList aria-label="Form previews">
                 <Tab>{t("preview", "Preview")}</Tab>
                 <Tab>{t("interactiveBuilder", "Interactive Builder")}</Tab>
-                <Tab>{t("auditForm")}</Tab>
+                {<Tab>{form && t("auditForm")}</Tab>}
               </TabList>
               <TabPanels>
                 <TabPanel>
@@ -351,9 +351,7 @@ const FormEditor: React.FC = () => {
                     isLoading={isLoadingFormOrSchema}
                   />
                 </TabPanel>
-                <TabPanel>
-                  <AuditForm form={form} />
-                </TabPanel>
+                <TabPanel>{form && <AuditForm form={form} />}</TabPanel>
               </TabPanels>
             </Tabs>
           </Column>
