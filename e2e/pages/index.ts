@@ -1,1 +1,1 @@
-export * from "./form-builder-page";
+export * from './form-builder-page';
