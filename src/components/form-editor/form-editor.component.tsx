@@ -22,7 +22,7 @@ import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ExtensionSlot } from "@openmrs/esm-framework";
 import type { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
-import type { Schema, RouteParams } from "../../types";
+import type { Schema } from "../../types";
 import { useClobdata } from "../../hooks/useClobdata";
 import { useForm } from "../../hooks/useForm";
 import ActionButtons from "../action-buttons/action-buttons.component";
