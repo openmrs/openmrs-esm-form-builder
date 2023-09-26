@@ -16,21 +16,21 @@ import {
   TabList,
   TabPanels,
   TabPanel,
-} from "@carbon/react";
-import { Download } from "@carbon/react/icons";
-import { useParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import { ExtensionSlot } from "@openmrs/esm-framework";
-import type { OHRIFormSchema } from "@openmrs/openmrs-form-engine-lib";
-import type { Schema } from "../../types";
-import { useClobdata } from "../../hooks/useClobdata";
-import { useForm } from "../../hooks/useForm";
-import ActionButtons from "../action-buttons/action-buttons.component";
-import FormRenderer from "../form-renderer/form-renderer.component";
-import InteractiveBuilder from "../interactive-builder/interactive-builder.component";
-import SchemaEditor from "../schema-editor/schema-editor.component";
-import styles from "./form-editor.scss";
-import AuditForm from "../audit-form/audit-form.component";
+} from '@carbon/react';
+import { Download } from '@carbon/react/icons';
+import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { ExtensionSlot } from '@openmrs/esm-framework';
+import type { OHRIFormSchema } from '@openmrs/openmrs-form-engine-lib';
+import type { Schema } from '../../types';
+import { useClobdata } from '../../hooks/useClobdata';
+import { useForm } from '../../hooks/useForm';
+import ActionButtons from '../action-buttons/action-buttons.component';
+import FormRenderer from '../form-renderer/form-renderer.component';
+import InteractiveBuilder from '../interactive-builder/interactive-builder.component';
+import SchemaEditor from '../schema-editor/schema-editor.component';
+import styles from './form-editor.scss';
+import AuditForm from '../audit-form/audit-form.component';
 
 interface ErrorProps {
   error: Error;
@@ -308,10 +308,10 @@ const FormEditor: React.FC = () => {
           <Column lg={8} md={8} className={styles.column}>
             <ActionButtons schema={schema} t={t} />
             <Tabs>
-              <TabList aria-label="Form previews">
-                <Tab>{t("preview", "Preview")}</Tab>
-                <Tab>{t("interactiveBuilder", "Interactive Builder")}</Tab>
-                {<Tab>{form && t("auditForm")}</Tab>}
+              <TabList aria-label='Form previews'>
+                <Tab>{t('preview', 'Preview')}</Tab>
+                <Tab>{t('interactiveBuilder', 'Interactive Builder')}</Tab>
+                {<Tab>{form && t('auditForm')}</Tab>}
               </TabList>
               <TabPanels>
                 <TabPanel>
