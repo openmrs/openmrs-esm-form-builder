@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { formatDatetime, parseDate } from "@openmrs/esm-framework";
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { formatDatetime, parseDate } from '@openmrs/esm-framework';
 import {
   StructuredListWrapper,
   StructuredListRow,
   StructuredListCell,
   StructuredListBody,
-} from "@carbon/react";
-import type { EncounterType } from "../../types";
+} from '@carbon/react';
+import type { EncounterType } from '../../types';
 
-type FormGroupData = {
+interface FormGroupData {
   name: string;
   uuid: string;
   version: string;
@@ -17,18 +17,18 @@ type FormGroupData = {
   description: string;
   display?: string;
   auditInfo: any;
-};
+}
 
-type AuditFormProps = {
+interface AuditFormProps {
   form: FormGroupData;
-};
+}
 
 const AuditForm: React.FC<AuditFormProps> = ({ form }) => {
   const { t } = useTranslation();
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [encounterType, setEncounterType] = useState("");
-  const [version, setVersion] = useState("");
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [encounterType, setEncounterType] = useState('');
+  const [version, setVersion] = useState('');
 
   useEffect(() => {
     if (form) {
