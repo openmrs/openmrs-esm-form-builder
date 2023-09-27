@@ -11,11 +11,27 @@ interface FormGroupData {
   encounterType: EncounterType;
   description: string;
   display?: string;
-  auditInfo: any;
+  auditInfo: AuditInfo;
 }
 
 interface AuditFormProps {
   form: FormGroupData;
+}
+
+export interface AuditInfo {
+  creator: Creator;
+  dateCreated: string;
+  changedBy: ChangedBy;
+  dateChanged: string;
+}
+
+interface Creator {
+  display: string;
+}
+
+interface ChangedBy {
+  uuid: string;
+  display: string;
 }
 
 const AuditForm: React.FC<AuditFormProps> = ({ form }) => {
