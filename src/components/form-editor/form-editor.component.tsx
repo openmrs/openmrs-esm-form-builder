@@ -308,7 +308,7 @@ const FormEditor: React.FC = () => {
           <Column lg={8} md={8} className={styles.column}>
             <ActionButtons schema={schema} t={t} />
             <Tabs>
-              <TabList aria-label='Form previews'>
+              <TabList aria-label="Form previews">
                 <Tab>{t('preview', 'Preview')}</Tab>
                 <Tab>{t('interactiveBuilder', 'Interactive Builder')}</Tab>
                 {<Tab>{form && t('auditForm')}</Tab>}
