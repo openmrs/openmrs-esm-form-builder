@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatDatetime, parseDate } from '@openmrs/esm-framework';
-import {
-  StructuredListWrapper,
-  StructuredListRow,
-  StructuredListCell,
-  StructuredListBody,
-} from '@carbon/react';
+import { StructuredListWrapper, StructuredListRow, StructuredListCell, StructuredListBody, } from '@carbon/react';
 import type { EncounterType } from '../../types';
 
 interface FormGroupData {
@@ -34,9 +29,7 @@ const AuditForm: React.FC<AuditFormProps> = ({ form }) => {
     if (form) {
       setName(form.name);
       setDescription(form.description);
-      setEncounterType(
-        `${form.encounterType.display} - ${form.encounterType.uuid}`
-      );
+      setEncounterType(`${form.encounterType.display} - ${form.encounterType.uuid}`);
       setVersion(form.version);
     }
   }, [form]);
@@ -68,18 +61,14 @@ const AuditForm: React.FC<AuditFormProps> = ({ form }) => {
           <StructuredListRow>
             <StructuredListCell>{t('createdBy')}</StructuredListCell>
             <StructuredListCell>
-              {`${form?.auditInfo?.creator?.display} on ${formatDatetime(
-                parseDate(form?.auditInfo?.dateCreated)
-              )}`}
+              {`${form?.auditInfo?.creator?.display} on ${formatDatetime(parseDate(form?.auditInfo?.dateCreated))}`}
             </StructuredListCell>
           </StructuredListRow>
           <StructuredListRow>
             <StructuredListCell>{t('editedBy')}</StructuredListCell>
             <StructuredListCell>
               {form?.auditInfo?.changedBy?.display
-                ? `${form?.auditInfo?.changedBy?.display} on ${formatDatetime(
-                    parseDate(form?.auditInfo?.dateChanged)
-                  )}`
+                ? `${form?.auditInfo?.changedBy?.display} on ${formatDatetime(parseDate(form?.auditInfo?.dateChanged))}`
                 : 'This form has never been editted'}
             </StructuredListCell>
           </StructuredListRow>
