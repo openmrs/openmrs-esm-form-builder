@@ -1,4 +1,5 @@
 import type { RenderType } from '@openmrs/openmrs-form-engine-lib';
+import type { AuditInfo } from './components/audit-form/audit-form.component';
 
 export interface Form {
   uuid: string;
@@ -11,6 +12,7 @@ export interface Form {
   retired?: boolean;
   formFields?: Array<string>;
   display?: string;
+  auditInfo: AuditInfo;
 }
 
 export interface FilterProps {
@@ -24,6 +26,7 @@ export interface FilterProps {
 export interface EncounterType {
   uuid: string;
   name: string;
+  display: string;
 }
 
 export interface Resource {
