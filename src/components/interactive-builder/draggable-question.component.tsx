@@ -45,8 +45,16 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   return (
     <div className={dragStyles} style={style}>
       <div className={styles.iconAndName}>
-        <div className={styles.dragIconContainer} ref={setNodeRef} {...attributes} {...listeners}>
-          <Draggable className={styles.dragIcon} size={16} />
+        <div ref={setNodeRef} {...attributes} {...listeners}>
+          <Button
+            className={styles.dragIcon}
+            enterDelayMs={300}
+            hasIconOnly
+            iconDescription={t('reorderQuestion', 'Reorder question')}
+            kind="ghost"
+            renderIcon={(props) => <Draggable size={16} {...props} />}
+            size="md"
+          />
         </div>
         <p className={styles.questionLabel}>{question.label}</p>
       </div>
