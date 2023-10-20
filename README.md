@@ -95,8 +95,7 @@ Then, in a separate terminal, run:
 yarn test-e2e --headed
 ```
 
-Please read [our e2e docs](e2e/README.md) for more information about E2E testing.
-
+Read the [e2e testing guide](/e2e/README.md) to learn more about End-to-End tests in this project.
 ## Building
 
 ```sh
