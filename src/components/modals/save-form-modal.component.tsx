@@ -270,7 +270,7 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema }) => {
               <Stack gap={5}>
                 <TextInput
                   id="name"
-                  labelText={t('formName', 'Form name')}
+                  labelText={t('formName', 'Form Name')}
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) => setName(event.target.value)}
                   placeholder={t('formNamePlaceholder', 'e.g. OHRI Express Care Patient Encounter Form')}
                   required
