@@ -86,14 +86,16 @@ const AuditDetails: React.FC<AuditDetailsProps> = ({ form }) => {
         <StructuredListRow>
           <StructuredListCell>{t('createdBy', 'Created By')}</StructuredListCell>
           <StructuredListCell>
-            {`${form?.auditInfo?.creator?.display} on ${formatDatetime(parseDate(form?.auditInfo?.dateCreated))}`}
+            {`${form?.auditInfo?.creator?.display ?? t('unknownUser', 'Unknown')} on ${formatDatetime(
+              parseDate(form?.auditInfo?.dateCreated),
+            )}`}
           </StructuredListCell>
         </StructuredListRow>
         <StructuredListRow>
-          <StructuredListCell>{t('editedBy', 'Edited By')}</StructuredListCell>
+          <StructuredListCell>{t('lastEditedBy', 'Last Edited By')}</StructuredListCell>
           <StructuredListCell>
-            {form?.auditInfo?.changedBy?.display
-              ? `${form?.auditInfo?.changedBy?.display} on ${formatDatetime(parseDate(form?.auditInfo?.dateChanged))}`
+            {form?.auditInfo?.dateChanged
+              ? `${form?.auditInfo?.changedBy.display} on ${formatDatetime(parseDate(form?.auditInfo?.dateChanged))}`
               : t('uneditedFormMsg', 'This form has never been edited')}
           </StructuredListCell>
         </StructuredListRow>
