@@ -69,7 +69,7 @@ const NewFormModal: React.FC<NewFormModalProps> = ({ schema, onSchemaChange, sho
             <FormGroup legendText={''}>
               <TextInput
                 id="formName"
-                labelText={t('formName', 'Form name')}
+                labelText={t('formName', 'Form Name')}
                 placeholder={t('namePlaceholder', 'What the form is called in the system')}
                 value={formName}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => setFormName(event.target.value)}

@@ -1,5 +1,5 @@
 import type { RenderType } from '@openmrs/openmrs-form-engine-lib';
-import type { AuditInfo } from './components/audit-form/audit-form.component';
+import type { AuditInfo } from './components/audit-details/audit-details.component';
 
 export interface Form {
   uuid: string;
