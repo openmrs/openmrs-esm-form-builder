@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatDatetime, parseDate } from '@openmrs/esm-framework';
 import { StructuredListWrapper, StructuredListRow, StructuredListCell, StructuredListBody } from '@carbon/react';
@@ -37,26 +37,7 @@ interface FormGroupData {
 }
 
 const AuditDetails: React.FC<AuditDetailsProps> = ({ form }) => {
-  console.log('form: ', form);
-
   const { t } = useTranslation();
-  const [description, setDescription] = useState('');
-  const [encounterType, setEncounterType] = useState('');
-  const [name, setName] = useState('');
-  const [published, setPublished] = useState(false);
-  const [retired, setRetired] = useState(false);
-  const [version, setVersion] = useState('');
-
-  useEffect(() => {
-    if (form) {
-      setName(form.name);
-      setDescription(form.description);
-      setEncounterType(`${form.encounterType.display} - ${form.encounterType.uuid}`);
-      setVersion(form.version);
-      setPublished(form.published);
-      setRetired(form.retired);
-    }
-  }, [form]);
 
   return (
     <StructuredListWrapper isCondensed selection={false}>
@@ -65,23 +46,23 @@ const AuditDetails: React.FC<AuditDetailsProps> = ({ form }) => {
           <StructuredListCell>
             <b>{t('formName', 'Form Name')}</b>
           </StructuredListCell>
-          <StructuredListCell>{name}</StructuredListCell>
+          <StructuredListCell>{form.name}</StructuredListCell>
         </StructuredListRow>
         <StructuredListRow>
           <StructuredListCell>{t('description', 'Description')}</StructuredListCell>
-          <StructuredListCell>{description}</StructuredListCell>
+          <StructuredListCell>{form.description}</StructuredListCell>
         </StructuredListRow>
         <StructuredListRow>
           <StructuredListCell>{t('formUuid', 'Form UUID')}</StructuredListCell>
-          <StructuredListCell>{form?.uuid}</StructuredListCell>
+          <StructuredListCell>{form.uuid}</StructuredListCell>
         </StructuredListRow>
         <StructuredListRow>
           <StructuredListCell>{t('version', 'Version')}</StructuredListCell>
-          <StructuredListCell>{version}</StructuredListCell>
+          <StructuredListCell>{form.version}</StructuredListCell>
         </StructuredListRow>
         <StructuredListRow>
           <StructuredListCell>{t('encounterType', 'Encounter Type')}</StructuredListCell>
-          <StructuredListCell>{encounterType}</StructuredListCell>
+          <StructuredListCell>{form.encounterType.uuid}</StructuredListCell>
         </StructuredListRow>
         <StructuredListRow>
           <StructuredListCell>{t('createdBy', 'Created By')}</StructuredListCell>
@@ -101,11 +82,11 @@ const AuditDetails: React.FC<AuditDetailsProps> = ({ form }) => {
         </StructuredListRow>
         <StructuredListRow>
           <StructuredListCell>{t('published', 'Published')}</StructuredListCell>
-          <StructuredListCell>{published ? t('yes', 'Yes') : t('no', 'No')}</StructuredListCell>
+          <StructuredListCell>{form.published ? t('yes', 'Yes') : t('no', 'No')}</StructuredListCell>
         </StructuredListRow>
         <StructuredListRow>
           <StructuredListCell>{t('retired', 'Retired')}</StructuredListCell>
-          <StructuredListCell>{retired ? t('yes', 'Yes') : t('no', 'No')}</StructuredListCell>
+          <StructuredListCell>{form.retired ? t('yes', 'Yes') : t('no', 'No')}</StructuredListCell>
         </StructuredListRow>
       </StructuredListBody>
     </StructuredListWrapper>

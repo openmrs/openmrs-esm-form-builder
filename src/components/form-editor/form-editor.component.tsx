@@ -320,7 +320,7 @@ const FormEditor: React.FC = () => {
                 <TabPanel>
                   <InteractiveBuilder schema={schema} onSchemaChange={updateSchema} isLoading={isLoadingFormOrSchema} />
                 </TabPanel>
-                <TabPanel>{form && <AuditDetails form={form} />}</TabPanel>
+                <TabPanel>{form && <AuditDetails form={form} key={form.uuid} />}</TabPanel>
               </TabPanels>
             </Tabs>
           </Column>

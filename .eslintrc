@@ -20,7 +20,7 @@
   "rules": {
     // The following rules need `noImplicitAny` to be set to `true` in our tsconfig. They are too restrictive for now, but should be reconsidered in future
     "@typescript-eslint/no-unsafe-assignment": "off",
-    "@typescript-eslint/no-unsafe-call": "off", 
+    "@typescript-eslint/no-unsafe-call": "off",
     "@typescript-eslint/no-unsafe-member-access": "off",
     "@typescript-eslint/unbound-method": "off",
     // Nitpicky. Prefer `interface T` over type T
@@ -41,6 +41,7 @@
         "default": "generic"
       }
     ],
+    "no-console": ["error", { "allow": ["warn", "error"] }],
     "no-restricted-imports": [
       "error",
       {
