@@ -41,7 +41,7 @@ const EditableValue: React.FC<EditableValueProps> = ({ elementType, id, value, o
         kind="ghost"
         size="sm"
         enterDelayMs={300}
-        iconDescription={t('editButton', 'Edit {elementType}', {
+        iconDescription={t('editButton', 'Edit {{elementType}}', {
           elementType: elementType,
         })}
         onClick={() => setEditing(true)}

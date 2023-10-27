@@ -41,7 +41,7 @@
   "downloadSchema": "Download schema",
   "duplicated": "Duplicated",
   "duplicateQuestion": "Duplicate question",
-  "editButton": "Edit {elementType}",
+  "editButton": "Edit {{elementType}}",
   "editQuestion": "Edit question",
   "editSchema": "Edit schema",
   "encounterType": "Encounter Type",
