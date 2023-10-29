@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import fuzzy from 'fuzzy';
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import {
@@ -35,10 +36,11 @@ import {
   useConfig,
   useLayoutType,
   usePagination,
+  useDebounce,
 } from '@openmrs/esm-framework';
 import type { KeyedMutator } from 'swr';
 
-import type { Form as FormType } from '../../types';
+import type { Form as TypedForm } from '../../types';
 import { deleteForm } from '../../forms.resource';
 import { FormBuilderPagination } from '../pagination';
 import { useClobdata } from '../../hooks/useClobdata';
@@ -49,19 +51,19 @@ import styles from './dashboard.scss';
 
 type Mutator = KeyedMutator<{
   data: {
-    results: Array<FormType>;
+    results: Array<TypedForm>;
   };
 }>;
 
 interface ActionButtonsProps {
-  form: FormType;
+  form: TypedForm;
   mutate: Mutator;
   responsiveSize: string;
   t: TFunction;
 }
 
 interface FormsListProps {
-  forms: Array<FormType>;
+  forms: Array<TypedForm>;
   isValidating: boolean;
   mutate: Mutator;
   t: TFunction;
@@ -245,28 +247,28 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
 }
 
 function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
+  const pageSize = 10;
   const config = useConfig();
   const isTablet = useLayoutType() === 'tablet';
   const responsiveSize = isTablet ? 'lg' : 'sm';
-  const [filter, setFilter] = useState('');
-  const [searchString, setSearchString] = useState('');
-  const pageSize = 10;
+  const [, setFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm);
 
-  const filteredRows = useMemo(() => {
-    if (!filter) {
+  const filteredForms = useMemo(() => {
+    if (!debouncedSearchTerm) {
       return forms;
     }
 
-    if (filter === 'Published') {
-      return forms.filter((form) => form.published);
-    }
-
-    if (filter === 'Unpublished') {
-      return forms.filter((form) => !form.published);
-    }
-
-    return forms;
-  }, [filter, forms]);
+    return debouncedSearchTerm
+      ? fuzzy
+          .filter(debouncedSearchTerm, forms, {
+            extract: (form: TypedForm) => `${form.name} ${form.version}`,
+          })
+          .sort((r1, r2) => r1.score - r2.score)
+          .map((result) => result.original)
+      : forms;
+  }, [forms, debouncedSearchTerm]);
 
   const tableHeaders = [
     {
@@ -291,17 +293,9 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
     },
   ];
 
-  const searchResults = useMemo(() => {
-    if (searchString && searchString.trim() !== '') {
-      return filteredRows.filter((form) => form.name.toLowerCase().includes(searchString.toLowerCase()));
-    }
+  const { paginated, goTo, results, currentPage } = usePagination(filteredForms, pageSize);
 
-    return filteredRows;
-  }, [searchString, filteredRows]);
-
-  const { paginated, goTo, results, currentPage } = usePagination(searchResults, pageSize);
-
-  const tableRows = results?.map((form: FormType) => ({
+  const tableRows = results?.map((form: TypedForm) => ({
     ...form,
     id: form?.uuid,
     published: <CustomTag condition={form.published} />,
@@ -310,14 +304,6 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
   }));
 
   const handlePublishStatusChange = ({ selectedItem }: { selectedItem: string }) => setFilter(selectedItem);
-
-  const handleSearch = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      goTo(1);
-      setSearchString(e.target.value);
-    },
-    [goTo, setSearchString],
-  );
 
   return (
     <>
@@ -358,7 +344,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
                   <TableToolbarContent className={styles.headerContainer}>
                     <TableToolbarSearch
                       className={styles.searchbox}
-                      onChange={handleSearch}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                       placeholder={t('searchThisList', 'Search this list')}
                     />
                     <Button
@@ -412,7 +398,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
       {paginated && (
         <FormBuilderPagination
           currentItems={results.length}
-          totalItems={searchResults.length}
+          totalItems={filteredForms.length}
           onPageNumberChange={({ page }) => {
             goTo(page);
           }}
