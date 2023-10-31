@@ -251,24 +251,37 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
   const config = useConfig();
   const isTablet = useLayoutType() === 'tablet';
   const responsiveSize = isTablet ? 'lg' : 'sm';
-  const [, setFilter] = useState('');
+  const [filter, setFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm);
 
-  const filteredForms = useMemo(() => {
+  const filteredForms: Array<TypedForm> = useMemo(() => {
     if (!debouncedSearchTerm) {
+      if (filter === 'Retired') {
+        return forms.filter((form) => form.retired);
+      }
+
+      if (filter === 'Published') {
+        return forms.filter((form) => form.published);
+      }
+
+      if (filter === 'Unpublished') {
+        return forms.filter((form) => !form.published);
+      }
+
       return forms;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return debouncedSearchTerm
       ? fuzzy
           .filter(debouncedSearchTerm, forms, {
             extract: (form: TypedForm) => `${form.name} ${form.version}`,
           })
           .sort((r1, r2) => r1.score - r2.score)
-          .map((result) => result.original)
+          .map((result) => result.original as unknown as TypedForm)
       : forms;
-  }, [forms, debouncedSearchTerm]);
+  }, [filter, forms, debouncedSearchTerm]);
 
   const tableHeaders = [
     {
@@ -303,7 +316,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
     actions: <ActionButtons form={form} mutate={mutate} responsiveSize={responsiveSize} t={t} />,
   }));
 
-  const handlePublishStatusChange = ({ selectedItem }: { selectedItem: string }) => setFilter(selectedItem);
+  const handleFilter = ({ selectedItem }: { selectedItem: string }) => setFilter(selectedItem);
 
   return (
     <>
@@ -324,11 +337,11 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
             id="publishStatusFilter"
             initialSelectedItem={'All'}
             label=""
-            titleText={t('filterByPublishedStatus', 'Filter by publish status') + ':'}
+            titleText={t('filterBy', 'Filter by') + ':'}
             size={responsiveSize}
             type="inline"
-            items={['All', 'Published', 'Unpublished']}
-            onChange={handlePublishStatusChange}
+            items={['All', 'Published', 'Unpublished', 'Retired']}
+            onChange={handleFilter}
           />
         </div>
         <div className={styles.backgroundDataFetchingIndicator}>

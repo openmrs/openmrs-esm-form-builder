@@ -108,7 +108,7 @@ describe('Dashboard', () => {
     await waitForLoadingToFinish();
 
     const publishStatusFilter = screen.getByRole('combobox', {
-      name: /filter by publish status/i,
+      name: /filter by/i,
     });
 
     await waitFor(() => user.click(publishStatusFilter));
@@ -142,7 +142,7 @@ describe('Dashboard', () => {
     await waitForLoadingToFinish();
 
     expect(screen.getByRole('heading', { name: /form builder/i })).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: /filter by publish status/i })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /filter by/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /create a new form/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /edit schema/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /download schema/i })).toBeInTheDocument();
