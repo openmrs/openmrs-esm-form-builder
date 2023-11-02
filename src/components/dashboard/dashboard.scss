@@ -27,7 +27,7 @@
     height: layout.$spacing-09;
   }
 }
- 
+
 :global(.omrs-breakpoint-gt-tablet) {
   .toolbarWrapper {
     height: layout.$spacing-07;
@@ -96,13 +96,18 @@
   :global(.cds--table-toolbar) {
     position: relative;
     height: 2rem;
-    min-height: 0rem;  
+    min-height: 0rem;
     overflow: visible;
     top: 0;
   }
 
   &:global(.cds--data-table-container) {
     padding-top: 0rem;
+  }
+
+  // FIXME: This override should be moved to esm-styleguide
+  :global(.cds--btn--icon-only) {
+    padding-block-start: 0.5rem;
   }
 }
 

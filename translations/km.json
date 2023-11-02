@@ -69,7 +69,7 @@
   "errorUpdatingQuestion": "Error updating question",
   "expandSectionExplainer": "Below are the sections linked to this page. Expand each section to add questions to it.",
   "fieldType": "Field type",
-  "filterByPublishedStatus": "Filter by publish status",
+  "filterBy": "Filter by",
   "formBuilder": "Form Builder",
   "formBuilderDocs": "form builder documentation",
   "formCreated": "New form created",
