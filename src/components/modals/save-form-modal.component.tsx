@@ -16,7 +16,7 @@ import {
   TextArea,
   TextInput,
 } from '@carbon/react';
-import { navigate, showNotification, showToast } from '@openmrs/esm-framework';
+import { navigate, showSnackbar } from '@openmrs/esm-framework';
 
 import {
   deleteClobdata,
@@ -126,11 +126,11 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema }) => {
         const newValueReference = await uploadSchema(updatedSchema);
         await getResourceUuid(newForm.uuid, newValueReference.toString());
 
-        showToast({
+        showSnackbar({
           title: t('formCreated', 'New form created'),
           kind: 'success',
-          critical: true,
-          description:
+          isLowContrast: true,
+          subtitle:
             name + ' ' + t('saveSuccessMessage', 'was created successfully. It is now visible on the Forms dashboard.'),
         });
         clearDraftFormSchema();
@@ -144,11 +144,10 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema }) => {
         setIsSavingForm(false);
       } catch (error) {
         if (error instanceof Error) {
-          showNotification({
+          showSnackbar({
             title: t('errorCreatingForm', 'Error creating form'),
             kind: 'error',
-            critical: true,
-            description: error?.message,
+            subtitle: error?.message,
           });
         }
         setIsSavingForm(false);
@@ -180,11 +179,11 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                     .then((result) => {
                       getResourceUuid(form?.uuid, result.toString())
                         .then(async () => {
-                          showToast({
+                          showSnackbar({
                             title: t('success', 'Success!'),
                             kind: 'success',
-                            critical: true,
-                            description: form?.name + ' ' + t('saveSuccess', 'was updated successfully'),
+                            isLowContrast: true,
+                            subtitle: form?.name + ' ' + t('saveSuccess', 'was updated successfully'),
                           });
                           setOpenSaveFormModal(false);
                           await mutate();
@@ -194,11 +193,10 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                         .catch((err) => {
                           console.error('Error associating form with new schema: ', err);
 
-                          showNotification({
+                          showSnackbar({
                             title: t('errorSavingForm', 'Unable to save form'),
                             kind: 'error',
-                            critical: true,
-                            description: t(
+                            subtitle: t(
                               'saveError',
                               'There was a problem saving your form. Try saving again. To ensure you don’t lose your changes, copy them, reload the page and then paste them back into the editor.',
                             ),
@@ -212,11 +210,10 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema }) => {
         }
       } catch (error) {
         if (error instanceof Error) {
-          showNotification({
+          showSnackbar({
             title: t('errorUpdatingForm', 'Error updating form'),
             kind: 'error',
-            critical: true,
-            description: error?.message,
+            subtitle: error?.message,
           });
         }
 

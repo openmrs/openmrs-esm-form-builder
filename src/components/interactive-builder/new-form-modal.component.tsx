@@ -11,7 +11,7 @@ import {
   Stack,
   TextInput,
 } from '@carbon/react';
-import { showToast, showNotification } from '@openmrs/esm-framework';
+import { showSnackbar } from '@openmrs/esm-framework';
 import type { Schema } from '../../types';
 
 interface NewFormModalProps {
@@ -31,19 +31,18 @@ const NewFormModal: React.FC<NewFormModalProps> = ({ schema, onSchemaChange, sho
       const updatedSchema = { ...schema, ...updates };
       onSchemaChange(updatedSchema);
 
-      showToast({
+      showSnackbar({
         title: t('success', 'Success!'),
         kind: 'success',
-        critical: true,
-        description: t('formCreated', 'New form created'),
+        isLowContrast: true,
+        subtitle: t('formCreated', 'New form created'),
       });
     } catch (error) {
       if (error instanceof Error) {
-        showNotification({
+        showSnackbar({
           title: t('errorCreatingForm', 'Error creating form'),
           kind: 'error',
-          critical: true,
-          description: error?.message,
+          subtitle: error?.message,
         });
       }
     }

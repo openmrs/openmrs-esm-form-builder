@@ -31,8 +31,7 @@ import { Add, DocumentImport, Download, Edit, TrashCan } from '@carbon/react/ico
 import {
   type FetchResponse,
   navigate,
-  showNotification,
-  showToast,
+  showSnackbar,
   useConfig,
   useLayoutType,
   usePagination,
@@ -106,11 +105,11 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
       deleteForm(formUuid)
         .then(async (res: FetchResponse) => {
           if (res.status === 204) {
-            showToast({
+            showSnackbar({
               title: t('formDeleted', 'Form deleted'),
               kind: 'success',
-              critical: true,
-              description: `${form.name} ` + t('formDeletedSuccessfully', 'deleted successfully'),
+              isLowContrast: true,
+              subtitle: `${form.name} ` + t('formDeletedSuccessfully', 'deleted successfully'),
             });
 
             await mutate();
@@ -118,11 +117,10 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
           }
         })
         .catch((e: Error) =>
-          showNotification({
+          showSnackbar({
             title: t('errorDeletingForm', 'Error deleting form'),
             kind: 'error',
-            critical: true,
-            description: e?.message,
+            subtitle: e?.message,
           }),
         )
         .finally(() => setIsDeleting(false));

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, ComposedModal, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
-import { showNotification, showToast } from '@openmrs/esm-framework';
+import { showSnackbar } from '@openmrs/esm-framework';
 import type { Schema } from '../../types';
 
 interface DeleteSectionModal {
@@ -32,19 +32,18 @@ const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
       onSchemaChange({ ...schema });
       resetIndices();
 
-      showToast({
+      showSnackbar({
         title: t('success', 'Success!'),
         kind: 'success',
-        critical: true,
-        description: t('SectionDeleted', 'Section deleted'),
+        isLowContrast: true,
+        subtitle: t('SectionDeleted', 'Section deleted'),
       });
     } catch (error) {
       if (error instanceof Error) {
-        showNotification({
+        showSnackbar({
           title: t('errorDeletingSection', 'Error deleting section'),
           kind: 'error',
-          critical: true,
-          description: error?.message,
+          subtitle: error?.message,
         });
       }
     }

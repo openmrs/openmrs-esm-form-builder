@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, ComposedModal, InlineLoading, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 import type { TFunction } from 'i18next';
 import { useParams } from 'react-router-dom';
-import { showToast, showNotification } from '@openmrs/esm-framework';
+import { showSnackbar } from '@openmrs/esm-framework';
 
 import type { Schema } from '../../types';
 import { publishForm, unpublishForm } from '../../forms.resource';
@@ -32,22 +32,21 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
     try {
       await publishForm(form.uuid);
 
-      showToast({
+      showSnackbar({
         title: t('formPublished', 'Form published'),
         kind: 'success',
-        critical: true,
-        description: `${form.name} ` + t('formPublishedSuccessfully', 'form was published successfully'),
+        isLowContrast: true,
+        subtitle: `${form.name} ` + t('formPublishedSuccessfully', 'form was published successfully'),
       });
 
       setStatus('published');
       await mutate();
     } catch (error) {
       if (error instanceof Error) {
-        showNotification({
+        showSnackbar({
           title: t('errorPublishingForm', 'Error publishing form'),
           kind: 'error',
-          critical: true,
-          description: error?.message,
+          subtitle: error?.message,
         });
         setStatus('error');
       }
@@ -60,22 +59,21 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
     try {
       await unpublishForm(form.uuid);
 
-      showToast({
+      showSnackbar({
         title: t('formUnpublished', 'Form unpublished'),
         kind: 'success',
-        critical: true,
-        description: `${form.name} ` + t('formUnpublishedSuccessfully', 'form was unpublished successfully'),
+        isLowContrast: true,
+        subtitle: `${form.name} ` + t('formUnpublishedSuccessfully', 'form was unpublished successfully'),
       });
 
       setStatus('unpublished');
       await mutate();
     } catch (error) {
       if (error instanceof Error) {
-        showNotification({
+        showSnackbar({
           title: t('errorUnpublishingForm', 'Error unpublishing form'),
           kind: 'error',
-          critical: true,
-          description: error?.message,
+          subtitle: error?.message,
         });
         setStatus('error');
       }
@@ -103,7 +101,6 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
             {t('unpublishForm', 'Unpublish form')}
           </Button>
         ) : null}
-
         {showUnpublishModal ? (
           <ComposedModal open={true} onClose={() => setShowUnpublishModal(false)} preventCloseOnClickOutside>
             <ModalHeader

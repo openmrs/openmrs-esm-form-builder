@@ -24,7 +24,7 @@ import {
   Tile,
 } from '@carbon/react';
 import { ArrowUpRight } from '@carbon/react/icons';
-import { showNotification, showToast, useConfig } from '@openmrs/esm-framework';
+import { showSnackbar, useConfig } from '@openmrs/esm-framework';
 import type { RenderType } from '@openmrs/openmrs-form-engine-lib';
 
 import type { Answer, Concept, ConceptMapping, Question, Schema } from '../../types';
@@ -162,19 +162,18 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       setAnswers([]);
       setSelectedAnswers([]);
 
-      showToast({
+      showSnackbar({
         title: t('success', 'Success!'),
         kind: 'success',
-        critical: true,
-        description: t('questionCreated', 'New question created'),
+        isLowContrast: true,
+        subtitle: t('questionCreated', 'New question created'),
       });
     } catch (error) {
       if (error instanceof Error) {
-        showNotification({
+        showSnackbar({
           title: t('errorCreatingQuestion', 'Error creating question'),
           kind: 'error',
-          critical: true,
-          description: error?.message,
+          subtitle: error?.message,
         });
       }
     }
