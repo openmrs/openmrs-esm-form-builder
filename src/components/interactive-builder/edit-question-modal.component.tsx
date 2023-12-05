@@ -26,7 +26,7 @@ import {
   Tile,
 } from '@carbon/react';
 import { ArrowUpRight } from '@carbon/react/icons';
-import { showNotification, showToast, useConfig } from '@openmrs/esm-framework';
+import { showSnackbar, useConfig } from '@openmrs/esm-framework';
 import type { RenderType } from '@openmrs/openmrs-form-engine-lib';
 
 import type { Concept, ConceptMapping, Question, QuestionType, Schema } from '../../types';
@@ -209,21 +209,20 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       setSelectedAnswers([]);
       onQuestionEdit(null);
 
-      showToast({
+      showSnackbar({
         title: t('success', 'Success!'),
         kind: 'success',
-        critical: true,
-        description: t('questionUpdated', 'Question updated'),
+        isLowContrast: true,
+        subtitle: t('questionUpdated', 'Question updated'),
       });
 
       onModalChange(false);
     } catch (error) {
       if (error instanceof Error) {
-        showNotification({
+        showSnackbar({
           title: t('errorUpdatingQuestion', 'Error updating question'),
           kind: 'error',
-          critical: true,
-          description: error?.message,
+          subtitle: error?.message,
         });
       }
     }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, ComposedModal, Form, FormGroup, ModalBody, ModalFooter, ModalHeader, TextInput } from '@carbon/react';
-import { showToast, showNotification } from '@openmrs/esm-framework';
+import { showSnackbar } from '@openmrs/esm-framework';
 import type { Schema } from '../../types';
 
 interface PageModalProps {
@@ -31,19 +31,18 @@ const PageModal: React.FC<PageModalProps> = ({ schema, onSchemaChange, showModal
         onSchemaChange({ ...schema });
         setPageTitle('');
       }
-      showToast({
+      showSnackbar({
         title: t('success', 'Success!'),
         kind: 'success',
-        critical: true,
-        description: t('pageCreated', 'New page created'),
+        isLowContrast: true,
+        subtitle: t('pageCreated', 'New page created'),
       });
     } catch (error) {
       if (error instanceof Error) {
-        showNotification({
+        showSnackbar({
           title: t('errorCreatingPage', 'Error creating page'),
           kind: 'error',
-          critical: true,
-          description: error?.message,
+          subtitle: error?.message,
         });
       }
     }

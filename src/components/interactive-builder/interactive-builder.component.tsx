@@ -5,7 +5,7 @@ import { DndContext, KeyboardSensor, MouseSensor, useSensor, useSensors } from '
 import { Accordion, AccordionItem, Button, InlineLoading } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
-import { showToast, showNotification } from '@openmrs/esm-framework';
+import { showSnackbar } from '@openmrs/esm-framework';
 import type { OHRIFormSchema } from '@openmrs/openmrs-form-engine-lib';
 
 import type { Schema, Question } from '../../types';
@@ -105,18 +105,17 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({ isLoading, onSc
 
         onSchemaChange({ ...schema });
 
-        showToast({
+        showSnackbar({
           title: t('success', 'Success!'),
           kind: 'success',
-          critical: true,
-          description: t('formRenamed', 'Form renamed'),
+          isLowContrast: true,
+          subtitle: t('formRenamed', 'Form renamed'),
         });
       } catch (error) {
-        showNotification({
+        showSnackbar({
           title: t('errorRenamingForm', 'Error renaming form'),
           kind: 'error',
-          critical: true,
-          description: error?.message,
+          subtitle: error?.message,
         });
       }
     },
@@ -132,19 +131,18 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({ isLoading, onSc
 
         onSchemaChange({ ...schema });
 
-        showToast({
+        showSnackbar({
           title: t('success', 'Success!'),
           kind: 'success',
-          critical: true,
-          description: t('pageRenamed', 'Page renamed'),
+          isLowContrast: true,
+          subtitle: t('pageRenamed', 'Page renamed'),
         });
       } catch (error) {
         if (error instanceof Error) {
-          showNotification({
+          showSnackbar({
             title: t('errorRenamingPage', 'Error renaming page'),
             kind: 'error',
-            critical: true,
-            description: error?.message,
+            subtitle: error?.message,
           });
         }
       }
@@ -162,19 +160,18 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({ isLoading, onSc
 
         resetIndices();
 
-        showToast({
+        showSnackbar({
           title: t('success', 'Success!'),
           kind: 'success',
-          critical: true,
-          description: t('sectionRenamed', 'Section renamed'),
+          isLowContrast: true,
+          subtitle: t('sectionRenamed', 'Section renamed'),
         });
       } catch (error) {
         if (error instanceof Error) {
-          showNotification({
+          showSnackbar({
             title: t('errorRenamingSection', 'Error renaming section'),
             kind: 'error',
-            critical: true,
-            description: error?.message,
+            subtitle: error?.message,
           });
         }
       }
@@ -193,22 +190,21 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({ isLoading, onSc
         onSchemaChange({ ...schema });
         resetIndices();
 
-        showToast({
+        showSnackbar({
           title: t('success', 'Success!'),
           kind: 'success',
-          critical: true,
-          description: t(
+          isLowContrast: true,
+          subtitle: t(
             'questionDuplicated',
             "Question duplicated. Please change the duplicated question's ID to a unique, camelcased value",
           ),
         });
       } catch (error) {
         if (error instanceof Error) {
-          showNotification({
+          showSnackbar({
             title: t('errorDuplicatingQuestion', 'Error duplicating question'),
             kind: 'error',
-            critical: true,
-            description: error?.message,
+            subtitle: error?.message,
           });
         }
       }

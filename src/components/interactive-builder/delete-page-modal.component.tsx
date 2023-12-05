@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, ComposedModal, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
-import { showNotification, showToast } from '@openmrs/esm-framework';
+import { showSnackbar } from '@openmrs/esm-framework';
 import type { Schema } from '../../types';
 
 interface DeletePageModalProps {
@@ -30,19 +30,18 @@ const DeletePageModal: React.FC<DeletePageModalProps> = ({
       onSchemaChange({ ...schema });
       resetIndices();
 
-      showToast({
+      showSnackbar({
         title: t('success', 'Success!'),
         kind: 'success',
-        critical: true,
-        description: t('pageDeleted', 'Page deleted'),
+        isLowContrast: true,
+        subtitle: t('pageDeleted', 'Page deleted'),
       });
     } catch (error) {
       if (error instanceof Error) {
-        showNotification({
+        showSnackbar({
           title: t('errorDeletingPage', 'Error deleting page'),
           kind: 'error',
-          critical: true,
-          description: error?.message,
+          subtitle: error?.message,
         });
       }
     }

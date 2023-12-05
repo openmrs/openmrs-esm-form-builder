@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, ComposedModal, Form, FormGroup, ModalBody, ModalFooter, ModalHeader, TextInput } from '@carbon/react';
-import { showToast, showNotification } from '@openmrs/esm-framework';
+import { showSnackbar } from '@openmrs/esm-framework';
 import type { Schema } from '../../types';
 
 interface SectionModalProps {
@@ -40,19 +40,18 @@ const SectionModal: React.FC<SectionModalProps> = ({
       setSectionTitle('');
       resetIndices();
 
-      showToast({
+      showSnackbar({
         title: t('success', 'Success!'),
         kind: 'success',
-        critical: true,
-        description: t('sectionCreated', 'New section created'),
+        isLowContrast: true,
+        subtitle: t('sectionCreated', 'New section created'),
       });
     } catch (error) {
       if (error instanceof Error) {
-        showNotification({
+        showSnackbar({
           title: t('errorCreatingSection', 'Error creating section'),
           kind: 'error',
-          critical: true,
-          description: error?.message,
+          subtitle: error?.message,
         });
       }
     }

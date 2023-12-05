@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, ComposedModal, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
-import { showNotification, showToast } from '@openmrs/esm-framework';
+import { showSnackbar } from '@openmrs/esm-framework';
 import type { Schema } from '../../types';
 
 interface DeleteQuestionModal {
@@ -34,19 +34,18 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
       onSchemaChange({ ...schema });
       resetIndices();
 
-      showToast({
+      showSnackbar({
         title: t('success', 'Success!'),
         kind: 'success',
-        critical: true,
-        description: t('QuestionDeleted', 'Question deleted'),
+        isLowContrast: true,
+        subtitle: t('QuestionDeleted', 'Question deleted'),
       });
     } catch (error) {
       if (error instanceof Error) {
-        showNotification({
+        showSnackbar({
           title: t('errorDeletingQuestion', 'Error deleting question'),
           kind: 'error',
-          critical: true,
-          description: error?.message,
+          subtitle: error?.message,
         });
       }
     }
