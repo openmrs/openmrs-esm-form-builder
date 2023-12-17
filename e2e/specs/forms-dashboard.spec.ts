@@ -57,6 +57,22 @@ test('Search forms by name', async ({ page }) => {
   });
 });
 
+test('Clicking on a form should navigate me to the editor', async ({ page }) => {
+  const formBuilderPage = new FormBuilderPage(page);
+
+  await test.step('When I visit the form builder', async () => {
+    await formBuilderPage.gotoFormBuilder();
+  });
+
+  await test.step('And I click the `A sample test form` form', async () => {
+    await page.getByText('A sample test form').click();
+  });
+
+  await test.step('Then I should be navigated to the editor page', async () => {
+    await expect(page).toHaveURL(new RegExp('form-builder/edit/' + form.uuid));
+  });
+});
+
 test.afterEach(async ({ api }) => {
   if (form) {
     await deleteForm(api, form.uuid);
