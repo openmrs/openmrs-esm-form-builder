@@ -250,17 +250,21 @@ const FormEditor: React.FC = () => {
             <div className={styles.actionButtons}>
               {isLoadingFormOrSchema ? (
                 <InlineLoading description={t('loadingSchema', 'Loading schema') + '...'} />
-              ) : null}
+              ) : (
+                <h1 className={styles.formName}>{form?.name}</h1>
+              )}
 
-              {isNewSchema && !schema ? (
-                <Button kind="ghost" onClick={inputDummySchema}>
-                  {t('inputDummySchema', 'Input dummy schema')}
+              <div>
+                {isNewSchema && !schema ? (
+                  <Button kind="ghost" onClick={inputDummySchema}>
+                    {t('inputDummySchema', 'Input dummy schema')}
+                  </Button>
+                ) : null}
+
+                <Button kind="ghost" onClick={renderSchemaChanges}>
+                  <span>{t('renderChanges', 'Render changes')}</span>
                 </Button>
-              ) : null}
-
-              <Button kind="ghost" onClick={renderSchemaChanges}>
-                <span>{t('renderChanges', 'Render changes')}</span>
-              </Button>
+              </div>
             </div>
             <div>
               <div className={styles.heading}>

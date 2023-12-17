@@ -8,6 +8,7 @@ import Dashboard from './dashboard.component';
 
 const mockedOpenmrsFetch = openmrsFetch as jest.Mock;
 const mockedDeleteForm = deleteForm as jest.Mock;
+global.window.URL.createObjectURL = jest.fn();
 
 jest.mock('../../forms.resource', () => ({
   deleteForm: jest.fn(),
@@ -148,7 +149,7 @@ describe('Dashboard', () => {
     expect(screen.getByRole('button', { name: /download schema/i })).toBeInTheDocument();
     expect(screen.getByRole('searchbox', { name: /filter table/i })).toBeInTheDocument();
     expect(screen.queryByRole('table')).toBeInTheDocument();
-    expect(screen.getByText(/Test Form 1/i)).toBeInTheDocument();
+    expect(screen.getByText(formsResponse[0].name)).toBeInTheDocument();
   });
 
   it('clicking on "create a new form" button navigates to the "create form" page', async () => {
@@ -179,6 +180,27 @@ describe('Dashboard', () => {
     expect(navigate).toHaveBeenCalledWith({
       to: expect.stringMatching(/form\-builder\/new/),
     });
+  });
+
+  it("clicking the form name navigates to the form's edit page", async () => {
+    mockedOpenmrsFetch.mockReturnValueOnce({
+      data: {
+        results: formsResponse,
+      },
+    });
+
+    mockUsePagination.mockImplementation(() => ({
+      currentPage: 1,
+      goTo: () => {},
+      results: formsResponse,
+    }));
+
+    renderDashboard();
+
+    await waitForLoadingToFinish();
+
+    const link = screen.getByRole('link', { name: formsResponse[0].name });
+    expect(link).toBeInTheDocument();
   });
 
   it('clicking on "edit schema" button navigates to the "edit schema" page', async () => {

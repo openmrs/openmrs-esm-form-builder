@@ -30,6 +30,7 @@ import {
 import { Add, DocumentImport, Download, Edit, TrashCan } from '@carbon/react/icons';
 import {
   type FetchResponse,
+  ConfigurableLink,
   navigate,
   showSnackbar,
   useConfig,
@@ -309,6 +310,14 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
   const tableRows = results?.map((form: TypedForm) => ({
     ...form,
     id: form?.uuid,
+    name: (
+      <ConfigurableLink
+        className={styles.link}
+        to={`${window.getOpenmrsSpaBase() + `form-builder/edit/` + form?.uuid}`}
+      >
+        {form.name}
+      </ConfigurableLink>
+    ),
     published: <CustomTag condition={form.published} />,
     retired: <CustomTag condition={form.retired} />,
     actions: <ActionButtons form={form} mutate={mutate} responsiveSize={responsiveSize} t={t} />,
@@ -332,6 +341,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
       <div className={styles.flexContainer}>
         <div className={styles.filterContainer}>
           <Dropdown
+            className={styles.filterDropdown}
             id="publishStatusFilter"
             initialSelectedItem={'All'}
             label=""

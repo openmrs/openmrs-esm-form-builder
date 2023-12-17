@@ -41,12 +41,16 @@
 .actionButtons {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   margin: 1rem 0;
 
   button {
     margin-left: 1rem
   }
+}
+
+.formName {
+  @include type.type-style('heading-03');
 }
 
 .editorContainer {
@@ -67,3 +71,4 @@
   width: 100%;
   padding: 0.75rem;
 }
+
