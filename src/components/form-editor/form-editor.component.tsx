@@ -17,10 +17,9 @@ import {
   TabPanels,
   TabPanel,
 } from '@carbon/react';
-import { Download } from '@carbon/react/icons';
+import { ArrowLeft, Download } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ExtensionSlot } from '@openmrs/esm-framework';
 import type { OHRIFormSchema } from '@openmrs/openmrs-form-engine-lib';
 import type { Schema } from '../../types';
 import { useClobdata } from '../../hooks/useClobdata';
@@ -28,9 +27,11 @@ import { useForm } from '../../hooks/useForm';
 import ActionButtons from '../action-buttons/action-buttons.component';
 import AuditDetails from '../audit-details/audit-details.component';
 import FormRenderer from '../form-renderer/form-renderer.component';
+import Header from '../header/header.component';
 import InteractiveBuilder from '../interactive-builder/interactive-builder.component';
 import SchemaEditor from '../schema-editor/schema-editor.component';
 import styles from './form-editor.scss';
+import { ConfigurableLink } from '@openmrs/esm-framework';
 
 interface ErrorProps {
   error: Error;
@@ -240,9 +241,8 @@ const FormEditor: React.FC = () => {
 
   return (
     <>
-      <div className={styles.breadcrumbsContainer}>
-        <ExtensionSlot name="breadcrumbs-slot" />
-      </div>
+      <Header title={t('schemaEditor', 'Schema editor')} />
+      <BackButton />
       <div className={styles.container}>
         {showDraftSchemaModal && <DraftSchemaModal />}
         <Grid className={styles.grid}>
@@ -333,5 +333,23 @@ const FormEditor: React.FC = () => {
     </>
   );
 };
+
+function BackButton() {
+  const { t } = useTranslation();
+
+  return (
+    <div className={styles.backButton}>
+      <ConfigurableLink to={window.getOpenmrsSpaBase() + 'form-builder'}>
+        <Button
+          kind="ghost"
+          renderIcon={(props) => <ArrowLeft size={24} {...props} />}
+          iconDescription="Return to dashboard"
+        >
+          <span>{t('backToDashboard', 'Back to dashboard')}</span>
+        </Button>
+      </ConfigurableLink>
+    </div>
+  );
+}
 
 export default FormEditor;

@@ -47,6 +47,7 @@ import { useClobdata } from '../../hooks/useClobdata';
 import { useForms } from '../../hooks/useForms';
 import EmptyState from '../empty-state/empty-state.component';
 import ErrorState from '../error-state/error-state.component';
+import Header from '../header/header.component';
 import styles from './dashboard.scss';
 
 type Mutator = KeyedMutator<{
@@ -436,24 +437,26 @@ const Dashboard: React.FC = () => {
   const { error, forms, isLoading, isValidating, mutate } = useForms();
 
   return (
-    <div className={styles.container}>
-      <h3 className={styles.heading}>{t('formBuilder', 'Form Builder')}</h3>
-      {(() => {
-        if (error) {
-          return <ErrorState error={error} />;
-        }
+    <main>
+      <Header title={t('home', 'Home')} />
+      <div className={styles.container}>
+        {(() => {
+          if (error) {
+            return <ErrorState error={error} />;
+          }
 
-        if (isLoading) {
-          return <DataTableSkeleton role="progressbar" />;
-        }
+          if (isLoading) {
+            return <DataTableSkeleton role="progressbar" />;
+          }
 
-        if (forms.length === 0) {
-          return <EmptyState />;
-        }
+          if (forms.length === 0) {
+            return <EmptyState />;
+          }
 
-        return <FormsList forms={forms} isValidating={isValidating} mutate={mutate} t={t} />;
-      })()}
-    </div>
+          return <FormsList forms={forms} isValidating={isValidating} mutate={mutate} t={t} />;
+        })()}
+      </div>
+    </main>
   );
 };
 

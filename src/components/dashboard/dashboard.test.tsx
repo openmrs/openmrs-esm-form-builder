@@ -59,7 +59,7 @@ describe('Dashboard', () => {
 
     await waitForLoadingToFinish();
 
-    expect(screen.getByRole('heading', { name: /form builder/i })).toBeInTheDocument();
+    expect(screen.getByText(/form builder/i)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /forms/i })).toBeInTheDocument();
     expect(screen.getByTitle(/empty data illustration/i)).toBeInTheDocument();
     expect(screen.getByText(/there are no forms to display/i)).toBeInTheDocument();
@@ -142,7 +142,7 @@ describe('Dashboard', () => {
 
     await waitForLoadingToFinish();
 
-    expect(screen.getByRole('heading', { name: /form builder/i })).toBeInTheDocument();
+    expect(screen.getByText(/form builder/i)).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: /filter by/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /create a new form/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /edit schema/i })).toBeInTheDocument();

@@ -3,7 +3,7 @@
 @use "@carbon/type";
 
 .container {
-  padding: 2rem;
+  padding: 1rem;
   background-color: colors.$gray-10;
 }
 
@@ -66,10 +66,6 @@
     padding-top: 0;
     padding-bottom: 0;
   }
-}
-
-.heading {
-  margin-bottom: 1.5rem;
 }
 
 .toolbar {
@@ -150,7 +146,7 @@
 }
 
 .warningMessage {
-  margin: 1.5rem 0;
+  margin: 1rem 0;
 }
 
 .spinner {
