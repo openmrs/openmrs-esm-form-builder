@@ -315,7 +315,7 @@ const FormEditor: React.FC = () => {
               <TabList aria-label="Form previews">
                 <Tab>{t('preview', 'Preview')}</Tab>
                 <Tab>{t('interactiveBuilder', 'Interactive Builder')}</Tab>
-                {<Tab>{form && t('auditDetails', 'Audit Details')}</Tab>}
+                {form && <Tab>{t('auditDetails', 'Audit Details')}</Tab>}
               </TabList>
               <TabPanels>
                 <TabPanel>
