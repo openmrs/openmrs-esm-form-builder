@@ -11,7 +11,7 @@ const FormBuilderCardLink: React.FC = () => {
       <ClickableTile href={`${window.spaBase}/form-builder`} target="_blank" rel="noopener noreferrer">
         <div>
           <div className="heading">{header}</div>
-          <div className="content">{t('formBuilder', 'Form Builder')}</div>
+          <div className="content">{t('formBuilder', 'Form builder')}</div>
         </div>
         <div className="iconWrapper">
           <ArrowRight size={16} />
