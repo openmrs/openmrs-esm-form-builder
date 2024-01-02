@@ -1,19 +1,32 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { navigate, openmrsFetch, usePagination } from '@openmrs/esm-framework';
+import { type FetchResponse, navigate, openmrsFetch, usePagination } from '@openmrs/esm-framework';
 import { renderWithSwr, waitForLoadingToFinish } from '../../test-helpers';
 import { deleteForm } from '../../forms.resource';
 import Dashboard from './dashboard.component';
 
-const mockedOpenmrsFetch = openmrsFetch as jest.Mock;
-const mockedDeleteForm = deleteForm as jest.Mock;
-global.window.URL.createObjectURL = jest.fn();
+type OpenmrsFetchResponse = Promise<
+  FetchResponse<{
+    results: unknown[];
+  }>
+>;
 
-jest.mock('../../forms.resource', () => ({
-  deleteForm: jest.fn(),
-}));
-const mockUsePagination = usePagination as jest.Mock;
+type PaginationData = {
+  currentPage: number;
+  goTo: (page: number) => void;
+  results: unknown[];
+  totalPages: number;
+  paginated: boolean;
+  showNextButton: boolean;
+  showPreviousButton: boolean;
+  goToNext: () => void;
+  goToPrevious: () => void;
+};
+
+const mockedOpenmrsFetch = jest.mocked(openmrsFetch);
+const mockedDeleteForm = jest.mocked(deleteForm);
+const mockUsePagination = jest.mocked(usePagination);
 
 const formsResponse = [
   {
@@ -37,6 +50,10 @@ const formsResponse = [
   },
 ];
 
+jest.mock('../../forms.resource', () => ({
+  deleteForm: jest.fn(),
+}));
+
 jest.mock('@openmrs/esm-framework', () => {
   const originalModule = jest.requireActual('@openmrs/esm-framework');
 
@@ -51,9 +68,11 @@ jest.mock('@openmrs/esm-framework', () => {
   };
 });
 
+global.window.URL.createObjectURL = jest.fn();
+
 describe('Dashboard', () => {
   it('renders an empty state view if no forms are available', async () => {
-    mockedOpenmrsFetch.mockReturnValueOnce({ data: { results: [] } });
+    mockedOpenmrsFetch.mockReturnValueOnce({ data: { results: [] } } as unknown as OpenmrsFetchResponse);
 
     renderDashboard();
 
@@ -73,7 +92,7 @@ describe('Dashboard', () => {
       data: {
         results: formsResponse,
       },
-    });
+    } as unknown as OpenmrsFetchResponse);
 
     renderDashboard();
 
@@ -81,17 +100,20 @@ describe('Dashboard', () => {
 
     const searchbox = screen.getByRole('searchbox') as HTMLInputElement;
 
-    await waitFor(() => user.type(searchbox, 'COVID'));
+    await user.type(searchbox, 'COVID');
 
     expect(searchbox.value).toBe('COVID');
 
-    mockUsePagination.mockImplementation(() => ({
-      currentPage: 1,
-      goTo: () => {},
-      results: formsResponse.filter((form) => form.name === searchbox.value),
-    }));
+    mockUsePagination.mockImplementation(
+      () =>
+        ({
+          currentPage: 1,
+          goTo: () => {},
+          results: formsResponse.filter((form) => form.name === searchbox.value),
+        }) as unknown as PaginationData,
+    );
 
-    await waitFor(() => expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument());
+    await expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument();
     expect(screen.getByText(/no matching forms to display/i)).toBeInTheDocument();
   });
 
@@ -102,7 +124,7 @@ describe('Dashboard', () => {
       data: {
         results: formsResponse,
       },
-    });
+    } as unknown as OpenmrsFetchResponse);
 
     renderDashboard();
 
@@ -112,14 +134,17 @@ describe('Dashboard', () => {
       name: /filter by/i,
     });
 
-    await waitFor(() => user.click(publishStatusFilter));
-    await waitFor(() => user.click(screen.getByRole('option', { name: /unpublished/i })));
+    await user.click(publishStatusFilter);
+    await user.click(screen.getByRole('option', { name: /unpublished/i }));
 
-    mockUsePagination.mockImplementation(() => ({
-      currentPage: 1,
-      goTo: () => {},
-      results: formsResponse.filter((form) => !form.published),
-    }));
+    mockUsePagination.mockImplementation(
+      () =>
+        ({
+          currentPage: 1,
+          goTo: () => {},
+          results: formsResponse.filter((form) => !form.published),
+        }) as unknown as PaginationData,
+    );
 
     expect(screen.queryByText(/Test Form 1/i)).not.toBeInTheDocument();
     expect(screen.getByText(/no matching forms to display/i)).toBeInTheDocument();
@@ -130,13 +155,16 @@ describe('Dashboard', () => {
       data: {
         results: formsResponse,
       },
-    });
+    } as unknown as OpenmrsFetchResponse);
 
-    mockUsePagination.mockImplementation(() => ({
-      currentPage: 1,
-      goTo: () => {},
-      results: formsResponse,
-    }));
+    mockUsePagination.mockImplementation(
+      () =>
+        ({
+          currentPage: 1,
+          goTo: () => {},
+          results: formsResponse,
+        }) as unknown as PaginationData,
+    );
 
     renderDashboard();
 
@@ -159,13 +187,16 @@ describe('Dashboard', () => {
       data: {
         results: formsResponse,
       },
-    });
+    } as unknown as OpenmrsFetchResponse);
 
-    mockUsePagination.mockImplementation(() => ({
-      currentPage: 1,
-      goTo: () => {},
-      results: formsResponse,
-    }));
+    mockUsePagination.mockImplementation(
+      () =>
+        ({
+          currentPage: 1,
+          goTo: () => {},
+          results: formsResponse,
+        }) as unknown as PaginationData,
+    );
 
     renderDashboard();
 
@@ -187,13 +218,16 @@ describe('Dashboard', () => {
       data: {
         results: formsResponse,
       },
-    });
+    } as unknown as OpenmrsFetchResponse);
 
-    mockUsePagination.mockImplementation(() => ({
-      currentPage: 1,
-      goTo: () => {},
-      results: formsResponse,
-    }));
+    mockUsePagination.mockImplementation(
+      () =>
+        ({
+          currentPage: 1,
+          goTo: () => {},
+          results: formsResponse,
+        }) as unknown as PaginationData,
+    );
 
     renderDashboard();
 
@@ -210,13 +244,16 @@ describe('Dashboard', () => {
       data: {
         results: formsResponse,
       },
-    });
+    } as unknown as OpenmrsFetchResponse);
 
-    mockUsePagination.mockImplementation(() => ({
-      currentPage: 1,
-      goTo: () => {},
-      results: formsResponse,
-    }));
+    mockUsePagination.mockImplementation(
+      () =>
+        ({
+          currentPage: 1,
+          goTo: () => {},
+          results: formsResponse,
+        }) as unknown as PaginationData,
+    );
 
     renderDashboard();
 
@@ -226,7 +263,7 @@ describe('Dashboard', () => {
       name: /edit schema/i,
     });
 
-    await waitFor(() => user.click(editSchemaButton));
+    await user.click(editSchemaButton);
 
     expect(navigate).toHaveBeenCalledWith({
       to: expect.stringMatching(/form\-builder\/edit/),
@@ -240,13 +277,17 @@ describe('Dashboard', () => {
       data: {
         results: formsResponse,
       },
-    });
+    } as unknown as OpenmrsFetchResponse);
 
-    mockUsePagination.mockImplementation(() => ({
-      currentPage: 1,
-      goTo: () => {},
-      results: formsResponse,
-    }));
+    mockUsePagination.mockImplementation(
+      () =>
+        ({
+          currentPage: 1,
+          goTo: () => {},
+          results: formsResponse,
+        }) as unknown as PaginationData,
+    );
+
     renderDashboard();
 
     await waitForLoadingToFinish();
@@ -255,7 +296,7 @@ describe('Dashboard', () => {
       name: /download schema/i,
     });
 
-    await waitFor(() => user.click(downloadSchemaButton));
+    await user.click(downloadSchemaButton);
 
     expect(window.URL.createObjectURL).toHaveBeenCalled();
   });
@@ -267,14 +308,18 @@ describe('Dashboard', () => {
       data: {
         results: formsResponse,
       },
-    });
-    mockedDeleteForm.mockResolvedValue({});
+    } as unknown as OpenmrsFetchResponse);
 
-    mockUsePagination.mockImplementation(() => ({
-      currentPage: 1,
-      goTo: () => {},
-      results: formsResponse,
-    }));
+    mockedDeleteForm.mockResolvedValue({} as FetchResponse<Record<string, never>>);
+
+    mockUsePagination.mockImplementation(
+      () =>
+        ({
+          currentPage: 1,
+          goTo: () => {},
+          results: formsResponse,
+        }) as unknown as PaginationData,
+    );
 
     renderDashboard();
 
@@ -283,7 +328,7 @@ describe('Dashboard', () => {
     const deleteButton = screen.getByRole('button', { name: /delete schema/i });
     expect(deleteButton).toBeInTheDocument();
 
-    await waitFor(() => user.click(deleteButton));
+    await user.click(deleteButton);
 
     const modal = screen.getByRole('presentation');
     expect(modal).toBeInTheDocument();
@@ -292,7 +337,7 @@ describe('Dashboard', () => {
     expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /danger delete/i })).toBeInTheDocument();
 
-    await waitFor(() => user.click(screen.getByRole('button', { name: /danger delete/i })));
+    await user.click(screen.getByRole('button', { name: /danger delete/i }));
   });
 });
 
