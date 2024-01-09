@@ -320,8 +320,6 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                 <TextArea
                   labelText={t('description', 'Description')}
                   onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(event.target.value)}
-                  cols={6}
-                  rows={3}
                   id="description"
                   placeholder={t(
                     'descriptionPlaceholderText',
