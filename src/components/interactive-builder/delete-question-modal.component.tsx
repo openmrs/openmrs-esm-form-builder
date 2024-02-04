@@ -39,6 +39,7 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
         kind: 'success',
         isLowContrast: true,
         subtitle: t('QuestionDeleted', 'Question deleted'),
+        timeoutInMs: 5000,
       });
     } catch (error) {
       if (error instanceof Error) {

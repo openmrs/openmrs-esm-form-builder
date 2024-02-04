@@ -36,6 +36,7 @@ const NewFormModal: React.FC<NewFormModalProps> = ({ schema, onSchemaChange, sho
         kind: 'success',
         isLowContrast: true,
         subtitle: t('formCreated', 'New form created'),
+        timeoutInMs: 5000,
       });
     } catch (error) {
       if (error instanceof Error) {

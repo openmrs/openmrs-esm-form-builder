@@ -37,6 +37,7 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
         kind: 'success',
         isLowContrast: true,
         subtitle: `${form.name} ` + t('formPublishedSuccessfully', 'form was published successfully'),
+        timeoutInMs: 5000,
       });
 
       setStatus('published');
@@ -64,6 +65,7 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
         kind: 'success',
         isLowContrast: true,
         subtitle: `${form.name} ` + t('formUnpublishedSuccessfully', 'form was unpublished successfully'),
+        timeoutInMs: 5000,
       });
 
       setStatus('unpublished');

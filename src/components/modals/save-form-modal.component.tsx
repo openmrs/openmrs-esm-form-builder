@@ -132,6 +132,7 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema }) => {
           isLowContrast: true,
           subtitle:
             name + ' ' + t('saveSuccessMessage', 'was created successfully. It is now visible on the Forms dashboard.'),
+          timeoutInMs: 5000,
         });
         clearDraftFormSchema();
         setOpenSaveFormModal(false);
@@ -184,6 +185,7 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                             kind: 'success',
                             isLowContrast: true,
                             subtitle: form?.name + ' ' + t('saveSuccess', 'was updated successfully'),
+                            timeoutInMs: 5000,
                           });
                           setOpenSaveFormModal(false);
                           await mutate();

@@ -45,6 +45,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
         kind: 'success',
         isLowContrast: true,
         subtitle: t('sectionCreated', 'New section created'),
+        timeoutInMs: 5000,
       });
     } catch (error) {
       if (error instanceof Error) {

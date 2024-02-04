@@ -112,6 +112,7 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
               kind: 'success',
               isLowContrast: true,
               subtitle: `${form.name} ` + t('formDeletedSuccessfully', 'deleted successfully'),
+              timeoutInMs: 5000,
             });
 
             await mutate();

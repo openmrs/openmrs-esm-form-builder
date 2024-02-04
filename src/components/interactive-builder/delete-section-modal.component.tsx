@@ -37,6 +37,7 @@ const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
         kind: 'success',
         isLowContrast: true,
         subtitle: t('SectionDeleted', 'Section deleted'),
+        timeoutInMs: 5000,
       });
     } catch (error) {
       if (error instanceof Error) {

@@ -36,6 +36,7 @@ const PageModal: React.FC<PageModalProps> = ({ schema, onSchemaChange, showModal
         kind: 'success',
         isLowContrast: true,
         subtitle: t('pageCreated', 'New page created'),
+        timeoutInMs: 5000,
       });
     } catch (error) {
       if (error instanceof Error) {

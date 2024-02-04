@@ -35,6 +35,7 @@ const DeletePageModal: React.FC<DeletePageModalProps> = ({
         kind: 'success',
         isLowContrast: true,
         subtitle: t('pageDeleted', 'Page deleted'),
+        timeoutInMs: 5000,
       });
     } catch (error) {
       if (error instanceof Error) {

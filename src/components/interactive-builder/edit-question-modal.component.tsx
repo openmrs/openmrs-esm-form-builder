@@ -214,6 +214,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
         kind: 'success',
         isLowContrast: true,
         subtitle: t('questionUpdated', 'Question updated'),
+        timeoutInMs: 5000,
       });
 
       onModalChange(false);

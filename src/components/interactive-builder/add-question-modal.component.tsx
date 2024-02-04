@@ -167,6 +167,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         kind: 'success',
         isLowContrast: true,
         subtitle: t('questionCreated', 'New question created'),
+        timeoutInMs: 5000,
       });
     } catch (error) {
       if (error instanceof Error) {

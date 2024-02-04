@@ -110,6 +110,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({ isLoading, onSc
           kind: 'success',
           isLowContrast: true,
           subtitle: t('formRenamed', 'Form renamed'),
+          timeoutInMs: 5000,
         });
       } catch (error) {
         showSnackbar({
@@ -136,6 +137,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({ isLoading, onSc
           kind: 'success',
           isLowContrast: true,
           subtitle: t('pageRenamed', 'Page renamed'),
+          timeoutInMs: 5000,
         });
       } catch (error) {
         if (error instanceof Error) {
@@ -165,6 +167,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({ isLoading, onSc
           kind: 'success',
           isLowContrast: true,
           subtitle: t('sectionRenamed', 'Section renamed'),
+          timeoutInMs: 5000,
         });
       } catch (error) {
         if (error instanceof Error) {
@@ -198,6 +201,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({ isLoading, onSc
             'questionDuplicated',
             "Question duplicated. Please change the duplicated question's ID to a unique, camelcased value",
           ),
+          timeoutInMs: 5000,
         });
       } catch (error) {
         if (error instanceof Error) {
