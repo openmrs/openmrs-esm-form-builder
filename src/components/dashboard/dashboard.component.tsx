@@ -37,8 +37,9 @@ import {
   useLayoutType,
   usePagination,
   useDebounce,
+  openmrsFetch,
 } from '@openmrs/esm-framework';
-import type { KeyedMutator } from 'swr';
+import { type KeyedMutator, preload } from 'swr';
 
 import type { Form as TypedForm } from '../../types';
 import { deleteForm } from '../../forms.resource';
@@ -306,6 +307,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
     },
   ];
 
+  const editSchemaUrl = '${openmrsSpaBase}/form-builder/edit/${formUuid}';
   const { paginated, goTo, results, currentPage } = usePagination(filteredForms, pageSize);
 
   const tableRows = results?.map((form: TypedForm) => ({
@@ -314,7 +316,9 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
     name: (
       <ConfigurableLink
         className={styles.link}
-        to={`${window.getOpenmrsSpaBase() + `form-builder/edit/` + form?.uuid}`}
+        to={editSchemaUrl}
+        templateParams={{ formUuid: form?.uuid }}
+        onMouseEnter={() => void preload(`/ws/rest/v1/form/${form?.uuid}?v=full`, openmrsFetch)}
       >
         {form.name}
       </ConfigurableLink>
