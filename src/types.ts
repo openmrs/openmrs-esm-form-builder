@@ -1,4 +1,4 @@
-import type { RenderType } from '@openmrs/openmrs-form-engine-lib';
+import type { ReferencedForm, RenderType } from '@openmrs/openmrs-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
 
 export interface Form {
@@ -77,7 +77,7 @@ export interface Schema {
   processor: string;
   uuid: string;
   encounterType: string;
-  referencedForms: [];
+  referencedForms: Array<ReferencedForm>;
   version?: string;
   description?: string;
 }
