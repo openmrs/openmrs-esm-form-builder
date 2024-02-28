@@ -3,7 +3,7 @@ import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import type { Form } from '../types';
 
 export const useForm = (uuid: string) => {
-  const url = `${restBaseUrl}/${uuid}?v=full`;
+  const url = `${restBaseUrl}/form/${uuid}?v=full`;
 
   const { data, error, isLoading, isValidating, mutate } = useSWR<{ data: Form }, Error>(
     uuid ? url : null,
