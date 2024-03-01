@@ -1,4 +1,4 @@
-import { openmrsFetch, type FetchResponse } from '@openmrs/esm-framework';
+import { openmrsFetch, type FetchResponse, restBaseUrl } from '@openmrs/esm-framework';
 import type { Form, Schema } from './types';
 
 interface SavePayload {
@@ -10,7 +10,7 @@ interface SavePayload {
 }
 
 export async function deleteClobdata(valueReference: string): Promise<FetchResponse<Schema>> {
-  const response: FetchResponse = await openmrsFetch(`/ws/rest/v1/clobdata/${valueReference}`, {
+  const response: FetchResponse = await openmrsFetch(`${restBaseUrl}/clobdata/${valueReference}`, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -18,7 +18,7 @@ export async function deleteClobdata(valueReference: string): Promise<FetchRespo
 }
 
 export async function deleteForm(formUuid: string): Promise<FetchResponse<Record<string, never>>> {
-  const response: FetchResponse = await openmrsFetch(`/ws/rest/v1/form/${formUuid}`, {
+  const response: FetchResponse = await openmrsFetch(`${restBaseUrl}/form/${formUuid}`, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -29,7 +29,7 @@ export async function deleteResource(
   formUuid: string,
   resourceUuid: string,
 ): Promise<FetchResponse<Record<string, never>>> {
-  const response: FetchResponse = await openmrsFetch(`/ws/rest/v1/form/${formUuid}/resource/${resourceUuid}`, {
+  const response: FetchResponse = await openmrsFetch(`${restBaseUrl}/form/${formUuid}/resource/${resourceUuid}`, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -44,7 +44,7 @@ export async function uploadSchema(schema: Schema): Promise<string> {
   body.append('file', schemaBlob);
 
   const response = await window
-    .fetch(`${window.openmrsBase}/ws/rest/v1/clobdata`, {
+    .fetch(`${window.openmrsBase}/${restBaseUrl}/clobdata`, {
       body,
       method: 'POST',
     })
@@ -62,7 +62,7 @@ export async function getResourceUuid(formUuid: string, valueReference: string):
     valueReference: valueReference,
   };
 
-  const response: FetchResponse = await openmrsFetch(`/ws/rest/v1/form/${formUuid}/resource`, {
+  const response: FetchResponse = await openmrsFetch(`${restBaseUrl}/form/${formUuid}/resource`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: body,
@@ -88,7 +88,7 @@ export async function updateForm(
     },
   };
 
-  const response: FetchResponse = await openmrsFetch(`/ws/rest/v1/form/${formUuid}`, {
+  const response: FetchResponse = await openmrsFetch(`${restBaseUrl}/form/${formUuid}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: body,
@@ -121,7 +121,7 @@ export async function saveNewForm(
     'Content-Type': 'application/json',
   };
 
-  const response: FetchResponse<Form> = await openmrsFetch(`/ws/rest/v1/form`, {
+  const response: FetchResponse<Form> = await openmrsFetch(`${restBaseUrl}/form`, {
     method: 'POST',
     headers: headers,
     body: body,
@@ -133,7 +133,7 @@ export async function saveNewForm(
 
 export async function publishForm(uuid: string): Promise<FetchResponse<Form>> {
   const body = { published: true };
-  const response: FetchResponse = await openmrsFetch(`/ws/rest/v1/form/${uuid}`, {
+  const response: FetchResponse = await openmrsFetch(`${restBaseUrl}/form/${uuid}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: body,
@@ -143,7 +143,7 @@ export async function publishForm(uuid: string): Promise<FetchResponse<Form>> {
 
 export async function unpublishForm(uuid: string): Promise<FetchResponse<Form>> {
   const body = { published: false };
-  const response: FetchResponse = await openmrsFetch(`/ws/rest/v1/form/${uuid}`, {
+  const response: FetchResponse = await openmrsFetch(`${restBaseUrl}/form/${uuid}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: body,
