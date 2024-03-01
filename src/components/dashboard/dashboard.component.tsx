@@ -36,6 +36,7 @@ import {
   useLayoutType,
   usePagination,
   openmrsFetch,
+  restBaseUrl,
 } from '@openmrs/esm-framework';
 import { type KeyedMutator, preload } from 'swr';
 
@@ -316,7 +317,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
         className={styles.link}
         to={editSchemaUrl}
         templateParams={{ formUuid: form?.uuid }}
-        onMouseEnter={() => void preload(`/ws/rest/v1/form/${form?.uuid}?v=full`, openmrsFetch)}
+        onMouseEnter={() => void preload(`${restBaseUrl}/form/${form?.uuid}?v=full`, openmrsFetch)}
       >
         {form.name}
       </ConfigurableLink>
