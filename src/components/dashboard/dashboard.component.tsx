@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import fuzzy from 'fuzzy';
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import {
@@ -36,7 +35,6 @@ import {
   useConfig,
   useLayoutType,
   usePagination,
-  useDebounce,
   openmrsFetch,
 } from '@openmrs/esm-framework';
 import { type KeyedMutator, preload } from 'swr';
@@ -253,36 +251,27 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
   const isTablet = useLayoutType() === 'tablet';
   const responsiveSize = isTablet ? 'lg' : 'sm';
   const [filter, setFilter] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const debouncedSearchTerm = useDebounce(searchTerm);
+  const [searchString, setSearchString] = useState('');
 
-  const filteredForms: Array<TypedForm> = useMemo(() => {
-    if (!debouncedSearchTerm) {
-      if (filter === 'Retired') {
-        return forms.filter((form) => form.retired);
-      }
-
-      if (filter === 'Published') {
-        return forms.filter((form) => form.published);
-      }
-
-      if (filter === 'Unpublished') {
-        return forms.filter((form) => !form.published);
-      }
-
+  const filteredRows = useMemo(() => {
+    if (!filter) {
       return forms;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return debouncedSearchTerm
-      ? fuzzy
-          .filter(debouncedSearchTerm, forms, {
-            extract: (form: TypedForm) => `${form.name} ${form.version}`,
-          })
-          .sort((r1, r2) => r1.score - r2.score)
-          .map((result) => result.original as unknown as TypedForm)
-      : forms;
-  }, [filter, forms, debouncedSearchTerm]);
+    if (filter === 'Published') {
+      return forms.filter((form) => form.published);
+    }
+
+    if (filter === 'Unpublished') {
+      return forms.filter((form) => !form.published);
+    }
+
+    if (filter === 'Retired') {
+      return forms.filter((form) => form.retired);
+    }
+
+    return forms;
+  }, [filter, forms]);
 
   const tableHeaders = [
     {
@@ -308,7 +297,16 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
   ];
 
   const editSchemaUrl = '${openmrsSpaBase}/form-builder/edit/${formUuid}';
-  const { paginated, goTo, results, currentPage } = usePagination(filteredForms, pageSize);
+
+  const searchResults = useMemo(() => {
+    if (searchString && searchString.trim() !== '') {
+      return filteredRows.filter((form) => form.name.toLowerCase().includes(searchString.toLowerCase()));
+    }
+
+    return filteredRows;
+  }, [searchString, filteredRows]);
+
+  const { paginated, goTo, results, currentPage } = usePagination(searchResults, pageSize);
 
   const tableRows = results?.map((form: TypedForm) => ({
     ...form,
@@ -329,6 +327,14 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
   }));
 
   const handleFilter = ({ selectedItem }: { selectedItem: string }) => setFilter(selectedItem);
+
+  const handleSearch = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      goTo(1);
+      setSearchString(e.target.value);
+    },
+    [goTo, setSearchString],
+  );
 
   return (
     <>
@@ -369,8 +375,9 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
                 <TableToolbar className={styles.tableToolbar} size={responsiveSize}>
                   <TableToolbarContent className={styles.headerContainer}>
                     <TableToolbarSearch
+                      expanded
                       className={styles.searchbox}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+                      onChange={handleSearch}
                       placeholder={t('searchThisList', 'Search this list')}
                     />
                     <Button
@@ -424,7 +431,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
       {paginated && (
         <FormBuilderPagination
           currentItems={results.length}
-          totalItems={filteredForms.length}
+          totalItems={searchResults.length}
           onPageNumberChange={({ page }) => {
             goTo(page);
           }}
@@ -438,7 +445,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation();
-  const { error, forms, isLoading, isValidating, mutate } = useForms();
+  const { forms, error, isLoading, isValidating, mutate } = useForms();
 
   return (
     <main>
