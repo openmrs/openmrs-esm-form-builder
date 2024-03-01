@@ -31,7 +31,7 @@
   text-align: left;
   text-transform: capitalize;
   margin-bottom: layout.$spacing-05;
-  
+
   h4:after {
     content: "";
     display: block;
@@ -51,5 +51,5 @@
 
 .tile {
   text-align: center;
-  border: 1px solid colors.$gray-70;
+  border: 1px solid colors.$gray-20;
 }
