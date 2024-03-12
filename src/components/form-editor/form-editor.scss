@@ -26,6 +26,10 @@
   margin-right: 0;
 }
 
+.maximized .column:last-child {
+  display: none;
+}
+
 .errorNotification {
   min-width: 100%;
   margin: 0;
