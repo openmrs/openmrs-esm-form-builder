@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import {
   Button,
   Column,
@@ -17,9 +18,10 @@ import {
   TabPanels,
   TabPanel,
 } from '@carbon/react';
-import { ArrowLeft, Download } from '@carbon/react/icons';
+import { ArrowLeft, Download, Maximize, Minimize } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { ConfigurableLink } from '@openmrs/esm-framework';
 import type { OHRIFormSchema } from '@openmrs/openmrs-form-engine-lib';
 import type { Schema } from '../../types';
 import { useClobdata } from '../../hooks/useClobdata';
@@ -31,7 +33,6 @@ import Header from '../header/header.component';
 import InteractiveBuilder from '../interactive-builder/interactive-builder.component';
 import SchemaEditor from '../schema-editor/schema-editor.component';
 import styles from './form-editor.scss';
-import { ConfigurableLink } from '@openmrs/esm-framework';
 
 interface ErrorProps {
   error: Error;
@@ -61,6 +62,7 @@ const FormEditor: React.FC = () => {
   const { form, formError, isLoadingForm } = useForm(formUuid);
   const { clobdata, clobdataError, isLoadingClobdata } = useClobdata(form);
   const [status, setStatus] = useState<Status>('idle');
+  const [isMaximized, setIsMaximized] = useState(false);
   const [stringifiedSchema, setStringifiedSchema] = useState(schema ? JSON.stringify(schema, null, 2) : '');
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
@@ -239,14 +241,24 @@ const FormEditor: React.FC = () => {
     await navigator.clipboard.writeText(stringifiedSchema);
   }, [stringifiedSchema]);
 
+  const handleToggleMaximize = () => {
+    setIsMaximized(!isMaximized);
+  };
+
+  const responsiveSize = isMaximized ? 16 : 8;
+
   return (
     <>
       <Header title={t('schemaEditor', 'Schema editor')} />
       <BackButton />
       <div className={styles.container}>
         {showDraftSchemaModal && <DraftSchemaModal />}
-        <Grid className={styles.grid}>
-          <Column lg={8} md={8} className={styles.column}>
+        <Grid
+          className={classNames(styles.grid as string, {
+            [styles.maximized]: isMaximized,
+          })}
+        >
+          <Column lg={responsiveSize} md={responsiveSize} className={styles.column}>
             <div className={styles.actionButtons}>
               {isLoadingFormOrSchema ? (
                 <InlineLoading description={t('loadingSchema', 'Loading schema') + '...'} />
@@ -271,6 +283,18 @@ const FormEditor: React.FC = () => {
                 <span className={styles.tabHeading}>{t('schemaEditor', 'Schema editor')}</span>
                 {schema ? (
                   <>
+                    <Button
+                      enterDelayMs={300}
+                      renderIcon={isMaximized ? Minimize : Maximize}
+                      kind={'ghost'}
+                      iconDescription={
+                        isMaximized ? t('minimizeEditor', 'Minimize editor') : t('maximizeEditor', 'Maximize editor')
+                      }
+                      hasIconOnly
+                      size="md"
+                      tooltipAlignment="start"
+                      onClick={handleToggleMaximize}
+                    />
                     <CopyButton
                       align="top"
                       className="cds--btn--md"
