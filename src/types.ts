@@ -150,3 +150,14 @@ export interface Mapping {
     display: string;
   };
 }
+
+export interface PersonAttributeType {
+  display: string;
+  format: string;
+  uuid: string;
+  concept: {
+    uuid: string;
+    display: string;
+    answers: Array<ConceptAnswer>;
+  };
+}

@@ -44,9 +44,9 @@ export class FormBuilderPage {
     this.page.getByRole('combobox', {
       name: /question type/i,
     });
-  readonly fieldTypeDropdown = () =>
+  readonly renderingTypeDropdown = () =>
     this.page.getByRole('combobox', {
-      name: /field type/i,
+      name: /rendering type/i,
     });
   readonly conceptSearchInput = () => this.page.getByPlaceholder(/search using a concept name or uuid/i);
   readonly selectAnswersDropdown = () => this.page.getByText(/select answers to display/i);
@@ -82,7 +82,7 @@ export class FormBuilderPage {
     await this.questionLabelInput().fill('Have you been ever been tested for COVID-19?');
     await this.questionIdInput().fill('everTestedForCovid19');
     await this.questionTypeDropdown().selectOption('obs');
-    await this.fieldTypeDropdown().selectOption('radio');
+    await this.renderingTypeDropdown().selectOption('radio');
     await this.conceptSearchInput().fill('Tested for COVID 19');
     await this.conceptSearchInput().press('Enter');
     await this.answer().click();
