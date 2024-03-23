@@ -22,6 +22,8 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
   const { form, mutate } = useForm(formUuid);
   const [status, setStatus] = useState<Status>('idle');
   const [showUnpublishModal, setShowUnpublishModal] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const launchUnpublishModal = () => {
     setShowUnpublishModal(true);
@@ -29,6 +31,7 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
 
   async function handlePublish() {
     setStatus('publishing');
+    setShowError(false);
     try {
       await publishForm(form.uuid);
 
@@ -49,6 +52,8 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
           subtitle: error?.message,
         });
         setStatus('error');
+        setShowError(true);
+        setErrorMessage(error.message);
       }
     }
   }
@@ -86,6 +91,17 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
       <SaveFormModal form={form} schema={schema} />
 
       <>
+        {/* Error message display */}
+        {showError && (
+          <div className={styles.errorMessage}>
+            <p>{errorMessage}</p>
+            {/* Retry button */}
+            <Button kind="secondary" onClick={handlePublish}>
+              {t('retry', 'Retry')}
+            </Button>
+          </div>
+        )}
+        
         {form && !form.published ? (
           <Button kind="secondary" onClick={handlePublish} disabled={status === 'publishing'}>
             {status === 'publishing' && !form?.published ? (
