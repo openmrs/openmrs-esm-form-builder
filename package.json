@@ -92,6 +92,7 @@
     "eslint-config-ts-react-important-stuff": "^3.0.0",
     "eslint-plugin-playwright": "^0.16.0",
     "eslint-plugin-prettier": "^5.0.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "husky": "^8.0.3",
     "i18next": "^23.5.1",
     "i18next-parser": "^8.7.0",
