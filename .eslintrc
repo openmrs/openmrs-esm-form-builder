@@ -15,9 +15,10 @@
     "project": true,
     "tsconfigRootDir": "__dirname"
   },
-  "plugins": ["@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "react-hooks"],
   "root": true,
   "rules": {
+    "react-hooks/exhaustive-deps": "warn",
     // The following rules need `noImplicitAny` to be set to `true` in our tsconfig. They are too restrictive for now, but should be reconsidered in future
     "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/no-unsafe-call": "off",
