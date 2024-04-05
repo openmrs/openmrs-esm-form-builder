@@ -185,6 +185,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           }),
           ...(questionType === 'personAttribute' && { attributeType: selectedPersonAttributeType.uuid }),
         },
+        meta: {
+          concept: selectedConcept,
+        },
         validators: [],
       };
 
