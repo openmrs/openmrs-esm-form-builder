@@ -6,12 +6,6 @@
   "browser": "dist/openmrs-esm-form-builder-app.js",
   "main": "src/index.ts",
   "source": true,
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "eslint --cache --fix",
-      "prettier --cache --write --ignore-unknown --list-different"
-    ]
-  },
   "scripts": {
     "start": "openmrs develop",
     "serve": "webpack serve --mode=development",
@@ -86,7 +80,7 @@
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
     "@types/webpack-env": "^1.18.1",
-    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/eslint-plugin": "^7.5.0",
     "@typescript-eslint/parser": "^6.7.0",
     "css-loader": "^6.8.1",
     "eslint": "^8.49.0",
@@ -112,6 +106,10 @@
     "typescript": "^4.9.5",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": "eslint --cache --fix --max-warnings 0",
+    "*.{css,scss,ts,tsx}": "prettier --write --list-different"
   },
   "packageManager": "yarn@4.1.1"
 }
