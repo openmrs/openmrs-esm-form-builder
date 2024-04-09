@@ -2,13 +2,16 @@ import useSWRImmutable from 'swr/immutable';
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import type { Form, Schema } from '../types';
 
+function hasValidResources(form?: Form) {
+  return form?.resources?.some(({ name, valueReference }) => name === 'JSON schema' && valueReference != null);
+}
+
 export const useClobdata = (form?: Form) => {
   const valueReferenceUuid = form?.resources?.find(({ name }) => name === 'JSON schema')?.valueReference;
-  const formHasResources = form && form?.resources?.length > 0 && valueReferenceUuid;
   const url = `${restBaseUrl}/clobdata/${valueReferenceUuid}`;
 
   const { data, error, isLoading, isValidating, mutate } = useSWRImmutable<{ data: Schema }, Error>(
-    formHasResources ? url : null,
+    hasValidResources(form) ? url : null,
     openmrsFetch,
   );
 
