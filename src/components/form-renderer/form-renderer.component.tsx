@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
-import { Button, InlineLoading, Tile } from '@carbon/react';
+import { Button, Loading, Tile } from '@carbon/react';
 import { type OHRIFormSchema, OHRIForm } from '@openmrs/openmrs-form-engine-lib';
 import styles from './form-renderer.scss';
 
@@ -15,6 +15,18 @@ interface FormRendererProps {
   onSchemaChange?: (schema: OHRIFormSchema) => void;
   schema: OHRIFormSchema;
 }
+
+// enhance loading state with a progress bar or an animated loader
+const LoadingUI = () => {
+  const { t } = useTranslation();
+  return (
+    <div className={styles.loadingContainer}>
+      {/* animated loading indicator */}
+      <Loading description={t('loading', 'Loading')} withOverlay={false} />
+      <p className={styles.loadingText}>{t('loadingForm', 'Loading form...')}</p>
+    </div>
+  );
+};
 
 const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
   const { t } = useTranslation();
@@ -58,11 +70,8 @@ const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
   }, [schema]);
 
   if (isLoading) {
-    return (
-      <div className={styles.loadingContainer}>
-        <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />
-      </div>
-    );
+    // render the enhanced loading UI
+    return <LoadingUI />;
   }
 
   return (
