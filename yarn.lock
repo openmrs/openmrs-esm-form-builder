@@ -3273,7 +3273,7 @@ __metadata:
     openmrs: "npm:next"
     prettier: "npm:^3.0.3"
     react: "npm:^18.2.0"
-    react-ace: "npm:^10.1.0"
+    react-ace: "npm:^11.0.1"
     react-dom: "npm:^18.2.0"
     react-error-boundary: "npm:^4.0.11"
     react-i18next: "npm:^13.2.2"
@@ -5949,7 +5949,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ace-builds@npm:^1.4.12, ace-builds@npm:^1.4.14":
+"ace-builds@npm:^1.32.8":
+  version: 1.33.0
+  resolution: "ace-builds@npm:1.33.0"
+  checksum: 10/5260c5e40c692a3b1f951f3bbf91e739888af25b1594a646a387e3994aae370b02f948c4033d1395c023f68bd86eeb2f901da8d04f8da8097c8b728f83380dd7
+  languageName: node
+  linkType: hard
+
+"ace-builds@npm:^1.4.12":
   version: 1.13.1
   resolution: "ace-builds@npm:1.13.1"
   checksum: 10/d8deda4c495298a2269f2b750f149194a743c4fd4f011b2066fc47aea424726d24d6756452ea7a4eea2bbc4afee83c2db44797ce7251ae19c427577f4fc23966
@@ -15116,19 +15123,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-ace@npm:^10.1.0":
-  version: 10.1.0
-  resolution: "react-ace@npm:10.1.0"
+"react-ace@npm:^11.0.1":
+  version: 11.0.1
+  resolution: "react-ace@npm:11.0.1"
   dependencies:
-    ace-builds: "npm:^1.4.14"
+    ace-builds: "npm:^1.32.8"
     diff-match-patch: "npm:^1.0.5"
     lodash.get: "npm:^4.4.2"
     lodash.isequal: "npm:^4.5.0"
-    prop-types: "npm:^15.7.2"
+    prop-types: "npm:^15.8.1"
   peerDependencies:
     react: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0
     react-dom: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0
-  checksum: 10/5157dfeb1d7455a84ed8c5eafcb219d8a5d268bed955c948736c8206a93351e5a906716d1df3aa42521dc88159c2541a447e94fbd60d8b81db4bd7368242b6cf
+  checksum: 10/96de372cbc9e9c5f0f84a01050f93ba8dae01c016b0e92f5ccb4f809a6e690fceb07c5c285903d9440d65628ca1b4a1a2aac9c7c141e91ef8f87bda0d31e71b4
   languageName: node
   linkType: hard
 
