@@ -137,6 +137,7 @@ export interface Concept {
   display: string;
   mappings: Array<Mapping>;
   answers: Array<ConceptAnswer>;
+  allowDecimal?: boolean;
 }
 
 export interface ConceptAnswer {
