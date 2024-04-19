@@ -184,6 +184,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             })),
           }),
           ...(questionType === 'personAttribute' && { attributeType: selectedPersonAttributeType.uuid }),
+          ...(questionType === 'obs' &&
+            renderingType === 'number' &&
+            selectedConcept?.allowDecimal === false && { disallowDecimals: true }),
         },
         validators: [],
       };
@@ -480,6 +483,14 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                         );
                       })()}
                     </div>
+                  )}
+
+                  {selectedConcept?.allowDecimal === false && (
+                    <InlineNotification
+                      kind="info"
+                      lowContrast
+                      title={t('decimalsNotAllowed', 'This concept does not allow decimals')}
+                    />
                   )}
 
                   {conceptMappings?.length ? (
