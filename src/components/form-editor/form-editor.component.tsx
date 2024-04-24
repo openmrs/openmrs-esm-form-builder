@@ -64,6 +64,8 @@ const FormEditor: React.FC = () => {
   const [status, setStatus] = useState<Status>('idle');
   const [isMaximized, setIsMaximized] = useState(false);
   const [stringifiedSchema, setStringifiedSchema] = useState(schema ? JSON.stringify(schema, null, 2) : '');
+  const [schemaValidationErrors, setSchemaValidationErrors] = useState<Array<{ err: string; msg: string }>>([]);
+  const [validationOn, setValidationOn] = useState(false);
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
@@ -229,6 +231,30 @@ const FormEditor: React.FC = () => {
     );
   };
 
+  const SchemaValidationErrorWrapper = () => {
+    return (
+      <div className={styles.errorContainer}>
+        <div className={styles.errorHeader}>
+          <p className={styles.errorHeading}>
+            {t('schemaErrorTitle', 'Validation failed with {{errorsCount}} {{plural}}', {
+              errorsCount: schemaValidationErrors.length,
+              plural: schemaValidationErrors.length === 1 ? 'error' : 'errors',
+            })}
+          </p>
+          <a href="https://json.openmrs.org/form.schema.json" target="_blank">
+            Reference schema
+          </a>
+        </div>
+        {schemaValidationErrors.map((error, index) => (
+          <div className={styles.errorMessage} key={index}>
+            <div className={styles.errKey}>{error.err}</div>
+            <div className={styles.dashedLine} />
+            <div className={styles.errDescription}>{error.msg}</div>
+          </div>
+        ))}
+      </div>
+    );
+  };
   const downloadableSchema = useMemo(
     () =>
       new Blob([JSON.stringify(schema, null, 2)], {
@@ -259,30 +285,47 @@ const FormEditor: React.FC = () => {
           })}
         >
           <Column lg={responsiveSize} md={responsiveSize} className={styles.column}>
-            <div className={styles.actionButtons}>
-              {isLoadingFormOrSchema ? (
-                <InlineLoading description={t('loadingSchema', 'Loading schema') + '...'} />
-              ) : (
-                <h1 className={styles.formName}>{form?.name}</h1>
-              )}
-
-              <div>
-                {isNewSchema && !schema ? (
-                  <Button kind="ghost" onClick={inputDummySchema}>
-                    {t('inputDummySchema', 'Input dummy schema')}
-                  </Button>
-                ) : null}
-
-                <Button kind="ghost" onClick={renderSchemaChanges}>
-                  <span>{t('renderChanges', 'Render changes')}</span>
-                </Button>
-              </div>
+            <div className={styles.errorSection}>
+              {schemaValidationErrors.length > 0 && validationOn ? (
+                <SchemaValidationErrorWrapper />
+              ) : schemaValidationErrors.length === 0 && validationOn ? (
+                <div className={styles.successMessage}>
+                  {t('successSchemaValidationMessage', 'No errors found in the JSON schema')}
+                </div>
+              ) : null}
             </div>
             <div>
               <div className={styles.heading}>
                 <span className={styles.tabHeading}>{t('schemaEditor', 'Schema editor')}</span>
+                <div className={styles.actionButtons}>
+                  {isLoadingFormOrSchema ? (
+                    <InlineLoading description={t('loadingSchema', 'Loading schema') + '...'} />
+                  ) : (
+                    <h1 className={styles.formName}>{form?.name}</h1>
+                  )}
+                  <div>
+                    {schema ? (
+                      <Button kind="ghost" onClick={() => setValidationOn(true)}>
+                        {t('validateSchema', 'Validate schema')}
+                      </Button>
+                    ) : null}
+                    {isNewSchema && !schema ? (
+                      <Button kind="ghost" onClick={inputDummySchema}>
+                        {t('inputDummySchema', 'Input dummy schema')}
+                      </Button>
+                    ) : null}
+
+                    <Button
+                      kind="ghost"
+                      disabled={schemaValidationErrors.length || invalidJsonErrorMessage}
+                      onClick={renderSchemaChanges}
+                    >
+                      <span>{t('renderChanges', 'Render changes')}</span>
+                    </Button>
+                  </div>
+                </div>
                 {schema ? (
-                  <>
+                  <div className={styles.formActionBtns}>
                     <Button
                       enterDelayMs={300}
                       renderIcon={isMaximized ? Minimize : Maximize}
@@ -314,7 +357,7 @@ const FormEditor: React.FC = () => {
                         tooltipAlignment="start"
                       />
                     </a>
-                  </>
+                  </div>
                 ) : null}
               </div>
               {formError ? (
@@ -325,7 +368,7 @@ const FormEditor: React.FC = () => {
               ) : null}
               <div className={styles.editorContainer}>
                 <SchemaEditor
-                  invalidJsonErrorMessage={invalidJsonErrorMessage}
+                  setSchemaValidationErrors={setSchemaValidationErrors}
                   isLoading={isLoadingFormOrSchema}
                   onSchemaChange={handleSchemaChange}
                   stringifiedSchema={stringifiedSchema}

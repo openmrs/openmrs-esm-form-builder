@@ -12,14 +12,6 @@
   }
 }
 
-.errorContainer {
-  @include type.type-style("body-compact-02");
-  background-color: colors.$red-20;
-  color: colors.$red-70;
-  padding: 1.5rem;
-  margin: 1rem 0;
-}
-
 .heading {
   @include type.type-style('heading-compact-02');
   margin-bottom: 1rem;
