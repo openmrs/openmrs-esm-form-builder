@@ -6,7 +6,7 @@ import { Accordion, AccordionItem, Button, InlineLoading } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { showSnackbar } from '@openmrs/esm-framework';
-import type { OHRIFormSchema } from '@openmrs/openmrs-form-engine-lib';
+import type { FormSchema } from '@openmrs/openmrs-form-engine-lib';
 
 import type { Schema, Question } from '../../types';
 import AddQuestionModal from './add-question-modal.component';
@@ -55,7 +55,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({ isLoading, onSc
   const [showNewFormModal, setShowNewFormModal] = useState(false);
 
   const initializeSchema = useCallback(() => {
-    const dummySchema: OHRIFormSchema = {
+    const dummySchema: FormSchema = {
       name: '',
       pages: [],
       processor: 'EncounterFormProcessor',

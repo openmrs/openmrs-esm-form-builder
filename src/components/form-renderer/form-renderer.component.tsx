@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
 import { Button, InlineLoading, Tile } from '@carbon/react';
-import { type OHRIFormSchema, OHRIForm } from '@openmrs/openmrs-form-engine-lib';
+import { type FormSchema, FormEngine } from '@openmrs/openmrs-form-engine-lib';
 import styles from './form-renderer.scss';
 
 interface ErrorFallbackProps {
@@ -12,14 +12,14 @@ interface ErrorFallbackProps {
 
 interface FormRendererProps {
   isLoading: boolean;
-  onSchemaChange?: (schema: OHRIFormSchema) => void;
-  schema: OHRIFormSchema;
+  onSchemaChange?: (schema: FormSchema) => void;
+  schema: FormSchema;
 }
 
 const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
   const { t } = useTranslation();
 
-  const dummySchema: OHRIFormSchema = {
+  const dummySchema: FormSchema = {
     encounterType: '',
     name: 'Test Form',
     pages: [
@@ -49,7 +49,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
     uuid: 'xxx',
   };
 
-  const [schemaToRender, setSchemaToRender] = useState<OHRIFormSchema>(dummySchema);
+  const [schemaToRender, setSchemaToRender] = useState<FormSchema>(dummySchema);
 
   useEffect(() => {
     if (schema) {
@@ -80,7 +80,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
       )}
       {schema === schemaToRender && (
         <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <OHRIForm formJson={schemaToRender} mode={'enter'} patientUUID={''} />
+          <FormEngine formJson={schemaToRender} mode={'enter'} patientUUID={''} />
         </ErrorBoundary>
       )}
     </div>
