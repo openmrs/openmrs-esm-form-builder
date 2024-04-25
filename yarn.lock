@@ -3072,7 +3072,7 @@ __metadata:
     "@openmrs/esm-framework": "npm:next"
     "@openmrs/esm-patient-common-lib": "npm:next"
     "@openmrs/esm-styleguide": "npm:next"
-    "@openmrs/openmrs-form-engine-lib": "npm:next"
+    "@openmrs/openmrs-form-engine-lib": "npm:1.1.0-pre.733"
     "@playwright/test": "npm:1.43.0"
     "@swc/cli": "npm:^0.1.62"
     "@swc/core": "npm:^1.3.85"
@@ -3336,9 +3336,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openmrs/openmrs-form-engine-lib@npm:next":
-  version: 1.1.0-pre.723
-  resolution: "@openmrs/openmrs-form-engine-lib@npm:1.1.0-pre.723"
+"@openmrs/openmrs-form-engine-lib@npm:1.1.0-pre.733":
+  version: 1.1.0-pre.733
+  resolution: "@openmrs/openmrs-form-engine-lib@npm:1.1.0-pre.733"
   dependencies:
     ace-builds: "npm:^1.4.12"
     classnames: "npm:^2.5.1"
@@ -3360,7 +3360,7 @@ __metadata:
     react-i18next: 11.x
     rxjs: 6.x
     swr: 2.x
-  checksum: 10/015d04dd06626191a084f9fefad0113f2ecbf16f0a8b46fadc4301458785978264c49350ecd9faa4bcfe78c9f723d5241a76b708d3943c53bbea3a5cf1c4cf78
+  checksum: 10/eb05eb355ddfc7b65397a0bacde884145ed14c7bcaabc922b6c7fb1bf8a3ebfd869c9764db3bba1d218606bf7dadbd013b5680deaa2fbb98229b343278797836
   languageName: node
   linkType: hard
 

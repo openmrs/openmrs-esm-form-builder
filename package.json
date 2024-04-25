@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@carbon/react": "^1.38.0",
-    "@openmrs/openmrs-form-engine-lib": "next",
+    "@openmrs/openmrs-form-engine-lib": "1.1.0-pre.733",
     "dotenv": "^16.3.1",
     "file-loader": "^6.2.0",
     "fuzzy": "^0.1.3",
