@@ -22,7 +22,7 @@ import { ArrowLeft, Download, Maximize, Minimize } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ConfigurableLink } from '@openmrs/esm-framework';
-import type { OHRIFormSchema } from '@openmrs/openmrs-form-engine-lib';
+import type { FormSchema } from '@openmrs/openmrs-form-engine-lib';
 import type { Schema } from '../../types';
 import { useClobdata } from '../../hooks/useClobdata';
 import { useForm } from '../../hooks/useForm';
@@ -114,7 +114,7 @@ const FormEditor: React.FC = () => {
   }, []);
 
   const inputDummySchema = useCallback(() => {
-    const dummySchema: OHRIFormSchema = {
+    const dummySchema: FormSchema = {
       encounterType: '',
       name: 'Sample Form',
       processor: 'EncounterFormProcessor',
