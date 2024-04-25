@@ -3715,8 +3715,8 @@ __metadata:
   linkType: hard
 
 "@openmrs/openmrs-form-engine-lib@npm:next":
-  version: 1.1.0-pre.685
-  resolution: "@openmrs/openmrs-form-engine-lib@npm:1.1.0-pre.685"
+  version: 1.1.0-pre.733
+  resolution: "@openmrs/openmrs-form-engine-lib@npm:1.1.0-pre.733"
   dependencies:
     ace-builds: "npm:^1.4.12"
     classnames: "npm:^2.5.1"
@@ -3733,11 +3733,12 @@ __metadata:
     "@openmrs/esm-framework": 5.x
     "@openmrs/esm-patient-common-lib": 7.x
     dayjs: 1.x
+    i18next: 23.x
     react: 18.x
     react-i18next: 11.x
     rxjs: 6.x
     swr: 2.x
-  checksum: 10/3d3b9bb01aafbe5dfb8ac00244649b507b2ecac36bc16a33027d9d22ceb243b90d926cf1616e767809655fff762980d775742cd4419263cc1ba4c8525ae3b7e9
+  checksum: 10/eb05eb355ddfc7b65397a0bacde884145ed14c7bcaabc922b6c7fb1bf8a3ebfd869c9764db3bba1d218606bf7dadbd013b5680deaa2fbb98229b343278797836
   languageName: node
   linkType: hard
 
@@ -15432,24 +15433,6 @@ __metadata:
     react-native:
       optional: true
   checksum: 10/d3e784f96c368f53eb4883f1ea51b439b92dd12435196b9a9b07b2be34a44f3358f6f5cf1696c6c6ad070eead38341769c214c204a338ecacfe447dba48ef5de
-  languageName: node
-  linkType: hard
-
-"react-i18next@npm:^13.2.2":
-  version: 13.2.2
-  resolution: "react-i18next@npm:13.2.2"
-  dependencies:
-    "@babel/runtime": "npm:^7.22.5"
-    html-parse-stringify: "npm:^3.0.1"
-  peerDependencies:
-    i18next: ">= 23.2.3"
-    react: ">= 16.8.0"
-  peerDependenciesMeta:
-    react-dom:
-      optional: true
-    react-native:
-      optional: true
-  checksum: 10/e85fedfd21b0d4561dbda31ba4eb65161780b41ee4a1d376c77b12d0bd95baf0bf9c796fd3d59eb319ae4519158b3652336ef1244c1239ab3cbc537bd0420f00
   languageName: node
   linkType: hard
 
