@@ -53,11 +53,21 @@
 
 .editorContainer {
   padding: 1rem;
+
+  :global(.ace_editor .ace_content .ace_layer .error) {
+    position: absolute;
+    background-color: red;
+  }
 }
 
 .heading {
   display: flex;
   margin-right: 1rem;
+  align-items: center;
+}
+.bottomHeader {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 

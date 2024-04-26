@@ -24,3 +24,29 @@
   @include type.type-style('heading-compact-02');
   margin-bottom: 1rem;
 }
+
+.toggletipContainer {
+  margin-left: 3rem;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  svg {
+    fill: #b91c1c;
+  }
+}
+
+.toggletipContainer {
+  :global(.cds--toggletip-button:focus) {
+    outline: none;
+  }
+  :global(.cds--toggletip-button:focus svg) {
+    fill: #b91c1c;
+  }
+  :global(.cds--toggletip-content) {
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+  :global(.cds--popover-caret) {
+    background-color: #fee2e2;
+  }
+}

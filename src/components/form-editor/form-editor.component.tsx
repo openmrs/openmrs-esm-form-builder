@@ -19,7 +19,7 @@ import {
   TabPanel,
   FileUploader,
 } from '@carbon/react';
-import { ArrowLeft, Download, Maximize, Minimize } from '@carbon/react/icons';
+import { ArrowLeft, Maximize, Minimize } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ConfigurableLink, useConfig } from '@openmrs/esm-framework';
@@ -40,6 +40,17 @@ import styles from './form-editor.scss';
 interface ErrorProps {
   error: Error;
   title: string;
+}
+
+interface markerProps {
+  startCol: number;
+  startRow: number;
+  endCol: number;
+  endRow: number;
+  className: string;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents, @typescript-eslint/no-explicit-any
+  type: string | any;
+  text: string;
 }
 
 type Status = 'idle' | 'formLoaded' | 'schemaLoaded';
@@ -72,6 +83,7 @@ const FormEditor: React.FC = () => {
   const [isValidating, setIsValidating] = useState(false);
   const [validationComplete, setValidationComplete] = useState(false);
   const [publishedWithErrors, setPublishedWithErrors] = useState(false);
+  const [errors, setErrors] = useState<Array<markerProps>>([]);
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
@@ -330,7 +342,7 @@ const FormEditor: React.FC = () => {
                   </Button>
                 ) : null}
 
-                <Button kind="ghost" onClick={renderSchemaChanges}>
+                <Button kind="ghost" onClick={renderSchemaChanges} disabled={invalidJsonErrorMessage || errors.length}>
                   <span>{t('renderChanges', 'Render changes')}</span>
                 </Button>
               </div>
@@ -363,12 +375,15 @@ const FormEditor: React.FC = () => {
                     <a download={`${form?.name}.json`} href={window.URL.createObjectURL(downloadableSchema)}>
                       <Button
                         enterDelayMs={300}
-                        renderIcon={Download}
+                        renderIcon={isMaximized ? Minimize : Maximize}
                         kind={'ghost'}
-                        iconDescription={t('downloadSchema', 'Download schema')}
+                        iconDescription={
+                          isMaximized ? t('minimizeEditor', 'Minimize editor') : t('maximizeEditor', 'Maximize editor')
+                        }
                         hasIconOnly
                         size="md"
                         tooltipAlignment="start"
+                        onClick={handleToggleMaximize}
                       />
                     </a>
                   </>
@@ -382,7 +397,8 @@ const FormEditor: React.FC = () => {
               ) : null}
               <div className={styles.editorContainer}>
                 <SchemaEditor
-                  invalidJsonErrorMessage={invalidJsonErrorMessage}
+                  errors={errors}
+                  setErrors={setErrors}
                   isLoading={isLoadingFormOrSchema}
                   onSchemaChange={handleSchemaChange}
                   stringifiedSchema={stringifiedSchema}
