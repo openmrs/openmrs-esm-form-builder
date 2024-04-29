@@ -17,6 +17,7 @@ import {
   TabList,
   TabPanels,
   TabPanel,
+  FileUploader,
 } from '@carbon/react';
 import { ArrowLeft, Download, Maximize, Minimize } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
@@ -229,6 +230,27 @@ const FormEditor: React.FC = () => {
     );
   };
 
+  const handleSchemaImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const result = e.target?.result;
+      if (typeof result === 'string') {
+        const fileContent: string = result;
+        const parsedJson: Schema = JSON.parse(fileContent);
+        setSchema(parsedJson);
+      } else if (result instanceof ArrayBuffer) {
+        const decoder = new TextDecoder();
+        const fileContent: string = decoder.decode(result);
+        const parsedJson: Schema = JSON.parse(fileContent);
+        setSchema(parsedJson);
+      }
+    };
+
+    reader.readAsText(file);
+  };
+
   const downloadableSchema = useMemo(
     () =>
       new Blob([JSON.stringify(schema, null, 2)], {
@@ -265,8 +287,23 @@ const FormEditor: React.FC = () => {
               ) : (
                 <h1 className={styles.formName}>{form?.name}</h1>
               )}
-
-              <div>
+              <div className={styles.topBtns}>
+                {!schema ? (
+                  <FileUploader
+                    onChange={handleSchemaImport}
+                    labelTitle=""
+                    labelDescription=""
+                    buttonLabel={t('importForm', 'Import Form')}
+                    buttonKind="ghost"
+                    size="md"
+                    filenameStatus="edit"
+                    accept={['.json']}
+                    multiple={false}
+                    disabled={false}
+                    iconDescription="Delete file"
+                    name="form-import"
+                  />
+                ) : null}
                 {isNewSchema && !schema ? (
                   <Button kind="ghost" onClick={inputDummySchema}>
                     {t('inputDummySchema', 'Input dummy schema')}
