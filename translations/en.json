@@ -98,6 +98,7 @@
   "formUuid": "Form UUID",
   "home": "Home",
   "import": "Import",
+  "importForm": "Import Form",
   "inputDummySchema": "Input dummy schema",
   "interactiveBuilder": "Interactive Builder",
   "interactiveBuilderHelperText": "The Interactive Builder lets you build your form schema without writing JSON code. The Preview tab automatically updates as you build your form. When done, click Save Form to save your form.",
