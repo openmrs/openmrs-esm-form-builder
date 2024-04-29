@@ -50,3 +50,9 @@
     background-color: #fee2e2;
   }
 }
+.successIcon {
+  margin-left: 3rem;
+  svg {
+    fill: colors.$green-50;
+  }
+}

@@ -84,6 +84,7 @@ const FormEditor: React.FC = () => {
   const [validationComplete, setValidationComplete] = useState(false);
   const [publishedWithErrors, setPublishedWithErrors] = useState(false);
   const [errors, setErrors] = useState<Array<markerProps>>([]);
+  const [validation, setValidation] = useState(false);
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
@@ -300,6 +301,10 @@ const FormEditor: React.FC = () => {
   };
 
   const responsiveSize = isMaximized ? 16 : 8;
+  const isNonEmptyStringifiedSchema = (stringifiedSchema: string) => {
+    const trimmedSchema = stringifiedSchema?.replace(/\s/g, '');
+    return trimmedSchema?.length > 2;
+  };
 
   return (
     <>
@@ -342,6 +347,11 @@ const FormEditor: React.FC = () => {
                   </Button>
                 ) : null}
 
+                {(schema || isNonEmptyStringifiedSchema(stringifiedSchema)) && (
+                  <Button kind="ghost" onClick={() => setValidation(!validation)}>
+                    <span>{t('validate', 'Validate')}</span>
+                  </Button>
+                )}
                 <Button kind="ghost" onClick={renderSchemaChanges} disabled={invalidJsonErrorMessage || errors.length}>
                   <span>{t('renderChanges', 'Render changes')}</span>
                 </Button>
@@ -397,6 +407,7 @@ const FormEditor: React.FC = () => {
               ) : null}
               <div className={styles.editorContainer}>
                 <SchemaEditor
+                  validation={validation}
                   errors={errors}
                   setErrors={setErrors}
                   isLoading={isLoadingFormOrSchema}
