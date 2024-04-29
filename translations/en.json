@@ -199,6 +199,7 @@
   "validationErrors_one": "Validation found {{count}} errors",
   "validationErrors_other": "Validation found {{count}} errors",
   "ValidationSuccessful": "Validation Successful",
+  "validate": "Validate",
   "validFieldTypeRequired": "A valid field type value is required",
   "validRenderingTypeRequired": "A valid rendering type value is required",
   "version": "Version",
