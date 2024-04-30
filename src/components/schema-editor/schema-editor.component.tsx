@@ -8,11 +8,12 @@ import { useStandardFormSchema } from '../../hooks/useStandardSchema';
 import Ajv from 'ajv';
 import capitalize from 'lodash-es/capitalize';
 import debounce from 'lodash-es/debounce';
+import { useTranslation } from 'react-i18next';
 import { Toggletip, ToggletipContent, ToggletipButton, ToggletipActions, Link } from '@carbon/react';
 import { WarningAlt } from '@carbon/react/icons';
 import styles from './schema-editor.scss';
 
-interface markerProps {
+interface MarkerProps {
   startCol: number;
   startRow: number;
   endCol: number;
@@ -27,8 +28,8 @@ interface SchemaEditorProps {
   validation: boolean;
   onSchemaChange: (stringifiedSchema: string) => void;
   stringifiedSchema: string;
-  errors: Array<markerProps>;
-  setErrors: (errors: Array<markerProps>) => void;
+  errors: Array<MarkerProps>;
+  setErrors: (errors: Array<MarkerProps>) => void;
 }
 
 const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringifiedSchema, setErrors, errors }) => {
@@ -154,7 +155,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringified
 
   const ErrorMessages = () => (
     <Toggletip className={styles.toggletipContainer} align="top-left">
-      <ToggletipButton label="Show information">
+      <ToggletipButton label={t('showInformation', 'Show information')}>
         <WarningFilled />
       </ToggletipButton>
       <ToggletipContent>
@@ -162,8 +163,8 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringified
           <div>{e.text}</div>
         ))}
         <ToggletipActions>
-          <Link href="https://json.openmrs.org/form.schema.json" target="_blank">
-            Reference Schema
+          <Link href="https://json.openmrs.org/form.schema.json" target="_blank" rel="noopener noreferrer">
+            {t('referenceSchema', 'Reference Schema')}
           </Link>
         </ToggletipActions>
       </ToggletipContent>

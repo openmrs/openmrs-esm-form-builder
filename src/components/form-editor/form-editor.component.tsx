@@ -42,7 +42,7 @@ interface ErrorProps {
   title: string;
 }
 
-interface markerProps {
+interface MarkerProps {
   startCol: number;
   startRow: number;
   endCol: number;
@@ -83,7 +83,7 @@ const FormEditor: React.FC = () => {
   const [isValidating, setIsValidating] = useState(false);
   const [validationComplete, setValidationComplete] = useState(false);
   const [publishedWithErrors, setPublishedWithErrors] = useState(false);
-  const [errors, setErrors] = useState<Array<markerProps>>([]);
+  const [errors, setErrors] = useState<Array<MarkerProps>>([]);
   const [validation, setValidation] = useState(false);
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
