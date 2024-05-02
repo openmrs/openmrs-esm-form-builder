@@ -293,7 +293,7 @@ const FormEditor: React.FC = () => {
                     onChange={handleSchemaImport}
                     labelTitle=""
                     labelDescription=""
-                    buttonLabel={t('importForm', 'Import Form')}
+                    buttonLabel={t('importSchema', 'Import schema')}
                     buttonKind="ghost"
                     size="md"
                     filenameStatus="edit"
