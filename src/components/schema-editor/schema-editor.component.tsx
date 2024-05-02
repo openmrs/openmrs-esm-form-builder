@@ -6,7 +6,6 @@ import { addCompleter } from 'ace-builds/src-noconflict/ext-language_tools';
 import { useTranslation } from 'react-i18next';
 import { useStandardFormSchema } from '../../hooks/useStandardSchema';
 import Ajv from 'ajv';
-import capitalize from 'lodash-es/capitalize';
 import debounce from 'lodash-es/debounce';
 import { useTranslation } from 'react-i18next';
 import { Toggletip, ToggletipContent, ToggletipButton, ToggletipActions, Link } from '@carbon/react';
@@ -122,10 +121,8 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringified
           }
           const message =
             error.keyword === 'type'
-              ? `Invalid Type: ${error.instancePath.substring(1)} ${error.message}`
-              : `${capitalize(Object.keys(error.params)[0])}: ${
-                  error.message.charAt(0).toUpperCase() + error.message.slice(1)
-                }`;
+              ? `${error.instancePath.substring(1)} ${error.message}`
+              : `${error.message.charAt(0).toUpperCase() + error.message.slice(1)}`;
 
           return {
             startRow: lineNumber,
@@ -137,12 +134,14 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringified
             type: 'error',
           };
         });
-        setErrors(errorMarkers);
+
+        const newErrors = errorMarkers.filter((newError) => !errors.some((error) => error.text === newError.text));
+        setErrors([...errors, ...newErrors]);
       } else {
         setErrors([]);
       }
     } catch (error) {
-      setErrors([]);
+      console.log('Error during JSON parsing or validation:', error); // eslint-disable-line
     }
   };
 
@@ -175,13 +174,13 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringified
     <div>
       {errors.length && validation ? (
         <ErrorMessages />
-      ) : validation && errors.length == 0 ? (
+      ) : validation && errors.length === 0 ? (
         <div className={styles.successIcon}>
           <CheckmarkFilled />
         </div>
       ) : null}
       <AceEditor
-        style={{ height: '100vh', width: '100%' }}
+        style={{ height: '100vh', width: '100%', border: errors.length ? '1px solid #b91c1c' : 'none' }}
         mode="json"
         theme="textmate"
         name="schemaEditor"

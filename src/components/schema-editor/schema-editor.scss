@@ -25,8 +25,11 @@
   margin-bottom: 1rem;
 }
 
+.hasErrors {
+  border: 1px solid #b91c1c;
+}
+
 .toggletipContainer {
-  margin-left: 3rem;
   background-color: transparent;
   border: none;
   padding: 0;
@@ -39,6 +42,9 @@
   :global(.cds--toggletip-button:focus) {
     outline: none;
   }
+  :global(.cds--toggletip-button) {
+    margin-bottom: 1rem;
+  }
   :global(.cds--toggletip-button:focus svg) {
     fill: #b91c1c;
   }
@@ -49,9 +55,12 @@
   :global(.cds--popover-caret) {
     background-color: #fee2e2;
   }
+  :global(.cds--toggletip-content) {
+    font-size: 0.875rem;
+    row-gap: 0.5rem;
+  }
 }
 .successIcon {
-  margin-left: 3rem;
   svg {
     fill: colors.$green-50;
   }

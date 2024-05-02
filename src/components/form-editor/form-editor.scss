@@ -3,7 +3,7 @@
 @use "@carbon/type";
 
 .container {
-  padding: 2rem;
+  padding: 1rem 2rem;
   display: flex;
   flex-direction: column;
 }
@@ -40,7 +40,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 1rem 0;
 
   button {
     margin-left: 1rem
