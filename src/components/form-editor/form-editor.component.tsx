@@ -295,12 +295,12 @@ const FormEditor: React.FC = () => {
                     labelDescription=""
                     buttonLabel={t('importSchema', 'Import schema')}
                     buttonKind="ghost"
-                    size="md"
+                    size="lg"
                     filenameStatus="edit"
                     accept={['.json']}
                     multiple={false}
                     disabled={false}
-                    iconDescription="Delete file"
+                    iconDescription={t('importSchema', 'Import schema')}
                     name="form-import"
                   />
                 ) : null}
