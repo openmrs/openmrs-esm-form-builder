@@ -19,7 +19,7 @@ import {
   TabPanel,
   FileUploader,
 } from '@carbon/react';
-import { ArrowLeft, Maximize, Minimize } from '@carbon/react/icons';
+import { ArrowLeft, Maximize, Minimize, Download } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ConfigurableLink, useConfig } from '@openmrs/esm-framework';
@@ -385,15 +385,12 @@ const FormEditor: React.FC = () => {
                     <a download={`${form?.name}.json`} href={window.URL.createObjectURL(downloadableSchema)}>
                       <Button
                         enterDelayMs={300}
-                        renderIcon={isMaximized ? Minimize : Maximize}
+                        renderIcon={Download}
                         kind={'ghost'}
-                        iconDescription={
-                          isMaximized ? t('minimizeEditor', 'Minimize editor') : t('maximizeEditor', 'Maximize editor')
-                        }
+                        iconDescription={t('downloadSchema', 'Download schema')}
                         hasIconOnly
                         size="md"
                         tooltipAlignment="start"
-                        onClick={handleToggleMaximize}
                       />
                     </a>
                   </>
@@ -408,6 +405,7 @@ const FormEditor: React.FC = () => {
               <div className={styles.editorContainer}>
                 <SchemaEditor
                   validation={validation}
+                  setValidation={setValidation}
                   errors={errors}
                   setErrors={setErrors}
                   isLoading={isLoadingFormOrSchema}

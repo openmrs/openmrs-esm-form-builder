@@ -7,9 +7,9 @@ import { useTranslation } from 'react-i18next';
 import { useStandardFormSchema } from '../../hooks/useStandardSchema';
 import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
-import { useTranslation } from 'react-i18next';
-import { Toggletip, ToggletipContent, ToggletipButton, ToggletipActions, Link } from '@carbon/react';
-import { WarningAlt } from '@carbon/react/icons';
+import { ActionableNotification } from '@carbon/react';
+import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
+
 import styles from './schema-editor.scss';
 
 interface MarkerProps {
@@ -29,15 +29,18 @@ interface SchemaEditorProps {
   stringifiedSchema: string;
   errors: Array<MarkerProps>;
   setErrors: (errors: Array<MarkerProps>) => void;
+  setValidation: (validation: boolean) => void;
 }
 
-const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringifiedSchema, setErrors, errors }) => {
+const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringifiedSchema, setErrors, errors, validation, setValidation, }) => {
   const { schema } = useStandardFormSchema();
   const { t } = useTranslation();
   const [autocompleteSuggestions, setAutocompleteSuggestions] = useState<
     Array<{ name: string; type: string; path: string }>
   >([]);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
 
+  // Enable autocompletion in the schema
   const generateAutocompleteSuggestions = useCallback(() => {
     const suggestions: Array<{ name: string; type: string; path: string }> = [];
 
@@ -101,27 +104,53 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringified
     });
   }, [autocompleteSuggestions]);
 
+
+  // Validate JSON schema
   const validateJSON = (content: string, schema) => {
     try {
-      const ajv = new Ajv({ allErrors: true, jsPropertySyntax: true });
+      const trimmedContent = content.replace(/\s/g, '');
+      // Check if the content is an empty object
+      if (trimmedContent.trim() === '{}') {
+        // Reset errors since the JSON is considered valid
+        setErrors([]);
+        return;
+      }
+
+      const ajv = new Ajv({ allErrors: true, jsPropertySyntax: true, strict: false });
       const validate = ajv.compile(schema);
       const parsedContent = JSON.parse(content);
       const isValid = validate(parsedContent);
+      const jsonLines = content.split('\n');
+
+      const traverse = (schemaPath) => {
+        const pathSegments = schemaPath.split('/').filter((segment) => segment !== '' || segment !== 'type');
+
+        let lineNumber = -1;
+
+        for (const segment of pathSegments) {
+          if (segment === 'properties' || segment === 'items') continue; // Skip 'properties' and 'items'
+          const match = segment.match(/^([^[\]]+)/); // Extract property key
+          if (match) {
+            const propertyName: string = pathSegments[pathSegments.length - 2]; // Get property key
+            lineNumber = jsonLines.findIndex((line) => line.includes(propertyName));
+          }
+
+          if (lineNumber !== -1) break;
+        }
+
+        return lineNumber;
+      };
 
       if (!isValid) {
-        const jsonLines = content.split('\n');
         const errorMarkers = validate.errors.map((error) => {
-          let lineNumber = -1;
-          const instancePath = error.instancePath.replace(/^\./, '');
-          for (let i = 0; i < jsonLines.length; i++) {
-            if (jsonLines[i].includes(instancePath)) {
-              lineNumber = i;
-              break;
-            }
-          }
+          const schemaPath = error.schemaPath.replace(/^#\//, ''); // Remove leading '#/'
+          const lineNumber = traverse(schemaPath);
+          const pathSegments = error.instancePath.split('.'); // Split the path into segments
+          const errorPropertyName = pathSegments[pathSegments.length - 1];
+
           const message =
             error.keyword === 'type'
-              ? `${error.instancePath.substring(1)} ${error.message}`
+              ? `${errorPropertyName.charAt(0).toUpperCase() + errorPropertyName.slice(1)} ${error.message}`
               : `${error.message.charAt(0).toUpperCase() + error.message.slice(1)}`;
 
           return {
@@ -135,8 +164,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringified
           };
         });
 
-        const newErrors = errorMarkers.filter((newError) => !errors.some((error) => error.text === newError.text));
-        setErrors([...errors, ...newErrors]);
+        setErrors(errorMarkers);
       } else {
         setErrors([]);
       }
@@ -148,39 +176,58 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringified
   const debouncedValidateJSON = debounce(validateJSON, 300);
 
   const handleChange = (newValue: string) => {
+    setValidation(false);
     onSchemaChange(newValue);
     debouncedValidateJSON(newValue, schema);
   };
 
-  const ErrorMessages = () => (
-    <Toggletip className={styles.toggletipContainer} align="top-left">
-      <ToggletipButton label={t('showInformation', 'Show information')}>
-        <WarningFilled />
-      </ToggletipButton>
-      <ToggletipContent>
-        {errors.map((e) => (
-          <div>{e.text}</div>
-        ))}
-        <ToggletipActions>
-          <Link href="https://json.openmrs.org/form.schema.json" target="_blank" rel="noopener noreferrer">
-            {t('referenceSchema', 'Reference Schema')}
-          </Link>
-        </ToggletipActions>
-      </ToggletipContent>
-    </Toggletip>
+  const ErrorNotification = ({ text, line }) => (
+    <ActionableNotification
+      subtitle={text}
+      inline={true}
+      title={`Error, line ${line + 1}:`}
+      kind="error"
+      lowContrast={true}
+      onActionButtonClick={() => window.open('https://json.openmrs.org/form.schema.json', '_blank')}
+      actionButtonLabel={t('referenceSchema', 'Reference schema')}
+    />
   );
+
+  const onPreviousErrorClick = () => {
+    setCurrentIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+  };
+
+  const onNextErrorClick = () => {
+    setCurrentIndex((prevIndex) => Math.min(prevIndex + 1, errors.length - 1));
+  };
+
+  const ErrorMessages = () =>
+    errors.length > 0 && (
+      <div className={styles.validationErrorsContainer}>
+        <ErrorNotification text={errors[currentIndex].text} line={errors[currentIndex].startRow} />
+        <div className={styles.pagination}>
+          <ChevronLeft
+            disabled={currentIndex === 0}
+            onClick={onPreviousErrorClick}
+            className={currentIndex === 0 ? styles.disabledIcon : styles.paginationIcon}
+          />
+          <div>
+            {currentIndex + 1}/{errors.length}
+          </div>
+          <ChevronRight
+            disabled={currentIndex === errors.length - 1}
+            onClick={onNextErrorClick}
+            className={currentIndex === errors.length - 1 ? styles.disabledIcon : styles.paginationIcon}
+          />
+        </div>
+      </div>
+    );
 
   return (
     <div>
-      {errors.length && validation ? (
-        <ErrorMessages />
-      ) : validation && errors.length === 0 ? (
-        <div className={styles.successIcon}>
-          <CheckmarkFilled />
-        </div>
-      ) : null}
+      {errors.length && validation ? <ErrorMessages /> : null}
       <AceEditor
-        style={{ height: '100vh', width: '100%', border: errors.length ? '1px solid #b91c1c' : 'none' }}
+        style={{ height: '100vh', width: '100%', border: errors.length ? '3px solid #DA1E28' : 'none' }}
         mode="json"
         theme="textmate"
         name="schemaEditor"
@@ -198,7 +245,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringified
           showLineNumbers: true,
           tabSize: 2,
         }}
-        markers={validation ? errors : []}
+        markers={errors}
       />
     </div>
   );
