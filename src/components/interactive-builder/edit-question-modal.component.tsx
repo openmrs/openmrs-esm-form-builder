@@ -58,16 +58,16 @@ interface Item {
 }
 
 const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
-  questionToEdit,
-  schema,
-  onSchemaChange,
-  pageIndex,
-  sectionIndex,
-  questionIndex,
-  resetIndices,
-  showModal,
   onModalChange,
   onQuestionEdit,
+  onSchemaChange,
+  pageIndex,
+  questionIndex,
+  questionToEdit,
+  resetIndices,
+  schema,
+  sectionIndex,
+  showModal,
 }) => {
   const { t } = useTranslation();
   const { fieldTypes, questionTypes }: Config = useConfig();
@@ -247,7 +247,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               id="questionId"
               invalid={questionIdExists(questionId)}
               invalidText={t('questionIdExists', 'This question ID already exists in your schema')}
-              labelText={t('questionId', 'Question ID (prefer using camel-case for IDs)')}
+              labelText={t(
+                'questionId',
+                'Question ID (prefer using camel-case for IDs). Each field should have a unique ID.',
+              )}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => setQuestionId(event.target.value)}
               placeholder={t(
                 'questionIdPlaceholder',
@@ -301,10 +304,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setFieldType(event.target.value as RenderType)}
               id="renderingType"
               invalidText={t('validFieldTypeRequired', 'A valid field type value is required')}
-              labelText={t('fieldType', 'Field type')}
+              labelText={t('renderingType', 'Rendering type')}
               required
             >
-              {!fieldType && <SelectItem text={t('chooseFieldType', 'Choose a field type')} value="" />}
+              {!fieldType && <SelectItem text={t('chooseRenderingType', 'Choose a rendering type')} value="" />}
               {fieldTypes.map((fieldType, key) => (
                 <SelectItem text={fieldType} value={fieldType} key={key} />
               ))}
@@ -348,7 +351,13 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                     lowContrast
                     className={styles.error}
                     title={t('errorFetchingConceptName', "Couldn't resolve concept name")}
-                    subtitle={t('conceptDoesNotExist', 'The linked concept does not exist in your dictionary.')}
+                    subtitle={t(
+                      'conceptDoesNotExist',
+                      `The linked concept '{{conceptName}}' does not exist in your dictionary`,
+                      {
+                        conceptName: questionToEdit.questionOptions.concept,
+                      },
+                    )}
                   />
                 ) : null}
                 {isLoadingConceptName ? (

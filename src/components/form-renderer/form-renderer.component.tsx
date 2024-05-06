@@ -12,8 +12,8 @@ interface ErrorFallbackProps {
 
 interface FormRendererProps {
   isLoading: boolean;
-  onSchemaChange?: (schema: OHRIFormSchema) => void;
-  schema: OHRIFormSchema;
+  onSchemaChange?: (schema: FormSchema) => void;
+  schema: FormSchema;
 }
 
 // enhance loading state with a progress bar or an animated loader
@@ -31,7 +31,7 @@ const LoadingUI = () => {
 const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
   const { t } = useTranslation();
 
-  const dummySchema: OHRIFormSchema = {
+  const dummySchema: FormSchema = {
     encounterType: '',
     name: 'Test Form',
     pages: [
@@ -61,7 +61,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
     uuid: 'xxx',
   };
 
-  const [schemaToRender, setSchemaToRender] = useState<OHRIFormSchema>(dummySchema);
+  const [schemaToRender, setSchemaToRender] = useState<FormSchema>(dummySchema);
 
   useEffect(() => {
     if (schema) {
@@ -89,7 +89,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
       )}
       {schema === schemaToRender && (
         <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <OHRIForm formJson={schemaToRender} mode={'enter'} patientUUID={''} />
+          <FormEngine formJson={schemaToRender} mode={'enter'} patientUUID={''} />
         </ErrorBoundary>
       )}
     </div>

@@ -1,5 +1,6 @@
 import type { ReferencedForm, RenderType } from '@openmrs/openmrs-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
+import type { OpenmrsResource } from '@openmrs/esm-framework';
 
 export interface Form {
   uuid: string;
@@ -58,7 +59,6 @@ export interface Schema {
       questions: Array<{
         id: string;
         label: string;
-        // TODO: This should be a union of all question types i.e QuestionType
         type: string;
         required?: boolean;
         questionOptions: {
@@ -80,6 +80,17 @@ export interface Schema {
   referencedForms: Array<ReferencedForm>;
   version?: string;
   description?: string;
+  encounter?: string | OpenmrsEncounter;
+  allowUnspecifiedAll?: boolean;
+  defaultPage?: string;
+  readonly?: string | boolean;
+  inlineRendering?: 'single-line' | 'multiline' | 'automatic';
+  markdown?: unknown;
+  postSubmissionActions?: Array<{ actionId: string; config?: Record<string, unknown> }>;
+  formOptions?: {
+    usePreviousValueDisabled: boolean;
+  };
+  translations?: Record<string, string>;
 }
 
 export interface SchemaContextType {
@@ -137,6 +148,7 @@ export interface Concept {
   display: string;
   mappings: Array<Mapping>;
   answers: Array<ConceptAnswer>;
+  allowDecimal?: boolean;
 }
 
 export interface ConceptAnswer {
@@ -149,4 +161,64 @@ export interface Mapping {
   conceptMapType: {
     display: string;
   };
+}
+
+export interface PersonAttributeType {
+  display: string;
+  format: string;
+  uuid: string;
+  concept: {
+    uuid: string;
+    display: string;
+    answers: Array<ConceptAnswer>;
+  };
+}
+
+export interface OpenmrsEncounter {
+  uuid?: string;
+  encounterDatetime?: string | Date;
+  patient?: OpenmrsResource | string;
+  location?: OpenmrsResource | string;
+  encounterType?: OpenmrsResource | string;
+  obs?: Array<OpenmrsObs>;
+  orders?: Array<OpenmrsResource>;
+  voided?: boolean;
+  visit?: OpenmrsResource | string;
+  encounterProviders?: Array<Record<string, unknown>>;
+  form?: {
+    uuid: string;
+    [anythingElse: string]: unknown;
+  };
+}
+
+export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';
+
+export interface PostSubmissionAction {
+  applyAction(
+    formSession: {
+      patient: fhir.Patient;
+      encounters: Array<OpenmrsEncounter>;
+      sessionMode: SessionMode;
+    },
+    config?: Record<string, unknown>,
+    enabled?: string,
+  ): void;
+}
+
+export interface OpenmrsObs extends OpenmrsResource {
+  concept: OpenmrsResource;
+  obsDatetime: string | Date;
+  obsGroup: OpenmrsObs;
+  groupMembers: Array<OpenmrsObs>;
+  comment: string;
+  location: OpenmrsResource;
+  order: OpenmrsResource;
+  encounter: OpenmrsResource;
+  voided: boolean;
+  value: unknown;
+  formFieldPath: string;
+  formFieldNamespace: string;
+  status: string;
+  interpretation: string;
+  [anythingElse: string]: unknown;
 }

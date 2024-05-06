@@ -17,7 +17,7 @@
   overflow-y: scroll;
 }
 
-.conceptList {
+.conceptList, .personAttributeTypeList {
   background: colors.$white-0;
   max-height: 14rem;
   overflow-y: auto;
@@ -25,11 +25,11 @@
   border-top: none;
 }
 
-.conceptList li:hover {
+.conceptList, .personAttributeTypeList li:hover {
   background-color: colors.$gray-20;
 }
 
-.concept {
+.concept, .personAttributeType {
   padding: 0.75rem;
   border-bottom: 1px solid colors.$gray-20;
 
@@ -73,17 +73,17 @@
     background-color: colors.$white-0;
     border: 1px solid colors.$gray-20;
   }
-  
+
   td, th {
     padding: 0.25rem;
     border: 1px solid colors.$gray-20;
     max-width: 10rem;
     text-align: left;
-  }  
+  }
 }
 
 .tableStriped {
-  @extend .table; 
+  @extend .table;
 
   thead {
     font-weight: bold;
@@ -110,4 +110,19 @@
   max-width: unset;
   padding: '0rem';
   margin-bottom: 1rem;
+}
+
+.questionIdLabel {
+  > span {
+    display: inline-block;
+    margin-right: 1rem;
+  }
+
+  display: flex;
+  align-items: center;
+}
+
+.required {
+  color: colors.$red-60;
+  margin-left: 0.125rem;
 }
