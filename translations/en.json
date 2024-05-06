@@ -68,6 +68,7 @@
   "errorFetchingConceptName": "Couldn't resolve concept name",
   "errorFetchingConcepts": "Error fetching concepts",
   "errorFetchingPersonAttributeTypes": "Error fetching person attribute types",
+  "errorOnLine": "Error on line",
   "errorPublishingForm": "Error publishing form",
   "errorRenamingForm": "Error renaming form",
   "errorRenamingPage": "Error renaming page",
