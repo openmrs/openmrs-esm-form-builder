@@ -4,7 +4,7 @@ import 'ace-builds/webpack-resolver';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import { addCompleter } from 'ace-builds/src-noconflict/ext-language_tools';
 import { useTranslation } from 'react-i18next';
-import { useStandardFormSchema } from '../../hooks/useStandardSchema';
+import { useStandardFormSchema } from '../../hooks/useStandardFormSchema';
 import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
 import { ActionableNotification } from '@carbon/react';
@@ -32,8 +32,15 @@ interface SchemaEditorProps {
   setValidation: (validation: boolean) => void;
 }
 
-const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringifiedSchema, setErrors, errors, validation, setValidation, }) => {
-  const { schema } = useStandardFormSchema();
+const SchemaEditor: React.FC<SchemaEditorProps> = ({
+  onSchemaChange,
+  stringifiedSchema,
+  setErrors,
+  errors,
+  validation,
+  setValidation,
+}) => {
+  const { schema, schemaProperties } = useStandardFormSchema();
   const { t } = useTranslation();
   const [autocompleteSuggestions, setAutocompleteSuggestions] = useState<
     Array<{ name: string; type: string; path: string }>
@@ -44,10 +51,10 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringified
   const generateAutocompleteSuggestions = useCallback(() => {
     const suggestions: Array<{ name: string; type: string; path: string }> = [];
 
-    const traverseSchema = (schema: unknown, path: string) => {
-      if (schema) {
-        if (schema && typeof schema === 'object') {
-          Object.entries(schema).forEach(([propertyName, property]) => {
+    const traverseSchema = (schemaProps: unknown, path: string) => {
+      if (schemaProps) {
+        if (schemaProps && typeof schemaProps === 'object') {
+          Object.entries(schemaProps).forEach(([propertyName, property]) => {
             if (propertyName === '$schema') {
               return;
             }
@@ -76,15 +83,15 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringified
         }
       }
     };
-    traverseSchema(schema, '');
+    traverseSchema(schemaProperties, '');
     return suggestions;
-  }, [schema]);
+  }, [schemaProperties]);
 
   useEffect(() => {
     // Generate autocomplete suggestions when schema changes
     const suggestions = generateAutocompleteSuggestions();
     setAutocompleteSuggestions(suggestions.flat());
-  }, [schema, generateAutocompleteSuggestions]);
+  }, [schemaProperties, generateAutocompleteSuggestions]);
 
   useEffect(() => {
     addCompleter({
@@ -103,7 +110,6 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringified
       },
     });
   }, [autocompleteSuggestions]);
-
 
   // Validate JSON schema
   const validateJSON = (content: string, schema) => {
@@ -134,7 +140,6 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringified
             const propertyName: string = pathSegments[pathSegments.length - 2]; // Get property key
             lineNumber = jsonLines.findIndex((line) => line.includes(propertyName));
           }
-
           if (lineNumber !== -1) break;
         }
 
@@ -177,10 +182,12 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({ onSchemaChange, stringified
 
   const handleChange = (newValue: string) => {
     setValidation(false);
+    setCurrentIndex(0);
     onSchemaChange(newValue);
     debouncedValidateJSON(newValue, schema);
   };
 
+  // Schema Validation Errors
   const ErrorNotification = ({ text, line }) => (
     <ActionableNotification
       subtitle={text}

@@ -221,17 +221,20 @@ const FormEditor: React.FC = () => {
 
   const renderSchemaChanges = useCallback(() => {
     resetErrorMessage();
-
-    try {
-      const parsedJson: Schema = JSON.parse(stringifiedSchema);
-      updateSchema(parsedJson);
-      setStringifiedSchema(JSON.stringify(parsedJson, null, 2));
-    } catch (e) {
-      if (e instanceof Error) {
-        setInvalidJsonErrorMessage(e.message);
+    if (errors.length) {
+      setValidation(true);
+    } else {
+      try {
+        const parsedJson: Schema = JSON.parse(stringifiedSchema);
+        updateSchema(parsedJson);
+        setStringifiedSchema(JSON.stringify(parsedJson, null, 2));
+      } catch (e) {
+        if (e instanceof Error) {
+          setInvalidJsonErrorMessage(e.message);
+        }
       }
     }
-  }, [stringifiedSchema, updateSchema, resetErrorMessage]);
+  }, [stringifiedSchema, updateSchema, resetErrorMessage, errors.length]);
 
   const DraftSchemaModal = () => {
     return (
@@ -301,10 +304,6 @@ const FormEditor: React.FC = () => {
   };
 
   const responsiveSize = isMaximized ? 16 : 8;
-  const isNonEmptyStringifiedSchema = (stringifiedSchema: string) => {
-    const trimmedSchema = stringifiedSchema?.replace(/\s/g, '');
-    return trimmedSchema?.length > 2;
-  };
 
   return (
     <>
@@ -350,17 +349,7 @@ const FormEditor: React.FC = () => {
                       {t('inputDummySchema', 'Input dummy schema')}
                     </Button>
                   ) : null}
-
-                  {(schema || isNonEmptyStringifiedSchema(stringifiedSchema)) && (
-                    <Button kind="ghost" onClick={() => setValidation(!validation)}>
-                      <span>{t('validate', 'Validate')}</span>
-                    </Button>
-                  )}
-                  <Button
-                    kind="ghost"
-                    onClick={renderSchemaChanges}
-                    disabled={invalidJsonErrorMessage || errors.length}
-                  >
+                  <Button kind="ghost" onClick={renderSchemaChanges} disabled={invalidJsonErrorMessage}>
                     <span>{t('renderChanges', 'Render changes')}</span>
                   </Button>
                 </div>

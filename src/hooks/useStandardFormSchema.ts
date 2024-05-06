@@ -7,6 +7,7 @@ export function useStandardFormSchema() {
 
   return {
     schema: data?.data,
+    schemaProperties: data?.data.properties,
     error,
     isLoading,
   };
