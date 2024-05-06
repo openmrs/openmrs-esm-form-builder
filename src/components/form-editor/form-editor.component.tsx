@@ -84,7 +84,7 @@ const FormEditor: React.FC = () => {
   const [validationComplete, setValidationComplete] = useState(false);
   const [publishedWithErrors, setPublishedWithErrors] = useState(false);
   const [errors, setErrors] = useState<Array<MarkerProps>>([]);
-  const [validation, setValidation] = useState(false);
+  const [validationOn, setValidationOn] = useState(false);
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
@@ -222,7 +222,7 @@ const FormEditor: React.FC = () => {
   const renderSchemaChanges = useCallback(() => {
     resetErrorMessage();
     if (errors.length) {
-      setValidation(true);
+      setValidationOn(true);
     } else {
       try {
         const parsedJson: Schema = JSON.parse(stringifiedSchema);
@@ -397,8 +397,8 @@ const FormEditor: React.FC = () => {
               ) : null}
               <div className={styles.editorContainer}>
                 <SchemaEditor
-                  validation={validation}
-                  setValidation={setValidation}
+                  validationOn={validationOn}
+                  setValidationOn={setValidationOn}
                   errors={errors}
                   setErrors={setErrors}
                   isLoading={isLoadingFormOrSchema}

@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useStandardFormSchema } from '../../hooks/useStandardFormSchema';
 import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
-import { ActionableNotification } from '@carbon/react';
+import { ActionableNotification, Link } from '@carbon/react';
 import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
 
 import styles from './schema-editor.scss';
@@ -24,12 +24,12 @@ interface MarkerProps {
 }
 interface SchemaEditorProps {
   isLoading: boolean;
-  validation: boolean;
+  validationOn: boolean;
   onSchemaChange: (stringifiedSchema: string) => void;
   stringifiedSchema: string;
   errors: Array<MarkerProps>;
   setErrors: (errors: Array<MarkerProps>) => void;
-  setValidation: (validation: boolean) => void;
+  setValidationOn: (validationStatus: boolean) => void;
 }
 
 const SchemaEditor: React.FC<SchemaEditorProps> = ({
@@ -37,8 +37,8 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   stringifiedSchema,
   setErrors,
   errors,
-  validation,
-  setValidation,
+  validationOn,
+  setValidationOn,
 }) => {
   const { schema, schemaProperties } = useStandardFormSchema();
   const { t } = useTranslation();
@@ -112,7 +112,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   }, [autocompleteSuggestions]);
 
   // Validate JSON schema
-  const validateJSON = (content: string, schema) => {
+  const validateSchema = (content: string, schema) => {
     try {
       const trimmedContent = content.replace(/\s/g, '');
       // Check if the content is an empty object
@@ -165,7 +165,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
             endCol: 1,
             className: 'error',
             text: message,
-            type: 'error',
+            type: 'text' as const,
           };
         });
 
@@ -174,17 +174,17 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
         setErrors([]);
       }
     } catch (error) {
-      console.log('Error during JSON parsing or validation:', error); // eslint-disable-line
+      console.error('Error parsing or validating JSON:', error);
     }
   };
 
-  const debouncedValidateJSON = debounce(validateJSON, 300);
+  const debouncedValidateSchema = debounce(validateSchema, 300);
 
   const handleChange = (newValue: string) => {
-    setValidation(false);
+    setValidationOn(false);
     setCurrentIndex(0);
     onSchemaChange(newValue);
-    debouncedValidateJSON(newValue, schema);
+    debouncedValidateSchema(newValue, schema);
   };
 
   // Schema Validation Errors
@@ -192,11 +192,14 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     <ActionableNotification
       subtitle={text}
       inline={true}
-      title={`Error, line ${line + 1}:`}
+      title={t('errorOnLine', 'Error on line') + ` ${line + 1}: `}
       kind="error"
       lowContrast={true}
-      onActionButtonClick={() => window.open('https://json.openmrs.org/form.schema.json', '_blank')}
-      actionButtonLabel={t('referenceSchema', 'Reference schema')}
+      actionButtonLabel={
+        <Link target="_blank" rel="noopener noreferrer" href="https://json.openmrs.org/form.schema.json">
+          {t('referenceSchema', 'Reference schema')}
+        </Link>
+      }
     />
   );
 
@@ -211,7 +214,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   const ErrorMessages = () =>
     errors.length > 0 && (
       <div className={styles.validationErrorsContainer}>
-        <ErrorNotification text={errors[currentIndex].text} line={errors[currentIndex].startRow} />
+        <ErrorNotification text={errors[currentIndex]?.text} line={errors[currentIndex]?.startRow} />
         <div className={styles.pagination}>
           <ChevronLeft
             disabled={currentIndex === 0}
@@ -232,7 +235,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
 
   return (
     <div>
-      {errors.length && validation ? <ErrorMessages /> : null}
+      {errors.length && validationOn ? <ErrorMessages /> : null}
       <AceEditor
         style={{ height: '100vh', width: '100%', border: errors.length ? '3px solid #DA1E28' : 'none' }}
         mode="json"

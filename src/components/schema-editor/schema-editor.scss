@@ -32,21 +32,23 @@
   }
 }
 
-
 .pagination {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
+
   .paginationIcon {
     fill: colors.$blue-50;
     cursor: pointer;
   }
+  
   .disabledIcon {
     fill: colors.$gray-40;
     cursor: not-allowed
   }
 }
+
 .heading {
   @include type.type-style('heading-compact-02');
   margin-bottom: 1rem;
