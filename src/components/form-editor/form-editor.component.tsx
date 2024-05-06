@@ -324,42 +324,46 @@ const FormEditor: React.FC = () => {
               ) : (
                 <h1 className={styles.formName}>{form?.name}</h1>
               )}
-              <div className={styles.topBtns}>
-                {!schema ? (
-                  <FileUploader
-                    onChange={handleSchemaImport}
-                    labelTitle=""
-                    labelDescription=""
-                    buttonLabel={t('importSchema', 'Import schema')}
-                    buttonKind="ghost"
-                    size="lg"
-                    filenameStatus="edit"
-                    accept={['.json']}
-                    multiple={false}
-                    disabled={false}
-                    iconDescription={t('importSchema', 'Import schema')}
-                    name="form-import"
-                  />
-                ) : null}
-                {isNewSchema && !schema ? (
-                  <Button kind="ghost" onClick={inputDummySchema}>
-                    {t('inputDummySchema', 'Input dummy schema')}
-                  </Button>
-                ) : null}
-
-                {(schema || isNonEmptyStringifiedSchema(stringifiedSchema)) && (
-                  <Button kind="ghost" onClick={() => setValidation(!validation)}>
-                    <span>{t('validate', 'Validate')}</span>
-                  </Button>
-                )}
-                <Button kind="ghost" onClick={renderSchemaChanges} disabled={invalidJsonErrorMessage || errors.length}>
-                  <span>{t('renderChanges', 'Render changes')}</span>
-                </Button>
-              </div>
             </div>
             <div>
               <div className={styles.heading}>
                 <span className={styles.tabHeading}>{t('schemaEditor', 'Schema editor')}</span>
+                <div className={styles.topBtns}>
+                  {!schema ? (
+                    <FileUploader
+                      onChange={handleSchemaImport}
+                      labelTitle=""
+                      labelDescription=""
+                      buttonLabel={t('importSchema', 'Import schema')}
+                      buttonKind="ghost"
+                      size="lg"
+                      filenameStatus="edit"
+                      accept={['.json']}
+                      multiple={false}
+                      disabled={false}
+                      iconDescription={t('importSchema', 'Import schema')}
+                      name="form-import"
+                    />
+                  ) : null}
+                  {isNewSchema && !schema ? (
+                    <Button kind="ghost" onClick={inputDummySchema}>
+                      {t('inputDummySchema', 'Input dummy schema')}
+                    </Button>
+                  ) : null}
+
+                  {(schema || isNonEmptyStringifiedSchema(stringifiedSchema)) && (
+                    <Button kind="ghost" onClick={() => setValidation(!validation)}>
+                      <span>{t('validate', 'Validate')}</span>
+                    </Button>
+                  )}
+                  <Button
+                    kind="ghost"
+                    onClick={renderSchemaChanges}
+                    disabled={invalidJsonErrorMessage || errors.length}
+                  >
+                    <span>{t('renderChanges', 'Render changes')}</span>
+                  </Button>
+                </div>
                 {schema ? (
                   <>
                     <Button
