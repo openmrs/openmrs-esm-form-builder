@@ -54,4 +54,9 @@ export const configSchema = {
       Rule: ['repeating', 'group'],
     },
   },
+  enableFormValidation: {
+    _type: Type.Boolean,
+    _default: false,
+    _description: 'Whether to enable form validation',
+  },
 };

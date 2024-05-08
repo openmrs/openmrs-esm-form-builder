@@ -44,7 +44,7 @@ function ActionButtons({
   const { form, mutate } = useForm(formUuid);
   const [status, setStatus] = useState<Status>('idle');
   const [showUnpublishModal, setShowUnpublishModal] = useState(false);
-  const { dataTypeToRenderingMap } = useConfig();
+  const { dataTypeToRenderingMap, enableFormValidation } = useConfig();
 
   const launchUnpublishModal = () => {
     setShowUnpublishModal(true);
@@ -52,15 +52,6 @@ function ActionButtons({
 
   async function handlePublish() {
     try {
-      setStatus('validateBeforePublishing');
-      const [errorsArray] = await handleFormValidation(schema, dataTypeToRenderingMap);
-      setValidationResponse(errorsArray);
-      if (errorsArray.length > 0) {
-        setStatus('validated');
-        setValidationComplete(true);
-        setPublishedWithErrors(true);
-        return;
-      }
       setStatus('publishing');
       await publishForm(form.uuid);
       showSnackbar({
@@ -82,6 +73,19 @@ function ActionButtons({
         setStatus('error');
       }
     }
+  }
+
+  async function handleValidateAndPublish() {
+    setStatus('validateBeforePublishing');
+    const [errorsArray] = await handleFormValidation(schema, dataTypeToRenderingMap);
+    setValidationResponse(errorsArray);
+    if (errorsArray.length > 0) {
+      setStatus('validated');
+      setValidationComplete(true);
+      setPublishedWithErrors(true);
+      return;
+    }
+    await handlePublish();
   }
 
   async function handleUnpublish() {
@@ -117,7 +121,7 @@ function ActionButtons({
       <SaveFormModal form={form} schema={schema} />
 
       <>
-        {form && (
+        {form && enableFormValidation && (
           <Button kind="tertiary" onClick={onFormValidation} disabled={isValidating}>
             {isValidating ? (
               <InlineLoading className={styles.spinner} description={t('validating', 'Validating') + '...'} />
@@ -127,19 +131,27 @@ function ActionButtons({
           </Button>
         )}
         {form && !form.published ? (
-          <Button
-            kind="secondary"
-            onClick={handlePublish}
-            disabled={status === 'publishing' || status === 'validateBeforePublishing'}
-          >
-            {status === 'publishing' && !form?.published ? (
-              <InlineLoading className={styles.spinner} description={t('publishing', 'Publishing') + '...'} />
-            ) : status === 'validateBeforePublishing' ? (
-              <InlineLoading className={styles.spinner} description={t('validating', 'Validating') + '...'} />
-            ) : (
-              <span>{t('validateAndPublishForm', 'Validate and publish form')}</span>
-            )}
-          </Button>
+          enableFormValidation ? (
+            <Button
+              kind="secondary"
+              onClick={handleValidateAndPublish}
+              disabled={status === 'validateBeforePublishing'}
+            >
+              {status === 'validateBeforePublishing' ? (
+                <InlineLoading className={styles.spinner} description={t('validating', 'Validating') + '...'} />
+              ) : (
+                <span>{t('validateAndPublishForm', 'Validate and publish form')}</span>
+              )}
+            </Button>
+          ) : (
+            <Button kind="secondary" onClick={handlePublish} disabled={status === 'publishing'}>
+              {status === 'publishing' && !form?.published ? (
+                <InlineLoading className={styles.spinner} description={t('publishing', 'Publishing') + '...'} />
+              ) : (
+                <span>{t('publishForm', 'Publish form')}</span>
+              )}
+            </Button>
+          )
         ) : null}
 
         {form && form.published ? (
