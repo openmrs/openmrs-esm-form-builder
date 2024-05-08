@@ -31,6 +31,11 @@ export const newSectionModal = getAsyncLifecycle(
   options,
 );
 
+export const addReferenceSectionModal = getAsyncLifecycle(
+  () => import('./components/interactive-builder/reference-section.modal'),
+  options,
+);
+
 export const deleteSectionModal = getAsyncLifecycle(
   () => import('./components/interactive-builder/delete-section.modal'),
   options,

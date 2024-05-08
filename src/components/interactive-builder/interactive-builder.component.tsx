@@ -102,6 +102,18 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     [schema, onSchemaChange],
   );
 
+  const launchAddReferenceSection = useCallback(
+    (pageIndex: number) => {
+      const dispose = showModal('new-reference-section-modal', {
+        closeModal: () => dispose(),
+        pageIndex,
+        schema,
+        onSchemaChange,
+      });
+    },
+    [schema, onSchemaChange],
+  );
+
   const launchDeleteSectionModal = useCallback(
     (pageIndex: number, sectionIndex: number) => {
       const dispose = showModal('delete-section-modal', {
@@ -499,6 +511,17 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                   iconDescription={t('addSection', 'Add Section')}
                 >
                   {t('addSection', 'Add Section')}
+                </Button>
+                <Button
+                  className={styles.addSectionButton}
+                  kind="ghost"
+                  renderIcon={Add}
+                  onClick={() => {
+                    launchAddReferenceSection(pageIndex);
+                  }}
+                  iconDescription={t('referenceSection', 'Reference Section')}
+                >
+                  {t('referenceSection', 'Reference Section')}
                 </Button>
               </div>
             ))

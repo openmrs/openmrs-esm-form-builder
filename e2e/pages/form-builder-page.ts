@@ -35,6 +35,7 @@ export class FormBuilderPage {
   readonly savePageButton = () => this.page.getByRole('button', { name: /^save$/i, exact: true });
   readonly pageCreatedMessage = () => this.page.getByText(/new page created/i);
   readonly addSectionButton = () => this.page.getByRole('button', { name: /add section/i });
+  readonly addReferenceSectionButton = () => this.page.getByRole('button', { name: /reference section/i });
   readonly sectionNameInput = () => this.page.getByRole('textbox', { name: /enter a section title/i });
   readonly saveSectionButton = () => this.page.getByRole('button', { name: /^save$/i, exact: true });
   readonly sectionCreatedMessage = () => this.page.getByText(/new section created/i);
@@ -73,6 +74,7 @@ export class FormBuilderPage {
     await expect(this.page.getByText(/new page created/i)).toBeVisible();
 
     await this.addSectionButton().click();
+    await this.addReferenceSectionButton().click();
     await this.sectionNameInput().fill('Testing history');
     await this.saveSectionButton().click();
     await expect(this.page.getByText(/new section created/i)).toBeVisible();

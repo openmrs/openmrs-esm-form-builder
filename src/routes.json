@@ -40,6 +40,10 @@
       "component": "newSectionModal"
     },
     {
+      "name": "new-reference-section-modal",
+      "component": "addReferenceSectionModal"
+    },
+    {
       "name": "delete-section-modal",
       "component": "deleteSectionModal"
     },

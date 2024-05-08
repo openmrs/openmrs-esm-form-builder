@@ -236,6 +236,10 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
       return forms.filter((form) => form.retired);
     }
 
+    if (filter === 'Components') {
+      return forms.filter((form) => form.encounterType?.name === 'component');
+    }
+
     return forms;
   }, [filter, forms]);
 
@@ -314,7 +318,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
             titleText={t('filterBy', 'Filter by') + ':'}
             size={responsiveSize}
             type="inline"
-            items={['All', 'Published', 'Unpublished', 'Retired']}
+            items={['All', 'Published', 'Unpublished', 'Retired', 'Components']}
             onChange={handleFilter}
           />
         </div>

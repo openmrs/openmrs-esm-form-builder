@@ -85,6 +85,11 @@ export const configSchema = {
     _default: false,
     _description: 'Whether to enable form validation',
   },
+  componentFormEncounterTypeUuid: {
+    _type: Type.String,
+    _default: '88b84b7b-9d62-4e1e-a16c-a22df76d11ed',
+    _description: 'The encounter type that the component form will be associated with',
+  }
 };
 
 export interface ConfigObject {
