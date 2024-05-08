@@ -22,13 +22,25 @@ import { DraggableQuestion } from './draggable-question.component';
 import { Droppable } from './droppable-container.component';
 import styles from './interactive-builder.scss';
 
+interface ValidationError {
+  errorMessage?: string;
+  warningMessage?: string;
+  field: { label: string; concept: string; id?: string; type?: string };
+}
+
 interface InteractiveBuilderProps {
   isLoading: boolean;
   onSchemaChange: (schema: Schema) => void;
   schema: Schema;
+  validationResponse: Array<ValidationError>;
 }
 
-const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({ isLoading, onSchemaChange, schema }) => {
+const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
+  isLoading,
+  onSchemaChange,
+  schema,
+  validationResponse,
+}) => {
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 10, // Enable sort function when dragging 10px 💡 here!!!
@@ -269,6 +281,19 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({ isLoading, onSc
     setShowDeleteQuestionModal(true);
   };
 
+  const getAnswerErrors = (answers: Array<Record<string, string>>) => {
+    const answerLabels = answers?.map((a) => a.label) || [];
+    const errors: Array<ValidationError> = validationResponse.filter((e) => answerLabels?.includes(e.field.label));
+    return errors || [];
+  };
+
+  const getValidationError = (question: Question) => {
+    const errorField: ValidationError = validationResponse.find(
+      (e) => e.field.label === question.label && e.field.id === question.id && e.field.type === question.type,
+    );
+    return errorField?.errorMessage || errorField?.warningMessage || '';
+  };
+
   return (
     <div className={styles.container}>
       {isLoading ? <InlineLoading description={t('loadingSchema', 'Loading schema') + '...'} /> : null}
@@ -477,21 +502,38 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({ isLoading, onSc
                             </div>
                             <div>
                               {section.questions?.length ? (
-                                section.questions.map((question, questionIndex) => (
-                                  <Droppable id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}>
-                                    <DraggableQuestion
-                                      key={question.id}
-                                      question={question}
-                                      pageIndex={pageIndex}
-                                      sectionIndex={sectionIndex}
-                                      questionIndex={questionIndex}
-                                      handleDuplicateQuestion={duplicateQuestion}
-                                      handleEditButtonClick={handleEditButtonClick}
-                                      handleDeleteButtonClick={handleDeleteButtonClick}
-                                      questionCount={section.questions.length}
-                                    />
-                                  </Droppable>
-                                ))
+                                section.questions.map((question, questionIndex) => {
+                                  return (
+                                    <Droppable id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}>
+                                      <DraggableQuestion
+                                        key={question.id}
+                                        question={question}
+                                        pageIndex={pageIndex}
+                                        sectionIndex={sectionIndex}
+                                        questionIndex={questionIndex}
+                                        handleDuplicateQuestion={duplicateQuestion}
+                                        handleEditButtonClick={handleEditButtonClick}
+                                        handleDeleteButtonClick={handleDeleteButtonClick}
+                                        questionCount={section.questions.length}
+                                      />
+                                      {getValidationError(question) && (
+                                        <div className={styles.validationErrorMessage}>
+                                          {getValidationError(question)}
+                                        </div>
+                                      )}
+                                      {getAnswerErrors(question.questionOptions.answers)?.length ? (
+                                        <div className={styles.answerErrors}>
+                                          <div>Answer Errors</div>
+                                          {getAnswerErrors(question.questionOptions.answers)?.map((e) => (
+                                            <div
+                                              className={styles.validationErrorMessage}
+                                            >{`${e.field.label}: ${e.errorMessage}`}</div>
+                                          ))}
+                                        </div>
+                                      ) : null}
+                                    </Droppable>
+                                  );
+                                })
                               ) : (
                                 <p className={styles.explainer}>
                                   {t(

@@ -2,36 +2,67 @@ import React, { useState } from 'react';
 import { Button, ComposedModal, InlineLoading, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 import type { TFunction } from 'i18next';
 import { useParams } from 'react-router-dom';
-import { showSnackbar } from '@openmrs/esm-framework';
+import { showSnackbar, useConfig } from '@openmrs/esm-framework';
 
 import type { Schema } from '../../types';
 import { publishForm, unpublishForm } from '../../forms.resource';
 import { useForm } from '../../hooks/useForm';
 import SaveFormModal from '../modals/save-form-modal.component';
+import { handleFormValidation } from '../../form-validator.resource';
 import styles from './action-buttons.scss';
 
 interface ActionButtonsProps {
   schema: Schema;
   t: TFunction;
+  isValidating: boolean;
+  setPublishedWithErrors: (status: boolean) => void;
+  setValidationComplete: (validationStatus: boolean) => void;
+  setValidationResponse: (errors: Array<unknown>) => void;
+  onFormValidation: () => Promise<void>;
 }
 
-type Status = 'idle' | 'publishing' | 'published' | 'unpublishing' | 'unpublished' | 'error';
+type Status =
+  | 'idle'
+  | 'publishing'
+  | 'published'
+  | 'unpublishing'
+  | 'unpublished'
+  | 'error'
+  | 'validateBeforePublishing'
+  | 'validated';
 
-function ActionButtons({ schema, t }: ActionButtonsProps) {
+function ActionButtons({
+  schema,
+  t,
+  isValidating,
+  setPublishedWithErrors,
+  onFormValidation,
+  setValidationComplete,
+  setValidationResponse,
+}: ActionButtonsProps) {
   const { formUuid } = useParams<{ formUuid?: string }>();
   const { form, mutate } = useForm(formUuid);
   const [status, setStatus] = useState<Status>('idle');
   const [showUnpublishModal, setShowUnpublishModal] = useState(false);
+  const { dataTypeToRenderingMap } = useConfig();
 
   const launchUnpublishModal = () => {
     setShowUnpublishModal(true);
   };
 
   async function handlePublish() {
-    setStatus('publishing');
     try {
+      setStatus('validateBeforePublishing');
+      const [errorsArray] = await handleFormValidation(schema, dataTypeToRenderingMap);
+      setValidationResponse(errorsArray);
+      if (errorsArray.length > 0) {
+        setStatus('validated');
+        setValidationComplete(true);
+        setPublishedWithErrors(true);
+        return;
+      }
+      setStatus('publishing');
       await publishForm(form.uuid);
-
       showSnackbar({
         title: t('formPublished', 'Form published'),
         kind: 'success',
@@ -86,12 +117,27 @@ function ActionButtons({ schema, t }: ActionButtonsProps) {
       <SaveFormModal form={form} schema={schema} />
 
       <>
+        {form && (
+          <Button kind="tertiary" onClick={onFormValidation} disabled={isValidating}>
+            {isValidating ? (
+              <InlineLoading className={styles.spinner} description={t('validating', 'Validating') + '...'} />
+            ) : (
+              <span>{t('validateForm', 'Validate form')}</span>
+            )}
+          </Button>
+        )}
         {form && !form.published ? (
-          <Button kind="secondary" onClick={handlePublish} disabled={status === 'publishing'}>
+          <Button
+            kind="secondary"
+            onClick={handlePublish}
+            disabled={status === 'publishing' || status === 'validateBeforePublishing'}
+          >
             {status === 'publishing' && !form?.published ? (
               <InlineLoading className={styles.spinner} description={t('publishing', 'Publishing') + '...'} />
+            ) : status === 'validateBeforePublishing' ? (
+              <InlineLoading className={styles.spinner} description={t('validating', 'Validating') + '...'} />
             ) : (
-              <span>{t('publishForm', 'Publish form')}</span>
+              <span>{t('validateAndPublishForm', 'Validate and publish form')}</span>
             )}
           </Button>
         ) : null}
