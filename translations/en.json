@@ -131,6 +131,7 @@
   "preview": "Preview",
   "problemLoadingPreview": "There was a problem loading the schema preview",
   "published": "Published",
+  "publishForm": "Publish form",
   "publishing": "Publishing",
   "publishingFailed": "Publishing failed",
   "publishWarning": "Cannot publish form with validation errors",

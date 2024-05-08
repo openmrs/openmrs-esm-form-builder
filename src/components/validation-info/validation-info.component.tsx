@@ -16,7 +16,7 @@ export const ValidationMessage: React.FC<ValidationMessageProps> = ({
   const { t } = useTranslation();
   return publishedWithErrors ? (
     <InlineNotification
-      kind="warning"
+      kind="error"
       title={t('publishingFailed', 'Publishing failed')}
       lowContrast={true}
       subtitle={t('publishWarning', 'Cannot publish form with validation errors')}
