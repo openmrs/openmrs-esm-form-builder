@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import AceEditor from 'react-ace';
 import 'ace-builds/webpack-resolver';
 import 'ace-builds/src-noconflict/ext-language_tools';
+import type { IMarker } from 'react-ace';
 import { addCompleter } from 'ace-builds/src-noconflict/ext-language_tools';
 import { useTranslation } from 'react-i18next';
 import { useStandardFormSchema } from '../../hooks/useStandardFormSchema';
@@ -12,16 +13,10 @@ import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
 
 import styles from './schema-editor.scss';
 
-interface MarkerProps {
-  startCol: number;
-  startRow: number;
-  endCol: number;
-  endRow: number;
-  className: string;
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents, @typescript-eslint/no-explicit-any
-  type: string | any;
+interface MarkerProps extends IMarker {
   text: string;
 }
+
 interface SchemaEditorProps {
   isLoading: boolean;
   validationOn: boolean;

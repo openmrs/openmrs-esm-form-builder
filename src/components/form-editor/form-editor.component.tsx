@@ -27,6 +27,7 @@ import type { FormSchema } from '@openmrs/openmrs-form-engine-lib';
 import type { Schema } from '../../types';
 import { useClobdata } from '../../hooks/useClobdata';
 import { useForm } from '../../hooks/useForm';
+import type { IMarker } from 'react-ace';
 import ActionButtons from '../action-buttons/action-buttons.component';
 import AuditDetails from '../audit-details/audit-details.component';
 import FormRenderer from '../form-renderer/form-renderer.component';
@@ -42,14 +43,7 @@ interface ErrorProps {
   title: string;
 }
 
-interface MarkerProps {
-  startCol: number;
-  startRow: number;
-  endCol: number;
-  endRow: number;
-  className: string;
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents, @typescript-eslint/no-explicit-any
-  type: string | any;
+interface MarkerProps extends IMarker {
   text: string;
 }
 
