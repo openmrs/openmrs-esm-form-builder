@@ -282,16 +282,19 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   };
 
   const getAnswerErrors = (answers: Array<Record<string, string>>) => {
-    const answerLabels = answers?.map((a) => a.label) || [];
-    const errors: Array<ValidationError> = validationResponse.filter((e) => answerLabels?.includes(e.field.label));
+    const answerLabels = answers?.map((answer) => answer.label) || [];
+    const errors: Array<ValidationError> = validationResponse.filter(
+      (error) => answerLabels?.includes(error.field.label),
+    );
     return errors || [];
   };
 
   const getValidationError = (question: Question) => {
     const errorField: ValidationError = validationResponse.find(
-      (e) => e.field.label === question.label && e.field.id === question.id && e.field.type === question.type,
+      (error) =>
+        error.field.label === question.label && error.field.id === question.id && error.field.type === question.type,
     );
-    return errorField?.errorMessage || errorField?.warningMessage || '';
+    return errorField?.errorMessage || '';
   };
 
   return (
@@ -524,10 +527,10 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                       {getAnswerErrors(question.questionOptions.answers)?.length ? (
                                         <div className={styles.answerErrors}>
                                           <div>Answer Errors</div>
-                                          {getAnswerErrors(question.questionOptions.answers)?.map((e) => (
+                                          {getAnswerErrors(question.questionOptions.answers)?.map((error) => (
                                             <div
                                               className={styles.validationErrorMessage}
-                                            >{`${e.field.label}: ${e.errorMessage}`}</div>
+                                            >{`${error.field.label}: ${error.errorMessage}`}</div>
                                           ))}
                                         </div>
                                       ) : null}
