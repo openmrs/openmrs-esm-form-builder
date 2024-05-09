@@ -6,7 +6,8 @@ export function useStandardFormSchema() {
   const { data, error, isLoading } = useSWRImmutable<{ data }, Error>(url, openmrsFetch);
 
   return {
-    schema: data?.data.properties,
+    schema: data?.data,
+    schemaProperties: data?.data.properties,
     error,
     isLoading,
   };

@@ -20,6 +20,35 @@
   margin: 1rem 0;
 }
 
+.validationErrorsContainer {
+  display: flex;
+  gap: 0.5rem;
+
+  :global(.cds--actionable-notification) {
+    max-width: 38rem;
+  }
+  :global(.cds--actionable-notification__details) {
+    margin: 0 0rem 0 .8125rem !important;
+  }
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+
+  .paginationIcon {
+    fill: colors.$blue-50;
+    cursor: pointer;
+  }
+
+  .disabledIcon {
+    fill: colors.$gray-40;
+    cursor: not-allowed;
+  }
+}
+
 .heading {
   @include type.type-style('heading-compact-02');
   margin-bottom: 1rem;

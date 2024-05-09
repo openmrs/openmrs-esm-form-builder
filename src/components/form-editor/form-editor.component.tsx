@@ -19,7 +19,7 @@ import {
   TabPanel,
   FileUploader,
 } from '@carbon/react';
-import { ArrowLeft, Download, Maximize, Minimize } from '@carbon/react/icons';
+import { ArrowLeft, Maximize, Minimize, Download } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ConfigurableLink, useConfig } from '@openmrs/esm-framework';
@@ -27,6 +27,7 @@ import type { FormSchema } from '@openmrs/openmrs-form-engine-lib';
 import type { Schema } from '../../types';
 import { useClobdata } from '../../hooks/useClobdata';
 import { useForm } from '../../hooks/useForm';
+import type { IMarker } from 'react-ace';
 import ActionButtons from '../action-buttons/action-buttons.component';
 import AuditDetails from '../audit-details/audit-details.component';
 import FormRenderer from '../form-renderer/form-renderer.component';
@@ -40,6 +41,10 @@ import styles from './form-editor.scss';
 interface ErrorProps {
   error: Error;
   title: string;
+}
+
+interface MarkerProps extends IMarker {
+  text: string;
 }
 
 type Status = 'idle' | 'formLoaded' | 'schemaLoaded';
@@ -72,6 +77,8 @@ const FormEditor: React.FC = () => {
   const [isValidating, setIsValidating] = useState(false);
   const [validationComplete, setValidationComplete] = useState(false);
   const [publishedWithErrors, setPublishedWithErrors] = useState(false);
+  const [errors, setErrors] = useState<Array<MarkerProps>>([]);
+  const [validationOn, setValidationOn] = useState(false);
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
@@ -208,17 +215,20 @@ const FormEditor: React.FC = () => {
 
   const renderSchemaChanges = useCallback(() => {
     resetErrorMessage();
-
-    try {
-      const parsedJson: Schema = JSON.parse(stringifiedSchema);
-      updateSchema(parsedJson);
-      setStringifiedSchema(JSON.stringify(parsedJson, null, 2));
-    } catch (e) {
-      if (e instanceof Error) {
-        setInvalidJsonErrorMessage(e.message);
+    if (errors.length) {
+      setValidationOn(true);
+    } else {
+      try {
+        const parsedJson: Schema = JSON.parse(stringifiedSchema);
+        updateSchema(parsedJson);
+        setStringifiedSchema(JSON.stringify(parsedJson, null, 2));
+      } catch (e) {
+        if (e instanceof Error) {
+          setInvalidJsonErrorMessage(e.message);
+        }
       }
     }
-  }, [stringifiedSchema, updateSchema, resetErrorMessage]);
+  }, [stringifiedSchema, updateSchema, resetErrorMessage, errors.length]);
 
   const DraftSchemaModal = () => {
     return (
@@ -307,37 +317,36 @@ const FormEditor: React.FC = () => {
               ) : (
                 <h1 className={styles.formName}>{form?.name}</h1>
               )}
-              <div className={styles.topBtns}>
-                {!schema ? (
-                  <FileUploader
-                    onChange={handleSchemaImport}
-                    labelTitle=""
-                    labelDescription=""
-                    buttonLabel={t('importSchema', 'Import schema')}
-                    buttonKind="ghost"
-                    size="lg"
-                    filenameStatus="edit"
-                    accept={['.json']}
-                    multiple={false}
-                    disabled={false}
-                    iconDescription={t('importSchema', 'Import schema')}
-                    name="form-import"
-                  />
-                ) : null}
-                {isNewSchema && !schema ? (
-                  <Button kind="ghost" onClick={inputDummySchema}>
-                    {t('inputDummySchema', 'Input dummy schema')}
-                  </Button>
-                ) : null}
-
-                <Button kind="ghost" onClick={renderSchemaChanges}>
-                  <span>{t('renderChanges', 'Render changes')}</span>
-                </Button>
-              </div>
             </div>
             <div>
               <div className={styles.heading}>
                 <span className={styles.tabHeading}>{t('schemaEditor', 'Schema editor')}</span>
+                <div className={styles.topBtns}>
+                  {!schema ? (
+                    <FileUploader
+                      onChange={handleSchemaImport}
+                      labelTitle=""
+                      labelDescription=""
+                      buttonLabel={t('importSchema', 'Import schema')}
+                      buttonKind="ghost"
+                      size="lg"
+                      filenameStatus="edit"
+                      accept={['.json']}
+                      multiple={false}
+                      disabled={false}
+                      iconDescription={t('importSchema', 'Import schema')}
+                      name="form-import"
+                    />
+                  ) : null}
+                  {isNewSchema && !schema ? (
+                    <Button kind="ghost" onClick={inputDummySchema}>
+                      {t('inputDummySchema', 'Input dummy schema')}
+                    </Button>
+                  ) : null}
+                  <Button kind="ghost" onClick={renderSchemaChanges} disabled={invalidJsonErrorMessage}>
+                    <span>{t('renderChanges', 'Render changes')}</span>
+                  </Button>
+                </div>
                 {schema ? (
                   <>
                     <Button
@@ -382,7 +391,10 @@ const FormEditor: React.FC = () => {
               ) : null}
               <div className={styles.editorContainer}>
                 <SchemaEditor
-                  invalidJsonErrorMessage={invalidJsonErrorMessage}
+                  validationOn={validationOn}
+                  setValidationOn={setValidationOn}
+                  errors={errors}
+                  setErrors={setErrors}
                   isLoading={isLoadingFormOrSchema}
                   onSchemaChange={handleSchemaChange}
                   stringifiedSchema={stringifiedSchema}

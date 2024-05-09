@@ -3,7 +3,7 @@
 @use "@carbon/type";
 
 .container {
-  padding: 2rem;
+  padding: 1rem 2rem;
   display: flex;
   flex-direction: column;
 }
@@ -40,7 +40,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 1rem 0;
 
   button {
     margin-left: 1rem
@@ -53,11 +52,23 @@
 
 .editorContainer {
   padding: 1rem;
+
+  :global(.ace_editor .ace_content .ace_layer .error) {
+    position: absolute;
+    background-color: colors.$red-60;
+    border-radius: 0;
+  }
 }
 
 .heading {
   display: flex;
   margin-right: 1rem;
+  align-items: center;
+}
+
+.bottomHeader {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 
