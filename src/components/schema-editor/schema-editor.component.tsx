@@ -191,10 +191,10 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   const ErrorNotification = ({ text, line }) => (
     <ActionableNotification
       subtitle={text}
-      inline={true}
+      inline
       title={t('errorOnLine', 'Error on line') + ` ${line + 1}: `}
       kind="error"
-      lowContrast={true}
+      lowContrast
       actionButtonLabel={
         <Link target="_blank" rel="noopener noreferrer" href="https://json.openmrs.org/form.schema.json">
           {t('referenceSchema', 'Reference schema')}
