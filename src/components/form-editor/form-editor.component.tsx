@@ -22,7 +22,7 @@ import {
 import { ArrowLeft, Download, Maximize, Minimize } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ConfigurableLink } from '@openmrs/esm-framework';
+import { ConfigurableLink, useConfig } from '@openmrs/esm-framework';
 import type { FormSchema } from '@openmrs/openmrs-form-engine-lib';
 import type { Schema } from '../../types';
 import { useClobdata } from '../../hooks/useClobdata';
@@ -33,6 +33,8 @@ import FormRenderer from '../form-renderer/form-renderer.component';
 import Header from '../header/header.component';
 import InteractiveBuilder from '../interactive-builder/interactive-builder.component';
 import SchemaEditor from '../schema-editor/schema-editor.component';
+import { handleFormValidation } from '../../form-validator.resource';
+import { ValidationMessage } from '../validation-info/validation-info.component';
 import styles from './form-editor.scss';
 
 interface ErrorProps {
@@ -57,6 +59,7 @@ const ErrorNotification = ({ error, title }: ErrorProps) => {
 const FormEditor: React.FC = () => {
   const { t } = useTranslation();
   const { formUuid } = useParams<{ formUuid: string }>();
+  const { dataTypeToRenderingMap } = useConfig();
   const isNewSchema = !formUuid;
   const [schema, setSchema] = useState<Schema>();
   const [showDraftSchemaModal, setShowDraftSchemaModal] = useState(false);
@@ -65,6 +68,10 @@ const FormEditor: React.FC = () => {
   const [status, setStatus] = useState<Status>('idle');
   const [isMaximized, setIsMaximized] = useState(false);
   const [stringifiedSchema, setStringifiedSchema] = useState(schema ? JSON.stringify(schema, null, 2) : '');
+  const [validationResponse, setValidationResponse] = useState([]);
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationComplete, setValidationComplete] = useState(false);
+  const [publishedWithErrors, setPublishedWithErrors] = useState(false);
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
@@ -111,6 +118,19 @@ const FormEditor: React.FC = () => {
     setSchema(updatedSchema);
     localStorage.setItem('formJSON', JSON.stringify(updatedSchema));
   }, []);
+
+  const onValidateForm = async () => {
+    setIsValidating(true);
+    try {
+      const [errorsArray] = await handleFormValidation(schema, dataTypeToRenderingMap);
+      setValidationResponse(errorsArray);
+      setValidationComplete(true);
+    } catch (error) {
+      console.error('Error during form validation:', error);
+    } finally {
+      setIsValidating(false);
+    }
+  };
 
   const inputDummySchema = useCallback(() => {
     const dummySchema: FormSchema = {
@@ -371,7 +391,22 @@ const FormEditor: React.FC = () => {
             </div>
           </Column>
           <Column lg={8} md={8} className={styles.column}>
-            <ActionButtons schema={schema} t={t} />
+            <ActionButtons
+              schema={schema}
+              t={t}
+              setPublishedWithErrors={setPublishedWithErrors}
+              onFormValidation={onValidateForm}
+              setValidationResponse={setValidationResponse}
+              setValidationComplete={setValidationComplete}
+              isValidating={isValidating}
+            />
+            {validationComplete && (
+              <ValidationMessage
+                hasValidationErrors={validationResponse.length > 0}
+                publishedWithErrors={publishedWithErrors}
+                errorsCount={validationResponse.length}
+              />
+            )}
             <Tabs>
               <TabList aria-label="Form previews">
                 <Tab>{t('preview', 'Preview')}</Tab>
@@ -383,7 +418,12 @@ const FormEditor: React.FC = () => {
                   <FormRenderer schema={schema} isLoading={isLoadingFormOrSchema} />
                 </TabPanel>
                 <TabPanel>
-                  <InteractiveBuilder schema={schema} onSchemaChange={updateSchema} isLoading={isLoadingFormOrSchema} />
+                  <InteractiveBuilder
+                    schema={schema}
+                    onSchemaChange={updateSchema}
+                    isLoading={isLoadingFormOrSchema}
+                    validationResponse={validationResponse}
+                  />
                 </TabPanel>
                 <TabPanel>{form && <AuditDetails form={form} key={form.uuid} />}</TabPanel>
               </TabPanels>

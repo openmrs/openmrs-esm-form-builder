@@ -114,6 +114,7 @@ export interface Question {
   label: string;
   type: string;
   questionOptions: QuestionOptions;
+  questions?: Array<Question>;
   required?: boolean;
   validators?: Array<Record<string, string>>;
 }

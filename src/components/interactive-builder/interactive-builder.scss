@@ -99,3 +99,18 @@
 .addSectionButton {
   margin: 1rem;
 }
+
+.validationErrorMessage {
+  margin-left: 1rem;
+  color: colors.$red-60;
+  font-size: 0.75rem;
+}
+
+.answerErrors {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-left: 2rem;
+  margin-top: 1rem;
+  font-size: 0.75rem;
+}
