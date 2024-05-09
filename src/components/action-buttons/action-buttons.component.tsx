@@ -79,7 +79,7 @@ function ActionButtons({
     setStatus('validateBeforePublishing');
     const [errorsArray] = await handleFormValidation(schema, dataTypeToRenderingMap);
     setValidationResponse(errorsArray);
-    if (errorsArray.length > 0) {
+    if (errorsArray.length) {
       setStatus('validated');
       setValidationComplete(true);
       setPublishedWithErrors(true);
