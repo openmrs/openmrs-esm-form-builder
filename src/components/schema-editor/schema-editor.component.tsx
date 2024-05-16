@@ -12,6 +12,7 @@ import { ActionableNotification, Link } from '@carbon/react';
 import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
 
 import styles from './schema-editor.scss';
+import { useConfig } from '@openmrs/esm-framework';
 
 interface MarkerProps extends IMarker {
   text: string;
@@ -41,6 +42,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     Array<{ name: string; type: string; path: string }>
   >([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const { blockRenderingWithErrors } = useConfig();
 
   // Enable autocompletion in the schema
   const generateAutocompleteSuggestions = useCallback(() => {
@@ -108,68 +110,70 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
 
   // Validate JSON schema
   const validateSchema = (content: string, schema) => {
-    try {
-      const trimmedContent = content.replace(/\s/g, '');
-      // Check if the content is an empty object
-      if (trimmedContent.trim() === '{}') {
-        // Reset errors since the JSON is considered valid
-        setErrors([]);
-        return;
-      }
-
-      const ajv = new Ajv({ allErrors: true, jsPropertySyntax: true, strict: false });
-      const validate = ajv.compile(schema);
-      const parsedContent = JSON.parse(content);
-      const isValid = validate(parsedContent);
-      const jsonLines = content.split('\n');
-
-      const traverse = (schemaPath) => {
-        const pathSegments = schemaPath.split('/').filter((segment) => segment !== '' || segment !== 'type');
-
-        let lineNumber = -1;
-
-        for (const segment of pathSegments) {
-          if (segment === 'properties' || segment === 'items') continue; // Skip 'properties' and 'items'
-          const match = segment.match(/^([^[\]]+)/); // Extract property key
-          if (match) {
-            const propertyName: string = pathSegments[pathSegments.length - 2]; // Get property key
-            lineNumber = jsonLines.findIndex((line) => line.includes(propertyName));
-          }
-          if (lineNumber !== -1) break;
+    if (blockRenderingWithErrors) {
+      try {
+        const trimmedContent = content.replace(/\s/g, '');
+        // Check if the content is an empty object
+        if (trimmedContent.trim() === '{}') {
+          // Reset errors since the JSON is considered valid
+          setErrors([]);
+          return;
         }
 
-        return lineNumber;
-      };
+        const ajv = new Ajv({ allErrors: true, jsPropertySyntax: true, strict: false });
+        const validate = ajv.compile(schema);
+        const parsedContent = JSON.parse(content);
+        const isValid = validate(parsedContent);
+        const jsonLines = content.split('\n');
 
-      if (!isValid) {
-        const errorMarkers = validate.errors.map((error) => {
-          const schemaPath = error.schemaPath.replace(/^#\//, ''); // Remove leading '#/'
-          const lineNumber = traverse(schemaPath);
-          const pathSegments = error.instancePath.split('.'); // Split the path into segments
-          const errorPropertyName = pathSegments[pathSegments.length - 1];
+        const traverse = (schemaPath) => {
+          const pathSegments = schemaPath.split('/').filter((segment) => segment !== '' || segment !== 'type');
 
-          const message =
-            error.keyword === 'type'
-              ? `${errorPropertyName.charAt(0).toUpperCase() + errorPropertyName.slice(1)} ${error.message}`
-              : `${error.message.charAt(0).toUpperCase() + error.message.slice(1)}`;
+          let lineNumber = -1;
 
-          return {
-            startRow: lineNumber,
-            startCol: 0,
-            endRow: lineNumber,
-            endCol: 1,
-            className: 'error',
-            text: message,
-            type: 'text' as const,
-          };
-        });
+          for (const segment of pathSegments) {
+            if (segment === 'properties' || segment === 'items') continue; // Skip 'properties' and 'items'
+            const match = segment.match(/^([^[\]]+)/); // Extract property key
+            if (match) {
+              const propertyName: string = pathSegments[pathSegments.length - 2]; // Get property key
+              lineNumber = jsonLines.findIndex((line) => line.includes(propertyName));
+            }
+            if (lineNumber !== -1) break;
+          }
 
-        setErrors(errorMarkers);
-      } else {
-        setErrors([]);
+          return lineNumber;
+        };
+
+        if (!isValid) {
+          const errorMarkers = validate.errors.map((error) => {
+            const schemaPath = error.schemaPath.replace(/^#\//, ''); // Remove leading '#/'
+            const lineNumber = traverse(schemaPath);
+            const pathSegments = error.instancePath.split('.'); // Split the path into segments
+            const errorPropertyName = pathSegments[pathSegments.length - 1];
+
+            const message =
+              error.keyword === 'type'
+                ? `${errorPropertyName.charAt(0).toUpperCase() + errorPropertyName.slice(1)} ${error.message}`
+                : `${error.message.charAt(0).toUpperCase() + error.message.slice(1)}`;
+
+            return {
+              startRow: lineNumber,
+              startCol: 0,
+              endRow: lineNumber,
+              endCol: 1,
+              className: 'error',
+              text: message,
+              type: 'text' as const,
+            };
+          });
+
+          setErrors(errorMarkers);
+        } else {
+          setErrors([]);
+        }
+      } catch (error) {
+        console.error('Error parsing or validating JSON:', error);
       }
-    } catch (error) {
-      console.error('Error parsing or validating JSON:', error);
     }
   };
 
