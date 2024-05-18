@@ -1,6 +1,6 @@
-import type { ReferencedForm, RenderType } from '@openmrs/openmrs-form-engine-lib';
-import type { AuditInfo } from './components/audit-details/audit-details.component';
 import type { OpenmrsResource } from '@openmrs/esm-framework';
+import type { ReferencedForm, RenderType, RequiredFieldProps } from '@openmrs/openmrs-form-engine-lib';
+import type { AuditInfo } from './components/audit-details/audit-details.component';
 
 export interface Form {
   uuid: string;
@@ -60,7 +60,7 @@ export interface Schema {
         id: string;
         label: string;
         type: string;
-        required?: boolean;
+        required?: string | boolean | RequiredFieldProps;
         questionOptions: {
           type?: string;
           concept?: string;
@@ -115,7 +115,7 @@ export interface Question {
   type: string;
   questionOptions: QuestionOptions;
   questions?: Array<Question>;
-  required?: boolean;
+  required?: string | boolean | RequiredFieldProps;
   validators?: Array<Record<string, string>>;
 }
 

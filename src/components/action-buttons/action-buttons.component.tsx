@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, ComposedModal, InlineLoading, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
-import type { TFunction } from 'i18next';
+import type { TFunction } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { showSnackbar, useConfig } from '@openmrs/esm-framework';
 
