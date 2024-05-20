@@ -215,9 +215,8 @@ const FormEditor: React.FC = () => {
 
   const renderSchemaChanges = useCallback(() => {
     resetErrorMessage();
-    if (errors.length) {
-      setValidationOn(true);
-    } else {
+    setValidationOn(true);
+    {
       try {
         const parsedJson: Schema = JSON.parse(stringifiedSchema);
         updateSchema(parsedJson);
@@ -228,7 +227,7 @@ const FormEditor: React.FC = () => {
         }
       }
     }
-  }, [stringifiedSchema, updateSchema, resetErrorMessage, errors.length]);
+  }, [stringifiedSchema, updateSchema, resetErrorMessage]);
 
   const DraftSchemaModal = () => {
     return (

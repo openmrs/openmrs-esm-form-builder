@@ -110,70 +110,68 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
 
   // Validate JSON schema
   const validateSchema = (content: string, schema) => {
-    if (blockRenderingWithErrors) {
-      try {
-        const trimmedContent = content.replace(/\s/g, '');
-        // Check if the content is an empty object
-        if (trimmedContent.trim() === '{}') {
-          // Reset errors since the JSON is considered valid
-          setErrors([]);
-          return;
-        }
-
-        const ajv = new Ajv({ allErrors: true, jsPropertySyntax: true, strict: false });
-        const validate = ajv.compile(schema);
-        const parsedContent = JSON.parse(content);
-        const isValid = validate(parsedContent);
-        const jsonLines = content.split('\n');
-
-        const traverse = (schemaPath) => {
-          const pathSegments = schemaPath.split('/').filter((segment) => segment !== '' || segment !== 'type');
-
-          let lineNumber = -1;
-
-          for (const segment of pathSegments) {
-            if (segment === 'properties' || segment === 'items') continue; // Skip 'properties' and 'items'
-            const match = segment.match(/^([^[\]]+)/); // Extract property key
-            if (match) {
-              const propertyName: string = pathSegments[pathSegments.length - 2]; // Get property key
-              lineNumber = jsonLines.findIndex((line) => line.includes(propertyName));
-            }
-            if (lineNumber !== -1) break;
-          }
-
-          return lineNumber;
-        };
-
-        if (!isValid) {
-          const errorMarkers = validate.errors.map((error) => {
-            const schemaPath = error.schemaPath.replace(/^#\//, ''); // Remove leading '#/'
-            const lineNumber = traverse(schemaPath);
-            const pathSegments = error.instancePath.split('.'); // Split the path into segments
-            const errorPropertyName = pathSegments[pathSegments.length - 1];
-
-            const message =
-              error.keyword === 'type'
-                ? `${errorPropertyName.charAt(0).toUpperCase() + errorPropertyName.slice(1)} ${error.message}`
-                : `${error.message.charAt(0).toUpperCase() + error.message.slice(1)}`;
-
-            return {
-              startRow: lineNumber,
-              startCol: 0,
-              endRow: lineNumber,
-              endCol: 1,
-              className: 'error',
-              text: message,
-              type: 'text' as const,
-            };
-          });
-
-          setErrors(errorMarkers);
-        } else {
-          setErrors([]);
-        }
-      } catch (error) {
-        console.error('Error parsing or validating JSON:', error);
+    try {
+      const trimmedContent = content.replace(/\s/g, '');
+      // Check if the content is an empty object
+      if (trimmedContent.trim() === '{}') {
+        // Reset errors since the JSON is considered valid
+        setErrors([]);
+        return;
       }
+
+      const ajv = new Ajv({ allErrors: true, jsPropertySyntax: true, strict: false });
+      const validate = ajv.compile(schema);
+      const parsedContent = JSON.parse(content);
+      const isValid = validate(parsedContent);
+      const jsonLines = content.split('\n');
+
+      const traverse = (schemaPath) => {
+        const pathSegments = schemaPath.split('/').filter((segment) => segment !== '' || segment !== 'type');
+
+        let lineNumber = -1;
+
+        for (const segment of pathSegments) {
+          if (segment === 'properties' || segment === 'items') continue; // Skip 'properties' and 'items'
+          const match = segment.match(/^([^[\]]+)/); // Extract property key
+          if (match) {
+            const propertyName: string = pathSegments[pathSegments.length - 2]; // Get property key
+            lineNumber = jsonLines.findIndex((line) => line.includes(propertyName));
+          }
+          if (lineNumber !== -1) break;
+        }
+
+        return lineNumber;
+      };
+
+      if (!isValid) {
+        const errorMarkers = validate.errors.map((error) => {
+          const schemaPath = error.schemaPath.replace(/^#\//, ''); // Remove leading '#/'
+          const lineNumber = traverse(schemaPath);
+          const pathSegments = error.instancePath.split('.'); // Split the path into segments
+          const errorPropertyName = pathSegments[pathSegments.length - 1];
+
+          const message =
+            error.keyword === 'type'
+              ? `${errorPropertyName.charAt(0).toUpperCase() + errorPropertyName.slice(1)} ${error.message}`
+              : `${error.message.charAt(0).toUpperCase() + error.message.slice(1)}`;
+
+          return {
+            startRow: lineNumber,
+            startCol: 0,
+            endRow: lineNumber,
+            endCol: 1,
+            className: 'error',
+            text: message,
+            type: 'text' as const,
+          };
+        });
+
+        setErrors(errorMarkers);
+      } else {
+        setErrors([]);
+      }
+    } catch (error) {
+      console.error('Error parsing or validating JSON:', error);
     }
   };
 
@@ -211,7 +209,8 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   };
 
   const ErrorMessages = () =>
-    errors.length > 0 && (
+    errors.length > 0 &&
+    blockRenderingWithErrors && (
       <div className={styles.validationErrorsContainer}>
         <ErrorNotification text={errors[currentIndex]?.text} line={errors[currentIndex]?.startRow} />
         <div className={styles.pagination}>
@@ -234,7 +233,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
 
   return (
     <div>
-      {errors.length && validationOn ? <ErrorMessages /> : null}
+      {errors.length || validationOn ? <ErrorMessages /> : null}
       <AceEditor
         style={{ height: '100vh', width: '100%', border: errors.length ? '3px solid #DA1E28' : 'none' }}
         mode="json"
