@@ -18,7 +18,7 @@ interface MarkerProps extends IMarker {
 }
 
 interface SchemaEditorProps {
-  isLoading: boolean;
+  isLoading?: boolean;
   validationOn: boolean;
   onSchemaChange: (stringifiedSchema: string) => void;
   stringifiedSchema: string;
@@ -125,7 +125,6 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
 
       const traverse = (schemaPath) => {
         const pathSegments = schemaPath.split('/').filter((segment) => segment !== '' || segment !== 'type');
-
         let lineNumber = -1;
 
         for (const segment of pathSegments) {
@@ -147,9 +146,8 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
           const lineNumber = traverse(schemaPath);
           const pathSegments = error.instancePath.split('.'); // Split the path into segments
           const errorPropertyName = pathSegments[pathSegments.length - 1];
-
           const message =
-            error.keyword === 'type'
+            error.keyword === 'type' || error.keyword === 'enum'
               ? `${errorPropertyName.charAt(0).toUpperCase() + errorPropertyName.slice(1)} ${error.message}`
               : `${error.message.charAt(0).toUpperCase() + error.message.slice(1)}`;
 
@@ -206,27 +204,26 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     setCurrentIndex((prevIndex) => Math.min(prevIndex + 1, errors.length - 1));
   };
 
-  const ErrorMessages = () =>
-    errors.length > 0 && (
-      <div className={styles.validationErrorsContainer}>
-        <ErrorNotification text={errors[currentIndex]?.text} line={errors[currentIndex]?.startRow} />
-        <div className={styles.pagination}>
-          <ChevronLeft
-            disabled={currentIndex === 0}
-            onClick={onPreviousErrorClick}
-            className={currentIndex === 0 ? styles.disabledIcon : styles.paginationIcon}
-          />
-          <div>
-            {currentIndex + 1}/{errors.length}
-          </div>
-          <ChevronRight
-            disabled={currentIndex === errors.length - 1}
-            onClick={onNextErrorClick}
-            className={currentIndex === errors.length - 1 ? styles.disabledIcon : styles.paginationIcon}
-          />
+  const ErrorMessages = () => (
+    <div className={styles.validationErrorsContainer}>
+      <ErrorNotification text={errors[currentIndex]?.text} line={errors[currentIndex]?.startRow} />
+      <div className={styles.pagination}>
+        <ChevronLeft
+          disabled={currentIndex === 0}
+          onClick={onPreviousErrorClick}
+          className={currentIndex === 0 ? styles.disabledIcon : styles.paginationIcon}
+        />
+        <div>
+          {currentIndex + 1}/{errors.length}
         </div>
+        <ChevronRight
+          disabled={currentIndex === errors.length - 1}
+          onClick={onNextErrorClick}
+          className={currentIndex === errors.length - 1 ? styles.disabledIcon : styles.paginationIcon}
+        />
       </div>
-    );
+    </div>
+  );
 
   return (
     <div>

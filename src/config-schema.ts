@@ -59,4 +59,9 @@ export const configSchema = {
     _default: false,
     _description: 'Whether to enable form validation',
   },
+  blockRenderingWithErrors: {
+    _type: Type.Boolean,
+    _default: false,
+    _description: 'Whether to enable form validation',
+  },
 };

@@ -79,6 +79,7 @@ const FormEditor: React.FC = () => {
   const [publishedWithErrors, setPublishedWithErrors] = useState(false);
   const [errors, setErrors] = useState<Array<MarkerProps>>([]);
   const [validationOn, setValidationOn] = useState(false);
+  const { blockRenderingWithErrors } = useConfig();
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
@@ -215,9 +216,7 @@ const FormEditor: React.FC = () => {
 
   const renderSchemaChanges = useCallback(() => {
     resetErrorMessage();
-    if (errors.length) {
-      setValidationOn(true);
-    } else {
+    {
       try {
         const parsedJson: Schema = JSON.parse(stringifiedSchema);
         updateSchema(parsedJson);
@@ -228,7 +227,19 @@ const FormEditor: React.FC = () => {
         }
       }
     }
-  }, [stringifiedSchema, updateSchema, resetErrorMessage, errors.length]);
+  }, [stringifiedSchema, updateSchema, resetErrorMessage]);
+
+  const handleRenderSchemaChanges = () => {
+    if (errors.length && blockRenderingWithErrors) {
+      setValidationOn(true);
+      return;
+    } else if (errors.length && !blockRenderingWithErrors) {
+      setValidationOn(true);
+      renderSchemaChanges();
+    } else {
+      renderSchemaChanges();
+    }
+  };
 
   const DraftSchemaModal = () => {
     return (
@@ -343,7 +354,7 @@ const FormEditor: React.FC = () => {
                       {t('inputDummySchema', 'Input dummy schema')}
                     </Button>
                   ) : null}
-                  <Button kind="ghost" onClick={renderSchemaChanges} disabled={invalidJsonErrorMessage}>
+                  <Button kind="ghost" onClick={handleRenderSchemaChanges} disabled={invalidJsonErrorMessage}>
                     <span>{t('renderChanges', 'Render changes')}</span>
                   </Button>
                 </div>
@@ -406,6 +417,7 @@ const FormEditor: React.FC = () => {
             <ActionButtons
               schema={schema}
               t={t}
+              schemaErrors={errors}
               setPublishedWithErrors={setPublishedWithErrors}
               onFormValidation={onValidateForm}
               setValidationResponse={setValidationResponse}
