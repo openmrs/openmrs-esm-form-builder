@@ -10,6 +10,7 @@ import { useForm } from '../../hooks/useForm';
 import SaveFormModal from '../modals/save-form-modal.component';
 import { handleFormValidation } from '../../form-validator.resource';
 import styles from './action-buttons.scss';
+import type { IMarker } from 'react-ace';
 
 interface ActionButtonsProps {
   schema: Schema;
@@ -19,6 +20,11 @@ interface ActionButtonsProps {
   setValidationComplete: (validationStatus: boolean) => void;
   setValidationResponse: (errors: Array<unknown>) => void;
   onFormValidation: () => Promise<void>;
+  schemaErrors: Array<MarkerProps>;
+}
+
+interface MarkerProps extends IMarker {
+  text: string;
 }
 
 type Status =
@@ -39,6 +45,7 @@ function ActionButtons({
   onFormValidation,
   setValidationComplete,
   setValidationResponse,
+  schemaErrors,
 }: ActionButtonsProps) {
   const { formUuid } = useParams<{ formUuid?: string }>();
   const { form, mutate } = useForm(formUuid);
@@ -135,7 +142,7 @@ function ActionButtons({
             <Button
               kind="secondary"
               onClick={handleValidateAndPublish}
-              disabled={status === 'validateBeforePublishing'}
+              disabled={status === 'validateBeforePublishing' || schemaErrors.length > 0}
             >
               {status === 'validateBeforePublishing' ? (
                 <InlineLoading className={styles.spinner} description={t('validating', 'Validating') + '...'} />
@@ -144,7 +151,11 @@ function ActionButtons({
               )}
             </Button>
           ) : (
-            <Button kind="secondary" onClick={handlePublish} disabled={status === 'publishing'}>
+            <Button
+              kind="secondary"
+              onClick={handlePublish}
+              disabled={status === 'publishing' || schemaErrors.length > 0}
+            >
               {status === 'publishing' && !form?.published ? (
                 <InlineLoading className={styles.spinner} description={t('publishing', 'Publishing') + '...'} />
               ) : (
