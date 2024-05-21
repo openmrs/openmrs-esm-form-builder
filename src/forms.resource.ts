@@ -44,7 +44,7 @@ export async function uploadSchema(schema: Schema): Promise<string> {
   body.append('file', schemaBlob);
 
   const response = await window
-    .fetch(`${window.openmrsBase}/${restBaseUrl}/clobdata`, {
+    .fetch(`${window.openmrsBase}${restBaseUrl}/clobdata`, {
       body,
       method: 'POST',
     })
