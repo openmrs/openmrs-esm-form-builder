@@ -5,37 +5,37 @@ import {
   Column,
   ComposedModal,
   CopyButton,
-  InlineLoading,
-  InlineNotification,
+  FileUploader,
   Form,
   Grid,
+  InlineLoading,
+  InlineNotification,
   ModalBody,
-  ModalHeader,
   ModalFooter,
-  Tabs,
+  ModalHeader,
   Tab,
   TabList,
-  TabPanels,
   TabPanel,
-  FileUploader,
+  TabPanels,
+  Tabs,
 } from '@carbon/react';
 import { ArrowLeft, Maximize, Minimize, Download } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ConfigurableLink, useConfig } from '@openmrs/esm-framework';
+import type { IMarker } from 'react-ace';
 import type { FormSchema } from '@openmrs/openmrs-form-engine-lib';
 import type { Schema } from '../../types';
 import { useClobdata } from '../../hooks/useClobdata';
 import { useForm } from '../../hooks/useForm';
-import type { IMarker } from 'react-ace';
+import { handleFormValidation } from '../../form-validator.resource';
+import { ValidationMessage } from '../validation-info/validation-info.component';
 import ActionButtons from '../action-buttons/action-buttons.component';
 import AuditDetails from '../audit-details/audit-details.component';
 import FormRenderer from '../form-renderer/form-renderer.component';
 import Header from '../header/header.component';
 import InteractiveBuilder from '../interactive-builder/interactive-builder.component';
 import SchemaEditor from '../schema-editor/schema-editor.component';
-import { handleFormValidation } from '../../form-validator.resource';
-import { ValidationMessage } from '../validation-info/validation-info.component';
 import styles from './form-editor.scss';
 
 interface ErrorProps {

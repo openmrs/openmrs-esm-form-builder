@@ -18,6 +18,8 @@
   "rules": {
     "react-hooks/exhaustive-deps": "warn",
     "react-hooks/rules-of-hooks": "error",
+    // not hugely concerned about accidental implicit type coercions for now https://typescript-eslint.io/rules/no-base-to-string
+    "@typescript-eslint/no-base-to-string": "off",
     // The following rules need `noImplicitAny` to be set to `true` in our tsconfig. They are too restrictive for now, but should be reconsidered in future
     "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/no-unsafe-call": "off",

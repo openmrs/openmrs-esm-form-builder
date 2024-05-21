@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { type TFunction } from 'i18next';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, type TFunction } from 'react-i18next';
 import flattenDeep from 'lodash-es/flattenDeep';
 import {
   Button,

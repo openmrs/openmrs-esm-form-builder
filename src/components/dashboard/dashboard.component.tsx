@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import type { TFunction } from 'i18next';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, type TFunction } from 'react-i18next';
 import {
   Button,
   ComposedModal,
@@ -157,7 +156,7 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
         iconDescription={t('editSchema', 'Edit schema')}
         hasIconOnly
         size={responsiveSize}
-        tooltipAlignment="start"
+        tooltipAlignment="center"
       />
     );
   };
@@ -172,7 +171,7 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
           iconDescription={t('downloadSchema', 'Download schema')}
           hasIconOnly
           size={responsiveSize}
-          tooltipAlignment="start"
+          tooltipAlignment="center"
         />
       </a>
     );
@@ -188,7 +187,7 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
         iconDescription={t('deleteSchema', 'Delete schema')}
         hasIconOnly
         size={responsiveSize}
-        tooltipAlignment="start"
+        tooltipAlignment="center"
       />
     );
   };
