@@ -38,7 +38,7 @@ export async function deleteResource(
 
 export async function uploadSchema(schema: Schema): Promise<string> {
   const schemaBlob = new Blob([JSON.stringify(schema)], {
-    type: undefined,
+    type: 'application/json',
   });
   const body = new FormData();
   body.append('file', schemaBlob);
