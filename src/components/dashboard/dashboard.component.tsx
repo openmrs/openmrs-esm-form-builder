@@ -156,7 +156,7 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
         iconDescription={t('editSchema', 'Edit schema')}
         hasIconOnly
         size={responsiveSize}
-        tooltipAlignment="start"
+        tooltipAlignment="center"
       />
     );
   };
@@ -171,7 +171,7 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
           iconDescription={t('downloadSchema', 'Download schema')}
           hasIconOnly
           size={responsiveSize}
-          tooltipAlignment="start"
+          tooltipAlignment="center"
         />
       </a>
     );
@@ -187,7 +187,7 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
         iconDescription={t('deleteSchema', 'Delete schema')}
         hasIconOnly
         size={responsiveSize}
-        tooltipAlignment="start"
+        tooltipAlignment="center"
       />
     );
   };
