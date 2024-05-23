@@ -112,6 +112,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     encounterDatetime: ['date'],
     encounterLocation: ['ui-select-extended'],
     encounterProvider: ['ui-select-extended'],
+    encounterRole: ['ui-select-extended'],
     obsGroup: ['group', 'repeating'],
     personAttribute: ['ui-select-extended', 'select', 'text'],
     testOrder: ['group', 'repeating'],
