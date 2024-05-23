@@ -43,6 +43,7 @@ export type QuestionType =
   | 'encounterDatetime'
   | 'encounterLocation'
   | 'encounterProvider'
+  | 'encounterRole'
   | 'obs'
   | 'obsGroup'
   | 'personAttribute'

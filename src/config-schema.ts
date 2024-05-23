@@ -9,6 +9,7 @@ export const configSchema = {
       'encounterDatetime',
       'encounterLocation',
       'encounterProvider',
+      'encounterRole',
       'obs',
       'obsGroup',
       'personAttribute',
