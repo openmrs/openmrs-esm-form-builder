@@ -1,10 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DndContext, KeyboardSensor, MouseSensor, closestCorners, useSensor, useSensors } from '@dnd-kit/core';
 import { Accordion, AccordionItem, Button, IconButton, InlineLoading } from '@carbon/react';
 import { Add, TrashCan, Edit } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { showModal, showSnackbar } from '@openmrs/esm-framework';
+import RuleBuilder from '../rule-builder/rule-builder.component';
 import DraggableQuestion from './draggable/draggable-question.component';
 import Droppable from './droppable/droppable-container.component';
 import EditableValue from './editable/editable-value.component';
@@ -43,6 +44,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const { t } = useTranslation();
   const { formUuid } = useParams<{ formUuid: string }>();
   const isEditingExistingForm = Boolean(formUuid);
+
+  const [activeFields, setActiveFields] = useState<Array<string>>([]);
 
   const initializeSchema = useCallback(() => {
     const dummySchema: FormSchema = {
@@ -197,33 +200,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     [onSchemaChange, schema, t],
   );
 
-  const renameSection = useCallback(
-    (name: string, pageIndex: number, sectionIndex: number) => {
-      try {
-        if (name) {
-          schema.pages[pageIndex].sections[sectionIndex].label = name;
-        }
-        onSchemaChange({ ...schema });
-
-        showSnackbar({
-          title: t('success', 'Success!'),
-          kind: 'success',
-          isLowContrast: true,
-          subtitle: t('sectionRenamed', 'Section renamed'),
-        });
-      } catch (error) {
-        if (error instanceof Error) {
-          showSnackbar({
-            title: t('errorRenamingSection', 'Error renaming section'),
-            kind: 'error',
-            subtitle: error?.message,
-          });
-        }
-      }
-    },
-    [onSchemaChange, schema, t],
-  );
-
   const duplicateQuestion = useCallback(
     (question: Question, pageId: number, sectionId: number) => {
       try {
@@ -255,6 +231,12 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     },
     [onSchemaChange, schema, t],
   );
+
+  const handleAddLogic = useCallback((fieldId: string) => {
+    setActiveFields((prevFields) =>
+      prevFields.includes(fieldId) ? prevFields.filter((id) => id !== fieldId) : [...prevFields, fieldId],
+    );
+  }, []);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -466,11 +448,24 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                         onSchemaChange={onSchemaChange}
                                         pageIndex={pageIndex}
                                         question={question}
+                                        handleAddLogic={handleAddLogic}
                                         questionCount={section.questions.length}
                                         questionIndex={questionIndex}
                                         schema={schema}
                                         sectionIndex={sectionIndex}
                                       />
+                                      {activeFields.includes(question.id) && (
+                                        <RuleBuilder
+                                          key={question.id}
+                                          question={question}
+                                          pageIndex={pageIndex}
+                                          sectionIndex={sectionIndex}
+                                          questionIndex={questionIndex}
+                                          handleAddLogic={handleAddLogic}
+                                          schema={schema}
+                                          onSchemaChange={onSchemaChange}
+                                        />
+                                      )}
                                       {getValidationError(question) && (
                                         <div className={styles.validationErrorMessage}>
                                           {getValidationError(question)}
