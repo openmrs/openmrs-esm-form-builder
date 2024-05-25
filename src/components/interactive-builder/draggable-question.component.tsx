@@ -3,7 +3,7 @@ import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
 import { Button, CopyButton } from '@carbon/react';
-import { Draggable, Edit, TrashCan } from '@carbon/react/icons';
+import { Draggable, Edit, TrashCan, Settings } from '@carbon/react/icons';
 import type { Question } from '../../types';
 import styles from './draggable-question.scss';
 
@@ -15,6 +15,7 @@ interface DraggableQuestionProps {
   handleDuplicateQuestion: (question: Question, pageId: number, sectionId: number) => void;
   handleEditButtonClick: (question: Question) => void;
   handleDeleteButtonClick: (question: Question) => void;
+  handleAddLogic: (fieldId: string) => void;
   questionCount: number;
 }
 
@@ -26,16 +27,15 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   handleDuplicateQuestion,
   handleDeleteButtonClick,
   handleEditButtonClick,
+  handleAddLogic,
   questionCount,
 }) => {
   const { t } = useTranslation();
   const draggableId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
-
   const { attributes, listeners, transform, isDragging, setNodeRef } = useDraggable({
     id: draggableId,
     disabled: questionCount <= 1,
   });
-
   const style = {
     transform: CSS.Translate.toString(transform),
   };
@@ -87,6 +87,15 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           kind="ghost"
           onClick={handleDeleteButtonClick}
           renderIcon={(props) => <TrashCan size={16} {...props} />}
+          size="md"
+        />
+        <Button
+          enterDelayMs={300}
+          hasIconOnly
+          iconDescription={t('addConditionalLogic', 'Add conditional logic')}
+          kind="ghost"
+          onClick={() => handleAddLogic(question.id)}
+          renderIcon={(props) => <Settings size={16} {...props} />}
           size="md"
         />
       </div>

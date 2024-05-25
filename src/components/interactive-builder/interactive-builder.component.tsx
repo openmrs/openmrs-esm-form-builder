@@ -21,6 +21,7 @@ import SectionModal from './section-modal.component';
 import { DraggableQuestion } from './draggable-question.component';
 import { Droppable } from './droppable-container.component';
 import styles from './interactive-builder.scss';
+import RuleBuilder from '../rule-builder/rule-builder.component';
 
 interface ValidationError {
   errorMessage?: string;
@@ -65,6 +66,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const [showDeleteSectionModal, setShowDeleteSectionModal] = useState(false);
   const [showEditQuestionModal, setShowEditQuestionModal] = useState(false);
   const [showNewFormModal, setShowNewFormModal] = useState(false);
+  const [activeFields, setActiveFields] = useState<Array<string>>([]);
 
   const initializeSchema = useCallback(() => {
     const dummySchema: FormSchema = {
@@ -224,6 +226,12 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     [onSchemaChange, schema, t],
   );
 
+  const handleAddLogic = useCallback((fieldId: string) => {
+    setActiveFields((prevFields) =>
+      prevFields.includes(fieldId) ? prevFields.filter((id) => id !== fieldId) : [...prevFields, fieldId],
+    );
+  }, []);
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, delta } = event;
 
@@ -283,8 +291,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
   const getAnswerErrors = (answers: Array<Record<string, string>>) => {
     const answerLabels = answers?.map((answer) => answer.label) || [];
-    const errors: Array<ValidationError> = validationResponse.filter(
-      (error) => answerLabels?.includes(error.field.label),
+    const errors: Array<ValidationError> = validationResponse.filter((error) =>
+      answerLabels?.includes(error.field.label),
     );
     return errors || [];
   };
@@ -517,8 +525,21 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                         handleDuplicateQuestion={duplicateQuestion}
                                         handleEditButtonClick={handleEditButtonClick}
                                         handleDeleteButtonClick={handleDeleteButtonClick}
+                                        handleAddLogic={handleAddLogic}
                                         questionCount={section.questions.length}
                                       />
+                                      {activeFields.includes(question.id) && (
+                                        <RuleBuilder
+                                          key={question.id}
+                                          question={question}
+                                          pageIndex={pageIndex}
+                                          sectionIndex={sectionIndex}
+                                          questionIndex={questionIndex}
+                                          handleAddLogic={handleAddLogic}
+                                          schema={schema}
+                                          onSchemaChange={onSchemaChange}
+                                        />
+                                      )}
                                       {getValidationError(question) && (
                                         <div className={styles.validationErrorMessage}>
                                           {getValidationError(question)}
