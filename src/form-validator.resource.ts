@@ -69,7 +69,6 @@ const handleQuestionValidation = async (conceptObject, errorsArray, configObject
       const { data } = await openmrsFetch(`${restBaseUrl}/concept?references=${searchRef}&v=${conceptRepresentation}`);
       if (data.results.length) {
         const [resObject] = data.results;
-
         resObject.datatype.name === 'Boolean' &&
           conceptObject.questionOptions.answers.forEach((answer) => {
             if (

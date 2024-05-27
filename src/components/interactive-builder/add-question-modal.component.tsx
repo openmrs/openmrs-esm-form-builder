@@ -151,7 +151,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const handlePatientIdentifierTypeChange = ({ selectedItem }: { selectedItem: PatientIdentifierType }) => {
     setSelectedPatientIdetifierType(selectedItem);
   };
-
   const questionIdExists = (idToTest: string) => {
     const nestedIds = schema?.pages?.map((page) => {
       return page?.sections?.map((section) => {
