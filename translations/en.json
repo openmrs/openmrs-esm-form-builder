@@ -212,5 +212,10 @@
   "viewErrors": "View the errors in the interactive builder",
   "welcomeExplainer": "Add pages, sections and questions to your form. The Preview tab automatically updates as you build your form. For a detailed explanation of what constitutes an OpenMRS form schema, please read through the ",
   "welcomeHeading": "Interactive schema builder",
-  "yes": "Yes"
+  "yes": "Yes",
+  "searchForBackingPeatientIdentifierType": "Search for a backing patient identifier type",
+  "errorFetchingPatientIdentifierTypes": "Error fetching patient identifier types",
+  "patientIdentifierTypeHelperText": "Patient identifier type fields must be linked to a patient identifier type",
+  "choosePatientIdentifierType":"Choose a patient identifier type"
+
 }

@@ -29,8 +29,9 @@ import { ArrowUpRight } from '@carbon/react/icons';
 import { showSnackbar, useConfig, useDebounce } from '@openmrs/esm-framework';
 import type { RenderType } from '@openmrs/openmrs-form-engine-lib';
 
-import type { Answer, Concept, ConceptMapping, PersonAttributeType, Schema } from '../../types';
+import type { Answer, Concept, ConceptMapping, PersonAttributeType, PatientIdentifierType, Schema } from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
+import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import styles from './question-modal.scss';
 
@@ -105,6 +106,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [selectedPersonAttributeType, setSelectedPersonAttributeType] = useState<PersonAttributeType | null>(null);
   const { concepts, conceptLookupError, isLoadingConcepts } = useConceptLookup(debouncedConceptToLookup);
   const { personAttributeTypes, personAttributeTypeLookupError } = usePersonAttributeTypes();
+  const [selectedPatientIdetifierType, setSelectedPatientIdetifierType] = useState<PatientIdentifierType | null>(null);
+  const { patientIdentifierTypes, patientIdentifierTypeLookupError } = usePatientIdentifierTypes();
 
   const renderTypeOptions = {
     control: ['text'],
@@ -115,6 +118,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     obsGroup: ['group', 'repeating'],
     personAttribute: ['ui-select-extended', 'select', 'text'],
     testOrder: ['group', 'repeating'],
+    patientIdentifier: ['text'],
   };
 
   const handleConceptChange = (event: React.ChangeEvent<HTMLInputElement>) => setConceptToLookup(event.target.value);
@@ -142,6 +146,10 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
   const handlePersonAttributeTypeChange = ({ selectedItem }: { selectedItem: PersonAttributeType }) => {
     setSelectedPersonAttributeType(selectedItem);
+  };
+
+  const handlePatientIdentifierTypeChange = ({ selectedItem }: { selectedItem: PatientIdentifierType }) => {
+    setSelectedPatientIdetifierType(selectedItem);
   };
 
   const questionIdExists = (idToTest: string) => {
@@ -183,6 +191,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             })),
           }),
           ...(questionType === 'personAttribute' && { attributeType: selectedPersonAttributeType.uuid }),
+          ...(questionType === 'patientIdentifier' && { identifierType: selectedPatientIdetifierType.uuid }),
           ...(questionType === 'obs' &&
             renderingType === 'number' &&
             selectedConcept?.allowDecimal === false && { disallowDecimals: true }),
@@ -360,6 +369,35 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                     onChange={handlePersonAttributeTypeChange}
                     placeholder={t('choosePersonAttributeType', 'Choose a person attribute type')}
                     selectedItem={selectedPersonAttributeType}
+                  />
+                </div>
+              )}
+
+              {questionType === 'patientIdentifier' && (
+                <div>
+                  <FormLabel className={styles.label}>
+                    {t('searchForBackingPeatientIdentifierType', 'Search for a backing patient identifier type')}
+                  </FormLabel>
+                  {patientIdentifierTypeLookupError ? (
+                    <InlineNotification
+                      kind="error"
+                      lowContrast
+                      className={styles.error}
+                      title={t('errorFetchingPatientIdentifierTypes', 'Error fetching patient identifier types')}
+                      subtitle={t('pleaseTryAgain', 'Please try again.')}
+                    />
+                  ) : null}
+                  <ComboBox
+                    helperText={t(
+                      'patientIdentifierTypeHelperText',
+                      'Patient identifier type fields must be linked to a patient identifier type',
+                    )}
+                    id="patientIdentifierTypeLookup"
+                    items={patientIdentifierTypes}
+                    itemToString={(item: PatientIdentifierType) => item?.display}
+                    onChange={handlePatientIdentifierTypeChange}
+                    placeholder={t('choosePatientIdentifierType', 'Choose a patient identifier type')}
+                    selectedItem={selectedPatientIdetifierType}
                   />
                 </div>
               )}

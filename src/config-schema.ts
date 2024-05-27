@@ -14,6 +14,7 @@ export const configSchema = {
       'obsGroup',
       'personAttribute',
       'testOrder',
+      'patientIdentifier',
     ],
   },
   fieldTypes: {

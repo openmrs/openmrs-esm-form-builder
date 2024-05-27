@@ -23,25 +23,24 @@ export const handleFormValidation = async (
 
     const asyncTasks = [];
 
-    parsedForm.pages?.forEach(
-      (page) =>
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        page.sections?.forEach(
-          (section: { questions: Array<Question> }) =>
-            section.questions?.forEach((question) => {
+    parsedForm.pages?.forEach((page) =>
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      page.sections?.forEach((section: { questions: Array<Question> }) =>
+        section.questions?.forEach((question) => {
+          asyncTasks.push(
+            handleQuestionValidation(question, errors, configObject, warnings),
+            handleAnswerValidation(question, errors),
+            handlePatientIdentifierValidation(question, errors),
+          );
+          question.type === 'obsGroup' &&
+            question?.questions?.forEach((obsGrpQuestion) =>
               asyncTasks.push(
-                handleQuestionValidation(question, errors, configObject, warnings),
+                handleQuestionValidation(obsGrpQuestion, errors, configObject, warnings),
                 handleAnswerValidation(question, errors),
-              );
-              question.type === 'obsGroup' &&
-                question?.questions?.forEach((obsGrpQuestion) =>
-                  asyncTasks.push(
-                    handleQuestionValidation(obsGrpQuestion, errors, configObject, warnings),
-                    handleAnswerValidation(question, errors),
-                  ),
-                );
-            }),
-        ),
+              ),
+            );
+        }),
+      ),
     );
     await Promise.all(asyncTasks);
 
@@ -58,12 +57,12 @@ const handleQuestionValidation = async (conceptObject, errorsArray, configObject
   const searchRef = conceptObject.questionOptions.concept
     ? conceptObject.questionOptions.concept
     : conceptObject.questionOptions.conceptMappings?.length
-    ? conceptObject.questionOptions.conceptMappings
-        ?.map((mapping) => {
-          return `${mapping.type}:${mapping.value}`;
-        })
-        .join(',')
-    : '';
+      ? conceptObject.questionOptions.conceptMappings
+          ?.map((mapping) => {
+            return `${mapping.type}:${mapping.value}`;
+          })
+          .join(',')
+      : '';
 
   if (searchRef) {
     try {
@@ -112,6 +111,36 @@ const handleQuestionValidation = async (conceptObject, errorsArray, configObject
   }
 };
 
+const handlePatientIdentifierValidation = async (question, errors) => {
+  if (question.type === 'patientIdentifier' && !question.questionOptions.identifierType) {
+    errors.push({
+      errorMessage: `❓ Patient identifier type missing in schema`,
+      field: question,
+    });
+  }
+  const patientIdentifier = question.questionOptions.identifierType;
+
+  if (patientIdentifier) {
+    try {
+      const { data } = await openmrsFetch(
+        `${restBaseUrl}/patientidentifiertype/${question.questionOptions.identifierType}`,
+      );
+      if (!data) {
+        errors.push({
+          errorMessage: `❓ The Identifier Type does not exist`,
+          field: question,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching patient identifier:', error);
+      errors.push({
+        errorMessage: `❓ The Identifier Type does not exist`,
+        field: question,
+      });
+    }
+  }
+};
+
 const dataTypeChecker = (conceptObject, responseObject, array, dataTypeToRenderingMap) => {
   Object.prototype.hasOwnProperty.call(dataTypeToRenderingMap, responseObject.datatype.name) &&
     !dataTypeToRenderingMap[responseObject.datatype.name].includes(conceptObject.questionOptions.rendering) &&
@@ -137,12 +166,12 @@ const handleAnswerValidation = async (questionObject, array) => {
       const searchRef = answer.concept
         ? answer.concept
         : answer.conceptMappings?.length
-        ? answer.conceptMappings
-            .map((eachMapping) => {
-              return `${eachMapping.type}:${eachMapping.value}`;
-            })
-            .join(',')
-        : '';
+          ? answer.conceptMappings
+              .map((eachMapping) => {
+                return `${eachMapping.type}:${eachMapping.value}`;
+              })
+              .join(',')
+          : '';
 
       try {
         const response = await openmrsFetch(

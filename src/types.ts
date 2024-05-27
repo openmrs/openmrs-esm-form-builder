@@ -134,6 +134,7 @@ export interface QuestionOptions {
   rows?: string;
   orderSettingUuid?: string;
   orderType?: string;
+  identifierType?: string;
   selectableOrders?: Array<Answer>;
   weekList?: [];
 }
@@ -163,6 +164,13 @@ export interface Mapping {
   conceptMapType: {
     display: string;
   };
+}
+
+export interface PatientIdentifierType {
+  display: string;
+  name: string;
+  description: string;
+  uuid: string;
 }
 
 export interface PersonAttributeType {
