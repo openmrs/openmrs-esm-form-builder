@@ -1,23 +1,23 @@
 import React from 'react';
+import classNames from 'classnames';
 import { useDroppable } from '@dnd-kit/core';
+import styles from './droppable-container.scss';
 
 interface DroppableProps {
   id: string;
   children: React.ReactNode;
 }
 
-export function Droppable({ id, children }: DroppableProps) {
+function Droppable({ id, children }: DroppableProps) {
   const { isOver, setNodeRef } = useDroppable({
     id: id,
   });
 
-  const style = {
-    border: `1px solid ${isOver ? '#005d5d' : 'transparent'}`,
-  };
-
   return (
-    <div ref={setNodeRef} style={style}>
+    <div className={classNames(styles.droppable as string, { [styles.isOver]: isOver })} ref={setNodeRef}>
       {children}
     </div>
   );
 }
+
+export default Droppable;
