@@ -1,4 +1,4 @@
-import { defineConfigSchema, getAsyncLifecycle } from '@openmrs/esm-framework';
+import { defineConfigSchema, getAsyncLifecycle, registerFeatureFlag } from '@openmrs/esm-framework';
 import { configSchema } from './config-schema';
 
 const moduleName = '@openmrs/esm-form-builder-app';
@@ -19,4 +19,10 @@ export const systemAdministrationFormBuilderCardLink = getAsyncLifecycle(
 
 export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
+
+  registerFeatureFlag(
+    'form-rule-builder',
+    'Form Validation Rule Builder',
+    'Enables conditional logic in forms to streamline workflow',
+  );
 }

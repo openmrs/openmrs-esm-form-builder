@@ -5,7 +5,7 @@ import { DndContext, KeyboardSensor, MouseSensor, useSensor, useSensors } from '
 import { Accordion, AccordionItem, Button, InlineLoading } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
-import { showSnackbar } from '@openmrs/esm-framework';
+import { showSnackbar, useFeatureFlag } from '@openmrs/esm-framework';
 import type { FormSchema } from '@openmrs/openmrs-form-engine-lib';
 
 import type { Schema, Question } from '../../types';
@@ -49,7 +49,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   });
   const keyboardSensor = useSensor(KeyboardSensor);
   const sensors = useSensors(mouseSensor, keyboardSensor);
-
+  const isValidationRuleBuilder = useFeatureFlag('form-rule-builder');
   const { t } = useTranslation();
   const { formUuid } = useParams<{ formUuid: string }>();
   const isEditingExistingForm = Boolean(formUuid);
@@ -528,7 +528,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                         handleAddLogic={handleAddLogic}
                                         questionCount={section.questions.length}
                                       />
-                                      {activeFields.includes(question.id) && (
+                                      {activeFields.includes(question.id) && isValidationRuleBuilder && (
                                         <RuleBuilder
                                           key={question.id}
                                           question={question}
