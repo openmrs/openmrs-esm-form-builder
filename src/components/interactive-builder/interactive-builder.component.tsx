@@ -4,7 +4,7 @@ import { DndContext, KeyboardSensor, MouseSensor, closestCorners, useSensor, use
 import { Accordion, AccordionItem, Button, IconButton, InlineLoading } from '@carbon/react';
 import { Add, TrashCan, Edit } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
-import { showModal, showSnackbar } from '@openmrs/esm-framework';
+import { showModal, showSnackbar, useFeatureFlag } from '@openmrs/esm-framework';
 import RuleBuilder from '../rule-builder/rule-builder.component';
 import DraggableQuestion from './draggable/draggable-question.component';
 import Droppable from './droppable/droppable-container.component';
@@ -40,7 +40,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   });
   const keyboardSensor = useSensor(KeyboardSensor);
   const sensors = useSensors(mouseSensor, keyboardSensor);
-
+  const isValidationRuleBuilder = useFeatureFlag('form-rule-builder');
   const { t } = useTranslation();
   const { formUuid } = useParams<{ formUuid: string }>();
   const isEditingExistingForm = Boolean(formUuid);
@@ -454,7 +454,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                         schema={schema}
                                         sectionIndex={sectionIndex}
                                       />
-                                      {activeFields.includes(question.id) && (
+                                      {activeFields.includes(question.id) && isValidationRuleBuilder && (
                                         <RuleBuilder
                                           key={question.id}
                                           question={question}

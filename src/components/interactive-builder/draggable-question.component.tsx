@@ -6,6 +6,7 @@ import { Button, CopyButton } from '@carbon/react';
 import { Draggable, Edit, TrashCan, Settings } from '@carbon/react/icons';
 import type { Question } from '../../types';
 import styles from './draggable-question.scss';
+import { useFeatureFlag } from '@openmrs/esm-framework';
 
 interface DraggableQuestionProps {
   question: Question;
@@ -31,6 +32,7 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   questionCount,
 }) => {
   const { t } = useTranslation();
+  const isValidationRuleBuilder = useFeatureFlag('form-rule-builder');
   const draggableId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
   const { attributes, listeners, transform, isDragging, setNodeRef } = useDraggable({
     id: draggableId,
@@ -89,15 +91,17 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           renderIcon={(props) => <TrashCan size={16} {...props} />}
           size="md"
         />
-        <Button
-          enterDelayMs={300}
-          hasIconOnly
-          iconDescription={t('addConditionalLogic', 'Add conditional logic')}
-          kind="ghost"
-          onClick={() => handleAddLogic(question.id)}
-          renderIcon={(props) => <Settings size={16} {...props} />}
-          size="md"
-        />
+        {isValidationRuleBuilder && (
+          <Button
+            enterDelayMs={300}
+            hasIconOnly
+            iconDescription={t('addConditionalLogic', 'Add conditional logic')}
+            kind="ghost"
+            onClick={() => handleAddLogic(question.id)}
+            renderIcon={(props) => <Settings size={16} {...props} />}
+            size="md"
+          />
+        )}
       </div>
     </div>
   );
