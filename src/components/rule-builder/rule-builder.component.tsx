@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ComboBox } from '@carbon/react';
 import { OverflowMenuItem, OverflowMenu } from '@carbon/react';
 import { Layer } from '@carbon/react';
+import { TextArea } from '@carbon/react';
 
 interface Condition {
   id: string;
@@ -100,10 +101,28 @@ const RuleBuilder = ({
     }));
   };
 
-  const addCondition = () => setConditions([...conditions, { id: uuidv4(), isNew: true }]);
-  const removeCondition = (id: string) => setConditions(conditions.filter((condition) => condition.id !== id));
+  const addCondition = () => {
+    const newCondition: Condition = { id: uuidv4(), isNew: true };
+    setConditions([...conditions, newCondition]);
+    handleConditionChange(newCondition?.id, `logicalOperator-${conditions.length}`, 'and');
+  };
+  const removeCondition = (id: string) => {
+    setConditions(conditions.filter((condition) => condition.id !== id));
+    setConditionsState((prevState) => {
+      const newState = { ...prevState };
+      delete newState[id];
+      return newState;
+    });
+  };
   const addAction = () => setActions([...actions, { id: uuidv4(), isNew: true }]);
-  const removeAction = (id: string) => setActions(actions.filter((action) => action.id !== id));
+  const removeAction = (id: string) => {
+    setActions(actions.filter((action) => action.id !== id));
+    setActionsState((prevState) => {
+      const newState = { ...prevState };
+      delete newState[id];
+      return newState;
+    });
+  };
   const removeRule = () => {
     handleAddLogic(question.id);
     setActions([]);
@@ -217,9 +236,9 @@ export const RuleCondition = ({
             initialSelectedItem="and"
             defaultSelectedItem="and"
             items={['and', 'or']}
-            onChange={({ selectedItem }: { selectedItem: string }) =>
-              handleConditionChange(fieldId, `logicalOperator-${index}`, selectedItem)
-            }
+            onChange={({ selectedItem }: { selectedItem: string }) => {
+              handleConditionChange(fieldId, `logicalOperator-${index}`, selectedItem);
+            }}
             size={isTablet ? 'lg' : 'sm'}
           />
         ) : (
@@ -258,6 +277,9 @@ export const RuleCondition = ({
             selectedItem={conditionsState[fieldId]?.[`targetValue-${index}`] || 'Choose a answer'}
             allowCustomValue
             items={answer}
+            onChange={({ selectedItem }: { selectedItem: string }) => {
+              handleConditionChange(fieldId, `targetValue-${index}`, selectedItem);
+            }}
             size={isTablet ? 'lg' : 'sm'}
           />
         )}
@@ -325,71 +347,92 @@ export const RuleAction = ({
   actionsState,
 }: RuleActionProps) => {
   const { t } = useTranslation();
+  const [action, setAction] = useState<string>('');
+  const showErrorMessageBox = action === 'fail';
+
+  const handleSelectAction = (selectedAction: string) => {
+    setAction(selectedAction);
+  };
+  const handleErrorMessage = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    handleActionChange(fieldId, `errorMessage-${index}`, e.target.value);
+  };
+
   return (
-    <div className={styles.ruleSetContainer}>
-      <div className={styles.sectionContainer}>
-        {isNew ? (
-          <div className={styles.ruleDescriptor}>
-            <span className={styles.icon}>
-              <Link />
-            </span>
-            <p className={styles.label}>{t('and', 'and')}</p>
-          </div>
-        ) : (
-          <div className={styles.ruleDescriptor}>
-            <span className={styles.icon}>
-              <Flash />
-            </span>
-            <p className={styles.label}>{t('then', 'Then')}</p>
-          </div>
-        )}
-        <Dropdown
-          id={`actionCondition-${index}`}
-          className={styles.actionCondition}
-          selectedItem={actionsState[fieldId]?.[`actionCondition-${index}`] || 'Select Condition'}
-          items={['Hide']}
-          onChange={({ selectedItem }: { selectedItem: string }) =>
-            handleActionChange(fieldId, `actionCondition-${index}`, selectedItem)
-          }
-          size={isTablet ? 'lg' : 'sm'}
-        />
-        <Dropdown
-          id={`actionField-${index}`}
-          className={styles.actionField}
-          selectedItem={actionsState[fieldId]?.[`actionField-${index}`] || 'Choose a field'}
-          items={questions}
-          onChange={({ selectedItem }: { selectedItem: string }) =>
-            handleActionChange(fieldId, `actionField-${index}`, selectedItem)
-          }
-          size={isTablet ? 'lg' : 'sm'}
-        />
-      </div>
-      <Layer className={styles.layer}>
-        <OverflowMenu
-          aria-label={t('optionsMenu', 'Options menu')}
-          className={styles.overflowMenu}
-          align="left"
-          flipped
-          size={isTablet ? 'lg' : 'sm'}
-        >
-          <OverflowMenuItem
-            id="addAction"
-            className={styles.menuItem}
-            onClick={addAction}
-            itemText={t('addAction', 'Add action')}
-          />
-          {isNew && (
-            <OverflowMenuItem
-              id="removeAction"
-              className={styles.menuItem}
-              onClick={removeAction}
-              itemText={t('removeAction', 'Remove action')}
-              hasDivider
-              isDelete
-            />
+    <div>
+      <div className={styles.ruleSetContainer}>
+        <div className={styles.sectionContainer}>
+          {isNew ? (
+            <div className={styles.ruleDescriptor}>
+              <span className={styles.icon}>
+                <Link />
+              </span>
+              <p className={styles.label}>{t('and', 'And')}</p>
+            </div>
+          ) : (
+            <div className={styles.ruleDescriptor}>
+              <span className={styles.icon}>
+                <Flash />
+              </span>
+              <p className={styles.label}>{t('then', 'Then')}</p>
+            </div>
           )}
-        </OverflowMenu>
-      </Layer>
+          <Dropdown
+            id={`actionCondition-${index}`}
+            className={styles.actionCondition}
+            selectedItem={actionsState[fieldId]?.[`actionCondition-${index}`] || 'Select Condition'}
+            items={['Hide', 'fail']}
+            onChange={({ selectedItem }: { selectedItem: string }) => {
+              handleActionChange(fieldId, `actionCondition-${index}`, selectedItem);
+              handleSelectAction(selectedItem);
+            }}
+            size={isTablet ? 'lg' : 'sm'}
+          />
+          <Dropdown
+            id={`actionField-${index}`}
+            className={styles.actionField}
+            selectedItem={actionsState[fieldId]?.[`actionField-${index}`] || 'Choose a field'}
+            items={questions}
+            onChange={({ selectedItem }: { selectedItem: string }) =>
+              handleActionChange(fieldId, `actionField-${index}`, selectedItem)
+            }
+            size={isTablet ? 'lg' : 'sm'}
+          />
+        </div>
+        <Layer className={styles.layer}>
+          <OverflowMenu
+            aria-label={t('optionsMenu', 'Options menu')}
+            className={styles.overflowMenu}
+            align="left"
+            flipped
+            size={isTablet ? 'lg' : 'sm'}
+          >
+            <OverflowMenuItem
+              id="addAction"
+              className={styles.menuItem}
+              onClick={addAction}
+              itemText={t('addAction', 'Add action')}
+            />
+            {isNew && (
+              <OverflowMenuItem
+                id="removeAction"
+                className={styles.menuItem}
+                onClick={removeAction}
+                itemText={t('removeAction', 'Remove action')}
+                hasDivider
+                isDelete
+              />
+            )}
+          </OverflowMenu>
+        </Layer>
+      </div>
+      {showErrorMessageBox && (
+        <TextArea
+          rows={3}
+          id={`error-message-${index}`}
+          helperText="Error message"
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleErrorMessage(e)}
+        />
+      )}
     </div>
   );
 };
