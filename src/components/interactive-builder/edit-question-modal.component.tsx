@@ -225,7 +225,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   };
 
   return (
-    <div className="cds--modal-container-body">
+    <>
       <ModalHeader closeModal={closeModal} title={t('editQuestion', 'Edit question')} />
       <Form className={styles.form} onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody hasScrollingContent>
@@ -532,7 +532,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           </Button>
         </ModalFooter>
       </Form>
-    </div>
+    </>
   );
 };
 
