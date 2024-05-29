@@ -146,6 +146,8 @@
   "questionIdExists": "This question ID already exists in your schema",
   "questionIdPlaceholder": "Enter a unique ID e.g. \"anaesthesiaType\" for a question asking about the type of anaesthesia.",
   "questionLabel": "Label",
+  "questionRestored": "Question restored",
+  "questionRestoredMessage": "The question labelled \"{{- questionLabel}}\" has been restored.",
   "questionType": "Question type",
   "referenceSchema": "Reference schema",
   "relationship": "Relationship",

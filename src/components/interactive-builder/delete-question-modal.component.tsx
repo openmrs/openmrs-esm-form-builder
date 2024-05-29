@@ -32,6 +32,13 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
     schema.pages[pageIndex].sections[sectionIndex].questions.splice(questionIndex, 0, question);
     onSchemaChange({ ...schema });
     resetIndices();
+
+    showSnackbar({
+      title: t('questionRestored', 'Question restored'),
+      subtitle: t('questionRestoredMessage', 'The question labelled "{{- questionLabel}}" has been restored.', {
+        questionLabel: question.label,
+      }),
+    });
   };
 
   const deleteQuestion = (pageIndex: number, sectionIndex: number, questionIndex: number) => {
