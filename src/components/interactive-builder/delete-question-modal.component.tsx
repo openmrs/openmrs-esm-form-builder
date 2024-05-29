@@ -28,6 +28,12 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
 }) => {
   const { t } = useTranslation();
 
+  const restoreQuestion = () => {
+    schema.pages[pageIndex].sections[sectionIndex].questions.splice(questionIndex, 0, question);
+    onSchemaChange({ ...schema });
+    resetIndices();
+  };
+
   const deleteQuestion = (pageIndex: number, sectionIndex: number, questionIndex: number) => {
     try {
       schema.pages[pageIndex].sections[sectionIndex].questions.splice(questionIndex, 1);
@@ -36,9 +42,9 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
       resetIndices();
 
       showSnackbar({
+        actionButtonLabel: t('undo', 'Undo'),
+        onActionButtonClick: () => restoreQuestion(),
         title: t('questionDeleted', 'Question deleted'),
-        kind: 'success',
-        isLowContrast: true,
         subtitle: t('questionDeletedMessage', 'The question labelled "{{- questionLabel}}" has been deleted.', {
           questionLabel: question.label,
         }),
@@ -67,8 +73,6 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
           {t('deleteQuestionWarningText', 'Clicking the delete button will delete the question labelled')}{' '}
           <strong>"{question.label}"</strong>.
         </p>
-        <br />
-        <p>{t('deleteQuestionExplainerText', 'This action cannot be undone.')}</p>
       </ModalBody>
       <ModalFooter>
         <Button kind="secondary" onClick={closeModal}>
