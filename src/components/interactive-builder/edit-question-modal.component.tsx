@@ -4,7 +4,6 @@ import debounce from 'lodash-es/debounce';
 import flattenDeep from 'lodash-es/flattenDeep';
 import {
   Button,
-  ComposedModal,
   Form,
   FormGroup,
   FormLabel,
@@ -35,8 +34,7 @@ import { useConceptName } from '../../hooks/useConceptName';
 import styles from './question-modal.scss';
 
 interface EditQuestionModalProps {
-  onModalChange: (showModal: boolean) => void;
-  onQuestionEdit: (question: Question) => void;
+  closeModal: () => void;
   onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
   questionIndex: number;
@@ -44,7 +42,6 @@ interface EditQuestionModalProps {
   resetIndices: () => void;
   schema: Schema;
   sectionIndex: number;
-  showModal: boolean;
 }
 
 interface Config {
@@ -58,8 +55,7 @@ interface Item {
 }
 
 const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
-  onModalChange,
-  onQuestionEdit,
+  closeModal,
   onSchemaChange,
   pageIndex,
   questionIndex,
@@ -67,7 +63,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   resetIndices,
   schema,
   sectionIndex,
-  showModal,
 }) => {
   const { t } = useTranslation();
   const { fieldTypes, questionTypes }: Config = useConfig();
@@ -207,16 +202,15 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       setSelectedConcept(null);
       setConceptMappings([]);
       setSelectedAnswers([]);
-      onQuestionEdit(null);
 
       showSnackbar({
-        title: t('success', 'Success!'),
+        title: t('questionEdited', 'Question edited'),
         kind: 'success',
         isLowContrast: true,
-        subtitle: t('questionUpdated', 'Question updated'),
+        subtitle: t('questionEditedMessage', 'The question labelled "{{- questionLabel}}" has been edited.', {
+          questionLabel: questionToEdit.label,
+        }),
       });
-
-      onModalChange(false);
     } catch (error) {
       if (error instanceof Error) {
         showSnackbar({
@@ -226,11 +220,13 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
         });
       }
     }
+
+    closeModal();
   };
 
   return (
-    <ComposedModal open={showModal} onClose={() => onModalChange(false)} preventCloseOnClickOutside>
-      <ModalHeader title={t('editQuestion', 'Edit question')} />
+    <>
+      <ModalHeader closeModal={closeModal} title={t('editQuestion', 'Edit question')} />
       <Form className={styles.form} onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody hasScrollingContent>
           <Stack gap={5}>
@@ -528,7 +524,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           </Stack>
         </ModalBody>
         <ModalFooter>
-          <Button onClick={() => onModalChange(false)} kind="secondary">
+          <Button onClick={closeModal} kind="secondary">
             {t('cancel', 'Cancel')}
           </Button>
           <Button onClick={handleUpdateQuestion}>
@@ -536,7 +532,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           </Button>
         </ModalFooter>
       </Form>
-    </ComposedModal>
+    </>
   );
 };
 

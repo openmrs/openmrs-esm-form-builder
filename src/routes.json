@@ -26,6 +26,10 @@
     {
       "name": "delete-question-modal",
       "component": "deleteQuestionModal"
+    },
+    {
+      "name": "edit-question-modal",
+      "component": "editQuestionModal"
     }
   ]
 }

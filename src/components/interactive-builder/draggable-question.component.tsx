@@ -10,7 +10,6 @@ import styles from './draggable-question.scss';
 
 interface DraggableQuestionProps {
   handleDuplicateQuestion: (question: Question, pageId: number, sectionId: number) => void;
-  handleEditButtonClick: (question: Question) => void;
   onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
   question: Question;
@@ -23,7 +22,6 @@ interface DraggableQuestionProps {
 
 const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   handleDuplicateQuestion,
-  handleEditButtonClick,
   onSchemaChange,
   pageIndex,
   question,
@@ -35,6 +33,19 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
 }) => {
   const { t } = useTranslation();
   const draggableId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
+
+  const launchEditQuestionModal = useCallback(() => {
+    const dispose = showModal('edit-question-modal', {
+      closeModal: () => dispose(),
+      questionToEdit: question,
+      pageIndex,
+      sectionIndex,
+      questionIndex,
+      resetIndices,
+      onSchemaChange,
+      schema,
+    });
+  }, [onSchemaChange, pageIndex, question, questionIndex, resetIndices, schema, sectionIndex]);
 
   const launchDeleteQuestionModal = useCallback(() => {
     const dispose = showModal('delete-question-modal', {
@@ -90,11 +101,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           hasIconOnly
           iconDescription={t('editQuestion', 'Edit question')}
           kind="ghost"
-          onClick={() => {
-            if (!isDragging) {
-              handleEditButtonClick(question);
-            }
-          }}
+          onClick={launchEditQuestionModal}
           renderIcon={(props) => <Edit size={16} {...props} />}
           size="md"
         />

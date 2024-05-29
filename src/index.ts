@@ -22,6 +22,11 @@ export const deleteQuestionModal = getAsyncLifecycle(
   options,
 );
 
+export const editQuestionModal = getAsyncLifecycle(
+  () => import('./components/interactive-builder/edit-question-modal.component'),
+  options,
+);
+
 export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
 }
