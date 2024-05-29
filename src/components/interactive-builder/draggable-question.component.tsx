@@ -1,39 +1,70 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
 import { Button, CopyButton } from '@carbon/react';
-import { Draggable, Edit, TrashCan, Settings } from '@carbon/react/icons';
-import type { Question } from '../../types';
+import { Draggable, Edit, TrashCan } from '@carbon/react/icons';
+import { showModal } from '@openmrs/esm-framework';
+import type { Question, Schema } from '../../types';
 import styles from './draggable-question.scss';
 import { useFeatureFlag } from '@openmrs/esm-framework';
+import { Settings } from '@carbon/react/icons';
 
 interface DraggableQuestionProps {
-  question: Question;
-  pageIndex: number;
-  sectionIndex: number;
-  questionIndex: number;
   handleDuplicateQuestion: (question: Question, pageId: number, sectionId: number) => void;
-  handleEditButtonClick: (question: Question) => void;
-  handleDeleteButtonClick: (question: Question) => void;
   handleAddLogic: (fieldId: string) => void;
+  onSchemaChange: (schema: Schema) => void;
+  pageIndex: number;
+  question: Question;
   questionCount: number;
+  questionIndex: number;
+  resetIndices: () => void;
+  schema: Schema;
+  sectionIndex: number;
 }
 
-export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
-  question,
-  pageIndex,
-  sectionIndex,
-  questionIndex,
+const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   handleDuplicateQuestion,
-  handleDeleteButtonClick,
-  handleEditButtonClick,
   handleAddLogic,
+  onSchemaChange,
+  pageIndex,
+  question,
   questionCount,
+  questionIndex,
+  resetIndices,
+  schema,
+  sectionIndex,
 }) => {
   const { t } = useTranslation();
   const isValidationRuleBuilder = useFeatureFlag('form-rule-builder');
   const draggableId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
+
+  const launchEditQuestionModal = useCallback(() => {
+    const dispose = showModal('edit-question-modal', {
+      closeModal: () => dispose(),
+      questionToEdit: question,
+      pageIndex,
+      sectionIndex,
+      questionIndex,
+      resetIndices,
+      onSchemaChange,
+      schema,
+    });
+  }, [onSchemaChange, pageIndex, question, questionIndex, resetIndices, schema, sectionIndex]);
+
+  const launchDeleteQuestionModal = useCallback(() => {
+    const dispose = showModal('delete-question-modal', {
+      closeModal: () => dispose(),
+      pageIndex,
+      sectionIndex,
+      question,
+      questionIndex,
+      resetIndices,
+      onSchemaChange,
+      schema,
+    });
+  }, [onSchemaChange, pageIndex, question, questionIndex, resetIndices, schema, sectionIndex]);
+
   const { attributes, listeners, transform, isDragging, setNodeRef } = useDraggable({
     id: draggableId,
     disabled: questionCount <= 1,
@@ -74,11 +105,7 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           hasIconOnly
           iconDescription={t('editQuestion', 'Edit question')}
           kind="ghost"
-          onClick={() => {
-            if (!isDragging) {
-              handleEditButtonClick(question);
-            }
-          }}
+          onClick={launchEditQuestionModal}
           renderIcon={(props) => <Edit size={16} {...props} />}
           size="md"
         />
@@ -87,7 +114,7 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           hasIconOnly
           iconDescription={t('deleteQuestion', 'Delete question')}
           kind="ghost"
-          onClick={handleDeleteButtonClick}
+          onClick={launchDeleteQuestionModal}
           renderIcon={(props) => <TrashCan size={16} {...props} />}
           size="md"
         />
@@ -106,3 +133,5 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
     </div>
   );
 };
+
+export default DraggableQuestion;

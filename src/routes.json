@@ -21,5 +21,15 @@
       "online": true,
       "offline": true
     }
+  ],
+  "modals": [
+    {
+      "name": "delete-question-modal",
+      "component": "deleteQuestionModal"
+    },
+    {
+      "name": "edit-question-modal",
+      "component": "editQuestionModal"
+    }
   ]
 }

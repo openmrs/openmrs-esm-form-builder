@@ -29,14 +29,13 @@ import { ArrowUpRight } from '@carbon/react/icons';
 import { showSnackbar, useConfig, useDebounce } from '@openmrs/esm-framework';
 import type { RenderType } from '@openmrs/openmrs-form-engine-lib';
 
-import type { Answer, Concept, ConceptMapping, PersonAttributeType, Question, Schema } from '../../types';
+import type { Answer, Concept, ConceptMapping, PersonAttributeType, Schema } from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import styles from './question-modal.scss';
 
 interface AddQuestionModalProps {
   onModalChange: (showModal: boolean) => void;
-  onQuestionEdit: (question: Question) => void;
   onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
   questionIndex: number;
@@ -112,6 +111,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     encounterDatetime: ['date'],
     encounterLocation: ['ui-select-extended'],
     encounterProvider: ['ui-select-extended'],
+    encounterRole: ['ui-select-extended'],
     obsGroup: ['group', 'repeating'],
     personAttribute: ['ui-select-extended', 'select', 'text'],
     testOrder: ['group', 'repeating'],

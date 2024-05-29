@@ -12,14 +12,12 @@ import type { Schema, Question } from '../../types';
 import AddQuestionModal from './add-question-modal.component';
 import DeleteSectionModal from './delete-section-modal.component';
 import DeletePageModal from './delete-page-modal.component';
-import DeleteQuestionModal from './delete-question-modal.component';
-import EditQuestionModal from './edit-question-modal.component';
+import DraggableQuestion from './draggable-question.component';
+import Droppable from './droppable-container.component';
 import EditableValue from './editable-value.component';
 import NewFormModal from './new-form-modal.component';
 import PageModal from './page-modal.component';
 import SectionModal from './section-modal.component';
-import { DraggableQuestion } from './draggable-question.component';
-import { Droppable } from './droppable-container.component';
 import styles from './interactive-builder.scss';
 import RuleBuilder from '../rule-builder/rule-builder.component';
 
@@ -56,15 +54,12 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
   const [pageIndex, setPageIndex] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [questionToEdit, setQuestionToEdit] = useState<Question>();
   const [sectionIndex, setSectionIndex] = useState(0);
   const [showAddPageModal, setShowAddPageModal] = useState(false);
   const [showAddQuestionModal, setShowAddQuestionModal] = useState(false);
   const [showAddSectionModal, setShowAddSectionModal] = useState(false);
   const [showDeletePageModal, setShowDeletePageModal] = useState(false);
-  const [showDeleteQuestionModal, setShowDeleteQuestionModal] = useState(false);
   const [showDeleteSectionModal, setShowDeleteSectionModal] = useState(false);
-  const [showEditQuestionModal, setShowEditQuestionModal] = useState(false);
   const [showNewFormModal, setShowNewFormModal] = useState(false);
   const [activeFields, setActiveFields] = useState<Array<string>>([]);
 
@@ -104,10 +99,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
   const addQuestion = () => {
     setShowAddQuestionModal(true);
-  };
-
-  const editQuestion = () => {
-    setShowEditQuestionModal(true);
   };
 
   const renameSchema = useCallback(
@@ -274,21 +265,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     }
   };
 
-  const handleEditButtonClick = (question: Question) => {
-    editQuestion();
-    setPageIndex(pageIndex);
-    setSectionIndex(sectionIndex);
-    setQuestionIndex(questionIndex);
-    setQuestionToEdit(question);
-  };
-
-  const handleDeleteButtonClick = () => {
-    setPageIndex(pageIndex);
-    setSectionIndex(sectionIndex);
-    setQuestionIndex(questionIndex);
-    setShowDeleteQuestionModal(true);
-  };
-
   const getAnswerErrors = (answers: Array<Record<string, string>>) => {
     const answerLabels = answers?.map((answer) => answer.label) || [];
     const errors: Array<ValidationError> = validationResponse.filter((error) =>
@@ -341,7 +317,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       {showAddQuestionModal ? (
         <AddQuestionModal
           onModalChange={setShowAddQuestionModal}
-          onQuestionEdit={setQuestionToEdit}
           onSchemaChange={onSchemaChange}
           pageIndex={pageIndex}
           sectionIndex={sectionIndex}
@@ -349,21 +324,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           resetIndices={resetIndices}
           schema={schema}
           showModal={showAddQuestionModal}
-        />
-      ) : null}
-
-      {showEditQuestionModal ? (
-        <EditQuestionModal
-          onModalChange={setShowEditQuestionModal}
-          onQuestionEdit={setQuestionToEdit}
-          onSchemaChange={onSchemaChange}
-          pageIndex={pageIndex}
-          questionIndex={questionIndex}
-          questionToEdit={questionToEdit}
-          resetIndices={resetIndices}
-          schema={schema}
-          sectionIndex={sectionIndex}
-          showModal={showEditQuestionModal}
         />
       ) : null}
 
@@ -390,19 +350,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         />
       ) : null}
 
-      {showDeleteQuestionModal ? (
-        <DeleteQuestionModal
-          onModalChange={setShowDeleteQuestionModal}
-          onSchemaChange={onSchemaChange}
-          resetIndices={resetIndices}
-          pageIndex={pageIndex}
-          sectionIndex={sectionIndex}
-          questionIndex={questionIndex}
-          schema={schema}
-          showModal={showDeleteQuestionModal}
-        />
-      ) : null}
-
       {schema?.name && (
         <>
           <div className={styles.header}>
@@ -413,7 +360,11 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                   'welcomeExplainer',
                   'Add pages, sections and questions to your form. The Preview tab automatically updates as you build your form. For a detailed explanation of what constitutes an OpenMRS form schema, please read through the ',
                 )}{' '}
-                <a target="_blank" rel="noopener noreferrer" href={'https://ohri-docs.globalhealthapp.net/'}>
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={'https://openmrs.atlassian.net/wiki/spaces/projects/pages/68747273/React+Form+Engine'}
+                >
                   {t('formBuilderDocs', 'form builder documentation')}.
                 </a>
               </p>
@@ -517,16 +468,17 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                   return (
                                     <Droppable id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}>
                                       <DraggableQuestion
-                                        key={question.id}
-                                        question={question}
-                                        pageIndex={pageIndex}
-                                        sectionIndex={sectionIndex}
-                                        questionIndex={questionIndex}
                                         handleDuplicateQuestion={duplicateQuestion}
-                                        handleEditButtonClick={handleEditButtonClick}
-                                        handleDeleteButtonClick={handleDeleteButtonClick}
                                         handleAddLogic={handleAddLogic}
+                                        key={question.id}
+                                        onSchemaChange={onSchemaChange}
+                                        pageIndex={pageIndex}
+                                        question={question}
                                         questionCount={section.questions.length}
+                                        questionIndex={questionIndex}
+                                        resetIndices={resetIndices}
+                                        schema={schema}
+                                        sectionIndex={sectionIndex}
                                       />
                                       {activeFields.includes(question.id) && isValidationRuleBuilder && (
                                         <RuleBuilder
