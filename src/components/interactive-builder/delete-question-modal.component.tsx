@@ -1,29 +1,30 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, ComposedModal, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
+import { Button, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
-import type { Schema } from '../../types';
+import type { Question, Schema } from '../../types';
 
 interface DeleteQuestionModal {
-  onModalChange: (showModal: boolean) => void;
+  closeModal: () => void;
   onSchemaChange: (schema: Schema) => void;
-  resetIndices: () => void;
   pageIndex: number;
-  sectionIndex: number;
+  question: Question;
   questionIndex: number;
+  resetIndices: () => void;
   schema: Schema;
+  sectionIndex: number;
   showModal: boolean;
 }
 
 const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
-  onModalChange,
+  closeModal,
   onSchemaChange,
-  resetIndices,
   pageIndex,
-  sectionIndex,
+  question,
   questionIndex,
+  resetIndices,
   schema,
-  showModal,
+  sectionIndex,
 }) => {
   const { t } = useTranslation();
 
@@ -35,10 +36,12 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
       resetIndices();
 
       showSnackbar({
-        title: t('success', 'Success!'),
+        title: t('questionDeleted', 'Question deleted'),
         kind: 'success',
         isLowContrast: true,
-        subtitle: t('QuestionDeleted', 'Question deleted'),
+        subtitle: t('questionDeletedMessage', 'The question labelled "{{- questionLabel}}" has been deleted.', {
+          questionLabel: question.label,
+        }),
       });
     } catch (error) {
       if (error instanceof Error) {
@@ -49,29 +52,38 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
         });
       }
     }
+
+    closeModal();
   };
 
   return (
-    <ComposedModal open={showModal} onClose={() => onModalChange(false)} preventCloseOnClickOutside>
-      <ModalHeader title={t('deleteQuestionConfirmation', 'Are you sure you want to delete this question?')} />
+    <div>
+      <ModalHeader
+        closeModal={closeModal}
+        title={t('deleteQuestionConfirmation', 'Are you sure you want to delete this question? ')}
+      />
       <ModalBody>
+        <p>
+          {t('deleteQuestionWarningText', 'Clicking the delete button will delete the question labelled')}{' '}
+          <strong>"{question.label}"</strong>.
+        </p>
+        <br />
         <p>{t('deleteQuestionExplainerText', 'This action cannot be undone.')}</p>
       </ModalBody>
       <ModalFooter>
-        <Button kind="secondary" onClick={() => onModalChange(false)}>
+        <Button kind="secondary" onClick={closeModal}>
           {t('cancel', 'Cancel')}
         </Button>
         <Button
           kind="danger"
           onClick={() => {
             deleteQuestion(pageIndex, sectionIndex, questionIndex);
-            onModalChange(false);
           }}
         >
           <span>{t('deleteQuestion', 'Delete question')}</span>
         </Button>
       </ModalFooter>
-    </ComposedModal>
+    </div>
   );
 };
 

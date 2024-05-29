@@ -1,35 +1,53 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
 import { Button, CopyButton } from '@carbon/react';
 import { Draggable, Edit, TrashCan } from '@carbon/react/icons';
-import type { Question } from '../../types';
+import { showModal } from '@openmrs/esm-framework';
+import type { Question, Schema } from '../../types';
 import styles from './draggable-question.scss';
 
 interface DraggableQuestionProps {
-  question: Question;
-  pageIndex: number;
-  sectionIndex: number;
-  questionIndex: number;
   handleDuplicateQuestion: (question: Question, pageId: number, sectionId: number) => void;
   handleEditButtonClick: (question: Question) => void;
-  handleDeleteButtonClick: (question: Question) => void;
+  onSchemaChange: (schema: Schema) => void;
+  pageIndex: number;
+  question: Question;
   questionCount: number;
+  questionIndex: number;
+  resetIndices: () => void;
+  schema: Schema;
+  sectionIndex: number;
 }
 
-export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
-  question,
-  pageIndex,
-  sectionIndex,
-  questionIndex,
+const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   handleDuplicateQuestion,
-  handleDeleteButtonClick,
   handleEditButtonClick,
+  onSchemaChange,
+  pageIndex,
+  question,
   questionCount,
+  questionIndex,
+  resetIndices,
+  schema,
+  sectionIndex,
 }) => {
   const { t } = useTranslation();
   const draggableId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
+
+  const launchDeleteQuestionModal = useCallback(() => {
+    const dispose = showModal('delete-question-modal', {
+      closeModal: () => dispose(),
+      pageIndex,
+      sectionIndex,
+      question,
+      questionIndex,
+      resetIndices,
+      onSchemaChange,
+      schema,
+    });
+  }, [onSchemaChange, pageIndex, question, questionIndex, resetIndices, schema, sectionIndex]);
 
   const { attributes, listeners, transform, isDragging, setNodeRef } = useDraggable({
     id: draggableId,
@@ -85,7 +103,7 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           hasIconOnly
           iconDescription={t('deleteQuestion', 'Delete question')}
           kind="ghost"
-          onClick={handleDeleteButtonClick}
+          onClick={launchDeleteQuestionModal}
           renderIcon={(props) => <TrashCan size={16} {...props} />}
           size="md"
         />
@@ -93,3 +111,5 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
     </div>
   );
 };
+
+export default DraggableQuestion;

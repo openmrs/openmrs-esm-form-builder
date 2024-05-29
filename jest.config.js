@@ -10,6 +10,7 @@ module.exports = {
     '@openmrs/esm-framework': '@openmrs/esm-framework/mock',
     '\\.(s?css)$': 'identity-obj-proxy',
     '^lodash-es/(.*)$': 'lodash/$1',
+    'lodash-es': 'lodash',
     '^dexie$': '<rootDir>/node_modules/dexie',
     '^react-i18next$': '<rootDir>/__mocks__/react-i18next.js',
   },

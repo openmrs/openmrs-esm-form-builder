@@ -17,6 +17,11 @@ export const systemAdministrationFormBuilderCardLink = getAsyncLifecycle(
   options,
 );
 
+export const deleteQuestionModal = getAsyncLifecycle(
+  () => import('./components/interactive-builder/delete-question-modal.component'),
+  options,
+);
+
 export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
 }
