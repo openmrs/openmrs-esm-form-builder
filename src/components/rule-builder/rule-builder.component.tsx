@@ -11,32 +11,33 @@ import { ComboBox } from '@carbon/react';
 import { OverflowMenuItem, OverflowMenu } from '@carbon/react';
 import { Layer } from '@carbon/react';
 import { TextArea } from '@carbon/react';
+import { useFormRule } from '../../hooks/useFormRule';
 
 interface Condition {
   id: string;
   isNew: boolean;
+  logicalOperator?: string;
+  targetField?: string;
+  targetCondition?: string;
+  targetValue?: string;
 }
 
 interface Action {
   id: string;
   isNew: boolean;
+  logicalOperator?: string;
+  actionCondition?: string;
+  actionField?: string;
+  errorMessage?: string;
 }
 
-interface ConditionState {
-  [key: string]: {
-    logicalOperator?: string;
-    targetField?: string;
-    targetCondition?: string;
-    targetValue?: string;
-  };
+export interface formRule {
+  id: string;
+  question: string;
+  conditions?: Array<Condition>;
+  actions?: Array<Action>;
 }
 
-interface ActionState {
-  [key: string]: {
-    actionCondition?: string;
-    actionField?: string;
-  };
-}
 interface RuleBuilderProps {
   key: string;
   question: Question;
@@ -58,6 +59,7 @@ const RuleBuilder = ({
   handleAddLogic,
 }: RuleBuilderProps) => {
   const ruleId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
+  const { rules, setRules } = useFormRule();
 
   const pages: Array<Page> = schema?.pages || [];
   const sections: Array<Section> = pages.flatMap((page) => page.sections || []);
@@ -68,8 +70,12 @@ const RuleBuilder = ({
   const [isRequired, setIsRequired] = useState<boolean>(false);
   const [conditions, setConditions] = useState<Array<Condition>>([{ id: uuidv4(), isNew: false }]);
   const [actions, setActions] = useState<Array<Action>>([{ id: uuidv4(), isNew: false }]);
-  const [conditionsState, setConditionsState] = useState<ConditionState>({});
-  const [actionsState, setActionsState] = useState<ActionState>({});
+  const [currentRule, setCurrentRule] = useState<formRule>({
+    id: uuidv4(),
+    question: question.id,
+    actions: actions,
+    conditions: conditions,
+  });
   const isTablet = useLayoutType() === 'tablet';
 
   const handleToggle = () => {
@@ -81,52 +87,63 @@ const RuleBuilder = ({
     }
   };
 
-  const handleConditionChange = (id: string, field: string, value: string) => {
-    setConditionsState((prev) => ({
-      ...prev,
-      [id]: {
-        ...prev[id],
-        [field]: value,
-      },
-    }));
-  };
-
-  const handleActionChange = (id: string, field: string, value: string) => {
-    setActionsState((prev) => ({
-      ...prev,
-      [id]: {
-        ...prev[id],
-        [field]: value,
-      },
-    }));
-  };
-
-  const addCondition = () => {
-    const newCondition: Condition = { id: uuidv4(), isNew: true };
-    setConditions([...conditions, newCondition]);
-    handleConditionChange(newCondition?.id, `logicalOperator-${conditions.length}`, 'and');
-  };
-  const removeCondition = (id: string) => {
-    setConditions(conditions.filter((condition) => condition.id !== id));
-    setConditionsState((prevState) => {
-      const newState = { ...prevState };
-      delete newState[id];
-      return newState;
+  const handleElementChange = (
+    id: string,
+    field: string,
+    value: string,
+    index: number,
+    element: Array<Condition | Action>,
+    setElement: React.Dispatch<React.SetStateAction<Array<Condition | Action>>>,
+    elementKey: string,
+  ) => {
+    setElement((prev) => {
+      const newElement: Array<Condition | Action> = [...prev];
+      newElement[index] = { ...newElement[index], [field]: value };
+      return newElement;
+    });
+    setCurrentRule((prevRule) => {
+      const newRule = { ...prevRule };
+      newRule[elementKey][index] = { ...newRule[elementKey][index], [field]: value };
+      return newRule;
     });
   };
-  const addAction = () => setActions([...actions, { id: uuidv4(), isNew: true }]);
-  const removeAction = (id: string) => {
-    setActions(actions.filter((action) => action.id !== id));
-    setActionsState((prevState) => {
-      const newState = { ...prevState };
-      delete newState[id];
-      return newState;
+
+  const handleConditionChange = (id: string, field: string, value: string, index: number) =>
+    handleElementChange(id, field, value, index, conditions, setConditions, 'conditions');
+  const handleActionChange = (id: string, field: string, value: string, index: number) =>
+    handleElementChange(id, field, value, index, actions, setActions, 'actions');
+
+  const addElement = (
+    elements: Array<Condition | Action>,
+    setElements: React.Dispatch<React.SetStateAction<Array<Condition | Action>>>,
+    elementKey: string,
+    handleElementChange: (id: string, field: string, value: string, index: number) => void,
+  ) => {
+    const newElement = { id: uuidv4(), isNew: true };
+    setElements((prevElements) => [...prevElements, newElement] as Array<Condition>);
+    setCurrentRule((prevRule) => {
+      const newRule = { ...prevRule };
+      newRule[elementKey][elements.length] = newElement;
+      return newRule;
     });
+    handleElementChange(newElement?.id as string, `logicalOperator`, 'and', elements.length);
   };
-  const removeRule = () => {
-    handleAddLogic(question.id);
-    setActions([]);
-    setConditions([]);
+
+  const removeElement = (
+    elementId: string,
+    element: Array<Condition | Action>,
+    setElement: React.Dispatch<React.SetStateAction<Array<Condition | Action>>>,
+    elementKey: string,
+  ) => {
+    setElement(element.filter((e) => e.id !== elementId));
+    setCurrentRule((prevRule) => {
+      const newRule = { ...prevRule };
+      const elementIndex = element.findIndex((e) => e.id === elementId);
+      if (elementIndex !== -1) {
+        newRule[elementKey]?.splice(elementIndex, 1);
+      }
+      return newRule;
+    });
   };
 
   useEffect(() => {
@@ -134,6 +151,45 @@ const RuleBuilder = ({
       setIsRequired(true);
     }
   }, [question.required]);
+
+  useEffect(() => {
+    if (rules) {
+      const existingRule = rules.find((item) => item.question === question.id);
+      if (existingRule) {
+        setCurrentRule(existingRule);
+        setConditions(existingRule.conditions || []);
+        setActions(existingRule.actions || []);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [question.id]);
+
+  useEffect(() => {
+    if (currentRule) {
+      setRules((prevRule: Array<formRule>) => {
+        if (!prevRule) return [currentRule];
+        const currentRuleIndex = prevRule.findIndex((rule) => rule.question === question.id);
+        if (currentRuleIndex !== -1) {
+          const updatedRules = [...prevRule];
+          updatedRules[currentRuleIndex] = currentRule;
+          return updatedRules;
+        } else {
+          return [...prevRule, currentRule];
+        }
+      });
+    }
+  }, [currentRule, question.id, setRules]);
+
+  const addCondition = () => addElement(conditions, setConditions, 'conditions', handleConditionChange);
+  const addAction = () => addElement(actions, setActions, 'actions', handleActionChange);
+  const removeAction = (id: string) => removeElement(id, actions, setActions, 'actions');
+  const removeCondition = (id: string) => removeElement(id, conditions, setConditions, 'conditions');
+  const removeRule = () => {
+    handleAddLogic(question.id);
+    setConditions([]);
+    setActions([]);
+    setCurrentRule({ id: uuidv4(), question: question.id });
+  };
 
   return (
     <div className={styles.container}>
@@ -165,7 +221,7 @@ const RuleBuilder = ({
               addCondition={addCondition}
               handleConditionChange={handleConditionChange}
               index={index}
-              conditionsState={conditionsState}
+              conditions={conditions}
             />
           ))}
         </div>
@@ -181,7 +237,7 @@ const RuleBuilder = ({
               addAction={addAction}
               handleActionChange={handleActionChange}
               index={index}
-              actionsState={actionsState}
+              actions={actions}
             />
           ))}
         </div>
@@ -202,8 +258,8 @@ interface RuleConditionProps {
   isNew: boolean;
   addCondition: () => void;
   index: number;
-  handleConditionChange: (id: string, field: string, value: string) => void;
-  conditionsState: ConditionState;
+  handleConditionChange: (id: string, field: string, value: string, index: number) => void;
+  conditions: Array<Condition>;
 }
 
 export const RuleCondition = ({
@@ -217,7 +273,7 @@ export const RuleCondition = ({
   removeRule,
   answers,
   handleConditionChange,
-  conditionsState,
+  conditions,
 }: RuleConditionProps) => {
   const { t } = useTranslation();
   const answer = answers.filter((answer) => answer !== undefined).map((answer) => answer.label);
@@ -225,7 +281,11 @@ export const RuleCondition = ({
   const handleSelectCondition = (selectedCondition: string) => {
     setIsConditionValueVisible(!['Is Empty', 'Not Empty'].includes(selectedCondition));
   };
-
+  useEffect(() => {
+    if (conditions[index]?.targetValue) {
+      setIsConditionValueVisible(true);
+    }
+  }, [conditions, index]);
   return (
     <div className={styles.ruleSetContainer}>
       <div className={styles.sectionContainer}>
@@ -237,7 +297,7 @@ export const RuleCondition = ({
             defaultSelectedItem="and"
             items={['and', 'or']}
             onChange={({ selectedItem }: { selectedItem: string }) => {
-              handleConditionChange(fieldId, `logicalOperator-${index}`, selectedItem);
+              handleConditionChange(fieldId, `logicalOperator`, selectedItem, index);
             }}
             size={isTablet ? 'lg' : 'sm'}
           />
@@ -252,20 +312,20 @@ export const RuleCondition = ({
         <Dropdown
           id={`targetField-${index}`}
           className={styles.targetField}
-          selectedItem={conditionsState[fieldId]?.[`targetField-${index}`] || 'Choose a field'}
+          selectedItem={conditions[index]?.[`targetField`] || 'Choose a field'}
           items={questions}
           onChange={({ selectedItem }: { selectedItem: string }) =>
-            handleConditionChange(fieldId, `targetField-${index}`, selectedItem)
+            handleConditionChange(fieldId, `targetField`, selectedItem, index)
           }
           size={isTablet ? 'lg' : 'sm'}
         />
         <Dropdown
           id={`targetCondition-${index}`}
           className={styles.targetCondition}
-          selectedItem={conditionsState[fieldId]?.[`targetCondition-${index}`] || 'Select Condition'}
+          selectedItem={conditions[index]?.[`targetCondition`] || 'Select Condition'}
           items={['Is Empty', 'Not Empty', 'Greater than or equal to', 'Less than or equal to', 'Equals', 'not Equals']}
           onChange={({ selectedItem }: { selectedItem: string }) => {
-            handleConditionChange(fieldId, `targetCondition-${index}`, selectedItem);
+            handleConditionChange(fieldId, `targetCondition`, selectedItem, index);
             handleSelectCondition(selectedItem);
           }}
           size={isTablet ? 'lg' : 'sm'}
@@ -274,11 +334,11 @@ export const RuleCondition = ({
           <ComboBox
             id={`targetValue-${index}`}
             className={styles.targetValue}
-            selectedItem={conditionsState[fieldId]?.[`targetValue-${index}`] || 'Choose a answer'}
+            selectedItem={conditions[index]?.[`targetValue`] || 'Choose a answer'}
             allowCustomValue
             items={answer}
             onChange={({ selectedItem }: { selectedItem: string }) => {
-              handleConditionChange(fieldId, `targetValue-${index}`, selectedItem);
+              handleConditionChange(fieldId, `targetValue`, selectedItem, index);
             }}
             size={isTablet ? 'lg' : 'sm'}
           />
@@ -312,7 +372,7 @@ export const RuleCondition = ({
               className={styles.menuItem}
               id="deleteCondition"
               onClick={removeRule}
-              itemText={t('deleteCondition', 'Delete condition')}
+              itemText={t('deleteConditionalLogic', 'Delete conditional logic')}
               hasDivider
               isDelete
             />
@@ -331,8 +391,8 @@ interface RuleActionProps {
   isNew: boolean;
   addAction: () => void;
   index: number;
-  handleActionChange: (id: string, field: string, value: string) => void;
-  actionsState: ActionState;
+  handleActionChange: (id: string, field: string, value: string, index: number) => void;
+  actions: Array<Action>;
 }
 
 export const RuleAction = ({
@@ -344,7 +404,7 @@ export const RuleAction = ({
   removeAction,
   addAction,
   handleActionChange,
-  actionsState,
+  actions,
 }: RuleActionProps) => {
   const { t } = useTranslation();
   const [action, setAction] = useState<string>('');
@@ -354,9 +414,14 @@ export const RuleAction = ({
     setAction(selectedAction);
   };
   const handleErrorMessage = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    handleActionChange(fieldId, `errorMessage-${index}`, e.target.value);
+    handleActionChange(fieldId, `errorMessage`, e.target.value, index);
   };
 
+  useEffect(() => {
+    if (actions[index]?.errorMessage) {
+      setAction('fail');
+    }
+  }, [actions, index]);
   return (
     <div>
       <div className={styles.ruleSetContainer}>
@@ -379,10 +444,10 @@ export const RuleAction = ({
           <Dropdown
             id={`actionCondition-${index}`}
             className={styles.actionCondition}
-            selectedItem={actionsState[fieldId]?.[`actionCondition-${index}`] || 'Select Condition'}
+            selectedItem={actions[index]?.[`actionCondition`] || 'Select Action'}
             items={['Hide', 'fail']}
             onChange={({ selectedItem }: { selectedItem: string }) => {
-              handleActionChange(fieldId, `actionCondition-${index}`, selectedItem);
+              handleActionChange(fieldId, `actionCondition`, selectedItem, index);
               handleSelectAction(selectedItem);
             }}
             size={isTablet ? 'lg' : 'sm'}
@@ -390,10 +455,10 @@ export const RuleAction = ({
           <Dropdown
             id={`actionField-${index}`}
             className={styles.actionField}
-            selectedItem={actionsState[fieldId]?.[`actionField-${index}`] || 'Choose a field'}
+            selectedItem={actions[index]?.[`actionField`] || 'Choose a field'}
             items={questions}
             onChange={({ selectedItem }: { selectedItem: string }) =>
-              handleActionChange(fieldId, `actionField-${index}`, selectedItem)
+              handleActionChange(fieldId, `actionField`, selectedItem, index)
             }
             size={isTablet ? 'lg' : 'sm'}
           />
@@ -430,6 +495,8 @@ export const RuleAction = ({
           rows={3}
           id={`error-message-${index}`}
           helperText="Error message"
+          defaultValue={actions[index]?.errorMessage || ''}
+          placeholder={t('errorMessageBox', 'Enter error message to be displayed')}
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleErrorMessage(e)}
         />
       )}
