@@ -223,8 +223,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 
     closeModal();
   };
-  // eslint-disable-next-line no-console
-  console.log(questionToEdit);
+
   return (
     <div>
       <ModalHeader closeModal={closeModal} title={t('editQuestion', 'Edit question')} />
