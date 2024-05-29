@@ -32,6 +32,8 @@ import type { Concept, ConceptMapping, Question, QuestionType, Schema } from '..
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { useConceptName } from '../../hooks/useConceptName';
 import styles from './question-modal.scss';
+import { usePatientIdentifierName } from '../../hooks/usePatientIdentifierName';
+import { usePatientIdentifierLookup } from '../../hooks/usePatientIdentifierLookup';
 
 interface EditQuestionModalProps {
   closeModal: () => void;
@@ -78,6 +80,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     questionToEdit.questionOptions.conceptMappings,
   );
   const [conceptToLookup, setConceptToLookup] = useState('');
+  const [patientIdentifierTypeToLookup, setPatientIdentifierTypeToLookup] = useState('');
   const [fieldType, setFieldType] = useState<RenderType | null>(null);
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
   const [max, setMax] = useState('');
@@ -99,6 +102,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     questionToEdit.questionOptions.concept,
   );
 
+  const { patientIdentifierType, isLoadingPatientIdentifierType } =
+    usePatientIdentifierLookup(patientIdentifierTypeToLookup);
+  const { patientidentifierName, patientidentifierNameLookupError, isLoadingpatientidentifierName } =
+    usePatientIdentifierName(questionToEdit.questionOptions.identifierType);
   const hasConceptChanged = selectedConcept && questionToEdit?.questionOptions?.concept !== selectedConcept?.uuid;
 
   const debouncedSearch = useMemo(() => {
@@ -131,6 +138,18 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
         label: answer?.display,
       })) ?? [],
     );
+  };
+
+  const debouncedPatientIdentifierSearch = useMemo(() => {
+    return debounce((searchTerm: string) => setPatientIdentifierTypeToLookup(searchTerm), 5) as (
+      searchTerm: string,
+    ) => void;
+  }, []);
+
+  const handlePatientIdentifierTypeChange = (searchTerm: string) => {
+    if (searchTerm) {
+      debouncedPatientIdentifierSearch(searchTerm);
+    }
   };
 
   const questionIdExists = (idToTest: string) => {
@@ -187,6 +206,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           concept: selectedConcept?.uuid ? selectedConcept.uuid : questionToEdit.questionOptions.concept,
           conceptMappings: conceptMappings?.length ? conceptMappings : questionToEdit.questionOptions.conceptMappings,
           answers: mappedAnswers,
+          identifierType: patientIdentifierType
+            ? patientIdentifierType['uuid']
+            : questionToEdit.questionOptions.identifierType,
         },
       };
 
@@ -336,7 +358,48 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               />
             ) : null}
 
-            {fieldType !== 'ui-select-extended' && (
+            {questionToEdit.type === 'patientIdentifier' && (
+              <div>
+                <FormLabel className={styles.label}>
+                  {t('searchForBackingPeatientIdentifierType', 'Search for a backing patient identifier type')}
+                </FormLabel>
+                {patientidentifierNameLookupError ? (
+                  <InlineNotification
+                    kind="error"
+                    lowContrast
+                    className={styles.error}
+                    title={t('errorFetchingPatientIdentifierTypes', 'Error fetching patient identifier types')}
+                    subtitle={t('pleaseTryAgain', 'Please try again.')}
+                  />
+                ) : null}
+                {isLoadingpatientidentifierName ? (
+                  <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />
+                ) : (
+                  <>
+                    <Search
+                      defaultValue={patientidentifierName}
+                      id="identifierLookup"
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handlePatientIdentifierTypeChange(e.target.value)
+                      }
+                      placeholder={t('searchPatientIdentifier', 'Search using identifier type name or UUID')}
+                      required
+                      size="md"
+                      value={patientIdentifierType['display']}
+                    />
+                    {(() => {
+                      if (!patientIdentifierTypeToLookup) return null;
+                      if (isLoadingPatientIdentifierType)
+                        return (
+                          <InlineLoading className={styles.loader} description={t('searching', 'Searching') + '...'} />
+                        );
+                    })()}
+                  </>
+                )}
+              </div>
+            )}
+
+            {fieldType !== 'ui-select-extended' && questionToEdit.type !== 'patientIdentifier' && (
               <div>
                 <FormLabel className={styles.label}>
                   {t('searchForBackingConcept', 'Search for a backing concept')}
