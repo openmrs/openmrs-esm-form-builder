@@ -216,7 +216,15 @@ const RuleBuilder = ({
     setConditions([]);
     setActions([]);
     setCurrentRule({ id: uuidv4(), question: question.id });
-  }, [handleAddLogic, question.id]);
+    setRules((prevRule: Array<formRule>) => {
+      const ruleIndex = prevRule?.findIndex((rule) => rule.question === question.id);
+      if (ruleIndex !== -1) {
+        const updatedRule = [...prevRule];
+        updatedRule.splice(ruleIndex, 1);
+        return updatedRule;
+      }
+    });
+  }, [handleAddLogic, question.id, setRules]);
 
   return (
     <div className={styles.container}>
@@ -445,7 +453,8 @@ export const RuleAction = ({
 
   useEffect(() => {
     handleActionChange(fieldId, `errorMessage`, debouncedErrorMessage, index);
-  }, [debouncedErrorMessage, fieldId, handleActionChange, index]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedErrorMessage, fieldId, index]);
 
   useEffect(() => {
     if (actions[index]?.errorMessage) {
