@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styles from './rule-builder.scss';
 import { Flash, FlowConnection, Link } from '@carbon/react/icons';
 import { Dropdown } from '@carbon/react';
@@ -12,7 +12,7 @@ import { OverflowMenuItem, OverflowMenu } from '@carbon/react';
 import { Layer } from '@carbon/react';
 import { TextArea } from '@carbon/react';
 import { useFormRule } from '../../hooks/useFormRule';
-
+import { useDebounce } from '@openmrs/esm-framework';
 interface Condition {
   id: string;
   isNew: boolean;
@@ -78,73 +78,88 @@ const RuleBuilder = ({
   });
   const isTablet = useLayoutType() === 'tablet';
 
-  const handleToggle = () => {
+  const handleToggle = useCallback(() => {
     if (question) {
       const newSchema = { ...schema };
       newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].required = !question.required;
       onSchemaChange(newSchema);
       setIsRequired((p) => !p);
     }
-  };
+  }, [pageIndex, sectionIndex, questionIndex, onSchemaChange, question, schema]);
 
-  const handleElementChange = (
-    id: string,
-    field: string,
-    value: string,
-    index: number,
-    element: Array<Condition | Action>,
-    setElement: React.Dispatch<React.SetStateAction<Array<Condition | Action>>>,
-    elementKey: string,
-  ) => {
-    setElement((prev) => {
-      const newElement: Array<Condition | Action> = [...prev];
-      newElement[index] = { ...newElement[index], [field]: value };
-      return newElement;
-    });
-    setCurrentRule((prevRule) => {
-      const newRule = { ...prevRule };
-      newRule[elementKey][index] = { ...newRule[elementKey][index], [field]: value };
-      return newRule;
-    });
-  };
+  const handleElementChange = useCallback(
+    (
+      id: string,
+      field: string,
+      value: string,
+      index: number,
+      element: Array<Condition | Action>,
+      setElement: React.Dispatch<React.SetStateAction<Array<Condition | Action>>>,
+      elementKey: string,
+    ) => {
+      setElement((prev) => {
+        const newElement: Array<Condition | Action> = [...prev];
+        newElement[index] = { ...newElement[index], [field]: value };
+        return newElement;
+      });
+      setCurrentRule((prevRule) => {
+        const newRule = { ...prevRule };
+        newRule[elementKey][index] = { ...newRule[elementKey][index], [field]: value };
+        return newRule;
+      });
+    },
+    [],
+  );
 
-  const handleConditionChange = (id: string, field: string, value: string, index: number) =>
-    handleElementChange(id, field, value, index, conditions, setConditions, 'conditions');
-  const handleActionChange = (id: string, field: string, value: string, index: number) =>
-    handleElementChange(id, field, value, index, actions, setActions, 'actions');
+  const handleConditionChange = useCallback(
+    (id: string, field: string, value: string, index: number) =>
+      handleElementChange(id, field, value, index, conditions, setConditions, 'conditions'),
+    [handleElementChange, conditions],
+  );
+  const handleActionChange = useCallback(
+    (id: string, field: string, value: string, index: number) =>
+      handleElementChange(id, field, value, index, actions, setActions, 'actions'),
+    [handleElementChange, actions],
+  );
 
-  const addElement = (
-    elements: Array<Condition | Action>,
-    setElements: React.Dispatch<React.SetStateAction<Array<Condition | Action>>>,
-    elementKey: string,
-    handleElementChange: (id: string, field: string, value: string, index: number) => void,
-  ) => {
-    const newElement = { id: uuidv4(), isNew: true };
-    setElements((prevElements) => [...prevElements, newElement] as Array<Condition>);
-    setCurrentRule((prevRule) => {
-      const newRule = { ...prevRule };
-      newRule[elementKey][elements.length] = newElement;
-      return newRule;
-    });
-    handleElementChange(newElement?.id as string, `logicalOperator`, 'and', elements.length);
-  };
+  const addElement = useCallback(
+    (
+      elements: Array<Condition | Action>,
+      setElements: React.Dispatch<React.SetStateAction<Array<Condition | Action>>>,
+      elementKey: string,
+      handleElementChange: (id: string, field: string, value: string, index: number) => void,
+    ) => {
+      const newElement = { id: uuidv4(), isNew: true };
+      setElements((prevElements) => [...prevElements, newElement] as Array<Condition>);
+      setCurrentRule((prevRule) => {
+        const newRule = { ...prevRule };
+        newRule[elementKey][elements.length] = newElement;
+        return newRule;
+      });
+      handleElementChange(newElement?.id as string, `logicalOperator`, 'and', elements.length);
+    },
+    [],
+  );
 
-  const removeElement = (
-    elementId: string,
-    element: Array<Condition | Action>,
-    setElement: React.Dispatch<React.SetStateAction<Array<Condition | Action>>>,
-    elementKey: string,
-  ) => {
-    setElement(element.filter((e) => e.id !== elementId));
-    setCurrentRule((prevRule) => {
-      const newRule = { ...prevRule };
-      const elementIndex = element.findIndex((e) => e.id === elementId);
-      if (elementIndex !== -1) {
-        newRule[elementKey]?.splice(elementIndex, 1);
-      }
-      return newRule;
-    });
-  };
+  const removeElement = useCallback(
+    (
+      elementId: string,
+      element: Array<Condition | Action>,
+      setElement: React.Dispatch<React.SetStateAction<Array<Condition | Action>>>,
+      elementKey: string,
+    ) => {
+      setElement(element.filter((e) => e.id !== elementId));
+      setCurrentRule((prevRule) => {
+        const newRule = { ...prevRule };
+        const elementIndex = element.findIndex((e) => e.id === elementId);
+        if (elementIndex !== -1) {
+          newRule[elementKey]?.splice(elementIndex, 1);
+        }
+        return newRule;
+      });
+    },
+    [],
+  );
 
   useEffect(() => {
     if (question.required) {
@@ -180,16 +195,28 @@ const RuleBuilder = ({
     }
   }, [currentRule, question.id, setRules]);
 
-  const addCondition = () => addElement(conditions, setConditions, 'conditions', handleConditionChange);
-  const addAction = () => addElement(actions, setActions, 'actions', handleActionChange);
-  const removeAction = (id: string) => removeElement(id, actions, setActions, 'actions');
-  const removeCondition = (id: string) => removeElement(id, conditions, setConditions, 'conditions');
-  const removeRule = () => {
+  const addCondition = useCallback(
+    () => addElement(conditions, setConditions, 'conditions', handleConditionChange),
+    [conditions, addElement, handleConditionChange],
+  );
+  const addAction = useCallback(
+    () => addElement(actions, setActions, 'actions', handleActionChange),
+    [actions, addElement, handleActionChange],
+  );
+  const removeAction = useCallback(
+    (id: string) => removeElement(id, actions, setActions, 'actions'),
+    [actions, removeElement],
+  );
+  const removeCondition = useCallback(
+    (id: string) => removeElement(id, conditions, setConditions, 'conditions'),
+    [conditions, removeElement],
+  );
+  const removeRule = useCallback(() => {
     handleAddLogic(question.id);
     setConditions([]);
     setActions([]);
     setCurrentRule({ id: uuidv4(), question: question.id });
-  };
+  }, [handleAddLogic, question.id]);
 
   return (
     <div className={styles.container}>
@@ -408,14 +435,17 @@ export const RuleAction = ({
 }: RuleActionProps) => {
   const { t } = useTranslation();
   const [action, setAction] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string>(actions[index]?.errorMessage || '');
+  const debouncedErrorMessage = useDebounce(errorMessage, 500);
   const showErrorMessageBox = action === 'fail';
 
   const handleSelectAction = (selectedAction: string) => {
     setAction(selectedAction);
   };
-  const handleErrorMessage = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    handleActionChange(fieldId, `errorMessage`, e.target.value, index);
-  };
+
+  useEffect(() => {
+    handleActionChange(fieldId, `errorMessage`, debouncedErrorMessage, index);
+  }, [debouncedErrorMessage, fieldId, handleActionChange, index]);
 
   useEffect(() => {
     if (actions[index]?.errorMessage) {
@@ -495,9 +525,9 @@ export const RuleAction = ({
           rows={3}
           id={`error-message-${index}`}
           helperText="Error message"
-          defaultValue={actions[index]?.errorMessage || ''}
+          defaultValue={errorMessage || ''}
           placeholder={t('errorMessageBox', 'Enter error message to be displayed')}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleErrorMessage(e)}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setErrorMessage(e.target.value)}
         />
       )}
     </div>
