@@ -106,7 +106,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [selectedPersonAttributeType, setSelectedPersonAttributeType] = useState<PersonAttributeType | null>(null);
   const { concepts, conceptLookupError, isLoadingConcepts } = useConceptLookup(debouncedConceptToLookup);
   const { personAttributeTypes, personAttributeTypeLookupError } = usePersonAttributeTypes();
-  const [selectedPatientIdetifierType, setSelectedPatientIdetifierType] = useState<PatientIdentifierType | null>(null);
+  const [selectedPatientIdetifierType, setSelectedPatientIdetifierType] = useState<PatientIdentifierType>(null);
   const { patientIdentifierTypes, patientIdentifierTypeLookupError } = usePatientIdentifierTypes();
 
   const renderTypeOptions = {
@@ -626,7 +626,13 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           {t('cancel', 'Cancel')}
         </Button>
         <Button
-          disabled={!questionLabel || !questionId || questionIdExists(questionId) || !renderingType}
+          disabled={
+            !questionLabel ||
+            !questionId ||
+            questionIdExists(questionId) ||
+            !renderingType ||
+            (questionType === 'patientIdentifier' && !selectedPatientIdetifierType)
+          }
           onClick={handleCreateQuestion}
         >
           <span>{t('save', 'Save')}</span>

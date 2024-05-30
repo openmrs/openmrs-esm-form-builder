@@ -28,12 +28,13 @@ import { ArrowUpRight } from '@carbon/react/icons';
 import { showSnackbar, useConfig } from '@openmrs/esm-framework';
 import type { RenderType } from '@openmrs/openmrs-form-engine-lib';
 
-import type { Concept, ConceptMapping, Question, QuestionType, Schema } from '../../types';
+import type { Concept, ConceptMapping, Question, QuestionType, Schema, PatientIdentifierType } from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { useConceptName } from '../../hooks/useConceptName';
 import styles from './question-modal.scss';
 import { usePatientIdentifierName } from '../../hooks/usePatientIdentifierName';
 import { usePatientIdentifierLookup } from '../../hooks/usePatientIdentifierLookup';
+import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
 
 interface EditQuestionModalProps {
   closeModal: () => void;
@@ -101,9 +102,11 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const { conceptName, conceptNameLookupError, isLoadingConceptName } = useConceptName(
     questionToEdit.questionOptions.concept,
   );
+  const { patientIdentifierTypes } = usePatientIdentifierTypes();
 
   const { patientIdentifierType, isLoadingPatientIdentifierType } =
     usePatientIdentifierLookup(patientIdentifierTypeToLookup);
+  const [selectedPatientIdentifierType, setSelectedPatientIdentifierType] = useState(patientIdentifierType);
   const { patientidentifierName, patientidentifierNameLookupError, isLoadingpatientidentifierName } =
     usePatientIdentifierName(questionToEdit.questionOptions.identifierType);
   const hasConceptChanged = selectedConcept && questionToEdit?.questionOptions?.concept !== selectedConcept?.uuid;
@@ -116,6 +119,11 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     if (searchTerm) {
       debouncedSearch(searchTerm);
     }
+  };
+
+  const handleIdentifierTypeSelect = (identifierType: PatientIdentifierType) => {
+    setPatientIdentifierTypeToLookup('');
+    setSelectedPatientIdentifierType(identifierType);
   };
 
   const handleConceptSelect = (concept: Concept) => {
@@ -206,8 +214,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           concept: selectedConcept?.uuid ? selectedConcept.uuid : questionToEdit.questionOptions.concept,
           conceptMappings: conceptMappings?.length ? conceptMappings : questionToEdit.questionOptions.conceptMappings,
           answers: mappedAnswers,
-          identifierType: patientIdentifierType
-            ? patientIdentifierType['uuid']
+          identifierType: selectedPatientIdentifierType
+            ? selectedPatientIdentifierType['uuid']
             : questionToEdit.questionOptions.identifierType,
         },
       };
@@ -385,7 +393,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                       placeholder={t('searchPatientIdentifier', 'Search using identifier type name or UUID')}
                       required
                       size="md"
-                      value={patientIdentifierType['display']}
+                      value={selectedPatientIdentifierType['display']}
                     />
                     {(() => {
                       if (!patientIdentifierTypeToLookup) return null;
@@ -393,6 +401,22 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                         return (
                           <InlineLoading className={styles.loader} description={t('searching', 'Searching') + '...'} />
                         );
+                      if (patientIdentifierTypes?.length && !isLoadingPatientIdentifierType) {
+                        return (
+                          <ul className={styles.patientIdentifierTypeList}>
+                            {patientIdentifierTypes?.map((identifierType, index) => (
+                              <li
+                                role="menuIdentifierTypeitem"
+                                className={styles.patientIdentifierType}
+                                key={index}
+                                onClick={() => handleIdentifierTypeSelect(identifierType)}
+                              >
+                                {identifierType?.display}
+                              </li>
+                            ))}
+                          </ul>
+                        );
+                      }
                     })()}
                   </>
                 )}
