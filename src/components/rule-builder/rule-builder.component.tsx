@@ -60,12 +60,10 @@ const RuleBuilder = ({
 }: RuleBuilderProps) => {
   const ruleId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
   const { rules, setRules } = useFormRule();
-
   const pages: Array<Page> = schema?.pages || [];
   const sections: Array<Section> = pages.flatMap((page) => page.sections || []);
-  const fields: Array<Question> = sections.flatMap((section) => section.questions || []);
-  const questions = fields.flatMap((field) => field.label);
-  const answers: Array<Record<string, string>> = fields.flatMap((field) => field.questionOptions.answers);
+  const questions: Array<Question> = sections.flatMap((section) => section.questions || []);
+  const answers: Array<Record<string, string>> = questions.flatMap((question) => question.questionOptions.answers);
 
   const [isRequired, setIsRequired] = useState<boolean>(false);
   const [conditions, setConditions] = useState<Array<Condition>>([{ id: uuidv4(), isNew: false }]);
@@ -285,7 +283,7 @@ export default RuleBuilder;
 
 interface RuleConditionProps {
   fieldId: string;
-  questions: Array<string>;
+  questions: Array<Question>;
   answers: Array<Record<string, string>>;
   isTablet: boolean;
   removeRule: () => void;
@@ -311,7 +309,7 @@ export const RuleCondition = ({
   conditions,
 }: RuleConditionProps) => {
   const { t } = useTranslation();
-  const answer = answers.filter((answer) => answer !== undefined).map((answer) => answer.label);
+  const answer = answers.filter((answer) => answer !== undefined);
   const [isConditionValueVisible, setIsConditionValueVisible] = useState(false);
   const handleSelectCondition = (selectedCondition: string) => {
     setIsConditionValueVisible(!['Is Empty', 'Not Empty'].includes(selectedCondition));
@@ -321,6 +319,7 @@ export const RuleCondition = ({
       setIsConditionValueVisible(true);
     }
   }, [conditions, index]);
+
   return (
     <div className={styles.ruleSetContainer}>
       <div className={styles.sectionContainer}>
@@ -347,10 +346,15 @@ export const RuleCondition = ({
         <Dropdown
           id={`targetField-${index}`}
           className={styles.targetField}
-          selectedItem={conditions[index]?.[`targetField`] || 'Choose a field'}
+          initialSelectedItem={
+            questions?.find((question) => question.id === conditions[index]?.[`targetField`]) || {
+              label: 'Choose a field',
+            }
+          }
           items={questions}
-          onChange={({ selectedItem }: { selectedItem: string }) =>
-            handleConditionChange(fieldId, `targetField`, selectedItem, index)
+          itemToString={(item: Question) => (item ? item.label : '')}
+          onChange={({ selectedItem }: { selectedItem: Question }) =>
+            handleConditionChange(fieldId, `targetField`, selectedItem.id, index)
           }
           size={isTablet ? 'lg' : 'sm'}
         />
@@ -369,11 +373,16 @@ export const RuleCondition = ({
           <ComboBox
             id={`targetValue-${index}`}
             className={styles.targetValue}
-            selectedItem={conditions[index]?.[`targetValue`] || 'Choose a answer'}
+            initialSelectedItem={
+              answer?.find((item) => item.concept === conditions[index]?.[`targetValue`]) || {
+                label: 'Choose a answer',
+              }
+            }
             allowCustomValue
             items={answer}
-            onChange={({ selectedItem }: { selectedItem: string }) => {
-              handleConditionChange(fieldId, `targetValue`, selectedItem, index);
+            itemToString={(item: Record<string, string>) => (item ? item.label : '')}
+            onChange={({ selectedItem }: { selectedItem: Record<string, string> }) => {
+              handleConditionChange(fieldId, `targetValue`, selectedItem.concept, index);
             }}
             size={isTablet ? 'lg' : 'sm'}
           />
@@ -420,7 +429,7 @@ export const RuleCondition = ({
 
 interface RuleActionProps {
   fieldId: string;
-  questions: Array<string>;
+  questions: Array<Question>;
   isTablet: boolean;
   removeAction: () => void;
   isNew: boolean;
@@ -483,7 +492,7 @@ export const RuleAction = ({
           <Dropdown
             id={`actionCondition-${index}`}
             className={styles.actionCondition}
-            selectedItem={actions[index]?.[`actionCondition`] || 'Select Action'}
+            initialSelectedItem={actions[index]?.[`actionCondition`] || 'Select Action'}
             items={['Hide', 'fail']}
             onChange={({ selectedItem }: { selectedItem: string }) => {
               handleActionChange(fieldId, `actionCondition`, selectedItem, index);
@@ -494,10 +503,15 @@ export const RuleAction = ({
           <Dropdown
             id={`actionField-${index}`}
             className={styles.actionField}
-            selectedItem={actions[index]?.[`actionField`] || 'Choose a field'}
+            initialSelectedItem={
+              questions.find((question) => question.id === actions[index]?.[`actionField`]) || {
+                label: 'Choose a field',
+              }
+            }
             items={questions}
-            onChange={({ selectedItem }: { selectedItem: string }) =>
-              handleActionChange(fieldId, `actionField`, selectedItem, index)
+            itemToString={(item: Question) => (item ? item.label : '')}
+            onChange={({ selectedItem }: { selectedItem: Question }) =>
+              handleActionChange(fieldId, `actionField`, selectedItem.id, index)
             }
             size={isTablet ? 'lg' : 'sm'}
           />
