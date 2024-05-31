@@ -60,6 +60,7 @@ const RuleBuilder = ({
 }: RuleBuilderProps) => {
   const ruleId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
   const { rules, setRules } = useFormRule();
+
   const pages: Array<Page> = schema?.pages || [];
   const sections: Array<Section> = pages.flatMap((page) => page.sections || []);
   const questions: Array<Question> = sections.flatMap((section) => section.questions || []);
@@ -95,14 +96,28 @@ const RuleBuilder = ({
       setElement: React.Dispatch<React.SetStateAction<Array<Condition | Action>>>,
       elementKey: string,
     ) => {
-      setElement((prev) => {
-        const newElement: Array<Condition | Action> = [...prev];
+      const updateElement = (prevElement: Array<Condition | Action>) => {
+        const newElement: Array<Condition | Action> = [...prevElement];
         newElement[index] = { ...newElement[index], [field]: value };
+
+        if ('targetValue' in newElement[index]) {
+          const condition = newElement[index] as Condition;
+          if (
+            elementKey === 'conditions' &&
+            ['Is Empty', 'Not Empty'].includes(condition?.targetCondition) &&
+            condition?.targetValue
+          ) {
+            delete condition.targetValue;
+          }
+        }
+
         return newElement;
-      });
+      };
+
+      setElement(updateElement);
       setCurrentRule((prevRule) => {
         const newRule = { ...prevRule };
-        newRule[elementKey][index] = { ...newRule[elementKey][index], [field]: value };
+        newRule[elementKey] = updateElement(newRule[elementKey] as Array<Condition>);
         return newRule;
       });
     },
@@ -310,15 +325,12 @@ export const RuleCondition = ({
 }: RuleConditionProps) => {
   const { t } = useTranslation();
   const answer = answers.filter((answer) => answer !== undefined);
-  const [isConditionValueVisible, setIsConditionValueVisible] = useState(false);
+  const [isConditionValueVisible, setIsConditionValueVisible] = useState<boolean>(
+    Boolean(conditions[index]?.targetValue),
+  );
   const handleSelectCondition = (selectedCondition: string) => {
     setIsConditionValueVisible(!['Is Empty', 'Not Empty'].includes(selectedCondition));
   };
-  useEffect(() => {
-    if (conditions[index]?.targetValue) {
-      setIsConditionValueVisible(true);
-    }
-  }, [conditions, index]);
 
   return (
     <div className={styles.ruleSetContainer}>
@@ -327,7 +339,7 @@ export const RuleCondition = ({
           <Dropdown
             id={`logicalOperator-${index}`}
             className={styles.logicalOperator}
-            initialSelectedItem="and"
+            initialSelectedItem={conditions[index]?.logicalOperator || 'and'}
             defaultSelectedItem="and"
             items={['and', 'or']}
             onChange={({ selectedItem }: { selectedItem: string }) => {
