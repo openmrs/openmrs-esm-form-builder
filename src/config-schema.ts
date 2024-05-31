@@ -1,4 +1,6 @@
 import { Type } from '@openmrs/esm-framework';
+import { type RenderType } from '@openmrs/openmrs-form-engine-lib';
+import { type QuestionType } from './types';
 
 export const configSchema = {
   questionTypes: {
@@ -67,3 +69,12 @@ export const configSchema = {
     _description: 'Whether to enable form validation',
   },
 };
+
+export interface ConfigObject {
+  questionTypes: Array<QuestionType>;
+  fieldTypes: Array<RenderType>;
+  showSchemaSaveWarning: boolean;
+  dataTypeToRenderingMap: Record<string, Array<string>>;
+  enableFormValidation: boolean;
+  blockRenderingWithErrors: boolean;
+}

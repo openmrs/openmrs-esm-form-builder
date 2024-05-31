@@ -8,7 +8,7 @@ interface ValidationMessageProps {
   errorsCount: number;
 }
 
-export const ValidationMessage: React.FC<ValidationMessageProps> = ({
+const ValidationMessage: React.FC<ValidationMessageProps> = ({
   hasValidationErrors,
   publishedWithErrors,
   errorsCount,
@@ -37,3 +37,5 @@ export const ValidationMessage: React.FC<ValidationMessageProps> = ({
     />
   );
 };
+
+export default ValidationMessage;

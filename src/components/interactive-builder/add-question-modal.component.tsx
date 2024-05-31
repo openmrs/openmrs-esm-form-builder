@@ -29,7 +29,16 @@ import { ArrowUpRight } from '@carbon/react/icons';
 import { showSnackbar, useConfig, useDebounce } from '@openmrs/esm-framework';
 import type { RenderType } from '@openmrs/openmrs-form-engine-lib';
 
-import type { Answer, Concept, ConceptMapping, PersonAttributeType, PatientIdentifierType, Schema } from '../../types';
+import type { ConfigObject } from '../../config-schema';
+import type {
+  Answer,
+  Concept,
+  ConceptMapping,
+  PersonAttributeType,
+  PatientIdentifierType,
+  Schema,
+  QuestionType,
+} from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
@@ -44,11 +53,6 @@ interface AddQuestionModalProps {
   schema: Schema;
   sectionIndex: number;
   showModal: boolean;
-}
-
-interface Config {
-  fieldTypes: Array<RenderType>;
-  questionTypes: Array<string>;
 }
 
 const DatePickerType = {
@@ -80,7 +84,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   showModal,
 }) => {
   const { t } = useTranslation();
-  const { fieldTypes, questionTypes }: Config = useConfig();
+  const { fieldTypes, questionTypes } = useConfig<ConfigObject>();
   const [answers, setAnswers] = useState<Array<Answer>>([]);
   const [conceptMappings, setConceptMappings] = useState<Array<ConceptMapping>>([]);
   const [conceptToLookup, setConceptToLookup] = useState('');
@@ -94,7 +98,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [min, setMin] = useState('');
   const [questionId, setQuestionId] = useState('');
   const [questionLabel, setQuestionLabel] = useState('');
-  const [questionType, setQuestionType] = useState<string | null>(null);
+  const [questionType, setQuestionType] = useState<QuestionType | null>(null);
   const [rows, setRows] = useState('');
   const [selectedAnswers, setSelectedAnswers] = useState<
     Array<{
@@ -312,7 +316,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
               <Select
                 value={questionType}
-                onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setQuestionType(event.target.value)}
+                onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+                  setQuestionType(event.target.value as QuestionType)
+                }
                 id="questionType"
                 invalidText={t('typeRequired', 'Type is required')}
                 labelText={t('questionType', 'Question type')}

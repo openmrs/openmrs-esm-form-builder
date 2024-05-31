@@ -29,6 +29,7 @@ import { ArrowUpRight } from '@carbon/react/icons';
 import { showSnackbar, useConfig } from '@openmrs/esm-framework';
 import type { RenderType } from '@openmrs/openmrs-form-engine-lib';
 
+import type { ConfigObject } from '../../config-schema';
 import type { Concept, ConceptMapping, Question, QuestionType, Schema, PatientIdentifierType } from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { useConceptName } from '../../hooks/useConceptName';
@@ -48,11 +49,6 @@ interface EditQuestionModalProps {
   sectionIndex: number;
 }
 
-interface Config {
-  fieldTypes: Array<RenderType>;
-  questionTypes: Array<QuestionType>;
-}
-
 interface Item {
   id: string;
   text: string;
@@ -69,7 +65,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   sectionIndex,
 }) => {
   const { t } = useTranslation();
-  const { fieldTypes, questionTypes }: Config = useConfig();
+  const { fieldTypes, questionTypes } = useConfig<ConfigObject>();
 
   const [answersChanged, setAnswersChanged] = useState(false);
   const [answersFromConcept, setAnswersFromConcept] = useState<

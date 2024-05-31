@@ -1,30 +1,37 @@
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
-import type { Question } from './types';
+import type { Question, Schema } from './types';
+import type { ConfigObject } from './config-schema';
+
+interface Field {
+  label: string;
+  concept: string;
+  id?: string;
+  type?: string;
+}
 
 interface ErrorMessageResponse {
   errorMessage?: string;
-  field: { label: string; concept: string; id?: string; type?: string };
+  field: Field;
 }
 
 interface WarningMessageResponse {
+  field: Field;
   warningMessage?: string;
-  field: { label: string; concept: string; id?: string; type?: string };
 }
 
 export const handleFormValidation = async (
-  schema,
-  configObject,
+  schema: string | Schema,
+  configObject: ConfigObject['dataTypeToRenderingMap'],
 ): Promise<[Array<ErrorMessageResponse>, Array<WarningMessageResponse>]> => {
   const errors: Array<ErrorMessageResponse> = [];
   const warnings: Array<WarningMessageResponse> = [];
 
   if (schema) {
-    const parsedForm = typeof schema === 'string' ? JSON.parse(schema) : schema;
+    const parsedForm: Schema = typeof schema === 'string' ? JSON.parse(schema) : schema;
 
-    const asyncTasks = [];
+    const asyncTasks: Array<Promise<void>> = [];
 
     parsedForm.pages?.forEach((page) =>
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       page.sections?.forEach((section: { questions: Array<Question> }) =>
         section.questions?.forEach((question) => {
           asyncTasks.push(
@@ -32,19 +39,19 @@ export const handleFormValidation = async (
             handleAnswerValidation(question, errors),
             handlePatientIdentifierValidation(question, errors),
           );
-          question.type === 'obsGroup' &&
+          if (question.type === 'obsGroup') {
             question?.questions?.forEach((obsGrpQuestion) =>
               asyncTasks.push(
                 handleQuestionValidation(obsGrpQuestion, errors, configObject, warnings),
-                handleAnswerValidation(question, errors),
+                handleAnswerValidation(obsGrpQuestion, errors),
               ),
             );
+          }
         }),
       ),
     );
-    await Promise.all(asyncTasks);
 
-    return [errors, warnings];
+    await Promise.all(asyncTasks);
   }
 
   return [errors, warnings]; // Return empty arrays if schema is falsy
@@ -126,14 +133,14 @@ const handlePatientIdentifierValidation = async (question, errors) => {
       );
       if (!data) {
         errors.push({
-          errorMessage: `❓ The Identifier Type does not exist`,
+          errorMessage: `❓ The identifier type does not exist`,
           field: question,
         });
       }
     } catch (error) {
       console.error('Error fetching patient identifier:', error);
       errors.push({
-        errorMessage: `❓ The Identifier Type does not exist`,
+        errorMessage: `❓ The identifier type does not exist`,
         field: question,
       });
     }
