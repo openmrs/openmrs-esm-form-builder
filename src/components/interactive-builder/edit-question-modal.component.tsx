@@ -35,6 +35,7 @@ import styles from './question-modal.scss';
 import { usePatientIdentifierName } from '../../hooks/usePatientIdentifierName';
 import { usePatientIdentifierLookup } from '../../hooks/usePatientIdentifierLookup';
 import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
+import { ComboBox } from '@carbon/react';
 
 interface EditQuestionModalProps {
   closeModal: () => void;
@@ -104,10 +105,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   );
   const { patientIdentifierTypes } = usePatientIdentifierTypes();
 
-  const { patientIdentifierType, isLoadingPatientIdentifierType } =
-    usePatientIdentifierLookup(patientIdentifierTypeToLookup);
+  const { patientIdentifierType } = usePatientIdentifierLookup(patientIdentifierTypeToLookup);
   const [selectedPatientIdentifierType, setSelectedPatientIdentifierType] = useState(patientIdentifierType);
-  const { patientidentifierName, patientidentifierNameLookupError, isLoadingpatientidentifierName } =
+  const { patientIdentifierName, patientIdentifierNameLookupError, isLoadingPatientidentifierName } =
     usePatientIdentifierName(questionToEdit.questionOptions.identifierType);
   const hasConceptChanged = selectedConcept && questionToEdit?.questionOptions?.concept !== selectedConcept?.uuid;
 
@@ -369,9 +369,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
             {questionToEdit.type === 'patientIdentifier' && (
               <div>
                 <FormLabel className={styles.label}>
-                  {t('searchForBackingPeatientIdentifierType', 'Search for a backing patient identifier type')}
+                  {t('searchForBackingPatientIdentifierType', 'Search for a backing patient identifier type')}
                 </FormLabel>
-                {patientidentifierNameLookupError ? (
+                {patientIdentifierNameLookupError ? (
                   <InlineNotification
                     kind="error"
                     lowContrast
@@ -380,12 +380,12 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                     subtitle={t('pleaseTryAgain', 'Please try again.')}
                   />
                 ) : null}
-                {isLoadingpatientidentifierName ? (
+                {isLoadingPatientidentifierName ? (
                   <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />
                 ) : (
                   <>
                     <Search
-                      defaultValue={patientidentifierName}
+                      defaultValue={patientIdentifierName}
                       id="identifierLookup"
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         handlePatientIdentifierTypeChange(e.target.value)
@@ -395,29 +395,19 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                       size="md"
                       value={selectedPatientIdentifierType['display']}
                     />
-                    {(() => {
-                      if (!patientIdentifierTypeToLookup) return null;
-                      if (isLoadingPatientIdentifierType)
-                        return (
-                          <InlineLoading className={styles.loader} description={t('searching', 'Searching') + '...'} />
-                        );
-                      if (patientIdentifierTypes?.length && !isLoadingPatientIdentifierType) {
-                        return (
-                          <ul className={styles.patientIdentifierTypeList}>
-                            {patientIdentifierTypes?.map((identifierType, index) => (
-                              <li
-                                role="menuIdentifierTypeitem"
-                                className={styles.patientIdentifierType}
-                                key={index}
-                                onClick={() => handleIdentifierTypeSelect(identifierType)}
-                              >
-                                {identifierType?.display}
-                              </li>
-                            ))}
-                          </ul>
-                        );
-                      }
-                    })()}
+                    <ComboBox
+                      id="patientIdentifierTypeLookup"
+                      items={patientIdentifierTypes}
+                      itemToString={(item: PatientIdentifierType) => item?.display}
+                      onChange={({ selectedItem }: { selectedItem: PatientIdentifierType }) => {
+                        handleIdentifierTypeSelect(selectedItem);
+                      }}
+                      placeholder={t('choosePatientIdentifierType', 'Choose a patient identifier type')}
+                      initialSelectedItem={patientIdentifierTypes.find(
+                        (patientIdentifierType) =>
+                          patientIdentifierType?.uuid === questionToEdit.questionOptions?.identifierType,
+                      )}
+                    />
                   </>
                 )}
               </div>

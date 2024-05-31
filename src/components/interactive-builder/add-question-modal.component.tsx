@@ -37,6 +37,7 @@ import styles from './question-modal.scss';
 
 interface AddQuestionModalProps {
   onModalChange: (showModal: boolean) => void;
+  onQuestionEdit: (question: boolean) => void;
   onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
   questionIndex: number;
@@ -375,7 +376,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
               {questionType === 'patientIdentifier' && (
                 <div>
                   <FormLabel className={styles.label}>
-                    {t('searchForBackingPeatientIdentifierType', 'Search for a backing patient identifier type')}
+                    {t('searchForBackingPatientIdentifierType', 'Search for a backing patient identifier type')}
                   </FormLabel>
                   {patientIdentifierTypeLookupError ? (
                     <InlineNotification
