@@ -29,13 +29,14 @@ import type { Schema } from '../../types';
 import { useClobdata } from '../../hooks/useClobdata';
 import { useForm } from '../../hooks/useForm';
 import { handleFormValidation } from '../../form-validator.resource';
-import { ValidationMessage } from '../validation-info/validation-info.component';
+import { type ConfigObject } from '../../config-schema';
 import ActionButtons from '../action-buttons/action-buttons.component';
 import AuditDetails from '../audit-details/audit-details.component';
 import FormRenderer from '../form-renderer/form-renderer.component';
 import Header from '../header/header.component';
 import InteractiveBuilder from '../interactive-builder/interactive-builder.component';
 import SchemaEditor from '../schema-editor/schema-editor.component';
+import ValidationMessage from '../validation-info/validation-info.component';
 import styles from './form-editor.scss';
 
 interface ErrorProps {
@@ -64,7 +65,7 @@ const ErrorNotification = ({ error, title }: ErrorProps) => {
 const FormEditor: React.FC = () => {
   const { t } = useTranslation();
   const { formUuid } = useParams<{ formUuid: string }>();
-  const { dataTypeToRenderingMap } = useConfig();
+  const { blockRenderingWithErrors, dataTypeToRenderingMap } = useConfig<ConfigObject>();
   const isNewSchema = !formUuid;
   const [schema, setSchema] = useState<Schema>();
   const [showDraftSchemaModal, setShowDraftSchemaModal] = useState(false);
@@ -79,7 +80,6 @@ const FormEditor: React.FC = () => {
   const [publishedWithErrors, setPublishedWithErrors] = useState(false);
   const [errors, setErrors] = useState<Array<MarkerProps>>([]);
   const [validationOn, setValidationOn] = useState(false);
-  const { blockRenderingWithErrors } = useConfig();
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 

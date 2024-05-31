@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { Button, ComposedModal, InlineLoading, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
-import type { TFunction } from 'react-i18next';
 import { useParams } from 'react-router-dom';
+import type { IMarker } from 'react-ace';
+import type { TFunction } from 'react-i18next';
 import { showSnackbar, useConfig } from '@openmrs/esm-framework';
 
-import type { Schema } from '../../types';
+import { handleFormValidation } from '../../form-validator.resource';
 import { publishForm, unpublishForm } from '../../forms.resource';
 import { useForm } from '../../hooks/useForm';
 import SaveFormModal from '../modals/save-form-modal.component';
-import { handleFormValidation } from '../../form-validator.resource';
+import type { ConfigObject } from '../../config-schema';
+import type { Schema } from '../../types';
 import styles from './action-buttons.scss';
-import type { IMarker } from 'react-ace';
 
 interface ActionButtonsProps {
   schema: Schema;
@@ -51,7 +52,7 @@ function ActionButtons({
   const { form, mutate } = useForm(formUuid);
   const [status, setStatus] = useState<Status>('idle');
   const [showUnpublishModal, setShowUnpublishModal] = useState(false);
-  const { dataTypeToRenderingMap, enableFormValidation } = useConfig();
+  const { dataTypeToRenderingMap, enableFormValidation } = useConfig<ConfigObject>();
 
   const launchUnpublishModal = () => {
     setShowUnpublishModal(true);
