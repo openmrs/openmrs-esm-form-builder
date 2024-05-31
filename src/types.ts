@@ -46,9 +46,9 @@ export type QuestionType =
   | 'encounterRole'
   | 'obs'
   | 'obsGroup'
+  | 'patientIdentifier'
   | 'personAttribute'
-  | 'testOrder'
-  | 'patientIdentifier';
+  | 'testOrder';
 
 export interface Schema {
   name: string;

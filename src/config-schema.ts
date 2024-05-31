@@ -12,9 +12,9 @@ export const configSchema = {
       'encounterRole',
       'obs',
       'obsGroup',
+      'patientIdentifier',
       'personAttribute',
       'testOrder',
-      'patientIdentifier',
     ],
   },
   fieldTypes: {

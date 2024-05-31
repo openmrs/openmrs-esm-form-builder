@@ -4,6 +4,7 @@ import debounce from 'lodash-es/debounce';
 import flattenDeep from 'lodash-es/flattenDeep';
 import {
   Button,
+  ComboBox,
   Form,
   FormGroup,
   FormLabel,
@@ -31,11 +32,10 @@ import type { RenderType } from '@openmrs/openmrs-form-engine-lib';
 import type { Concept, ConceptMapping, Question, QuestionType, Schema, PatientIdentifierType } from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { useConceptName } from '../../hooks/useConceptName';
-import styles from './question-modal.scss';
 import { usePatientIdentifierName } from '../../hooks/usePatientIdentifierName';
 import { usePatientIdentifierLookup } from '../../hooks/usePatientIdentifierLookup';
 import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
-import { ComboBox } from '@carbon/react';
+import styles from './question-modal.scss';
 
 interface EditQuestionModalProps {
   closeModal: () => void;
@@ -104,11 +104,11 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     questionToEdit.questionOptions.concept,
   );
   const { patientIdentifierTypes } = usePatientIdentifierTypes();
-
   const { patientIdentifierType } = usePatientIdentifierLookup(patientIdentifierTypeToLookup);
   const [selectedPatientIdentifierType, setSelectedPatientIdentifierType] = useState(patientIdentifierType);
-  const { patientIdentifierName, patientIdentifierNameLookupError, isLoadingPatientidentifierName } =
-    usePatientIdentifierName(questionToEdit.questionOptions.identifierType);
+  const { patientIdentifierNameLookupError, isLoadingPatientidentifierName } = usePatientIdentifierName(
+    questionToEdit.questionOptions.identifierType,
+  );
   const hasConceptChanged = selectedConcept && questionToEdit?.questionOptions?.concept !== selectedConcept?.uuid;
 
   const debouncedSearch = useMemo(() => {
@@ -146,18 +146,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
         label: answer?.display,
       })) ?? [],
     );
-  };
-
-  const debouncedPatientIdentifierSearch = useMemo(() => {
-    return debounce((searchTerm: string) => setPatientIdentifierTypeToLookup(searchTerm), 5) as (
-      searchTerm: string,
-    ) => void;
-  }, []);
-
-  const handlePatientIdentifierTypeChange = (searchTerm: string) => {
-    if (searchTerm) {
-      debouncedPatientIdentifierSearch(searchTerm);
-    }
   };
 
   const questionIdExists = (idToTest: string) => {
@@ -383,32 +371,19 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                 {isLoadingPatientidentifierName ? (
                   <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />
                 ) : (
-                  <>
-                    <Search
-                      defaultValue={patientIdentifierName}
-                      id="identifierLookup"
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        handlePatientIdentifierTypeChange(e.target.value)
-                      }
-                      placeholder={t('searchPatientIdentifier', 'Search using identifier type name or UUID')}
-                      required
-                      size="md"
-                      value={selectedPatientIdentifierType['display']}
-                    />
-                    <ComboBox
-                      id="patientIdentifierTypeLookup"
-                      items={patientIdentifierTypes}
-                      itemToString={(item: PatientIdentifierType) => item?.display}
-                      onChange={({ selectedItem }: { selectedItem: PatientIdentifierType }) => {
-                        handleIdentifierTypeSelect(selectedItem);
-                      }}
-                      placeholder={t('choosePatientIdentifierType', 'Choose a patient identifier type')}
-                      initialSelectedItem={patientIdentifierTypes.find(
-                        (patientIdentifierType) =>
-                          patientIdentifierType?.uuid === questionToEdit.questionOptions?.identifierType,
-                      )}
-                    />
-                  </>
+                  <ComboBox
+                    id="patientIdentifierTypeLookup"
+                    items={patientIdentifierTypes}
+                    itemToString={(item: PatientIdentifierType) => item?.display}
+                    onChange={({ selectedItem }: { selectedItem: PatientIdentifierType }) => {
+                      handleIdentifierTypeSelect(selectedItem);
+                    }}
+                    placeholder={t('choosePatientIdentifierType', 'Choose a patient identifier type')}
+                    initialSelectedItem={patientIdentifierTypes.find(
+                      (patientIdentifierType) =>
+                        patientIdentifierType?.uuid === questionToEdit.questionOptions?.identifierType,
+                    )}
+                  />
                 )}
               </div>
             )}

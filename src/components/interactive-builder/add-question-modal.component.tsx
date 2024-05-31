@@ -37,7 +37,6 @@ import styles from './question-modal.scss';
 
 interface AddQuestionModalProps {
   onModalChange: (showModal: boolean) => void;
-  onQuestionEdit: (question: boolean) => void;
   onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
   questionIndex: number;
