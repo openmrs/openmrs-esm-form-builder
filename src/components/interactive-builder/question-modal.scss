@@ -17,7 +17,7 @@
   overflow-y: scroll;
 }
 
-.conceptList, .personAttributeTypeList {
+.conceptList, .personAttributeTypeList, .patientIdentifierTypeList {
   background: colors.$white-0;
   max-height: 14rem;
   overflow-y: auto;
@@ -25,11 +25,11 @@
   border-top: none;
 }
 
-.conceptList, .personAttributeTypeList li:hover {
+.conceptList, .personAttributeTypeList, .patientIdentifierTypeList li:hover {
   background-color: colors.$gray-20;
 }
 
-.concept, .personAttributeType {
+.concept, .personAttributeType, .patientIdentifierType {
   padding: 0.75rem;
   border-bottom: 1px solid colors.$gray-20;
 

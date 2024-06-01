@@ -39,6 +39,7 @@ import {
 } from '@openmrs/esm-framework';
 import { type KeyedMutator, preload } from 'swr';
 
+import type { ConfigObject } from '../../config-schema';
 import type { Form as TypedForm } from '../../types';
 import { deleteForm } from '../../forms.resource';
 import { FormBuilderPagination } from '../pagination';
@@ -247,7 +248,7 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
 
 function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
   const pageSize = 10;
-  const config = useConfig();
+  const config = useConfig<ConfigObject>();
   const isTablet = useLayoutType() === 'tablet';
   const responsiveSize = isTablet ? 'lg' : 'sm';
   const [filter, setFilter] = useState('');

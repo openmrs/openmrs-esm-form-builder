@@ -29,8 +29,18 @@ import { ArrowUpRight } from '@carbon/react/icons';
 import { showSnackbar, useConfig, useDebounce } from '@openmrs/esm-framework';
 import type { RenderType } from '@openmrs/openmrs-form-engine-lib';
 
-import type { Answer, Concept, ConceptMapping, PersonAttributeType, Schema } from '../../types';
+import type { ConfigObject } from '../../config-schema';
+import type {
+  Answer,
+  Concept,
+  ConceptMapping,
+  PersonAttributeType,
+  PatientIdentifierType,
+  Schema,
+  QuestionType,
+} from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
+import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import styles from './question-modal.scss';
 
@@ -43,11 +53,6 @@ interface AddQuestionModalProps {
   schema: Schema;
   sectionIndex: number;
   showModal: boolean;
-}
-
-interface Config {
-  fieldTypes: Array<RenderType>;
-  questionTypes: Array<string>;
 }
 
 const DatePickerType = {
@@ -79,7 +84,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   showModal,
 }) => {
   const { t } = useTranslation();
-  const { fieldTypes, questionTypes }: Config = useConfig();
+  const { fieldTypes, questionTypes } = useConfig<ConfigObject>();
   const [answers, setAnswers] = useState<Array<Answer>>([]);
   const [conceptMappings, setConceptMappings] = useState<Array<ConceptMapping>>([]);
   const [conceptToLookup, setConceptToLookup] = useState('');
@@ -93,7 +98,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [min, setMin] = useState('');
   const [questionId, setQuestionId] = useState('');
   const [questionLabel, setQuestionLabel] = useState('');
-  const [questionType, setQuestionType] = useState<string | null>(null);
+  const [questionType, setQuestionType] = useState<QuestionType | null>(null);
   const [rows, setRows] = useState('');
   const [selectedAnswers, setSelectedAnswers] = useState<
     Array<{
@@ -105,6 +110,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [selectedPersonAttributeType, setSelectedPersonAttributeType] = useState<PersonAttributeType | null>(null);
   const { concepts, conceptLookupError, isLoadingConcepts } = useConceptLookup(debouncedConceptToLookup);
   const { personAttributeTypes, personAttributeTypeLookupError } = usePersonAttributeTypes();
+  const [selectedPatientIdetifierType, setSelectedPatientIdetifierType] = useState<PatientIdentifierType>(null);
+  const { patientIdentifierTypes, patientIdentifierTypeLookupError } = usePatientIdentifierTypes();
 
   const renderTypeOptions = {
     control: ['text'],
@@ -115,6 +122,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     obsGroup: ['group', 'repeating'],
     personAttribute: ['ui-select-extended', 'select', 'text'],
     testOrder: ['group', 'repeating'],
+    patientIdentifier: ['text'],
   };
 
   const handleConceptChange = (event: React.ChangeEvent<HTMLInputElement>) => setConceptToLookup(event.target.value);
@@ -144,6 +152,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     setSelectedPersonAttributeType(selectedItem);
   };
 
+  const handlePatientIdentifierTypeChange = ({ selectedItem }: { selectedItem: PatientIdentifierType }) => {
+    setSelectedPatientIdetifierType(selectedItem);
+  };
   const questionIdExists = (idToTest: string) => {
     const nestedIds = schema?.pages?.map((page) => {
       return page?.sections?.map((section) => {
@@ -183,6 +194,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             })),
           }),
           ...(questionType === 'personAttribute' && { attributeType: selectedPersonAttributeType.uuid }),
+          ...(questionType === 'patientIdentifier' && { identifierType: selectedPatientIdetifierType.uuid }),
           ...(questionType === 'obs' &&
             renderingType === 'number' &&
             selectedConcept?.allowDecimal === false && { disallowDecimals: true }),
@@ -304,7 +316,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
               <Select
                 value={questionType}
-                onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setQuestionType(event.target.value)}
+                onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+                  setQuestionType(event.target.value as QuestionType)
+                }
                 id="questionType"
                 invalidText={t('typeRequired', 'Type is required')}
                 labelText={t('questionType', 'Question type')}
@@ -360,6 +374,35 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                     onChange={handlePersonAttributeTypeChange}
                     placeholder={t('choosePersonAttributeType', 'Choose a person attribute type')}
                     selectedItem={selectedPersonAttributeType}
+                  />
+                </div>
+              )}
+
+              {questionType === 'patientIdentifier' && (
+                <div>
+                  <FormLabel className={styles.label}>
+                    {t('searchForBackingPatientIdentifierType', 'Search for a backing patient identifier type')}
+                  </FormLabel>
+                  {patientIdentifierTypeLookupError ? (
+                    <InlineNotification
+                      kind="error"
+                      lowContrast
+                      className={styles.error}
+                      title={t('errorFetchingPatientIdentifierTypes', 'Error fetching patient identifier types')}
+                      subtitle={t('pleaseTryAgain', 'Please try again.')}
+                    />
+                  ) : null}
+                  <ComboBox
+                    helperText={t(
+                      'patientIdentifierTypeHelperText',
+                      'Patient identifier type fields must be linked to a patient identifier type',
+                    )}
+                    id="patientIdentifierTypeLookup"
+                    items={patientIdentifierTypes}
+                    itemToString={(item: PatientIdentifierType) => item?.display}
+                    onChange={handlePatientIdentifierTypeChange}
+                    placeholder={t('choosePatientIdentifierType', 'Choose a patient identifier type')}
+                    selectedItem={selectedPatientIdetifierType}
                   />
                 </div>
               )}
@@ -589,7 +632,13 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           {t('cancel', 'Cancel')}
         </Button>
         <Button
-          disabled={!questionLabel || !questionId || questionIdExists(questionId) || !renderingType}
+          disabled={
+            !questionLabel ||
+            !questionId ||
+            questionIdExists(questionId) ||
+            !renderingType ||
+            (questionType === 'patientIdentifier' && !selectedPatientIdetifierType)
+          }
           onClick={handleCreateQuestion}
         >
           <span>{t('save', 'Save')}</span>

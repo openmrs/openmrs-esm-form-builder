@@ -4,6 +4,7 @@ import debounce from 'lodash-es/debounce';
 import flattenDeep from 'lodash-es/flattenDeep';
 import {
   Button,
+  ComboBox,
   Form,
   FormGroup,
   FormLabel,
@@ -28,9 +29,13 @@ import { ArrowUpRight } from '@carbon/react/icons';
 import { showSnackbar, useConfig } from '@openmrs/esm-framework';
 import type { RenderType } from '@openmrs/openmrs-form-engine-lib';
 
-import type { Concept, ConceptMapping, Question, QuestionType, Schema } from '../../types';
+import type { ConfigObject } from '../../config-schema';
+import type { Concept, ConceptMapping, Question, QuestionType, Schema, PatientIdentifierType } from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { useConceptName } from '../../hooks/useConceptName';
+import { usePatientIdentifierName } from '../../hooks/usePatientIdentifierName';
+import { usePatientIdentifierLookup } from '../../hooks/usePatientIdentifierLookup';
+import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
 import styles from './question-modal.scss';
 
 interface EditQuestionModalProps {
@@ -42,11 +47,6 @@ interface EditQuestionModalProps {
   resetIndices: () => void;
   schema: Schema;
   sectionIndex: number;
-}
-
-interface Config {
-  fieldTypes: Array<RenderType>;
-  questionTypes: Array<QuestionType>;
 }
 
 interface Item {
@@ -65,7 +65,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   sectionIndex,
 }) => {
   const { t } = useTranslation();
-  const { fieldTypes, questionTypes }: Config = useConfig();
+  const { fieldTypes, questionTypes } = useConfig<ConfigObject>();
 
   const [answersChanged, setAnswersChanged] = useState(false);
   const [answersFromConcept, setAnswersFromConcept] = useState<
@@ -78,6 +78,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     questionToEdit.questionOptions.conceptMappings,
   );
   const [conceptToLookup, setConceptToLookup] = useState('');
+  const [patientIdentifierTypeToLookup, setPatientIdentifierTypeToLookup] = useState('');
   const [fieldType, setFieldType] = useState<RenderType | null>(null);
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
   const [max, setMax] = useState('');
@@ -98,7 +99,12 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const { conceptName, conceptNameLookupError, isLoadingConceptName } = useConceptName(
     questionToEdit.questionOptions.concept,
   );
-
+  const { patientIdentifierTypes } = usePatientIdentifierTypes();
+  const { patientIdentifierType } = usePatientIdentifierLookup(patientIdentifierTypeToLookup);
+  const [selectedPatientIdentifierType, setSelectedPatientIdentifierType] = useState(patientIdentifierType);
+  const { patientIdentifierNameLookupError, isLoadingPatientidentifierName } = usePatientIdentifierName(
+    questionToEdit.questionOptions.identifierType,
+  );
   const hasConceptChanged = selectedConcept && questionToEdit?.questionOptions?.concept !== selectedConcept?.uuid;
 
   const debouncedSearch = useMemo(() => {
@@ -109,6 +115,11 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     if (searchTerm) {
       debouncedSearch(searchTerm);
     }
+  };
+
+  const handleIdentifierTypeSelect = (identifierType: PatientIdentifierType) => {
+    setPatientIdentifierTypeToLookup('');
+    setSelectedPatientIdentifierType(identifierType);
   };
 
   const handleConceptSelect = (concept: Concept) => {
@@ -187,6 +198,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           concept: selectedConcept?.uuid ? selectedConcept.uuid : questionToEdit.questionOptions.concept,
           conceptMappings: conceptMappings?.length ? conceptMappings : questionToEdit.questionOptions.conceptMappings,
           answers: mappedAnswers,
+          identifierType: selectedPatientIdentifierType
+            ? selectedPatientIdentifierType['uuid']
+            : questionToEdit.questionOptions.identifierType,
         },
       };
 
@@ -336,7 +350,41 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               />
             ) : null}
 
-            {fieldType !== 'ui-select-extended' && (
+            {questionToEdit.type === 'patientIdentifier' && (
+              <div>
+                <FormLabel className={styles.label}>
+                  {t('searchForBackingPatientIdentifierType', 'Search for a backing patient identifier type')}
+                </FormLabel>
+                {patientIdentifierNameLookupError ? (
+                  <InlineNotification
+                    kind="error"
+                    lowContrast
+                    className={styles.error}
+                    title={t('errorFetchingPatientIdentifierTypes', 'Error fetching patient identifier types')}
+                    subtitle={t('pleaseTryAgain', 'Please try again.')}
+                  />
+                ) : null}
+                {isLoadingPatientidentifierName ? (
+                  <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />
+                ) : (
+                  <ComboBox
+                    id="patientIdentifierTypeLookup"
+                    items={patientIdentifierTypes}
+                    itemToString={(item: PatientIdentifierType) => item?.display}
+                    onChange={({ selectedItem }: { selectedItem: PatientIdentifierType }) => {
+                      handleIdentifierTypeSelect(selectedItem);
+                    }}
+                    placeholder={t('choosePatientIdentifierType', 'Choose a patient identifier type')}
+                    initialSelectedItem={patientIdentifierTypes.find(
+                      (patientIdentifierType) =>
+                        patientIdentifierType?.uuid === questionToEdit.questionOptions?.identifierType,
+                    )}
+                  />
+                )}
+              </div>
+            )}
+
+            {fieldType !== 'ui-select-extended' && questionToEdit.type !== 'patientIdentifier' && (
               <div>
                 <FormLabel className={styles.label}>
                   {t('searchForBackingConcept', 'Search for a backing concept')}
