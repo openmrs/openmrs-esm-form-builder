@@ -36,36 +36,39 @@ export interface formRule {
   question: string;
   conditions?: Array<Condition>;
   actions?: Array<Action>;
+  isNewRule?: boolean;
 }
 
 interface RuleBuilderProps {
+  ruleId: string;
   key: string;
   question: Question;
   pageIndex: number;
   sectionIndex: number;
   questionIndex: number;
   onSchemaChange: (schema: Schema) => void;
+  isNewRule: boolean;
   schema: Schema;
   handleAddLogic: (fieldId: string) => void;
 }
 
 const RuleBuilder = ({
+  ruleId,
   schema,
   onSchemaChange,
   question,
   pageIndex,
   sectionIndex,
   questionIndex,
+  isNewRule,
   handleAddLogic,
 }: RuleBuilderProps) => {
-  const ruleId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
-  const { rules, setRules } = useFormRule();
-
   const pages: Array<Page> = schema?.pages || [];
   const sections: Array<Section> = pages.flatMap((page) => page.sections || []);
   const questions: Array<Question> = sections.flatMap((section) => section.questions || []);
   const answers: Array<Record<string, string>> = questions.flatMap((question) => question.questionOptions.answers);
 
+  const { rules, setRules } = useFormRule();
   const [isRequired, setIsRequired] = useState<boolean>(false);
   const [conditions, setConditions] = useState<Array<Condition>>([{ id: uuidv4(), isNew: false }]);
   const [actions, setActions] = useState<Array<Action>>([{ id: uuidv4(), isNew: false }]);
@@ -74,7 +77,11 @@ const RuleBuilder = ({
     question: question.id,
     actions: actions,
     conditions: conditions,
+    isNewRule: false,
   });
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [isToggleVisible, setIsToggleVisible] = useState<boolean>(isNewRule);
   const isTablet = useLayoutType() === 'tablet';
 
   const handleToggle = useCallback(() => {
@@ -174,6 +181,34 @@ const RuleBuilder = ({
     [],
   );
 
+  const addNewConditionalLogic = useCallback(() => {
+    const newRule: formRule = {
+      id: uuidv4(),
+      question: question.id,
+      actions: [{ id: uuidv4(), isNew: false }],
+      conditions: [{ id: uuidv4(), isNew: false }],
+      isNewRule: true,
+    };
+    setRules((prevRule: Array<formRule>) => {
+      const updatedRule = [...prevRule, newRule];
+      return updatedRule;
+    });
+  }, [setRules, question.id]);
+
+  const removeConditionalLogic = useCallback(
+    (id: string) => {
+      setRules((prevRule: Array<formRule>) => {
+        const newRule = [...prevRule];
+        const elementIndex = rules.findIndex((e) => e.id === id);
+        if (elementIndex !== -1) {
+          newRule?.splice(elementIndex, 1);
+        }
+        return newRule;
+      });
+    },
+    [rules, setRules],
+  );
+
   useEffect(() => {
     if (question.required) {
       setIsRequired(true);
@@ -182,7 +217,7 @@ const RuleBuilder = ({
 
   useEffect(() => {
     if (rules) {
-      const existingRule = rules.find((item) => item.question === question.id);
+      const existingRule = rules.find((item) => item.id === ruleId);
       if (existingRule) {
         setCurrentRule(existingRule);
         setConditions(existingRule.conditions || []);
@@ -196,7 +231,7 @@ const RuleBuilder = ({
     if (currentRule) {
       setRules((prevRule: Array<formRule>) => {
         if (!prevRule) return [currentRule];
-        const currentRuleIndex = prevRule.findIndex((rule) => rule.question === question.id);
+        const currentRuleIndex = prevRule.findIndex((rule) => rule.id === ruleId);
         if (currentRuleIndex !== -1) {
           const updatedRules = [...prevRule];
           updatedRules[currentRuleIndex] = currentRule;
@@ -206,7 +241,7 @@ const RuleBuilder = ({
         }
       });
     }
-  }, [currentRule, question.id, setRules]);
+  }, [currentRule, question.id, setRules, ruleId]);
 
   const addCondition = useCallback(
     () => addElement(conditions, setConditions, 'conditions', handleConditionChange),
@@ -230,30 +265,27 @@ const RuleBuilder = ({
     setActions([]);
     setCurrentRule({ id: uuidv4(), question: question.id });
     setRules((prevRule: Array<formRule>) => {
-      const ruleIndex = prevRule?.findIndex((rule) => rule.question === question.id);
-      if (ruleIndex !== -1) {
-        const updatedRule = [...prevRule];
-        updatedRule.splice(ruleIndex, 1);
-        return updatedRule;
-      }
+      return prevRule.filter((rule) => rule.question !== question.id);
     });
   }, [handleAddLogic, question.id, setRules]);
 
   return (
     <div className={styles.container}>
-      <div className={styles.toggleContainer}>
-        <Toggle
-          id={`toggle-required-${ruleId}`}
-          labelText="Required"
-          hideLabel
-          toggled={isRequired}
-          onToggle={handleToggle}
-          size="sm"
-        />
-        {question?.questionOptions?.rendering === 'date' && (
-          <Toggle id={`future-date-${ruleId}`} labelText="Allow Future dates" hideLabel size="sm" />
-        )}
-      </div>
+      {!isToggleVisible && (
+        <div className={styles.toggleContainer}>
+          <Toggle
+            id={`toggle-required-${ruleId}`}
+            labelText="Required"
+            hideLabel
+            toggled={isRequired}
+            onToggle={handleToggle}
+            size="sm"
+          />
+          {question?.questionOptions?.rendering === 'date' && (
+            <Toggle id={`future-date-${ruleId}`} labelText="Allow Future dates" hideLabel size="sm" />
+          )}
+        </div>
+      )}
       <div className={styles.ruleBuilderContainer}>
         <div className={styles.conditionsContainer}>
           {conditions.map((condition, index) => (
@@ -263,10 +295,13 @@ const RuleBuilder = ({
               questions={questions}
               answers={answers}
               isTablet={isTablet}
-              isNew={condition.isNew}
+              isNewCondition={condition.isNew}
+              isNewRule={isNewRule}
               removeCondition={() => removeCondition(condition.id)}
               removeRule={() => removeRule()}
+              removeConditionalLogic={() => removeConditionalLogic(ruleId)}
               addCondition={addCondition}
+              addNewConditionalLogic={addNewConditionalLogic}
               handleConditionChange={handleConditionChange}
               index={index}
               conditions={conditions}
@@ -280,7 +315,7 @@ const RuleBuilder = ({
               fieldId={action.id}
               questions={questions}
               isTablet={isTablet}
-              isNew={action.isNew}
+              isNewAction={action.isNew}
               removeAction={() => removeAction(action.id)}
               addAction={addAction}
               handleActionChange={handleActionChange}
@@ -303,9 +338,12 @@ interface RuleConditionProps {
   isTablet: boolean;
   removeRule: () => void;
   removeCondition: () => void;
-  isNew: boolean;
+  addNewConditionalLogic: () => void;
+  isNewCondition: boolean;
+  isNewRule: boolean;
   addCondition: () => void;
   index: number;
+  removeConditionalLogic: () => void;
   handleConditionChange: (id: string, field: string, value: string, index: number) => void;
   conditions: Array<Condition>;
 }
@@ -314,14 +352,17 @@ export const RuleCondition = ({
   fieldId,
   isTablet,
   questions,
-  isNew,
+  isNewCondition,
+  isNewRule,
   index,
   removeCondition,
   addCondition,
   removeRule,
+  removeConditionalLogic,
   answers,
   handleConditionChange,
   conditions,
+  addNewConditionalLogic,
 }: RuleConditionProps) => {
   const { t } = useTranslation();
   const answer = answers.filter((answer) => answer !== undefined);
@@ -335,7 +376,7 @@ export const RuleCondition = ({
   return (
     <div className={styles.ruleSetContainer}>
       <div className={styles.sectionContainer}>
-        {isNew ? (
+        {isNewCondition ? (
           <Dropdown
             id={`logicalOperator-${index}`}
             className={styles.logicalOperator}
@@ -410,11 +451,27 @@ export const RuleCondition = ({
         >
           <OverflowMenuItem
             className={styles.menuItem}
+            id="addNewRule"
+            onClick={addNewConditionalLogic}
+            itemText={t('addNewLogic', 'Add new logic')}
+          />
+          {isNewRule && (
+            <OverflowMenuItem
+              className={styles.menuItem}
+              id="removeRule"
+              onClick={removeConditionalLogic}
+              itemText={t('deleteLogic', 'Delete logic')}
+              isDelete
+            />
+          )}
+          <OverflowMenuItem
+            className={styles.menuItem}
             id="addCondition"
             onClick={addCondition}
             itemText={t('addCondition', 'Add condition')}
+            hasDivider
           />
-          {isNew ? (
+          {isNewCondition ? (
             <OverflowMenuItem
               className={styles.menuItem}
               id="removeCondition"
@@ -444,7 +501,7 @@ interface RuleActionProps {
   questions: Array<Question>;
   isTablet: boolean;
   removeAction: () => void;
-  isNew: boolean;
+  isNewAction: boolean;
   addAction: () => void;
   index: number;
   handleActionChange: (id: string, field: string, value: string, index: number) => void;
@@ -456,7 +513,7 @@ export const RuleAction = ({
   isTablet,
   questions,
   index,
-  isNew,
+  isNewAction,
   removeAction,
   addAction,
   handleActionChange,
@@ -486,7 +543,7 @@ export const RuleAction = ({
     <div>
       <div className={styles.ruleSetContainer}>
         <div className={styles.sectionContainer}>
-          {isNew ? (
+          {isNewAction ? (
             <div className={styles.ruleDescriptor}>
               <span className={styles.icon}>
                 <Link />
@@ -542,7 +599,7 @@ export const RuleAction = ({
               onClick={addAction}
               itemText={t('addAction', 'Add action')}
             />
-            {isNew && (
+            {isNewAction && (
               <OverflowMenuItem
                 id="removeAction"
                 className={styles.menuItem}
