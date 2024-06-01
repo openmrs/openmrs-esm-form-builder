@@ -5,10 +5,11 @@ import { Accordion, AccordionItem, Button, IconButton, InlineLoading } from '@ca
 import { Add, TrashCan, Edit } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { showModal, showSnackbar, useFeatureFlag } from '@openmrs/esm-framework';
-import RuleBuilder from '../rule-builder/rule-builder.component';
+import RuleBuilder, { type formRule } from '../rule-builder/rule-builder.component';
 import DraggableQuestion from './draggable/draggable-question.component';
 import Droppable from './droppable/droppable-container.component';
 import EditableValue from './editable/editable-value.component';
+import { useFormRule } from '../../hooks/useFormRule';
 import type { DragEndEvent } from '@dnd-kit/core';
 import type { FormSchema } from '@openmrs/esm-form-engine-lib';
 import type { Schema, Question } from '@types';
@@ -33,6 +34,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   schema,
   validationResponse,
 }) => {
+  const { rules } = useFormRule();
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 10, // Enable sort function when dragging 10px 💡 here!!!
@@ -454,18 +456,44 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                         schema={schema}
                                         sectionIndex={sectionIndex}
                                       />
-                                      {activeFields.includes(question.id) && isValidationRuleBuilder && (
-                                        <RuleBuilder
-                                          key={question.id}
-                                          question={question}
-                                          pageIndex={pageIndex}
-                                          sectionIndex={sectionIndex}
-                                          questionIndex={questionIndex}
-                                          handleAddLogic={handleAddLogic}
-                                          schema={schema}
-                                          onSchemaChange={onSchemaChange}
-                                        />
-                                      )}
+                                      {activeFields.includes(question.id) &&
+                                        isValidationRuleBuilder &&
+                                        (() => {
+                                          const rule = rules?.filter((rule: formRule) => rule.question === question.id);
+                                          if (rule && rule[0]?.question === question.id) {
+                                            return rule.map((item) => {
+                                              return (
+                                                <RuleBuilder
+                                                  ruleId={item.id}
+                                                  key={question.id}
+                                                  question={question}
+                                                  pageIndex={pageIndex}
+                                                  sectionIndex={sectionIndex}
+                                                  questionIndex={questionIndex}
+                                                  handleAddLogic={handleAddLogic}
+                                                  isNewRule={item.isNewRule}
+                                                  schema={schema}
+                                                  onSchemaChange={onSchemaChange}
+                                                />
+                                              );
+                                            });
+                                          } else {
+                                            return (
+                                              <RuleBuilder
+                                                ruleId=""
+                                                key={question.id}
+                                                question={question}
+                                                pageIndex={pageIndex}
+                                                sectionIndex={sectionIndex}
+                                                questionIndex={questionIndex}
+                                                handleAddLogic={handleAddLogic}
+                                                isNewRule={false}
+                                                schema={schema}
+                                                onSchemaChange={onSchemaChange}
+                                              />
+                                            );
+                                          }
+                                        })()}
                                       {getValidationError(question) && (
                                         <div className={styles.validationErrorMessage}>
                                           {getValidationError(question)}
