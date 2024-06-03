@@ -30,12 +30,23 @@ import { showSnackbar, useConfig } from '@openmrs/esm-framework';
 import type { RenderType } from '@openmrs/openmrs-form-engine-lib';
 
 import type { ConfigObject } from '../../config-schema';
-import type { Concept, ConceptMapping, Question, QuestionType, Schema, PatientIdentifierType } from '../../types';
+import type {
+  Concept,
+  ConceptMapping,
+  Question,
+  QuestionType,
+  Schema,
+  PatientIdentifierType,
+  PersonAttributeType,
+} from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { useConceptName } from '../../hooks/useConceptName';
 import { usePatientIdentifierName } from '../../hooks/usePatientIdentifierName';
+import { usePersonAttributeName } from '../../hooks/usePersonAttributeName';
 import { usePatientIdentifierLookup } from '../../hooks/usePatientIdentifierLookup';
 import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
+import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
+import { usePersonAttributeLookup } from '../../hooks/usePersonAttributeLookup';
 import styles from './question-modal.scss';
 
 interface EditQuestionModalProps {
@@ -78,6 +89,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     questionToEdit.questionOptions.conceptMappings,
   );
   const [conceptToLookup, setConceptToLookup] = useState('');
+  const [personAttributeTypeToLookup, setPersonAttributeTypeToLookup] = useState('');
   const [patientIdentifierTypeToLookup, setPatientIdentifierTypeToLookup] = useState('');
   const [fieldType, setFieldType] = useState<RenderType | null>(null);
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
@@ -100,10 +112,16 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     questionToEdit.questionOptions.concept,
   );
   const { patientIdentifierTypes } = usePatientIdentifierTypes();
+  const { personAttributeTypes } = usePersonAttributeTypes();
   const { patientIdentifierType } = usePatientIdentifierLookup(patientIdentifierTypeToLookup);
+  const { personAttributeType } = usePersonAttributeLookup(personAttributeTypeToLookup);
   const [selectedPatientIdentifierType, setSelectedPatientIdentifierType] = useState(patientIdentifierType);
+  const [selectedPersonAttributeType, setSelectedPersonAttributeType] = useState(personAttributeType);
   const { patientIdentifierNameLookupError, isLoadingPatientidentifierName } = usePatientIdentifierName(
     questionToEdit.questionOptions.identifierType,
+  );
+  const { personAttributeNameLookupError, isLoadingPersonAttributeName } = usePersonAttributeName(
+    questionToEdit.questionOptions.attributeType,
   );
   const [addObsComment, setAddObsComment] = useState(false);
 
@@ -123,6 +141,11 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const handleIdentifierTypeSelect = (identifierType: PatientIdentifierType) => {
     setPatientIdentifierTypeToLookup('');
     setSelectedPatientIdentifierType(identifierType);
+  };
+
+  const handleAttributeTypeSelect = (attributeType: PersonAttributeType) => {
+    setPersonAttributeTypeToLookup('');
+    setSelectedPersonAttributeType(attributeType);
   };
 
   const handleConceptSelect = (concept: Concept) => {
@@ -212,6 +235,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           ...(addInlineDate && {
             showDate: addInlineDate ? addInlineDate : /true/.test(questionToEdit.questionOptions.showDate.toString()),
           }),
+          attributeType: selectedPersonAttributeType
+            ? selectedPersonAttributeType['uuid']
+            : questionToEdit.questionOptions.attributeType,
         },
       };
 
@@ -391,6 +417,40 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                     initialSelectedItem={patientIdentifierTypes.find(
                       (patientIdentifierType) =>
                         patientIdentifierType?.uuid === questionToEdit.questionOptions?.identifierType,
+                    )}
+                  />
+                )}
+              </div>
+            )}
+
+            {questionToEdit.type === 'personAttribute' && (
+              <div>
+                <FormLabel className={styles.label}>
+                  {t('searchForBackingPersonAttributeType', 'Search for a backing person attribute type')}
+                </FormLabel>
+                {personAttributeNameLookupError ? (
+                  <InlineNotification
+                    kind="error"
+                    lowContrast
+                    className={styles.error}
+                    title={t('errorFetchingPersonAttributeTypes', 'Error fetching  person attribute types')}
+                    subtitle={t('pleaseTryAgain', 'Please try again.')}
+                  />
+                ) : null}
+                {isLoadingPersonAttributeName ? (
+                  <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />
+                ) : (
+                  <ComboBox
+                    id="personAttributeTypeLookup"
+                    items={personAttributeTypes}
+                    itemToString={(item: PersonAttributeType) => item?.display}
+                    onChange={({ selectedItem }: { selectedItem: PersonAttributeType }) => {
+                      handleAttributeTypeSelect(selectedItem);
+                    }}
+                    placeholder={t('choosePersonAttributeType', 'Choose a  person attribute type')}
+                    initialSelectedItem={personAttributeTypes.find(
+                      (personAttributeType) =>
+                        personAttributeType?.uuid === questionToEdit.questionOptions?.attributeType,
                     )}
                   />
                 )}
