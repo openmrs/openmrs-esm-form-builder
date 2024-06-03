@@ -156,7 +156,7 @@ const RuleBuilder = ({
         newRule[elementKey][elements.length] = newElement;
         return newRule;
       });
-      handleElementChange(newElement?.id as string, `logicalOperator`, 'and', elements.length);
+      handleElementChange(newElement?.id as string, 'logicalOperator', 'and', elements.length);
     },
     [],
   );
@@ -272,19 +272,7 @@ const RuleBuilder = ({
   return (
     <div className={styles.container}>
       {!isToggleVisible && (
-        <div className={styles.toggleContainer}>
-          <Toggle
-            id={`toggle-required-${ruleId}`}
-            labelText="Required"
-            hideLabel
-            toggled={isRequired}
-            onToggle={handleToggle}
-            size="sm"
-          />
-          {question?.questionOptions?.rendering === 'date' && (
-            <Toggle id={`future-date-${ruleId}`} labelText="Allow Future dates" hideLabel size="sm" />
-          )}
-        </div>
+        <RuleHeader isRequired={isRequired} handleToggle={handleToggle} ruleId={ruleId} question={question} />
       )}
       <div className={styles.ruleBuilderContainer}>
         <div className={styles.conditionsContainer}>
@@ -331,6 +319,29 @@ const RuleBuilder = ({
 
 export default RuleBuilder;
 
+interface RuleHeaderProps {
+  isRequired: boolean;
+  handleToggle: () => void;
+  ruleId: string;
+  question: Question;
+}
+const RuleHeader = ({ isRequired, handleToggle, ruleId, question }: RuleHeaderProps) => {
+  return (
+    <div className={styles.toggleContainer}>
+      <Toggle
+        id={`toggle-required-${ruleId}`}
+        labelText="Required"
+        hideLabel
+        toggled={isRequired}
+        onToggle={handleToggle}
+        size="sm"
+      />
+      {question?.questionOptions?.rendering === 'date' && (
+        <Toggle id={`future-date-${ruleId}`} labelText="Allow Future dates" hideLabel size="sm" />
+      )}
+    </div>
+  );
+};
 interface RuleConditionProps {
   fieldId: string;
   questions: Array<Question>;
@@ -523,20 +534,20 @@ export const RuleAction = ({
   const [action, setAction] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>(actions[index]?.errorMessage || '');
   const debouncedErrorMessage = useDebounce(errorMessage, 500);
-  const showErrorMessageBox = action === 'fail';
+  const showErrorMessageBox = action === 'Fail';
 
   const handleSelectAction = (selectedAction: string) => {
     setAction(selectedAction);
   };
 
   useEffect(() => {
-    handleActionChange(fieldId, `errorMessage`, debouncedErrorMessage, index);
+    handleActionChange(fieldId, 'errorMessage', debouncedErrorMessage, index);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedErrorMessage, fieldId, index]);
 
   useEffect(() => {
     if (actions[index]?.errorMessage) {
-      setAction('fail');
+      setAction('Fail');
     }
   }, [actions, index]);
   return (
@@ -562,7 +573,7 @@ export const RuleAction = ({
             id={`actionCondition-${index}`}
             className={styles.actionCondition}
             initialSelectedItem={actions[index]?.[`actionCondition`] || 'Select Action'}
-            items={['Hide', 'fail']}
+            items={['Hide', 'Fail']}
             onChange={({ selectedItem }: { selectedItem: string }) => {
               handleActionChange(fieldId, `actionCondition`, selectedItem, index);
               handleSelectAction(selectedItem);
@@ -580,7 +591,7 @@ export const RuleAction = ({
             items={questions}
             itemToString={(item: Question) => (item ? item.label : '')}
             onChange={({ selectedItem }: { selectedItem: Question }) =>
-              handleActionChange(fieldId, `actionField`, selectedItem.id, index)
+              handleActionChange(fieldId, 'actionField', selectedItem.id, index)
             }
             size={isTablet ? 'lg' : 'sm'}
           />
