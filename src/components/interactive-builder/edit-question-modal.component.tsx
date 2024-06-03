@@ -105,6 +105,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const { patientIdentifierNameLookupError, isLoadingPatientidentifierName } = usePatientIdentifierName(
     questionToEdit.questionOptions.identifierType,
   );
+  const [addObsComment, setAddObsComment] = useState(false);
+
   const hasConceptChanged = selectedConcept && questionToEdit?.questionOptions?.concept !== selectedConcept?.uuid;
 
   const debouncedSearch = useMemo(() => {
@@ -201,6 +203,11 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           identifierType: selectedPatientIdentifierType
             ? selectedPatientIdentifierType['uuid']
             : questionToEdit.questionOptions.identifierType,
+          ...(addObsComment && {
+            showComment: addObsComment
+              ? addObsComment
+              : /true/.test(questionToEdit.questionOptions.showComment.toString()),
+          }),
         },
       };
 
@@ -216,6 +223,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       setSelectedConcept(null);
       setConceptMappings([]);
       setSelectedAnswers([]);
+      setAddObsComment(false);
 
       showSnackbar({
         title: t('questionEdited', 'Question edited'),
@@ -470,6 +478,27 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                     })()}
                   </>
                 )}
+
+                <RadioButtonGroup
+                  defaultSelected={/true/.test(questionToEdit?.questionOptions?.showComment?.toString()) ? 'yes' : 'no'}
+                  name="addObsComment"
+                  legendText={t('addObsCommentTextBox', 'Add obs comment text box')}
+                >
+                  <RadioButton
+                    id="Yes"
+                    defaultChecked={true}
+                    labelText={t('yes', 'Yes')}
+                    onClick={() => setAddObsComment(true)}
+                    value="yes"
+                  />
+                  <RadioButton
+                    id="No"
+                    defaultChecked={false}
+                    labelText={t('no', 'No')}
+                    onClick={() => setAddObsComment(false)}
+                    value="no"
+                  />
+                </RadioButtonGroup>
               </div>
             )}
 

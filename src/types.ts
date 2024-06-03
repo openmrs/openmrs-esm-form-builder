@@ -137,6 +137,7 @@ export interface QuestionOptions {
   identifierType?: string;
   selectableOrders?: Array<Answer>;
   weekList?: [];
+  showComment?: string;
 }
 
 export interface Answer {
