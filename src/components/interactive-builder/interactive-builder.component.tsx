@@ -21,6 +21,7 @@ import SectionModal from './section-modal.component';
 import styles from './interactive-builder.scss';
 import RuleBuilder, { type formRule } from '../rule-builder/rule-builder.component';
 import { useFormRule } from '../../hooks/useFormRule';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ValidationError {
   errorMessage?: string;
@@ -485,40 +486,27 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                       {activeFields.includes(question.id) &&
                                         isValidationRuleBuilder &&
                                         (() => {
-                                          const rule = rules?.filter((rule: formRule) => rule.question === question.id);
-                                          if (rule && rule[0]?.question === question.id) {
-                                            return rule.map((item) => {
-                                              return (
-                                                <RuleBuilder
-                                                  ruleId={item.id}
-                                                  key={question.id}
-                                                  question={question}
-                                                  pageIndex={pageIndex}
-                                                  sectionIndex={sectionIndex}
-                                                  questionIndex={questionIndex}
-                                                  handleAddLogic={handleAddLogic}
-                                                  isNewRule={item.isNewRule}
-                                                  schema={schema}
-                                                  onSchemaChange={onSchemaChange}
-                                                />
-                                              );
-                                            });
-                                          } else {
-                                            return (
-                                              <RuleBuilder
-                                                ruleId=""
-                                                key={question.id}
-                                                question={question}
-                                                pageIndex={pageIndex}
-                                                sectionIndex={sectionIndex}
-                                                questionIndex={questionIndex}
-                                                handleAddLogic={handleAddLogic}
-                                                isNewRule={false}
-                                                schema={schema}
-                                                onSchemaChange={onSchemaChange}
-                                              />
-                                            );
-                                          }
+                                          const rulesForQuestionIndex = rules?.findIndex(
+                                            (rule: formRule) => rule.question === question.id,
+                                          );
+                                          const rulesForQuestion =
+                                            rulesForQuestionIndex !== -1 && rulesForQuestionIndex !== undefined
+                                              ? rules?.filter((rule: formRule) => rule.question === question.id)
+                                              : [{ id: uuidv4(), isNewRule: false, question: question.id }];
+                                          return rulesForQuestion.map((rule: formRule) => (
+                                            <RuleBuilder
+                                              ruleId={rule.id}
+                                              key={question.id}
+                                              question={question}
+                                              pageIndex={pageIndex}
+                                              sectionIndex={sectionIndex}
+                                              questionIndex={questionIndex}
+                                              handleAddLogic={handleAddLogic}
+                                              isNewRule={rule.isNewRule}
+                                              schema={schema}
+                                              onSchemaChange={onSchemaChange}
+                                            />
+                                          ));
                                         })()}
                                       {getValidationError(question) && (
                                         <div className={styles.validationErrorMessage}>
