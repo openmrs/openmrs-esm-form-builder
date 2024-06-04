@@ -456,7 +456,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               </div>
             )}
 
-            {fieldType !== 'ui-select-extended' && questionToEdit.type !== 'patientIdentifier' && (
+            {fieldType !== 'ui-select-extended' &&
+              questionToEdit.type !== 'patientIdentifier' &&
+              questionToEdit.type !== 'personAttribute' && (
               <div>
                 <FormLabel className={styles.label}>
                   {t('searchForBackingConcept', 'Search for a backing concept')}
