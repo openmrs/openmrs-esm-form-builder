@@ -113,6 +113,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [selectedPatientIdetifierType, setSelectedPatientIdetifierType] = useState<PatientIdentifierType>(null);
   const { patientIdentifierTypes, patientIdentifierTypeLookupError } = usePatientIdentifierTypes();
   const [addObsComment, setAddObsComment] = useState(false);
+  const [addInlineDate, setAddInlineDate] = useState(false);
 
   const renderTypeOptions = {
     control: ['text'],
@@ -197,6 +198,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           ...(addObsComment && {
             showComment: addObsComment,
           }),
+          ...(addInlineDate && {
+            showDate: addInlineDate,
+          }),
           ...(questionType === 'personAttribute' && { attributeType: selectedPersonAttributeType.uuid }),
           ...(questionType === 'patientIdentifier' && { identifierType: selectedPatientIdetifierType.uuid }),
           ...(questionType === 'obs' &&
@@ -221,6 +225,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       setAnswers([]);
       setSelectedAnswers([]);
       setAddObsComment(false);
+      setAddInlineDate(false);
 
       showSnackbar({
         title: t('success', 'Success!'),
@@ -603,17 +608,38 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                     legendText={t('addObsCommentTextBox', 'Add obs comment text box')}
                   >
                     <RadioButton
-                      id="Yes"
+                      id="obsCommentYes"
                       defaultChecked={true}
                       labelText={t('yes', 'Yes')}
                       onClick={() => setAddObsComment(true)}
                       value="yes"
                     />
                     <RadioButton
-                      id="No"
+                      id="obsCommentNo"
                       defaultChecked={false}
                       labelText={t('no', 'No')}
                       onClick={() => setAddObsComment(false)}
+                      value="no"
+                    />
+                  </RadioButtonGroup>
+
+                  <RadioButtonGroup
+                    defaultSelected="no"
+                    name="addInlineDate"
+                    legendText={t('addInlineDate', 'Add inline date')}
+                  >
+                    <RadioButton
+                      id="inlineDateYes"
+                      defaultChecked={true}
+                      labelText={t('yes', 'Yes')}
+                      onClick={() => setAddInlineDate(true)}
+                      value="yes"
+                    />
+                    <RadioButton
+                      id="inlineDateNo"
+                      defaultChecked={false}
+                      labelText={t('no', 'No')}
+                      onClick={() => setAddInlineDate(false)}
                       value="no"
                     />
                   </RadioButtonGroup>

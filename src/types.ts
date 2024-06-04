@@ -138,6 +138,7 @@ export interface QuestionOptions {
   selectableOrders?: Array<Answer>;
   weekList?: [];
   showComment?: string;
+  showDate?: string;
 }
 
 export interface Answer {

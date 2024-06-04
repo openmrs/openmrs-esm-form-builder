@@ -108,6 +108,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const [addObsComment, setAddObsComment] = useState(false);
 
   const hasConceptChanged = selectedConcept && questionToEdit?.questionOptions?.concept !== selectedConcept?.uuid;
+  const [addInlineDate, setAddInlineDate] = useState(false);
 
   const debouncedSearch = useMemo(() => {
     return debounce((searchTerm: string) => setConceptToLookup(searchTerm), 500) as (searchTerm: string) => void;
@@ -208,6 +209,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               ? addObsComment
               : /true/.test(questionToEdit.questionOptions.showComment.toString()),
           }),
+          ...(addInlineDate && {
+            showDate: addInlineDate ? addInlineDate : /true/.test(questionToEdit.questionOptions.showDate.toString()),
+          }),
         },
       };
 
@@ -224,6 +228,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       setConceptMappings([]);
       setSelectedAnswers([]);
       setAddObsComment(false);
+      setAddInlineDate(false);
 
       showSnackbar({
         title: t('questionEdited', 'Question edited'),
@@ -485,17 +490,38 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                   legendText={t('addObsCommentTextBox', 'Add obs comment text box')}
                 >
                   <RadioButton
-                    id="Yes"
+                    id="obsCommentYes"
                     defaultChecked={true}
                     labelText={t('yes', 'Yes')}
                     onClick={() => setAddObsComment(true)}
                     value="yes"
                   />
                   <RadioButton
-                    id="No"
+                    id="obsCommentNo"
                     defaultChecked={false}
                     labelText={t('no', 'No')}
                     onClick={() => setAddObsComment(false)}
+                    value="no"
+                  />
+                </RadioButtonGroup>
+
+                <RadioButtonGroup
+                  defaultSelected={/true/.test(questionToEdit?.questionOptions?.showDate?.toString()) ? 'yes' : 'no'}
+                  name="addInlineDate"
+                  legendText={t('addInlineDate', 'Add inline date')}
+                >
+                  <RadioButton
+                    id="inlineDateYes"
+                    defaultChecked={true}
+                    labelText={t('yes', 'Yes')}
+                    onClick={() => setAddInlineDate(true)}
+                    value="yes"
+                  />
+                  <RadioButton
+                    id="inlineDateNo"
+                    defaultChecked={false}
+                    labelText={t('no', 'No')}
+                    onClick={() => setAddInlineDate(false)}
                     value="no"
                   />
                 </RadioButtonGroup>
