@@ -24,6 +24,7 @@ import {
   Tag,
   TextInput,
   Tile,
+  SelectSkeleton,
 } from '@carbon/react';
 import { ArrowUpRight } from '@carbon/react/icons';
 import { showSnackbar, useConfig, useDebounce } from '@openmrs/esm-framework';
@@ -46,7 +47,6 @@ import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import styles from './question-modal.scss';
 import { useProgramWorkStates, usePrograms } from '../../hooks/useProgramStates';
-import { SelectSkeleton } from '@carbon/react';
 
 interface AddQuestionModalProps {
   onModalChange: (showModal: boolean) => void;
@@ -124,10 +124,10 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [addInlineDate, setAddInlineDate] = useState(false);
   const [selectedProgramState, setSelectedProgramState] = useState<Array<ProgramState>>([]);
   const [selectedProgram, setSelectedProgram] = useState<Program>(null);
-  const [programWorkflowUuid, setProgramWorkflowUuid] = useState('');
+  const [programWorkflow, setProgramWorkflow] = useState('');
   const { programs, programsLookupError, isLoadingPrograms } = usePrograms();
   const { programStates, programStatesLookupError, isLoadingProgramStates, mutateProgramStates } =
-    useProgramWorkStates(programWorkflowUuid);
+    useProgramWorkStates(programWorkflow);
   const [programWorkflows, setProgramWorkflows] = useState<Array<ProgramWorkflow>>([]);
 
   const renderTypeOptions = {
@@ -228,7 +228,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
               label: answer.concept.display,
             })),
             programUuid: selectedProgram.uuid,
-            workflowUuid: programWorkflowUuid,
+            workflowUuid: programWorkflow,
           }),
         },
         validators: [],
@@ -279,7 +279,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   };
 
   const handleProgramWorkflowChange = (selectedItem: ProgramWorkflow) => {
-    setProgramWorkflowUuid(selectedItem?.uuid);
+    setProgramWorkflow(selectedItem?.uuid);
     void mutateProgramStates();
   };
 
@@ -636,47 +636,49 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                     </div>
                   ) : null}
 
-                  <RadioButtonGroup
-                    defaultSelected="no"
-                    name="addObsComment"
-                    legendText={t('addObsCommentTextBox', 'Add obs comment text box')}
-                  >
-                    <RadioButton
-                      id="obsCommentYes"
-                      defaultChecked={true}
-                      labelText={t('yes', 'Yes')}
-                      onClick={() => setAddObsComment(true)}
-                      value="yes"
-                    />
-                    <RadioButton
-                      id="obsCommentNo"
-                      defaultChecked={false}
-                      labelText={t('no', 'No')}
-                      onClick={() => setAddObsComment(false)}
-                      value="no"
-                    />
-                  </RadioButtonGroup>
+                  <Stack gap={5}>
+                    <RadioButtonGroup
+                      defaultSelected="no"
+                      name="addObsComment"
+                      legendText={t('addObsCommentTextBox', 'Add obs comment text box')}
+                    >
+                      <RadioButton
+                        id="obsCommentYes"
+                        defaultChecked={true}
+                        labelText={t('yes', 'Yes')}
+                        onClick={() => setAddObsComment(true)}
+                        value="yes"
+                      />
+                      <RadioButton
+                        id="obsCommentNo"
+                        defaultChecked={false}
+                        labelText={t('no', 'No')}
+                        onClick={() => setAddObsComment(false)}
+                        value="no"
+                      />
+                    </RadioButtonGroup>
 
-                  <RadioButtonGroup
-                    defaultSelected="no"
-                    name="addInlineDate"
-                    legendText={t('addInlineDate', 'Add inline date')}
-                  >
-                    <RadioButton
-                      id="inlineDateYes"
-                      defaultChecked={true}
-                      labelText={t('yes', 'Yes')}
-                      onClick={() => setAddInlineDate(true)}
-                      value="yes"
-                    />
-                    <RadioButton
-                      id="inlineDateNo"
-                      defaultChecked={false}
-                      labelText={t('no', 'No')}
-                      onClick={() => setAddInlineDate(false)}
-                      value="no"
-                    />
-                  </RadioButtonGroup>
+                    <RadioButtonGroup
+                      defaultSelected="no"
+                      name="addInlineDate"
+                      legendText={t('addInlineDate', 'Add inline date')}
+                    >
+                      <RadioButton
+                        id="inlineDateYes"
+                        defaultChecked={true}
+                        labelText={t('yes', 'Yes')}
+                        onClick={() => setAddInlineDate(true)}
+                        value="yes"
+                      />
+                      <RadioButton
+                        id="inlineDateNo"
+                        defaultChecked={false}
+                        labelText={t('no', 'No')}
+                        onClick={() => setAddInlineDate(false)}
+                        value="no"
+                      />
+                    </RadioButtonGroup>
+                  </Stack>
                 </>
               ) : null}
 
@@ -712,46 +714,44 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
               {questionType === 'programState' && (
                 <Stack gap={5}>
-                  <div>
-                    {isLoadingPrograms && <SelectSkeleton />}
-                    {programsLookupError ? (
-                      <InlineNotification
-                        kind="error"
-                        lowContrast
-                        className={styles.error}
-                        title={t('errorFetchingPrograms', 'Error fetching programs')}
-                        subtitle={t('pleaseTryAgain', 'Please try again.')}
-                      />
-                    ) : null}
-                    {programs && (
-                      <ComboBox
-                        id="programLookup"
-                        items={programs}
-                        itemToString={(item: Program) => item?.name}
-                        onChange={({ selectedItem }: { selectedItem: Program }) => {
-                          handleProgramChange(selectedItem);
-                        }}
-                        placeholder={t('addProgram', 'Add program')}
-                        selectedItem={selectedProgram}
-                        titleText={t('program', 'Program')}
-                      />
-                    )}
+                  {isLoadingPrograms && <SelectSkeleton />}
+                  {programsLookupError ? (
+                    <InlineNotification
+                      kind="error"
+                      lowContrast
+                      className={styles.error}
+                      title={t('errorFetchingPrograms', 'Error fetching programs')}
+                      subtitle={t('pleaseTryAgain', 'Please try again.')}
+                    />
+                  ) : null}
+                  {programs && (
+                    <ComboBox
+                      id="programLookup"
+                      items={programs}
+                      itemToString={(item: Program) => item?.name}
+                      onChange={({ selectedItem }: { selectedItem: Program }) => {
+                        handleProgramChange(selectedItem);
+                      }}
+                      placeholder={t('addProgram', 'Add program')}
+                      selectedItem={selectedProgram}
+                      titleText={t('program', 'Program')}
+                    />
+                  )}
 
-                    {selectedProgram && (
-                      <ComboBox
-                        id="programWorkflowLookup"
-                        items={programWorkflows}
-                        itemToString={(item: ProgramWorkflow) => item?.concept?.display}
-                        onChange={({ selectedItem }: { selectedItem: ProgramWorkflow }) =>
-                          handleProgramWorkflowChange(selectedItem)
-                        }
-                        placeholder={t('addProgramWorkflow', 'Add program workflow')}
-                        selectedItem={programWorkflowUuid}
-                        titleText={t('programWorkflow', 'Program workflow')}
-                      />
-                    )}
-                  </div>
-                  {programWorkflowUuid && (
+                  {selectedProgram && (
+                    <ComboBox
+                      id="programWorkflowLookup"
+                      items={programWorkflows}
+                      itemToString={(item: ProgramWorkflow) => item?.concept?.display}
+                      onChange={({ selectedItem }: { selectedItem: ProgramWorkflow }) =>
+                        handleProgramWorkflowChange(selectedItem)
+                      }
+                      placeholder={t('addProgramWorkflow', 'Add program workflow')}
+                      selectedItem={programWorkflow}
+                      titleText={t('programWorkflow', 'Program workflow')}
+                    />
+                  )}
+                  {programWorkflow && (
                     <div>
                       {isLoadingProgramStates && <SelectSkeleton />}
                       {programStatesLookupError && (
@@ -775,9 +775,11 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                         />
                       )}
                       {selectedProgramState?.map((answer) => (
-                        <Tag className={styles.tag} key={answer?.uuid} type={'blue'}>
-                          {answer?.concept?.display}
-                        </Tag>
+                        <div>
+                          <Tag className={styles.tag} key={answer?.uuid} type={'blue'}>
+                            {answer?.concept?.display}
+                          </Tag>
+                        </div>
                       ))}
                     </div>
                   )}

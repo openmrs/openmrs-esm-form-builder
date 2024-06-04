@@ -24,6 +24,7 @@ import {
   Tag,
   TextInput,
   Tile,
+  SelectSkeleton,
 } from '@carbon/react';
 import { ArrowUpRight } from '@carbon/react/icons';
 import { showSnackbar, useConfig } from '@openmrs/esm-framework';
@@ -51,7 +52,6 @@ import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { usePersonAttributeLookup } from '../../hooks/usePersonAttributeLookup';
 import styles from './question-modal.scss';
 import { useProgramWorkStates, usePrograms } from '../../hooks/useProgramStates';
-import { SelectSkeleton } from '@carbon/react';
 
 interface EditQuestionModalProps {
   closeModal: () => void;
@@ -134,10 +134,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const [addObsComment, setAddObsComment] = useState(false);
   const [selectedProgramState, setSelectedProgramState] = useState<Array<ProgramState>>([]);
   const [selectedProgram, setSelectedProgram] = useState<Program>(null);
-  const [programWorkflowUuid, setProgramWorkflowUuid] = useState<ProgramWorkflow>(null);
+  const [programWorkflow, setProgramWorkflow] = useState<ProgramWorkflow>(null);
   const { programs, programsLookupError, isLoadingPrograms } = usePrograms();
   const { programStates, programStatesLookupError, isLoadingProgramStates, mutateProgramStates } = useProgramWorkStates(
-    questionToEdit.questionOptions.workflowUuid,
+    programWorkflow?.uuid,
   );
   const [programWorkflows, setProgramWorkflows] = useState<Array<ProgramWorkflow>>([]);
 
@@ -209,7 +209,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   };
 
   const handleProgramWorkflowChange = (selectedItem: ProgramWorkflow) => {
-    setProgramWorkflowUuid(selectedItem);
+    setProgramWorkflow(selectedItem);
     void mutateProgramStates();
   };
 
@@ -273,7 +273,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
             ? selectedPersonAttributeType['uuid']
             : questionToEdit.questionOptions.attributeType,
           ...(selectedProgram && { programUuid: selectedProgram.uuid }),
-          ...(programWorkflowUuid && { programWorkflowUuid: programWorkflowUuid.uuid }),
+          ...(programWorkflow && { programWorkflow: programWorkflow.uuid }),
         },
       };
 
@@ -322,15 +322,15 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     const previousWorkflow = selectedProgram?.allWorkflows.find(
       (workflow) => workflow.uuid === questionToEdit.questionOptions.workflowUuid,
     );
-    setProgramWorkflowUuid(previousWorkflow);
+    setProgramWorkflow(previousWorkflow);
   }, [questionToEdit.questionOptions.workflowUuid, selectedProgram]);
 
   useEffect(() => {
-    const previousStates = programWorkflowUuid?.states.filter((state) =>
+    const previousStates = programWorkflow?.states.filter((state) =>
       questionToEdit.questionOptions.answers.some((answer) => answer.value === state.concept.uuid),
     );
     setSelectedProgramState(previousStates);
-  }, [programWorkflowUuid, questionToEdit.questionOptions.answers]);
+  }, [programWorkflow, questionToEdit.questionOptions.answers]);
 
   return (
     <>
@@ -511,47 +511,45 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               <div>
                 {questionToEdit.type === 'programState' ? (
                   <Stack gap={5}>
-                    <div>
-                      {isLoadingPrograms && <SelectSkeleton />}
-                      {programsLookupError ? (
-                        <InlineNotification
-                          kind="error"
-                          lowContrast
-                          className={styles.error}
-                          title={t('errorFetchingPrograms', 'Error fetching programs')}
-                          subtitle={t('pleaseTryAgain', 'Please try again.')}
-                        />
-                      ) : null}
-                      {programs && (
-                        <ComboBox
-                          id="programLookup"
-                          items={programs}
-                          itemToString={(item: Program) => item?.name}
-                          onChange={({ selectedItem }: { selectedItem: Program }) => {
-                            handleProgramChange(selectedItem);
-                          }}
-                          placeholder={t('addProgram', 'Add program')}
-                          selectedItem={selectedProgram}
-                          titleText={t('program', 'Program')}
-                        />
-                      )}
+                    {isLoadingPrograms && <SelectSkeleton />}
+                    {programsLookupError ? (
+                      <InlineNotification
+                        kind="error"
+                        lowContrast
+                        className={styles.error}
+                        title={t('errorFetchingPrograms', 'Error fetching programs')}
+                        subtitle={t('pleaseTryAgain', 'Please try again.')}
+                      />
+                    ) : null}
+                    {programs && (
+                      <ComboBox
+                        id="programLookup"
+                        items={programs}
+                        itemToString={(item: Program) => item?.name}
+                        onChange={({ selectedItem }: { selectedItem: Program }) => {
+                          handleProgramChange(selectedItem);
+                        }}
+                        placeholder={t('addProgram', 'Add program')}
+                        selectedItem={selectedProgram}
+                        titleText={t('program', 'Program')}
+                      />
+                    )}
 
-                      {selectedProgram && (
-                        <ComboBox
-                          id="programWorkflowLookup"
-                          items={programWorkflows}
-                          itemToString={(item: ProgramWorkflow) => item?.concept?.display}
-                          onChange={({ selectedItem }: { selectedItem: ProgramWorkflow }) =>
-                            handleProgramWorkflowChange(selectedItem)
-                          }
-                          placeholder={t('addProgramWorkflow', 'Add program workflow')}
-                          selectedItem={programWorkflowUuid}
-                          titleText={t('programWorkflow', 'Program workflow')}
-                        />
-                      )}
-                    </div>
-                    {programWorkflowUuid && (
-                      <div>
+                    {selectedProgram && (
+                      <ComboBox
+                        id="programWorkflowLookup"
+                        items={programWorkflows}
+                        itemToString={(item: ProgramWorkflow) => item?.concept?.display}
+                        onChange={({ selectedItem }: { selectedItem: ProgramWorkflow }) =>
+                          handleProgramWorkflowChange(selectedItem)
+                        }
+                        placeholder={t('addProgramWorkflow', 'Add program workflow')}
+                        selectedItem={programWorkflow}
+                        titleText={t('programWorkflow', 'Program workflow')}
+                      />
+                    )}
+                    {programWorkflow && (
+                      <>
                         {isLoadingProgramStates && <SelectSkeleton />}
                         {programStatesLookupError && (
                           <InlineNotification
@@ -574,11 +572,13 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                           />
                         )}
                         {selectedProgramState?.map((answer) => (
-                          <Tag className={styles.tag} key={answer?.uuid} type={'blue'}>
-                            {answer?.concept?.display}
-                          </Tag>
+                          <div>
+                            <Tag className={styles.tag} key={answer?.uuid} type={'blue'}>
+                              {answer?.concept?.display}
+                            </Tag>
+                          </div>
                         ))}
-                      </div>
+                      </>
                     )}
                   </Stack>
                 ) : (
@@ -679,7 +679,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 
             {fieldType !== 'ui-select-extended' &&
               questionToEdit.type !== 'patientIdentifier' &&
-              questionToEdit.type !== 'personAttribute' && (
+              questionToEdit.type !== 'personAttribute' &&
+              questionToEdit.type !== 'programState' && (
                 <div>
                   <FormLabel className={styles.label}>
                     {t('searchForBackingConcept', 'Search for a backing concept')}
@@ -771,49 +772,55 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                     </>
                   )}
 
-                  <RadioButtonGroup
-                    defaultSelected={
-                      /true/.test(questionToEdit?.questionOptions?.showComment?.toString()) ? 'yes' : 'no'
-                    }
-                    name="addObsComment"
-                    legendText={t('addObsCommentTextBox', 'Add obs comment text box')}
-                  >
-                    <RadioButton
-                      id="obsCommentYes"
-                      defaultChecked={true}
-                      labelText={t('yes', 'Yes')}
-                      onClick={() => setAddObsComment(true)}
-                      value="yes"
-                    />
-                    <RadioButton
-                      id="obsCommentNo"
-                      defaultChecked={false}
-                      labelText={t('no', 'No')}
-                      onClick={() => setAddObsComment(false)}
-                      value="no"
-                    />
-                  </RadioButtonGroup>
+                  {questionToEdit.type === 'obs' && (
+                    <>
+                      <RadioButtonGroup
+                        defaultSelected={
+                          /true/.test(questionToEdit?.questionOptions?.showComment?.toString()) ? 'yes' : 'no'
+                        }
+                        name="addObsComment"
+                        legendText={t('addObsCommentTextBox', 'Add obs comment text box')}
+                      >
+                        <RadioButton
+                          id="obsCommentYes"
+                          defaultChecked={true}
+                          labelText={t('yes', 'Yes')}
+                          onClick={() => setAddObsComment(true)}
+                          value="yes"
+                        />
+                        <RadioButton
+                          id="obsCommentNo"
+                          defaultChecked={false}
+                          labelText={t('no', 'No')}
+                          onClick={() => setAddObsComment(false)}
+                          value="no"
+                        />
+                      </RadioButtonGroup>
 
-                  <RadioButtonGroup
-                    defaultSelected={/true/.test(questionToEdit?.questionOptions?.showDate?.toString()) ? 'yes' : 'no'}
-                    name="addInlineDate"
-                    legendText={t('addInlineDate', 'Add inline date')}
-                  >
-                    <RadioButton
-                      id="inlineDateYes"
-                      defaultChecked={true}
-                      labelText={t('yes', 'Yes')}
-                      onClick={() => setAddInlineDate(true)}
-                      value="yes"
-                    />
-                    <RadioButton
-                      id="inlineDateNo"
-                      defaultChecked={false}
-                      labelText={t('no', 'No')}
-                      onClick={() => setAddInlineDate(false)}
-                      value="no"
-                    />
-                  </RadioButtonGroup>
+                      <RadioButtonGroup
+                        defaultSelected={
+                          /true/.test(questionToEdit?.questionOptions?.showDate?.toString()) ? 'yes' : 'no'
+                        }
+                        name="addInlineDate"
+                        legendText={t('addInlineDate', 'Add inline date')}
+                      >
+                        <RadioButton
+                          id="inlineDateYes"
+                          defaultChecked={true}
+                          labelText={t('yes', 'Yes')}
+                          onClick={() => setAddInlineDate(true)}
+                          value="yes"
+                        />
+                        <RadioButton
+                          id="inlineDateNo"
+                          defaultChecked={false}
+                          labelText={t('no', 'No')}
+                          onClick={() => setAddInlineDate(false)}
+                          value="no"
+                        />
+                      </RadioButtonGroup>
+                    </>
+                  )}
                 </div>
               )}
 
@@ -840,6 +847,76 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                 </table>
               </FormGroup>
             ) : null}
+
+            {conceptMappings?.length ? (
+              <FormGroup>
+                <FormLabel className={styles.label}>{t('mappings', 'Mappings')}</FormLabel>
+                <table className={styles.tableStriped}>
+                  <thead>
+                    <tr>
+                      <th>{t('relationship', 'Relationship')}</th>
+                      <th>{t('source', 'Source')}</th>
+                      <th>{t('code', 'Code')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {conceptMappings.map((mapping, index) => (
+                      <tr key={`mapping-${index}`}>
+                        <td>{mapping.relationship ?? '--'}</td>
+                        <td>{mapping.type ?? '--'}</td>
+                        <td>{mapping.value ?? '--'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </FormGroup>
+            ) : null}
+
+            {(questionType === 'obs' || (!questionType && questionToEdit.type === 'obs')) && (
+              <Stack gap={5}>
+                <RadioButtonGroup
+                  defaultSelected={/true/.test(questionToEdit?.questionOptions?.showComment?.toString()) ? 'yes' : 'no'}
+                  name="addObsComment"
+                  legendText={t('addObsCommentTextBox', 'Add obs comment text box')}
+                >
+                  <RadioButton
+                    id="obsCommentYes"
+                    defaultChecked={true}
+                    labelText={t('yes', 'Yes')}
+                    onClick={() => setAddObsComment(true)}
+                    value="yes"
+                  />
+                  <RadioButton
+                    id="obsCommentNo"
+                    defaultChecked={false}
+                    labelText={t('no', 'No')}
+                    onClick={() => setAddObsComment(false)}
+                    value="no"
+                  />
+                </RadioButtonGroup>
+
+                <RadioButtonGroup
+                  defaultSelected={/true/.test(questionToEdit?.questionOptions?.showDate?.toString()) ? 'yes' : 'no'}
+                  name="addInlineDate"
+                  legendText={t('addInlineDate', 'Add inline date')}
+                >
+                  <RadioButton
+                    id="inlineDateYes"
+                    defaultChecked={true}
+                    labelText={t('yes', 'Yes')}
+                    onClick={() => setAddInlineDate(true)}
+                    value="yes"
+                  />
+                  <RadioButton
+                    id="inlineDateNo"
+                    defaultChecked={false}
+                    labelText={t('no', 'No')}
+                    onClick={() => setAddInlineDate(false)}
+                    value="no"
+                  />
+                </RadioButtonGroup>
+              </Stack>
+            )}
             {!hasConceptChanged &&
             questionToEdit?.questionOptions.answers?.length &&
             questionToEdit.type !== 'programState' ? (
