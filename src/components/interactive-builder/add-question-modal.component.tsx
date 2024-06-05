@@ -4,7 +4,6 @@ import flattenDeep from 'lodash-es/flattenDeep';
 import {
   Button,
   ComboBox,
-  ComposedModal,
   Form,
   FormGroup,
   FormLabel,
@@ -45,14 +44,13 @@ import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import styles from './question-modal.scss';
 
 interface AddQuestionModalProps {
-  onModalChange: (showModal: boolean) => void;
+  closeModal: () => void;
   onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
   questionIndex: number;
   resetIndices: () => void;
   schema: Schema;
   sectionIndex: number;
-  showModal: boolean;
 }
 
 const DatePickerType = {
@@ -74,14 +72,13 @@ interface RequiredLabelProps {
 }
 
 const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
-  onModalChange,
+  closeModal,
   onSchemaChange,
   pageIndex,
   questionIndex,
   resetIndices,
   schema,
   sectionIndex,
-  showModal,
 }) => {
   const { t } = useTranslation();
   const { fieldTypes, questionTypes } = useConfig<ConfigObject>();
@@ -172,7 +169,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
   const handleCreateQuestion = () => {
     createQuestion();
-    onModalChange(false);
+    closeModal();
   };
 
   const createQuestion = () => {
@@ -255,8 +252,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   };
 
   return (
-    <ComposedModal open={showModal} onClose={() => onModalChange(false)} preventCloseOnClickOutside>
-      <ModalHeader title={t('createNewQuestion', 'Create a new question')} />
+    <>
+      <ModalHeader title={t('createNewQuestion', 'Create a new question')} closeModal={closeModal} />
       <Form className={styles.form} onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody hasScrollingContent>
           <FormGroup legendText={''}>
@@ -680,7 +677,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         </ModalBody>
       </Form>
       <ModalFooter>
-        <Button onClick={() => onModalChange(false)} kind="secondary">
+        <Button onClick={closeModal} kind="secondary">
           {t('cancel', 'Cancel')}
         </Button>
         <Button
@@ -696,7 +693,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           <span>{t('save', 'Save')}</span>
         </Button>
       </ModalFooter>
-    </ComposedModal>
+    </>
   );
 };
 

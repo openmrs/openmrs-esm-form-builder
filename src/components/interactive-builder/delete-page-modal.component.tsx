@@ -1,25 +1,23 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, ComposedModal, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
+import { Button, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import type { Schema } from '../../types';
 
 interface DeletePageModalProps {
-  onModalChange: (showModal: boolean) => void;
+  closeModal: () => void;
   onSchemaChange: (schema: Schema) => void;
   resetIndices: () => void;
   pageIndex: number;
   schema: Schema;
-  showModal: boolean;
 }
 
 const DeletePageModal: React.FC<DeletePageModalProps> = ({
-  onModalChange,
   onSchemaChange,
   resetIndices,
   pageIndex,
   schema,
-  showModal,
+  closeModal,
 }) => {
   const { t } = useTranslation();
 
@@ -48,8 +46,11 @@ const DeletePageModal: React.FC<DeletePageModalProps> = ({
   };
 
   return (
-    <ComposedModal open={showModal} onClose={() => onModalChange(false)} preventCloseOnClickOutside>
-      <ModalHeader title={t('deletePageConfirmation', 'Are you sure you want to delete this page?')} />
+    <>
+      <ModalHeader
+        title={t('deletePageConfirmation', 'Are you sure you want to delete this page?')}
+        closeModal={closeModal}
+      />
       <ModalBody>
         <p>
           {t(
@@ -59,20 +60,20 @@ const DeletePageModal: React.FC<DeletePageModalProps> = ({
         </p>
       </ModalBody>
       <ModalFooter>
-        <Button kind="secondary" onClick={() => onModalChange(false)}>
+        <Button kind="secondary" onClick={closeModal}>
           {t('cancel', 'Cancel')}
         </Button>
         <Button
           kind="danger"
           onClick={() => {
             deletePage(pageIndex);
-            onModalChange(false);
+            closeModal();
           }}
         >
           <span>{t('deletePage', 'Delete page')}</span>
         </Button>
       </ModalFooter>
-    </ComposedModal>
+    </>
   );
 };
 

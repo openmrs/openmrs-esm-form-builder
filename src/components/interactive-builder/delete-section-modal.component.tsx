@@ -1,27 +1,25 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, ComposedModal, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
+import { Button, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import type { Schema } from '../../types';
 
 interface DeleteSectionModal {
-  onModalChange: (showModal: boolean) => void;
+  closeModal: () => void;
   onSchemaChange: (schema: Schema) => void;
   resetIndices: () => void;
   pageIndex: number;
   sectionIndex: number;
   schema: Schema;
-  showModal: boolean;
 }
 
 const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
-  onModalChange,
+  closeModal,
   onSchemaChange,
   resetIndices,
   pageIndex,
   sectionIndex,
   schema,
-  showModal,
 }) => {
   const { t } = useTranslation();
 
@@ -50,8 +48,11 @@ const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
   };
 
   return (
-    <ComposedModal open={showModal} onClose={() => onModalChange(false)} preventCloseOnClickOutside>
-      <ModalHeader title={t('deleteSectionConfirmation', 'Are you sure you want to delete this section?')} />
+    <>
+      <ModalHeader
+        title={t('deleteSectionConfirmation', 'Are you sure you want to delete this section?')}
+        closeModal={closeModal}
+      />
       <ModalBody>
         <p>
           {t(
@@ -61,20 +62,20 @@ const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
         </p>
       </ModalBody>
       <ModalFooter>
-        <Button kind="secondary" onClick={() => onModalChange(false)}>
+        <Button kind="secondary" onClick={closeModal}>
           {t('cancel', 'Cancel')}
         </Button>
         <Button
           kind="danger"
           onClick={() => {
             deleteSection(pageIndex, sectionIndex);
-            onModalChange(false);
+            closeModal();
           }}
         >
           <span>{t('deleteSection', 'Delete section')}</span>
         </Button>
       </ModalFooter>
-    </ComposedModal>
+    </>
   );
 };
 
