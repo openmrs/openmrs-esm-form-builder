@@ -400,7 +400,7 @@ export const RuleCondition = ({
             size={isTablet ? 'lg' : 'sm'}
           />
         ) : (
-          <div className={styles.ruleDescriptor}>
+          <div className={styles.ruleDescriptor} id='when-rule-descriptor'>
             <span className={styles.icon}>
               <FlowConnection />
             </span>
@@ -424,6 +424,7 @@ export const RuleCondition = ({
         />
         <Dropdown
           id={`targetCondition-${index}`}
+          aria-label='target-condition'
           className={styles.targetCondition}
           selectedItem={conditions[index]?.[`targetCondition`] || 'Select Condition'}
           items={['Is Empty', 'Not Empty', 'Greater than or equal to', 'Less than or equal to', 'Equals', 'not Equals']}
@@ -436,6 +437,7 @@ export const RuleCondition = ({
         {isConditionValueVisible && (
           <ComboBox
             id={`targetValue-${index}`}
+            aria-label='target-value'
             className={styles.targetValue}
             initialSelectedItem={
               answer?.find((item) => item.concept === conditions[index]?.[`targetValue`]) || {
@@ -555,14 +557,14 @@ export const RuleAction = ({
       <div className={styles.ruleSetContainer}>
         <div className={styles.sectionContainer}>
           {isNewAction ? (
-            <div className={styles.ruleDescriptor}>
+            <div className={styles.ruleDescriptor} id='and-rule-descriptor'>
               <span className={styles.icon}>
                 <Link />
               </span>
               <p className={styles.label}>{t('and', 'And')}</p>
             </div>
           ) : (
-            <div className={styles.ruleDescriptor}>
+            <div className={styles.ruleDescriptor} id='then-rule-descriptor'>
               <span className={styles.icon}>
                 <Flash />
               </span>
@@ -571,8 +573,9 @@ export const RuleAction = ({
           )}
           <Dropdown
             id={`actionCondition-${index}`}
+            aria-label='action-condition'
             className={styles.actionCondition}
-            initialSelectedItem={actions[index]?.[`actionCondition`] || 'Select Action'}
+            initialSelectedItem={actions[index]?.[`actionCondition`] || 'Select a action'}
             items={['Hide', 'Fail']}
             onChange={({ selectedItem }: { selectedItem: string }) => {
               handleActionChange(fieldId, `actionCondition`, selectedItem, index);
@@ -598,6 +601,7 @@ export const RuleAction = ({
         </div>
         <Layer className={styles.layer}>
           <OverflowMenu
+            id='options-menu'
             aria-label={t('optionsMenu', 'Options menu')}
             className={styles.overflowMenu}
             align="left"
@@ -625,12 +629,13 @@ export const RuleAction = ({
       </div>
       {showErrorMessageBox && (
         <TextArea
-          rows={3}
           id={`error-message-${index}`}
-          helperText="Error message"
+          aria-label='error-message'
+          helperText='Error message'
           defaultValue={errorMessage || ''}
           placeholder={t('errorMessageBox', 'Enter error message to be displayed')}
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setErrorMessage(e.target.value)}
+          rows={3}
         />
       )}
     </div>
