@@ -1,9 +1,9 @@
 /** @type {import('jest').Config} */
 module.exports = {
   transform: {
-    '^.+\\.tsx?$': ['@swc/jest'],
+    '^.+\\.(j|t)sx?$': '@swc/jest',
   },
-  transformIgnorePatterns: ['/node_modules/(?!@openmrs)'],
+  transformIgnorePatterns: ['/node_modules/(?!(@openmrs|uuid))'],
   moduleNameMapper: {
     '^@carbon/icons-react/es/(.*)$': '@carbon/icons-react/lib/$1',
     '^carbon-components-react/es/(.*)$': 'carbon-components-react/lib/$1',
