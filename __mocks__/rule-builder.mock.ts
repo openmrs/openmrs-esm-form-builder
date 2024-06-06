@@ -1,5 +1,7 @@
 import { type Schema, type Question } from '../src/types';
 
+
+export const useFormMockValues = { rules: [], setRules: () => jest.fn()}
 export const textRenderingQuestion: Question = {
   'label': 'Name',
   'type': 'obs',
