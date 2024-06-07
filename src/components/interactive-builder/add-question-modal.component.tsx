@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useState } from 'react';
 import { useTranslation, type TFunction } from 'react-i18next';
 import flattenDeep from 'lodash-es/flattenDeep';
@@ -75,8 +76,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   closeModal,
   onSchemaChange,
   pageIndex,
-  questionIndex,
-  resetIndices,
   schema,
   sectionIndex,
 }) => {
@@ -174,6 +173,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
   const createQuestion = () => {
     try {
+      const questionIndex = schema.pages[pageIndex]?.sections?.[sectionIndex]?.questions?.length ?? 0;
       const computedQuestionId = `question${questionIndex + 1}Section${sectionIndex + 1}Page-${pageIndex + 1}`;
 
       const newQuestion = {
@@ -211,7 +211,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
       onSchemaChange({ ...schema });
 
-      resetIndices();
       setQuestionLabel('');
       setQuestionId('');
       setIsQuestionRequired(false);

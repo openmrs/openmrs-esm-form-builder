@@ -7,7 +7,6 @@ import type { Schema } from '../../types';
 interface DeleteSectionModal {
   closeModal: () => void;
   onSchemaChange: (schema: Schema) => void;
-  resetIndices: () => void;
   pageIndex: number;
   sectionIndex: number;
   schema: Schema;
@@ -16,7 +15,6 @@ interface DeleteSectionModal {
 const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
   closeModal,
   onSchemaChange,
-  resetIndices,
   pageIndex,
   sectionIndex,
   schema,
@@ -28,7 +26,6 @@ const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
       schema.pages[pageIndex].sections.splice(sectionIndex, 1);
 
       onSchemaChange({ ...schema });
-      resetIndices();
 
       showSnackbar({
         title: t('success', 'Success!'),

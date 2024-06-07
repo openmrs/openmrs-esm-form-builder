@@ -9,10 +9,9 @@ interface SectionModalProps {
   schema: Schema;
   onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
-  resetIndices: () => void;
 }
 
-const SectionModal: React.FC<SectionModalProps> = ({ closeModal, schema, onSchemaChange, pageIndex, resetIndices }) => {
+const SectionModal: React.FC<SectionModalProps> = ({ closeModal, schema, onSchemaChange, pageIndex }) => {
   const { t } = useTranslation();
   const [sectionTitle, setSectionTitle] = useState('');
 
@@ -30,7 +29,6 @@ const SectionModal: React.FC<SectionModalProps> = ({ closeModal, schema, onSchem
       });
       onSchemaChange({ ...schema });
       setSectionTitle('');
-      resetIndices();
 
       showSnackbar({
         title: t('success', 'Success!'),

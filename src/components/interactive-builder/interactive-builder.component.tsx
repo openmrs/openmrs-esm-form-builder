@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { DndContext, KeyboardSensor, MouseSensor, closestCorners, useSensor, useSensors } from '@dnd-kit/core';
@@ -45,10 +45,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const { formUuid } = useParams<{ formUuid: string }>();
   const isEditingExistingForm = Boolean(formUuid);
 
-  const [pageIndex, setPageIndex] = useState(0);
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [sectionIndex, setSectionIndex] = useState(0);
-
   const initializeSchema = useCallback(() => {
     const dummySchema: FormSchema = {
       name: '',
@@ -75,12 +71,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     });
   }, [onSchemaChange, initializeSchema]);
 
-  const resetIndices = () => {
-    setPageIndex(0);
-    setSectionIndex(0);
-    setQuestionIndex(0);
-  };
-
   const launchAddPageModal = useCallback(() => {
     const dispose = showModal('new-page-modal', {
       closeModal: () => dispose(),
@@ -89,48 +79,55 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     });
   }, [schema, onSchemaChange]);
 
-  const launchDeletePageModal = useCallback(() => {
-    const dipose = showModal('delete-page-modal', {
-      closeModal: () => dipose(),
-      onSchemaChange,
-      schema,
-      resetIndices,
-      pageIndex,
-    });
-  }, [onSchemaChange, schema, pageIndex]);
+  const launchDeletePageModal = useCallback(
+    (pageIndex: number) => {
+      const dipose = showModal('delete-page-modal', {
+        closeModal: () => dipose(),
+        onSchemaChange,
+        schema,
+        pageIndex,
+      });
+    },
+    [onSchemaChange, schema],
+  );
 
-  const launchAddSectionModal = useCallback(() => {
-    const dispose = showModal('new-section-modal', {
-      closeModal: () => dispose(),
-      pageIndex,
-      resetIndices,
-      schema,
-      onSchemaChange,
-    });
-  }, [schema, onSchemaChange, pageIndex]);
+  const launchAddSectionModal = useCallback(
+    (pageIndex: number) => {
+      const dispose = showModal('new-section-modal', {
+        closeModal: () => dispose(),
+        pageIndex,
+        schema,
+        onSchemaChange,
+      });
+    },
+    [schema, onSchemaChange],
+  );
 
-  const launchDeleteSectionModal = useCallback(() => {
-    const dispose = showModal('delete-section-modal', {
-      closeModal: () => dispose(),
-      pageIndex,
-      sectionIndex,
-      resetIndices,
-      schema,
-      onSchemaChange,
-    });
-  }, [onSchemaChange, schema, pageIndex, sectionIndex]);
+  const launchDeleteSectionModal = useCallback(
+    (pageIndex: number, sectionIndex: number) => {
+      const dispose = showModal('delete-section-modal', {
+        closeModal: () => dispose(),
+        pageIndex,
+        sectionIndex,
+        schema,
+        onSchemaChange,
+      });
+    },
+    [onSchemaChange, schema],
+  );
 
-  const launchAddQuestionModal = useCallback(() => {
-    const dipose = showModal('add-question-modal', {
-      closeModal: () => dipose(),
-      onSchemaChange,
-      schema,
-      resetIndices,
-      pageIndex,
-      questionIndex,
-      sectionIndex,
-    });
-  }, [onSchemaChange, schema, pageIndex, questionIndex, sectionIndex]);
+  const launchAddQuestionModal = useCallback(
+    (pageIndex: number, sectionIndex: number) => {
+      const dispose = showModal('add-question-modal', {
+        closeModal: () => dispose(),
+        onSchemaChange,
+        schema,
+        pageIndex,
+        sectionIndex,
+      });
+    },
+    [onSchemaChange, schema],
+  );
 
   const renameSchema = useCallback(
     (value: string) => {
@@ -194,8 +191,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         }
         onSchemaChange({ ...schema });
 
-        resetIndices();
-
         showSnackbar({
           title: t('success', 'Success!'),
           kind: 'success',
@@ -224,7 +219,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         schema.pages[pageId].sections[sectionId].questions.push(questionToDuplicate);
 
         onSchemaChange({ ...schema });
-        resetIndices();
 
         showSnackbar({
           title: t('success', 'Success!'),
@@ -387,8 +381,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                     iconDescription={t('deletePage', 'Delete page')}
                     kind="ghost"
                     onClick={() => {
-                      setPageIndex(pageIndex);
-                      launchDeletePageModal();
+                      launchDeletePageModal(pageIndex);
                     }}
                     renderIcon={(props) => <TrashCan size={16} {...props} />}
                     size="sm"
@@ -423,9 +416,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                 iconDescription={t('deleteSection', 'Delete section')}
                                 kind="ghost"
                                 onClick={() => {
-                                  setPageIndex(pageIndex);
-                                  setSectionIndex(sectionIndex);
-                                  launchDeleteSectionModal();
+                                  launchDeleteSectionModal(pageIndex, sectionIndex);
                                 }}
                                 renderIcon={(props) => <TrashCan size={16} {...props} />}
                                 size="sm"
@@ -444,7 +435,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                         question={question}
                                         questionCount={section.questions.length}
                                         questionIndex={questionIndex}
-                                        resetIndices={resetIndices}
                                         schema={schema}
                                         sectionIndex={sectionIndex}
                                       />
@@ -480,10 +470,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                 kind="ghost"
                                 renderIcon={Add}
                                 onClick={() => {
-                                  setQuestionIndex(questionIndex);
-                                  setPageIndex(pageIndex);
-                                  setSectionIndex(sectionIndex);
-                                  launchAddQuestionModal();
+                                  launchAddQuestionModal(pageIndex, sectionIndex);
                                 }}
                                 iconDescription={t('addQuestion', 'Add Question')}
                               >
@@ -508,8 +495,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                   kind="ghost"
                   renderIcon={Add}
                   onClick={() => {
-                    setPageIndex(pageIndex);
-                    launchAddSectionModal();
+                    launchAddSectionModal(pageIndex);
                   }}
                   iconDescription={t('addSection', 'Add Section')}
                 >

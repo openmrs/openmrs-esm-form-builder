@@ -7,18 +7,11 @@ import type { Schema } from '../../types';
 interface DeletePageModalProps {
   closeModal: () => void;
   onSchemaChange: (schema: Schema) => void;
-  resetIndices: () => void;
   pageIndex: number;
   schema: Schema;
 }
 
-const DeletePageModal: React.FC<DeletePageModalProps> = ({
-  onSchemaChange,
-  resetIndices,
-  pageIndex,
-  schema,
-  closeModal,
-}) => {
+const DeletePageModal: React.FC<DeletePageModalProps> = ({ onSchemaChange, pageIndex, schema, closeModal }) => {
   const { t } = useTranslation();
 
   const deletePage = (pageIndex: number) => {
@@ -26,7 +19,6 @@ const DeletePageModal: React.FC<DeletePageModalProps> = ({
       schema.pages.splice(pageIndex, 1);
 
       onSchemaChange({ ...schema });
-      resetIndices();
 
       showSnackbar({
         title: t('success', 'Success!'),
