@@ -42,14 +42,28 @@ describe('RuleHeader', () => {
     await user.click(dateToggle);
     expect(handleToggle).toHaveBeenCalledTimes(1);
   });
+
+  test.each([
+    [true, 'on'],
+    [false, 'off']
+  ])('should check the toggle button is %s state', (required, state) => {
+    renderRuleHeader(true, required);
+    const isRequiredToggleButton = document.querySelector(`#toggle-required-${ruleId}`);
+    expect(isRequiredToggleButton).toBeInTheDocument();
+    if(state === 'on'){
+      expect(isRequiredToggleButton).toBeChecked();
+    }else if(state === 'off'){
+      expect(isRequiredToggleButton).not.toBeChecked();
+    }
+  })
 });
 
-function renderRuleHeader(isDate: boolean) {
+function renderRuleHeader(isDate: boolean, isRequired?: boolean) {
   render(
     <RuleHeader
       ruleId={ruleId}
       question={isDate ? dateRenderingQuestion : textRenderingQuestion}
-      isRequired={true}
+      isRequired={isRequired ? true : false}
       handleToggle={handleToggle}
     />
   );
