@@ -326,6 +326,7 @@ interface RuleHeaderProps {
   question: Question;
 }
 export const RuleHeader = ({ isRequired, handleToggle, ruleId, question }: RuleHeaderProps) => {
+
   return (
     <div className={styles.toggleContainer}>
       <Toggle
