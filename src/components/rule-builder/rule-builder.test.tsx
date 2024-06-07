@@ -9,10 +9,10 @@ const onSchemaChange = jest.fn();
 const ruleId = 'a0776e98-86d8-460f-a2c4-26dc97e6fc8a';
 
 jest.mock('../../hooks/useFormRule', () => ({
-  useFormRule : () => {
+  useFormRule: () => {
     return useFormMockValues;
-  }
-}))
+  },
+}));
 
 describe('RuleBuilder', () => {
   it('should render the rule builder without crashing', async () => {
@@ -28,7 +28,7 @@ describe('RuleBuilder', () => {
     await user.click(addAction);
     const andContainer = document.querySelector('#and-rule-descriptor');
     expect(andContainer).toBeInTheDocument();
-  })
+  });
 
   it('should display the conditional value dropdown based on selected target condition', async () => {
     renderRuleBuilder();
@@ -51,7 +51,7 @@ describe('RuleBuilder', () => {
     const isEmptyCondition = screen.getByText('Is Empty');
     await user.click(isEmptyCondition);
     expect(conditionalValueDropDown).not.toBeInTheDocument();
-  })
+  });
 
   it('should display the error message box based on the selected target action', async () => {
     renderRuleBuilder();
@@ -74,13 +74,13 @@ describe('RuleBuilder', () => {
     const hideAction = screen.getByText('Hide');
     await user.click(hideAction);
     expect(errorMessageBox).not.toBeInTheDocument();
-  })
-})
+  });
+});
 
-function renderRuleBuilder(){
+function renderRuleBuilder() {
   render(
     <RuleBuilder
-      key='name'
+      key="name"
       ruleId={ruleId}
       isNewRule={false}
       question={textRenderingQuestion}
@@ -90,6 +90,6 @@ function renderRuleBuilder(){
       handleAddLogic={handleAddLogic}
       schema={schema}
       onSchemaChange={onSchemaChange}
-    />
-  )
+    />,
+  );
 }

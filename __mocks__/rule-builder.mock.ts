@@ -1,7 +1,11 @@
+import { type formRule } from '../src/components/rule-builder/rule-builder.component';
 import { type Schema, type Question } from '../src/types';
+interface UseFormMockValues {
+  rules: Array<formRule>;
+  setRules: () => jest.Mock;
+}
 
-
-export const useFormMockValues = { rules: [], setRules: () => jest.fn()}
+export const useFormMockValues: UseFormMockValues = { rules: [], setRules: () => jest.fn()}
 export const textRenderingQuestion: Question = {
   'label': 'Name',
   'type': 'obs',
