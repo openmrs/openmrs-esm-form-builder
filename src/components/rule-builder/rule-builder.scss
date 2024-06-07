@@ -33,6 +33,22 @@
   margin-bottom: 30px;
 }
 
+.ruleHeaderContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.helpLink {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: black;
+}
+
 .icon{
   width: 12px;
   height: 12px;

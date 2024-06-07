@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styles from './rule-builder.scss';
-import { Flash, FlowConnection, Link } from '@carbon/react/icons';
+import { Flash, FlowConnection, Link, Help } from '@carbon/react/icons';
 import { Dropdown } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import { useLayoutType } from '@openmrs/esm-framework';
+import { ConfigurableLink, useLayoutType } from '@openmrs/esm-framework';
 import type { Page, Question, Schema, Section } from '../../types';
 import { Toggle } from '@carbon/react';
 import { v4 as uuidv4 } from 'uuid';
@@ -271,9 +271,15 @@ const RuleBuilder = ({
 
   return (
     <div className={styles.container}>
-      {!isToggleVisible && (
-        <RuleHeader isRequired={isRequired} handleToggle={handleToggle} ruleId={ruleId} question={question} />
-      )}
+      <div className={styles.ruleHeaderContainer}>
+        {!isToggleVisible && (
+          <RuleHeader isRequired={isRequired} handleToggle={handleToggle} ruleId={ruleId} question={question} />
+        )}
+        <ConfigurableLink to='' className={styles.helpLink}>
+          <span ><Help /></span>
+          <p>Learn about conditional logic</p>
+        </ConfigurableLink>
+      </div>
       <div className={styles.ruleBuilderContainer}>
         <div className={styles.conditionsContainer}>
           {conditions.map((condition, index) => (
