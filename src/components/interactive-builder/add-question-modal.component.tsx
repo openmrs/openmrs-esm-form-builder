@@ -184,7 +184,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         type: questionType,
         required: isQuestionRequired,
         id: questionId ?? computedQuestionId,
-        ...(questionType === 'encounterDatetime' && { datePickerType }),
+        ...(questionType === 'encounterDatetime' && { datePickerFormat: datePickerType }),
         questionOptions: {
           rendering: renderingType,
           concept: selectedConcept?.uuid,
