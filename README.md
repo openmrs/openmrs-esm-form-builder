@@ -46,19 +46,19 @@ Once the dev server launches, log in and select a location. You will get redirec
 To run tests for all packages, run:
 
 ```bash
-yarn turbo test
+yarn turbo run test
 ```
 
 To run tests in `watch` mode, run:
 
 ```bash
-yarn turbo test:watch
+yarn turbo run test:watch
 ```
 
 To run a specific test file, run:
 
 ```bash
-yarn turbo test -- dashboard
+yarn turbo run test -- dashboard
 ```
 
 The above command will only run tests in the file or files that match the provided string.
@@ -66,19 +66,19 @@ The above command will only run tests in the file or files that match the provid
 You can also run the matching tests from above in watch mode by running:
 
 ```bash
-yarn turbo test:watch -- dashboard
+yarn turbo run test:watch -- dashboard
 ```
 
 To generate a `coverage` report, run:
 
 ```bash
-yarn turbo coverage
+yarn turbo run coverage
 ```
 
 By default, `turbo` will cache test runs. This means that re-running tests wihout changing any of the related files will return the cached logs from the last run. To bypass the cache, run tests with the `force` flag, as follows:
 
 ```bash
-yarn turbo test --force
+yarn turbo run test --force
 ```
 
 ### E2E tests
@@ -96,8 +96,9 @@ yarn test-e2e --headed
 ```
 
 Read the [e2e testing guide](/e2e/README.md) to learn more about End-to-End tests in this project.
+
 ## Building
 
 ```sh
-yarn build
+yarn turbo run build
 ```
