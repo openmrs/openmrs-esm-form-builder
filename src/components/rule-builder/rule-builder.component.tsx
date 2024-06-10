@@ -520,7 +520,7 @@ export const RuleCondition = React.memo(
             ) : (
               <OverflowMenuItem
                 className={styles.menuItem}
-                id="deleteCondition"
+                id="deleteConditionalLogic"
                 onClick={launchDeleteConditionalLogicModal}
                 itemText={t('deleteConditionalLogic', 'Delete conditional logic')}
                 hasDivider
