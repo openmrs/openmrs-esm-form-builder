@@ -66,6 +66,10 @@
     {
       "name": "delete-form-modal",
       "component": "deleteFormModal"
+    },
+    {
+      "name": "delete-conditional-logic-modal",
+      "component": "deleteConditionalLogicModal"
     }
   ]
 }
