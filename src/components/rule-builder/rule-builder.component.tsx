@@ -3,7 +3,7 @@ import styles from './rule-builder.scss';
 import { Flash, FlowConnection, Link, Help } from '@carbon/react/icons';
 import { Dropdown } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import { ConfigurableLink, useLayoutType } from '@openmrs/esm-framework';
+import { ConfigurableLink, showModal, useLayoutType } from '@openmrs/esm-framework';
 import type { Page, Question, Schema, Section } from '../../types';
 import { Toggle } from '@carbon/react';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,7 +13,7 @@ import { Layer } from '@carbon/react';
 import { TextArea } from '@carbon/react';
 import { useFormRule } from '../../hooks/useFormRule';
 import { useDebounce } from '@openmrs/esm-framework';
-interface Condition {
+export interface Condition {
   id: string;
   isNew: boolean;
   logicalOperator?: string;
@@ -22,7 +22,7 @@ interface Condition {
   targetValue?: string;
 }
 
-interface Action {
+export interface Action {
   id: string;
   isNew: boolean;
   logicalOperator?: string;
@@ -210,6 +210,19 @@ const RuleBuilder = React.memo(
       [rules, setRules],
     );
 
+    const launchDeleteConditionalLogicModal = useCallback(() => {
+      const dispose = showModal('delete-conditional-logic-modal', {
+        closeModal: () => dispose(),
+        questionId: question?.id,
+        questionLabel: question?.label,
+        handleAddLogic,
+        setConditions,
+        setActions,
+        setCurrentRule,
+        setRules,
+      });
+    }, [handleAddLogic, question?.id, question?.label, setRules]);
+
     useEffect(() => {
       if (question.required) {
         setIsRequired(true);
@@ -260,15 +273,6 @@ const RuleBuilder = React.memo(
       (id: string) => removeElement(id, conditions, setConditions, 'conditions'),
       [conditions, removeElement],
     );
-    const removeRule = useCallback(() => {
-      handleAddLogic(question.id);
-      setConditions([]);
-      setActions([]);
-      setCurrentRule({ id: uuidv4(), question: question.id });
-      setRules((prevRule: Array<formRule>) => {
-        return prevRule.filter((rule) => rule.question !== question.id);
-      });
-    }, [handleAddLogic, question.id, setRules]);
 
     return (
       <div className={styles.container}>
@@ -297,7 +301,7 @@ const RuleBuilder = React.memo(
                 isNewCondition={condition.isNew}
                 isNewRule={isNewRule}
                 removeCondition={() => removeCondition(condition.id)}
-                removeRule={() => removeRule()}
+                launchDeleteConditionalLogicModal={() => launchDeleteConditionalLogicModal()}
                 removeConditionalLogic={() => removeConditionalLogic(ruleId)}
                 addCondition={addCondition}
                 addNewConditionalLogic={addNewConditionalLogic}
@@ -359,7 +363,7 @@ interface RuleConditionProps {
   questions: Array<Question>;
   answers: Array<Record<string, string>>;
   isTablet: boolean;
-  removeRule: () => void;
+  launchDeleteConditionalLogicModal: () => void;
   removeCondition: () => void;
   addNewConditionalLogic: () => void;
   isNewCondition: boolean;
@@ -381,7 +385,7 @@ export const RuleCondition = React.memo(
     index,
     removeCondition,
     addCondition,
-    removeRule,
+    launchDeleteConditionalLogicModal,
     removeConditionalLogic,
     answers,
     handleConditionChange,
@@ -517,7 +521,7 @@ export const RuleCondition = React.memo(
               <OverflowMenuItem
                 className={styles.menuItem}
                 id="deleteCondition"
-                onClick={removeRule}
+                onClick={launchDeleteConditionalLogicModal}
                 itemText={t('deleteConditionalLogic', 'Delete conditional logic')}
                 hasDivider
                 isDelete

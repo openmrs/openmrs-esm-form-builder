@@ -30,6 +30,10 @@
     {
       "name": "edit-question-modal",
       "component": "editQuestionModal"
+    },
+    {
+      "name": "delete-conditional-logic-modal",
+      "component": "deleteConditionalLogicModal"
     }
   ]
 }
