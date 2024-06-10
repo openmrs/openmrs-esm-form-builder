@@ -162,7 +162,7 @@ const RuleBuilder = React.memo(
       [],
     );
 
-    const removeElement = useCallback(
+    const deleteElement = useCallback(
       (
         elementId: string,
         element: Array<Condition | Action>,
@@ -196,7 +196,7 @@ const RuleBuilder = React.memo(
       });
     }, [setRules, question.id]);
 
-    const removeConditionalLogic = useCallback(
+    const deleteConditionalLogicById = useCallback(
       (id: string) => {
         setRules((prevRule: Array<formRule>) => {
           const newRule = [...prevRule];
@@ -265,13 +265,13 @@ const RuleBuilder = React.memo(
       () => addElement(actions, setActions, 'actions', handleActionChange),
       [actions, addElement, handleActionChange],
     );
-    const removeAction = useCallback(
-      (id: string) => removeElement(id, actions, setActions, 'actions'),
-      [actions, removeElement],
+    const deleteAction = useCallback(
+      (id: string) => deleteElement(id, actions, setActions, 'actions'),
+      [actions, deleteElement],
     );
-    const removeCondition = useCallback(
-      (id: string) => removeElement(id, conditions, setConditions, 'conditions'),
-      [conditions, removeElement],
+    const deleteCondition = useCallback(
+      (id: string) => deleteElement(id, conditions, setConditions, 'conditions'),
+      [conditions, deleteElement],
     );
 
     return (
@@ -300,9 +300,9 @@ const RuleBuilder = React.memo(
                 isTablet={isTablet}
                 isNewCondition={condition.isNew}
                 isNewRule={isNewRule}
-                removeCondition={() => removeCondition(condition.id)}
+                deleteCondition={() => deleteCondition(condition.id)}
                 launchDeleteConditionalLogicModal={() => launchDeleteConditionalLogicModal()}
-                removeConditionalLogic={() => removeConditionalLogic(ruleId)}
+                deleteSpecificConditionalLogic={() => deleteConditionalLogicById(ruleId)}
                 addCondition={addCondition}
                 addNewConditionalLogic={addNewConditionalLogic}
                 handleConditionChange={handleConditionChange}
@@ -319,7 +319,7 @@ const RuleBuilder = React.memo(
                 questions={questions}
                 isTablet={isTablet}
                 isNewAction={action.isNew}
-                removeAction={() => removeAction(action.id)}
+                deleteAction={() => deleteAction(action.id)}
                 addAction={addAction}
                 handleActionChange={handleActionChange}
                 index={index}
@@ -364,13 +364,13 @@ interface RuleConditionProps {
   answers: Array<Record<string, string>>;
   isTablet: boolean;
   launchDeleteConditionalLogicModal: () => void;
-  removeCondition: () => void;
+  deleteCondition: () => void;
   addNewConditionalLogic: () => void;
   isNewCondition: boolean;
   isNewRule: boolean;
   addCondition: () => void;
   index: number;
-  removeConditionalLogic: () => void;
+  deleteSpecificConditionalLogic: () => void;
   handleConditionChange: (id: string, field: string, value: string, index: number) => void;
   conditions: Array<Condition>;
 }
@@ -383,10 +383,10 @@ export const RuleCondition = React.memo(
     isNewCondition,
     isNewRule,
     index,
-    removeCondition,
+    deleteCondition,
     addCondition,
     launchDeleteConditionalLogicModal,
-    removeConditionalLogic,
+    deleteSpecificConditionalLogic,
     answers,
     handleConditionChange,
     conditions,
@@ -488,41 +488,45 @@ export const RuleCondition = React.memo(
           >
             <OverflowMenuItem
               className={styles.menuItem}
-              id="addNewRule"
-              onClick={addNewConditionalLogic}
-              itemText={t('addNewLogic', 'Add new logic')}
-            />
-            {isNewRule && (
-              <OverflowMenuItem
-                className={styles.menuItem}
-                id="removeRule"
-                onClick={removeConditionalLogic}
-                itemText={t('deleteLogic', 'Delete logic')}
-                isDelete
-              />
-            )}
-            <OverflowMenuItem
-              className={styles.menuItem}
               id="addCondition"
               onClick={addCondition}
               itemText={t('addCondition', 'Add condition')}
               hasDivider
             />
-            {isNewCondition ? (
+            {!isNewCondition && (
               <OverflowMenuItem
                 className={styles.menuItem}
-                id="removeCondition"
-                onClick={removeCondition}
-                itemText={t('removeCondition', 'Remove Condition')}
+                id="addNewConditionalLogic"
+                onClick={addNewConditionalLogic}
+                itemText={t('addNewLogic', 'Add new logic')}
+              />
+            )}
+            {isNewCondition && (
+              <OverflowMenuItem
+                className={styles.menuItem}
+                id="deleteCondition"
+                onClick={deleteCondition}
+                itemText={t('deleteCondition', 'Delete condition')}
                 hasDivider
                 isDelete
               />
-            ) : (
+            )}
+            {!isNewRule && (
               <OverflowMenuItem
                 className={styles.menuItem}
                 id="deleteConditionalLogic"
                 onClick={launchDeleteConditionalLogicModal}
-                itemText={t('deleteConditionalLogic', 'Delete conditional logic')}
+                itemText={t('deleteAllLogics', 'Delete conditional logic')}
+                hasDivider
+                isDelete
+              />
+            )}
+            {isNewRule && !isNewCondition && (
+              <OverflowMenuItem
+                className={styles.menuItem}
+                id="deleteSingleConditionalLogic"
+                onClick={deleteSpecificConditionalLogic}
+                itemText={t('deleteSingleLogic', 'Delete')}
                 hasDivider
                 isDelete
               />
@@ -538,7 +542,7 @@ interface RuleActionProps {
   fieldId: string;
   questions: Array<Question>;
   isTablet: boolean;
-  removeAction: () => void;
+  deleteAction: () => void;
   isNewAction: boolean;
   addAction: () => void;
   index: number;
@@ -553,7 +557,7 @@ export const RuleAction = React.memo(
     questions,
     index,
     isNewAction,
-    removeAction,
+    deleteAction,
     addAction,
     handleActionChange,
     actions,
@@ -642,10 +646,10 @@ export const RuleAction = React.memo(
               />
               {isNewAction && (
                 <OverflowMenuItem
-                  id="removeAction"
+                  id="deleteAction"
                   className={styles.menuItem}
-                  onClick={removeAction}
-                  itemText={t('removeAction', 'Remove action')}
+                  onClick={deleteAction}
+                  itemText={t('deleteAction', 'Delete action')}
                   hasDivider
                   isDelete
                 />
