@@ -196,32 +196,25 @@ const RuleBuilder = React.memo(
       });
     }, [setRules, question.id]);
 
-    const deleteConditionalLogicById = useCallback(
-      (id: string) => {
-        setRules((prevRule: Array<formRule>) => {
-          const newRule = [...prevRule];
-          const elementIndex = rules.findIndex((e) => e.id === id);
-          if (elementIndex !== -1) {
-            newRule?.splice(elementIndex, 1);
-          }
-          return newRule;
+    const launchDeleteConditionalLogicModal = useCallback(
+      (deleteAll: boolean) => {
+        const dispose = showModal('delete-conditional-logic-modal', {
+          closeModal: () => dispose(),
+          questionId: question?.id,
+          questionLabel: question?.label,
+          ruleId,
+          rules,
+          currentRule,
+          handleAddLogic,
+          setConditions,
+          setActions,
+          setCurrentRule,
+          setRules,
+          deleteAll: deleteAll ? true : false,
         });
       },
-      [rules, setRules],
+      [question?.id, question?.label, ruleId, rules, currentRule, handleAddLogic, setRules],
     );
-
-    const launchDeleteConditionalLogicModal = useCallback(() => {
-      const dispose = showModal('delete-conditional-logic-modal', {
-        closeModal: () => dispose(),
-        questionId: question?.id,
-        questionLabel: question?.label,
-        handleAddLogic,
-        setConditions,
-        setActions,
-        setCurrentRule,
-        setRules,
-      });
-    }, [handleAddLogic, question?.id, question?.label, setRules]);
 
     useEffect(() => {
       if (question.required) {
@@ -301,8 +294,7 @@ const RuleBuilder = React.memo(
                 isNewCondition={condition.isNew}
                 isNewRule={isNewRule}
                 deleteCondition={() => deleteCondition(condition.id)}
-                launchDeleteConditionalLogicModal={() => launchDeleteConditionalLogicModal()}
-                deleteSpecificConditionalLogic={() => deleteConditionalLogicById(ruleId)}
+                launchDeleteConditionalLogicModal={(deleteAll: boolean) => launchDeleteConditionalLogicModal(deleteAll)}
                 addCondition={addCondition}
                 addNewConditionalLogic={addNewConditionalLogic}
                 handleConditionChange={handleConditionChange}
@@ -363,14 +355,13 @@ interface RuleConditionProps {
   questions: Array<Question>;
   answers: Array<Record<string, string>>;
   isTablet: boolean;
-  launchDeleteConditionalLogicModal: () => void;
+  launchDeleteConditionalLogicModal: (deleteAll: boolean) => void;
   deleteCondition: () => void;
   addNewConditionalLogic: () => void;
   isNewCondition: boolean;
   isNewRule: boolean;
   addCondition: () => void;
   index: number;
-  deleteSpecificConditionalLogic: () => void;
   handleConditionChange: (id: string, field: string, value: string, index: number) => void;
   conditions: Array<Condition>;
 }
@@ -386,7 +377,6 @@ export const RuleCondition = React.memo(
     deleteCondition,
     addCondition,
     launchDeleteConditionalLogicModal,
-    deleteSpecificConditionalLogic,
     answers,
     handleConditionChange,
     conditions,
@@ -515,17 +505,17 @@ export const RuleCondition = React.memo(
               <OverflowMenuItem
                 className={styles.menuItem}
                 id="deleteConditionalLogic"
-                onClick={launchDeleteConditionalLogicModal}
+                onClick={() => launchDeleteConditionalLogicModal(true)}
                 itemText={t('deleteAllLogics', 'Delete conditional logic')}
                 hasDivider
                 isDelete
               />
             )}
-            {isNewRule && !isNewCondition && (
+            {isNewRule && (
               <OverflowMenuItem
                 className={styles.menuItem}
                 id="deleteSingleConditionalLogic"
-                onClick={deleteSpecificConditionalLogic}
+                onClick={() => launchDeleteConditionalLogicModal(false)}
                 itemText={t('deleteSingleLogic', 'Delete')}
                 hasDivider
                 isDelete
