@@ -162,26 +162,6 @@ const RuleBuilder = React.memo(
       [],
     );
 
-    const deleteElement = useCallback(
-      (
-        elementId: string,
-        element: Array<Condition | Action>,
-        setElement: React.Dispatch<React.SetStateAction<Array<Condition | Action>>>,
-        elementKey: string,
-      ) => {
-        setElement(element.filter((e) => e.id !== elementId));
-        setCurrentRule((prevRule) => {
-          const newRule = { ...prevRule };
-          const elementIndex = element.findIndex((e) => e.id === elementId);
-          if (elementIndex !== -1) {
-            newRule[elementKey]?.splice(elementIndex, 1);
-          }
-          return newRule;
-        });
-      },
-      [],
-    );
-
     const addNewConditionalLogic = useCallback(() => {
       const newRule: formRule = {
         id: uuidv4(),
@@ -216,6 +196,26 @@ const RuleBuilder = React.memo(
       [question?.id, question?.label, ruleId, rules, currentRule, handleAddLogic, setRules],
     );
 
+    const launchDeleteConditionsOrActions = useCallback(
+      (
+        elementId: string,
+        element: Array<Condition | Action>,
+        setElement: React.Dispatch<React.SetStateAction<Array<Condition | Action>>>,
+        elementKey: string,
+      ) => {
+        const dispose = showModal('delete-conditions-or-actions-modal', {
+          closeModal: () => dispose(),
+          questionLabel: question?.label,
+          elementId,
+          element,
+          setElement,
+          elementKey,
+          setCurrentRule,
+        });
+      },
+      [question?.label],
+    );
+
     useEffect(() => {
       if (question.required) {
         setIsRequired(true);
@@ -248,7 +248,7 @@ const RuleBuilder = React.memo(
           }
         });
       }
-    }, [currentRule, question.id, setRules, ruleId]);
+    }, [currentRule, setRules, ruleId]);
 
     const addCondition = useCallback(
       () => addElement(conditions, setConditions, 'conditions', handleConditionChange),
@@ -259,12 +259,12 @@ const RuleBuilder = React.memo(
       [actions, addElement, handleActionChange],
     );
     const deleteAction = useCallback(
-      (id: string) => deleteElement(id, actions, setActions, 'actions'),
-      [actions, deleteElement],
+      (id: string) => launchDeleteConditionsOrActions(id, actions, setActions, 'actions'),
+      [actions, launchDeleteConditionsOrActions],
     );
     const deleteCondition = useCallback(
-      (id: string) => deleteElement(id, conditions, setConditions, 'conditions'),
-      [conditions, deleteElement],
+      (id: string) => launchDeleteConditionsOrActions(id, conditions, setConditions, 'conditions'),
+      [conditions, launchDeleteConditionsOrActions],
     );
 
     return (
@@ -483,15 +483,14 @@ export const RuleCondition = React.memo(
               itemText={t('addCondition', 'Add condition')}
               hasDivider
             />
-            {!isNewCondition && (
+            {!isNewCondition ? (
               <OverflowMenuItem
                 className={styles.menuItem}
                 id="addNewConditionalLogic"
                 onClick={addNewConditionalLogic}
                 itemText={t('addNewLogic', 'Add new logic')}
               />
-            )}
-            {isNewCondition && (
+            ) : (
               <OverflowMenuItem
                 className={styles.menuItem}
                 id="deleteCondition"
@@ -501,7 +500,7 @@ export const RuleCondition = React.memo(
                 isDelete
               />
             )}
-            {!isNewRule && (
+            {!isNewRule && !isNewCondition && (
               <OverflowMenuItem
                 className={styles.menuItem}
                 id="deleteConditionalLogic"
@@ -511,7 +510,7 @@ export const RuleCondition = React.memo(
                 isDelete
               />
             )}
-            {isNewRule && (
+            {!isNewCondition && (
               <OverflowMenuItem
                 className={styles.menuItem}
                 id="deleteSingleConditionalLogic"
