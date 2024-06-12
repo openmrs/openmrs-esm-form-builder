@@ -42,7 +42,7 @@ describe('RuleBuilder', () => {
     await user.click(dropDownButton);
     const equalsCondition = screen.getByText('Equals');
     await userEvent.click(equalsCondition);
-    const conditionalValueDropDown = screen.getByLabelText('target-value');
+    const conditionalValueDropDown = document.querySelector('#target-value');
     expect(conditionalValueDropDown).toBeInTheDocument();
 
     // To check if the target-condition dropdown is not visible based on target-condition

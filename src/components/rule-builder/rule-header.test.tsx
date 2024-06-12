@@ -4,7 +4,8 @@ import { textRenderingQuestion, dateRenderingQuestion } from '../../../__mocks__
 import userEvent from '@testing-library/user-event';
 import { RuleHeader } from './rule-builder.component';
 
-const handleToggle = jest.fn();
+const handleRequiredChange = jest.fn();
+const handleAllowFutureDateChange = jest.fn();
 const ruleId = 'a0776e98-86d8-460f-a2c4-26dc97e6fc8a';
 
 describe('RuleHeader', () => {
@@ -17,13 +18,13 @@ describe('RuleHeader', () => {
 
   it('should render the allow future date toggle button', () => {
     renderRuleHeader(true);
-    const dateToggle = document.querySelector(`#future-date-${ruleId}`);
+    const dateToggle = document.querySelector(`#toggle-allow-future-date-${ruleId}`);
     expect(dateToggle).toBeInTheDocument();
   });
 
   it('should not render the allow future date toggle button', () => {
     renderRuleHeader(false);
-    const dateToggle = document.querySelector(`#future-date-${ruleId}`);
+    const dateToggle = document.querySelector(`#toggle-allow-future-date-${ruleId}`);
     expect(dateToggle).not.toBeInTheDocument();
   });
 
@@ -32,15 +33,15 @@ describe('RuleHeader', () => {
     const requiredToggle = document.querySelector(`#toggle-required-${ruleId}`);
     const user = userEvent.setup();
     await user.click(requiredToggle);
-    expect(handleToggle).toHaveBeenCalledTimes(1);
+    expect(handleRequiredChange).toHaveBeenCalledTimes(1);
   });
 
   it('should check the allow future toggle button is clicked', async () => {
     renderRuleHeader(true);
-    const dateToggle = document.querySelector(`#future-date-${ruleId}`);
+    const dateToggle = document.querySelector(`#toggle-allow-future-date-${ruleId}`);
     const user = userEvent.setup();
     await user.click(dateToggle);
-    expect(handleToggle).toHaveBeenCalledTimes(1);
+    expect(handleAllowFutureDateChange).toHaveBeenCalledTimes(1);
   });
 
   test.each([
@@ -58,13 +59,15 @@ describe('RuleHeader', () => {
   })
 });
 
-function renderRuleHeader(isDate: boolean, isRequired?: boolean) {
+function renderRuleHeader(isDate: boolean, isRequired?: boolean, isAllowFutureDate?: boolean) {
   render(
     <RuleHeader
       ruleId={ruleId}
       question={isDate ? dateRenderingQuestion : textRenderingQuestion}
       isRequired={isRequired ? true : false}
-      handleToggle={handleToggle}
+      isAllowFutureDate={isAllowFutureDate ? true : false}
+      handleRequiredChange={handleRequiredChange}
+      handleAllowFutureDateChange={handleAllowFutureDateChange}
     />
   );
 }
