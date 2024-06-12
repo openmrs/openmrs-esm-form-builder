@@ -71,7 +71,10 @@ const RuleBuilder = React.memo(
     const answers: Array<Record<string, string>> = questions.flatMap((question) => question.questionOptions.answers);
 
     const { rules, setRules } = useFormRule();
-    const [isRequired, setIsRequired] = useState<boolean>(false);
+    const [isRequired, setIsRequired] = useState<boolean>(question?.required ? true : false);
+    const [isAllowFutureDate, setIsAllowFutureDate] = useState<boolean>(
+      question?.validators?.some((validator) => (validator.type === 'date' && validator?.allowFutureDates === 'true') ? true : false)
+    );
     const [conditions, setConditions] = useState<Array<Condition>>([{ id: uuidv4(), isNew: false }]);
     const [actions, setActions] = useState<Array<Action>>([{ id: uuidv4(), isNew: false }]);
     const [currentRule, setCurrentRule] = useState<formRule>({
@@ -86,7 +89,7 @@ const RuleBuilder = React.memo(
     const [isToggleVisible, setIsToggleVisible] = useState<boolean>(isNewRule);
     const isTablet = useLayoutType() === 'tablet';
 
-    const handleToggle = useCallback(() => {
+    const handleRequiredChange = useCallback(() => {
       if (question) {
         const newSchema = { ...schema };
         newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].required = !question.required;
@@ -94,6 +97,34 @@ const RuleBuilder = React.memo(
         setIsRequired((p) => !p);
       }
     }, [pageIndex, sectionIndex, questionIndex, onSchemaChange, question, schema]);
+
+    const checkDateValidatorExists = useCallback(() => {
+      return schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators.some(
+        (item) => item['type'] === 'date',
+      );
+    }, [pageIndex, questionIndex, schema.pages, sectionIndex]);
+
+    const handleAllowFutureDateChange = useCallback(() => {
+      const result = checkDateValidatorExists();
+      const newSchema = { ...schema };
+      if (!result) {
+        const futureDateSchema = {
+          type: 'date',
+          allowFutureDates: 'true',
+        };
+        newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators.push(futureDateSchema);
+        onSchemaChange(newSchema);
+        setIsAllowFutureDate(true);
+      } else {
+        newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators?.map((validator) => {
+          if (validator.type === 'date') {
+            validator['allowFutureDates'] = isAllowFutureDate ? 'false' : 'true';
+          }
+        });
+        onSchemaChange(newSchema);
+        isAllowFutureDate ? setIsAllowFutureDate(false) : setIsAllowFutureDate(true);
+      }
+    }, [checkDateValidatorExists, isAllowFutureDate, onSchemaChange, pageIndex, questionIndex, schema, sectionIndex]);
 
     const handleElementChange = useCallback(
       (
@@ -218,12 +249,6 @@ const RuleBuilder = React.memo(
     );
 
     useEffect(() => {
-      if (question.required) {
-        setIsRequired(true);
-      }
-    }, [question.required]);
-
-    useEffect(() => {
       if (rules) {
         const existingRule = rules.find((item) => item.id === ruleId);
         if (existingRule) {
@@ -272,7 +297,14 @@ const RuleBuilder = React.memo(
       <div className={styles.container}>
         <div className={styles.ruleHeaderContainer}>
           {!isToggleVisible && (
-            <RuleHeader isRequired={isRequired} handleToggle={handleToggle} ruleId={ruleId} question={question} />
+            <RuleHeader
+              isRequired={isRequired}
+              isAllowFutureDate={isAllowFutureDate}
+              handleRequiredChange={handleRequiredChange}
+              handleAllowFutureDateChange={handleAllowFutureDateChange}
+              ruleId={ruleId}
+              question={question}
+            />
           )}
           {!isNewRule && (
             <ConfigurableLink to="" className={styles.helpLink}>
@@ -330,27 +362,45 @@ export default RuleBuilder;
 
 interface RuleHeaderProps {
   isRequired: boolean;
-  handleToggle: () => void;
+  isAllowFutureDate: boolean;
+  handleRequiredChange: () => void;
+  handleAllowFutureDateChange: () => void;
   ruleId: string;
   question: Question;
 }
-export const RuleHeader = React.memo(({ isRequired, handleToggle, ruleId, question }: RuleHeaderProps) => {
-  return (
-    <div className={styles.toggleContainer}>
-      <Toggle
-        id={`toggle-required-${ruleId}`}
-        labelText="Required"
-        hideLabel
-        toggled={isRequired}
-        onToggle={handleToggle}
-        size="sm"
-      />
-      {question?.questionOptions?.rendering === 'date' && (
-        <Toggle id={`future-date-${ruleId}`} labelText="Allow Future dates" hideLabel size="sm" />
-      )}
-    </div>
-  );
-});
+export const RuleHeader = React.memo(
+  ({
+    isRequired,
+    isAllowFutureDate,
+    handleRequiredChange,
+    handleAllowFutureDateChange,
+    ruleId,
+    question,
+  }: RuleHeaderProps) => {
+    return (
+      <div className={styles.toggleContainer}>
+        <Toggle
+          id={`toggle-required-${ruleId}`}
+          labelText="Required"
+          hideLabel
+          toggled={isRequired}
+          onToggle={handleRequiredChange}
+          size="sm"
+        />
+        {question?.questionOptions?.rendering === 'date' && (
+          <Toggle
+            id={`toggle-allow-future-date-${ruleId}`}
+            labelText="Allow Future dates"
+            hideLabel
+            toggled={isAllowFutureDate}
+            onToggle={handleAllowFutureDateChange}
+            size="sm"
+          />
+        )}
+      </div>
+    );
+  },
+);
 interface RuleConditionProps {
   fieldId: string;
   questions: Array<Question>;
@@ -456,8 +506,8 @@ export const RuleCondition = React.memo(
           />
           {isConditionValueVisible && (
             <CustomComboBox
-              id={`targetValue-${index}`}
-              key={`targetValue-${index}`}
+              id={'target-value'}
+              key={'target-value'}
               value={inputValue}
               items={answer}
               onChange={handleValueChange}
