@@ -236,6 +236,7 @@
   "startBuilding": "Start building",
   "success": "Success!",
   "targetedConditionalLogicDeletedMessage": "The specific conditional logic associated with \"{{- questionLabel}}\" has been successfully deleted.",
+  "targetValue": "Target value",
   "then": "Then",
   "timerOnly": "Timer only",
   "tryAgain": "Try again",
