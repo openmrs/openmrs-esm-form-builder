@@ -24,10 +24,11 @@ import {
   Tag,
   TextInput,
   Tile,
+  SelectSkeleton,
 } from '@carbon/react';
 import { ArrowUpRight } from '@carbon/react/icons';
 import { showSnackbar, useConfig, useDebounce } from '@openmrs/esm-framework';
-import type { RenderType } from '@openmrs/openmrs-form-engine-lib';
+import type { ProgramState, RenderType } from '@openmrs/openmrs-form-engine-lib';
 
 import type { ConfigObject } from '../../config-schema';
 import type {
@@ -38,11 +39,14 @@ import type {
   PatientIdentifierType,
   Schema,
   QuestionType,
+  Program,
+  ProgramWorkflow,
 } from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import styles from './question-modal.scss';
+import { useProgramWorkStates, usePrograms } from '../../hooks/useProgramStates';
 
 interface AddQuestionModalProps {
   onModalChange: (showModal: boolean) => void;
@@ -65,6 +69,10 @@ type DatePickerTypeValue = (typeof DatePickerType)[keyof typeof DatePickerType];
 
 interface Item {
   text: string;
+}
+
+interface ProgramStateData {
+  selectedItems: Array<ProgramState>;
 }
 
 interface RequiredLabelProps {
@@ -114,6 +122,13 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const { patientIdentifierTypes, patientIdentifierTypeLookupError } = usePatientIdentifierTypes();
   const [addObsComment, setAddObsComment] = useState(false);
   const [addInlineDate, setAddInlineDate] = useState(false);
+  const [selectedProgramState, setSelectedProgramState] = useState<Array<ProgramState>>([]);
+  const [selectedProgram, setSelectedProgram] = useState<Program>(null);
+  const [programWorkflow, setProgramWorkflow] = useState('');
+  const { programs, programsLookupError, isLoadingPrograms } = usePrograms();
+  const { programStates, programStatesLookupError, isLoadingProgramStates, mutateProgramStates } =
+    useProgramWorkStates(programWorkflow);
+  const [programWorkflows, setProgramWorkflows] = useState<Array<ProgramWorkflow>>([]);
 
   const renderTypeOptions = {
     control: ['text'],
@@ -125,6 +140,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     personAttribute: ['ui-select-extended', 'select', 'text'],
     testOrder: ['group', 'repeating'],
     patientIdentifier: ['text'],
+    programState: ['select'],
   };
 
   const handleConceptChange = (event: React.ChangeEvent<HTMLInputElement>) => setConceptToLookup(event.target.value);
@@ -187,7 +203,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         ...(questionType === 'encounterDatetime' && { datePickerFormat: datePickerType }),
         questionOptions: {
           rendering: renderingType,
-          concept: selectedConcept?.uuid,
+          concept: selectedConcept?.uuid ? selectedConcept?.uuid : '',
           ...(conceptMappings.length && { conceptMappings }),
           ...(selectedAnswers.length && {
             answers: selectedAnswers.map((answer) => ({
@@ -206,6 +222,14 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           ...(questionType === 'obs' &&
             renderingType === 'number' &&
             selectedConcept?.allowDecimal === false && { disallowDecimals: true }),
+          ...(questionType === 'programState' && {
+            answers: selectedProgramState.map((answer) => ({
+              value: answer.concept.uuid,
+              label: answer.concept.display,
+            })),
+            programUuid: selectedProgram.uuid,
+            workflowUuid: programWorkflow,
+          }),
         },
         validators: [],
       };
@@ -252,6 +276,16 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       })
       .replace(/\s+/g, '');
     setQuestionId(camelCasedLabel);
+  };
+
+  const handleProgramWorkflowChange = (selectedItem: ProgramWorkflow) => {
+    setProgramWorkflow(selectedItem?.uuid);
+    void mutateProgramStates();
+  };
+
+  const handleProgramChange = (selectedItem: Program) => {
+    setSelectedProgram(selectedItem);
+    setProgramWorkflows(selectedItem?.allWorkflows);
   };
 
   return (
@@ -602,47 +636,49 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                     </div>
                   ) : null}
 
-                  <RadioButtonGroup
-                    defaultSelected="no"
-                    name="addObsComment"
-                    legendText={t('addObsCommentTextBox', 'Add obs comment text box')}
-                  >
-                    <RadioButton
-                      id="obsCommentYes"
-                      defaultChecked={true}
-                      labelText={t('yes', 'Yes')}
-                      onClick={() => setAddObsComment(true)}
-                      value="yes"
-                    />
-                    <RadioButton
-                      id="obsCommentNo"
-                      defaultChecked={false}
-                      labelText={t('no', 'No')}
-                      onClick={() => setAddObsComment(false)}
-                      value="no"
-                    />
-                  </RadioButtonGroup>
+                  <Stack gap={5}>
+                    <RadioButtonGroup
+                      defaultSelected="no"
+                      name="addObsComment"
+                      legendText={t('addObsCommentTextBox', 'Add obs comment text box')}
+                    >
+                      <RadioButton
+                        id="obsCommentYes"
+                        defaultChecked={true}
+                        labelText={t('yes', 'Yes')}
+                        onClick={() => setAddObsComment(true)}
+                        value="yes"
+                      />
+                      <RadioButton
+                        id="obsCommentNo"
+                        defaultChecked={false}
+                        labelText={t('no', 'No')}
+                        onClick={() => setAddObsComment(false)}
+                        value="no"
+                      />
+                    </RadioButtonGroup>
 
-                  <RadioButtonGroup
-                    defaultSelected="no"
-                    name="addInlineDate"
-                    legendText={t('addInlineDate', 'Add inline date')}
-                  >
-                    <RadioButton
-                      id="inlineDateYes"
-                      defaultChecked={true}
-                      labelText={t('yes', 'Yes')}
-                      onClick={() => setAddInlineDate(true)}
-                      value="yes"
-                    />
-                    <RadioButton
-                      id="inlineDateNo"
-                      defaultChecked={false}
-                      labelText={t('no', 'No')}
-                      onClick={() => setAddInlineDate(false)}
-                      value="no"
-                    />
-                  </RadioButtonGroup>
+                    <RadioButtonGroup
+                      defaultSelected="no"
+                      name="addInlineDate"
+                      legendText={t('addInlineDate', 'Add inline date')}
+                    >
+                      <RadioButton
+                        id="inlineDateYes"
+                        defaultChecked={true}
+                        labelText={t('yes', 'Yes')}
+                        onClick={() => setAddInlineDate(true)}
+                        value="yes"
+                      />
+                      <RadioButton
+                        id="inlineDateNo"
+                        defaultChecked={false}
+                        labelText={t('no', 'No')}
+                        onClick={() => setAddInlineDate(false)}
+                        value="no"
+                      />
+                    </RadioButtonGroup>
+                  </Stack>
                 </>
               ) : null}
 
@@ -675,6 +711,80 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   />
                 </RadioButtonGroup>
               ) : null}
+
+              {questionType === 'programState' && (
+                <Stack gap={5}>
+                  {isLoadingPrograms && <SelectSkeleton />}
+                  {programsLookupError ? (
+                    <InlineNotification
+                      kind="error"
+                      lowContrast
+                      className={styles.error}
+                      title={t('errorFetchingPrograms', 'Error fetching programs')}
+                      subtitle={t('pleaseTryAgain', 'Please try again.')}
+                    />
+                  ) : null}
+                  {programs && (
+                    <ComboBox
+                      id="programLookup"
+                      items={programs}
+                      itemToString={(item: Program) => item?.name}
+                      onChange={({ selectedItem }: { selectedItem: Program }) => {
+                        handleProgramChange(selectedItem);
+                      }}
+                      placeholder={t('addProgram', 'Add program')}
+                      selectedItem={selectedProgram}
+                      titleText={t('program', 'Program')}
+                    />
+                  )}
+
+                  {selectedProgram && (
+                    <ComboBox
+                      id="programWorkflowLookup"
+                      items={programWorkflows}
+                      itemToString={(item: ProgramWorkflow) => item?.concept?.display}
+                      onChange={({ selectedItem }: { selectedItem: ProgramWorkflow }) =>
+                        handleProgramWorkflowChange(selectedItem)
+                      }
+                      placeholder={t('addProgramWorkflow', 'Add program workflow')}
+                      selectedItem={programWorkflow}
+                      titleText={t('programWorkflow', 'Program workflow')}
+                    />
+                  )}
+                  {programWorkflow && (
+                    <div>
+                      {isLoadingProgramStates && <SelectSkeleton />}
+                      {programStatesLookupError && (
+                        <InlineNotification
+                          kind="error"
+                          lowContrast
+                          className={styles.error}
+                          title={t('errorFetchingProgramState', 'Error fetching program state')}
+                          subtitle={t('pleaseTryAgain', 'Please try again.')}
+                        />
+                      )}
+                      {programStates?.length > 0 && (
+                        <MultiSelect
+                          titleText={t('programState', 'Program state')}
+                          id="programState"
+                          items={programStates}
+                          itemToString={(item: ProgramState) => (item ? item?.concept?.display : '')}
+                          selectionFeedback="top-after-reopen"
+                          onChange={(data: ProgramStateData) => setSelectedProgramState(data.selectedItems)}
+                          selectedItems={selectedProgramState}
+                        />
+                      )}
+                      {selectedProgramState?.map((answer) => (
+                        <div>
+                          <Tag className={styles.tag} key={answer?.uuid} type={'blue'}>
+                            {answer?.concept?.display}
+                          </Tag>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </Stack>
+              )}
             </Stack>
           </FormGroup>
         </ModalBody>
