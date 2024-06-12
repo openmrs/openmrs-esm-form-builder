@@ -7,12 +7,13 @@ import { ConfigurableLink, showModal, useLayoutType } from '@openmrs/esm-framewo
 import type { Page, Question, Schema, Section } from '../../types';
 import { Toggle } from '@carbon/react';
 import { v4 as uuidv4 } from 'uuid';
-import { ComboBox } from '@carbon/react';
 import { OverflowMenuItem, OverflowMenu } from '@carbon/react';
 import { Layer } from '@carbon/react';
 import { TextArea } from '@carbon/react';
 import { useFormRule } from '../../hooks/useFormRule';
 import { useDebounce } from '@openmrs/esm-framework';
+import CustomComboBox from './custom-combo-box.component';
+
 export interface Condition {
   id: string;
   isNew: boolean;
@@ -390,6 +391,11 @@ export const RuleCondition = React.memo(
     const handleSelectCondition = (selectedCondition: string) => {
       setIsConditionValueVisible(!['Is Empty', 'Not Empty'].includes(selectedCondition));
     };
+    const [inputValue, setInputValue] = useState(conditions[index]?.targetValue || '');
+    const handleValueChange = (selectedItem: string) => {
+      handleConditionChange(fieldId, 'targetValue', selectedItem, index);
+      setInputValue(selectedItem);
+    };
 
     return (
       <div className={styles.ruleSetContainer}>
@@ -449,21 +455,12 @@ export const RuleCondition = React.memo(
             size={isTablet ? 'lg' : 'sm'}
           />
           {isConditionValueVisible && (
-            <ComboBox
+            <CustomComboBox
               id={`targetValue-${index}`}
-              aria-label="target-value"
-              className={styles.targetValue}
-              initialSelectedItem={
-                answer?.find((item) => item.concept === conditions[index]?.[`targetValue`]) || {
-                  label: 'Choose a answer',
-                }
-              }
-              allowCustomValue
+              key={`targetValue-${index}`}
+              value={inputValue}
               items={answer}
-              itemToString={(item: Record<string, string>) => (item ? item.label : '')}
-              onChange={({ selectedItem }: { selectedItem: Record<string, string> }) => {
-                handleConditionChange(fieldId, `targetValue`, selectedItem.concept, index);
-              }}
+              onChange={handleValueChange}
               size={isTablet ? 'lg' : 'sm'}
             />
           )}

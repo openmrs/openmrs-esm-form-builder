@@ -1,0 +1,45 @@
+.combobox {
+  position: relative;
+  width: 100px;
+}
+
+.dropdown {
+  position: absolute;
+  width: 100%;
+  border: 1px solid #8d8d8d;
+  background-color: #f4f4f4;
+  max-height: 150px;
+  overflow-y: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+  border-radius: 0.25rem;
+  margin-top: 0.25rem;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.dropdown li {
+  padding: 0.125rem 1rem;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.dropdown li:hover {
+  background-color: #0f62fe;
+  color: #ffff;
+}
+
+.combobox .deleteBtn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-60%);
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-size: 1rem;
+}
