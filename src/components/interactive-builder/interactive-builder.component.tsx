@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { DragEndEvent } from '@dnd-kit/core';
-import { DndContext, KeyboardSensor, MouseSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext, KeyboardSensor, MouseSensor, closestCorners, useSensor, useSensors } from '@dnd-kit/core';
 import { Accordion, AccordionItem, Button, InlineLoading } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
@@ -402,7 +402,11 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         </div>
       )}
 
-      <DndContext onDragEnd={(event: DragEndEvent) => handleDragEnd(event)} sensors={sensors}>
+      <DndContext
+        collisionDetection={closestCorners}
+        onDragEnd={(event: DragEndEvent) => handleDragEnd(event)}
+        sensors={sensors}
+      >
         {schema?.pages?.length
           ? schema.pages.map((page, pageIndex) => (
               <div className={styles.editableFieldsContainer}>

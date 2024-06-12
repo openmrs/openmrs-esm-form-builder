@@ -1,16 +1,26 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "pipeline": {
+  "tasks": {
     "build": {
-      "outputs": ["dist/**"]
+      "outputs": [
+        "dist"
+      ]
     },
     "extract-translations": {
-      "outputs": ["./translations/*"]
+      "outputs": [
+        "./translations"
+      ]
     },
     "lint": {},
     "test": {},
+    "test:watch": {
+      "cache": false,
+      "persistent": true
+    },
     "coverage": {
-      "outputs": ["coverage/**"]
+      "outputs": [
+        "coverage/**"
+      ]
     },
     "typescript": {},
     "verify": {}

@@ -432,7 +432,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                     kind="error"
                     lowContrast
                     className={styles.error}
-                    title={t('errorFetchingPersonAttributeTypes', 'Error fetching  person attribute types')}
+                    title={t('errorFetchingPersonAttributeTypes', 'Error fetching person attribute types')}
                     subtitle={t('pleaseTryAgain', 'Please try again.')}
                   />
                 ) : null}
@@ -446,7 +446,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                     onChange={({ selectedItem }: { selectedItem: PersonAttributeType }) => {
                       handleAttributeTypeSelect(selectedItem);
                     }}
-                    placeholder={t('choosePersonAttributeType', 'Choose a  person attribute type')}
+                    placeholder={t('choosePersonAttributeType', 'Choose a person attribute type')}
                     initialSelectedItem={personAttributeTypes.find(
                       (personAttributeType) =>
                         personAttributeType?.uuid === questionToEdit.questionOptions?.attributeType,
@@ -459,135 +459,142 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
             {fieldType !== 'ui-select-extended' &&
               questionToEdit.type !== 'patientIdentifier' &&
               questionToEdit.type !== 'personAttribute' && (
-              <div>
-                <FormLabel className={styles.label}>
-                  {t('searchForBackingConcept', 'Search for a backing concept')}
-                </FormLabel>
-                {conceptNameLookupError ? (
-                  <InlineNotification
-                    kind="error"
-                    lowContrast
-                    className={styles.error}
-                    title={t('errorFetchingConceptName', "Couldn't resolve concept name")}
-                    subtitle={t(
-                      'conceptDoesNotExist',
-                      `The linked concept '{{conceptName}}' does not exist in your dictionary`,
-                      {
-                        conceptName: questionToEdit.questionOptions.concept,
-                      },
-                    )}
-                  />
-                ) : null}
-                {isLoadingConceptName ? (
-                  <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />
-                ) : (
-                  <>
-                    <Search
-                      defaultValue={conceptName}
-                      id="conceptLookup"
-                      onClear={() => setSelectedConcept(null)}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleConceptChange(e.target.value?.trim())}
-                      placeholder={t('searchConcept', 'Search using a concept name or UUID')}
-                      required
-                      size="md"
-                      value={selectedConcept?.display}
+                <div>
+                  <FormLabel className={styles.label}>
+                    {t('searchForBackingConcept', 'Search for a backing concept')}
+                  </FormLabel>
+                  {conceptNameLookupError ? (
+                    <InlineNotification
+                      kind="error"
+                      lowContrast
+                      className={styles.error}
+                      title={t('errorFetchingConceptName', "Couldn't resolve concept name")}
+                      subtitle={t(
+                        'conceptDoesNotExist',
+                        `The linked concept '{{conceptName}}' does not exist in your dictionary`,
+                        {
+                          conceptName: questionToEdit.questionOptions.concept,
+                        },
+                      )}
                     />
-                    {(() => {
-                      if (!conceptToLookup) return null;
-                      if (isLoadingConcepts)
+                  ) : null}
+                  {isLoadingConceptName ? (
+                    <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />
+                  ) : (
+                    <>
+                      <Search
+                        defaultValue={conceptName}
+                        id="conceptLookup"
+                        onClear={() => setSelectedConcept(null)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          handleConceptChange(e.target.value?.trim())
+                        }
+                        placeholder={t('searchConcept', 'Search using a concept name or UUID')}
+                        required
+                        size="md"
+                        value={selectedConcept?.display}
+                      />
+                      {(() => {
+                        if (!conceptToLookup) return null;
+                        if (isLoadingConcepts)
+                          return (
+                            <InlineLoading
+                              className={styles.loader}
+                              description={t('searching', 'Searching') + '...'}
+                            />
+                          );
+                        if (concepts?.length && !isLoadingConcepts) {
+                          return (
+                            <ul className={styles.conceptList}>
+                              {concepts?.map((concept, index) => (
+                                <li
+                                  role="menuitem"
+                                  className={styles.concept}
+                                  key={index}
+                                  onClick={() => handleConceptSelect(concept)}
+                                >
+                                  {concept.display}
+                                </li>
+                              ))}
+                            </ul>
+                          );
+                        }
                         return (
-                          <InlineLoading className={styles.loader} description={t('searching', 'Searching') + '...'} />
-                        );
-                      if (concepts?.length && !isLoadingConcepts) {
-                        return (
-                          <ul className={styles.conceptList}>
-                            {concepts?.map((concept, index) => (
-                              <li
-                                role="menuitem"
-                                className={styles.concept}
-                                key={index}
-                                onClick={() => handleConceptSelect(concept)}
+                          <Layer>
+                            <Tile className={styles.emptyResults}>
+                              <span>
+                                {t('noMatchingConcepts', 'No concepts were found that match')}{' '}
+                                <strong>"{conceptToLookup}".</strong>
+                              </span>
+                            </Tile>
+
+                            <div className={styles.oclLauncherBanner}>
+                              {
+                                <p className={styles.bodyShort01}>
+                                  {t('conceptSearchHelpText', "Can't find a concept?")}
+                                </p>
+                              }
+                              <a
+                                className={styles.oclLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                href={'https://app.openconceptlab.org/'}
                               >
-                                {concept.display}
-                              </li>
-                            ))}
-                          </ul>
+                                {t('searchInOCL', 'Search in OCL')}
+                                <ArrowUpRight size={16} />
+                              </a>
+                            </div>
+                          </Layer>
                         );
-                      }
-                      return (
-                        <Layer>
-                          <Tile className={styles.emptyResults}>
-                            <span>
-                              {t('noMatchingConcepts', 'No concepts were found that match')}{' '}
-                              <strong>"{conceptToLookup}".</strong>
-                            </span>
-                          </Tile>
+                      })()}
+                    </>
+                  )}
 
-                          <div className={styles.oclLauncherBanner}>
-                            {
-                              <p className={styles.bodyShort01}>
-                                {t('conceptSearchHelpText', "Can't find a concept?")}
-                              </p>
-                            }
-                            <a
-                              className={styles.oclLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              href={'https://app.openconceptlab.org/'}
-                            >
-                              {t('searchInOCL', 'Search in OCL')}
-                              <ArrowUpRight size={16} />
-                            </a>
-                          </div>
-                        </Layer>
-                      );
-                    })()}
-                  </>
-                )}
+                  <RadioButtonGroup
+                    defaultSelected={
+                      /true/.test(questionToEdit?.questionOptions?.showComment?.toString()) ? 'yes' : 'no'
+                    }
+                    name="addObsComment"
+                    legendText={t('addObsCommentTextBox', 'Add obs comment text box')}
+                  >
+                    <RadioButton
+                      id="obsCommentYes"
+                      defaultChecked={true}
+                      labelText={t('yes', 'Yes')}
+                      onClick={() => setAddObsComment(true)}
+                      value="yes"
+                    />
+                    <RadioButton
+                      id="obsCommentNo"
+                      defaultChecked={false}
+                      labelText={t('no', 'No')}
+                      onClick={() => setAddObsComment(false)}
+                      value="no"
+                    />
+                  </RadioButtonGroup>
 
-                <RadioButtonGroup
-                  defaultSelected={/true/.test(questionToEdit?.questionOptions?.showComment?.toString()) ? 'yes' : 'no'}
-                  name="addObsComment"
-                  legendText={t('addObsCommentTextBox', 'Add obs comment text box')}
-                >
-                  <RadioButton
-                    id="obsCommentYes"
-                    defaultChecked={true}
-                    labelText={t('yes', 'Yes')}
-                    onClick={() => setAddObsComment(true)}
-                    value="yes"
-                  />
-                  <RadioButton
-                    id="obsCommentNo"
-                    defaultChecked={false}
-                    labelText={t('no', 'No')}
-                    onClick={() => setAddObsComment(false)}
-                    value="no"
-                  />
-                </RadioButtonGroup>
-
-                <RadioButtonGroup
-                  defaultSelected={/true/.test(questionToEdit?.questionOptions?.showDate?.toString()) ? 'yes' : 'no'}
-                  name="addInlineDate"
-                  legendText={t('addInlineDate', 'Add inline date')}
-                >
-                  <RadioButton
-                    id="inlineDateYes"
-                    defaultChecked={true}
-                    labelText={t('yes', 'Yes')}
-                    onClick={() => setAddInlineDate(true)}
-                    value="yes"
-                  />
-                  <RadioButton
-                    id="inlineDateNo"
-                    defaultChecked={false}
-                    labelText={t('no', 'No')}
-                    onClick={() => setAddInlineDate(false)}
-                    value="no"
-                  />
-                </RadioButtonGroup>
-              </div>
-            )}
+                  <RadioButtonGroup
+                    defaultSelected={/true/.test(questionToEdit?.questionOptions?.showDate?.toString()) ? 'yes' : 'no'}
+                    name="addInlineDate"
+                    legendText={t('addInlineDate', 'Add inline date')}
+                  >
+                    <RadioButton
+                      id="inlineDateYes"
+                      defaultChecked={true}
+                      labelText={t('yes', 'Yes')}
+                      onClick={() => setAddInlineDate(true)}
+                      value="yes"
+                    />
+                    <RadioButton
+                      id="inlineDateNo"
+                      defaultChecked={false}
+                      labelText={t('no', 'No')}
+                      onClick={() => setAddInlineDate(false)}
+                      value="no"
+                    />
+                  </RadioButtonGroup>
+                </div>
+              )}
 
             {conceptMappings?.length ? (
               <FormGroup>
