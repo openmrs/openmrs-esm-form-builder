@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import RuleBuilder from './rule-builder.component';
-import { schema, textRenderingQuestion, useFormMockValues } from '../../../__mocks__/rule-builder.mock';
+import { schema, numberRenderingQuestion, useFormMockValues } from '../../../__mocks__/rule-builder.mock';
 import userEvent from '@testing-library/user-event';
 
 const handleAddLogic = jest.fn();
@@ -83,7 +83,7 @@ function renderRuleBuilder() {
       key="name"
       ruleId={ruleId}
       isNewRule={false}
-      question={textRenderingQuestion}
+      question={numberRenderingQuestion}
       pageIndex={0}
       sectionIndex={0}
       questionIndex={0}

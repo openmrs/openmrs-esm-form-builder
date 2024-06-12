@@ -6,13 +6,13 @@ interface UseFormMockValues {
 }
 
 export const useFormMockValues: UseFormMockValues = { rules: [], setRules: () => jest.fn()}
-export const textRenderingQuestion: Question = {
-  'label': 'Name',
+export const numberRenderingQuestion: Question = {
+  'label': 'Age',
   'type': 'obs',
   'required': true,
-  'id': 'name',
+  'id': 'age',
   'questionOptions': {
-    'rendering': 'text',
+    'rendering': 'number',
     'concept': '162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
     'conceptMappings': [
       {

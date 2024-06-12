@@ -73,8 +73,11 @@ const RuleBuilder = React.memo(
     const { rules, setRules } = useFormRule();
     const [isRequired, setIsRequired] = useState<boolean>(question?.required ? true : false);
     const [isAllowFutureDate, setIsAllowFutureDate] = useState<boolean>(
-      question?.validators?.some((validator) => (validator.type === 'date' && validator?.allowFutureDates === 'true') ? true : false)
+      question?.validators?.some((validator) =>
+        validator.type === 'date' && validator?.allowFutureDates === 'true' ? true : false,
+      ),
     );
+    const [isDisallowDecimals, setIsDisallowDecimals] = useState<boolean>(question?.questionOptions?.disallowDecimals);
     const [conditions, setConditions] = useState<Array<Condition>>([{ id: uuidv4(), isNew: false }]);
     const [actions, setActions] = useState<Array<Action>>([{ id: uuidv4(), isNew: false }]);
     const [currentRule, setCurrentRule] = useState<formRule>({
@@ -98,33 +101,40 @@ const RuleBuilder = React.memo(
       }
     }, [pageIndex, sectionIndex, questionIndex, onSchemaChange, question, schema]);
 
-    const checkDateValidatorExists = useCallback(() => {
+    const checkIfDateValidatorExists = useCallback(() => {
       return schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators.some(
         (item) => item['type'] === 'date',
       );
     }, [pageIndex, questionIndex, schema.pages, sectionIndex]);
 
     const handleAllowFutureDateChange = useCallback(() => {
-      const result = checkDateValidatorExists();
+      const doesValidatorExist = checkIfDateValidatorExists();
       const newSchema = { ...schema };
-      if (!result) {
-        const futureDateSchema = {
-          type: 'date',
-          allowFutureDates: 'true',
-        };
-        newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators.push(futureDateSchema);
+      const validators = newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators;
+      const futureDateSchema = { type: 'date', allowFutureDates: 'true' };
+      if (!doesValidatorExist) {
+        validators.push(futureDateSchema);
         onSchemaChange(newSchema);
         setIsAllowFutureDate(true);
       } else {
-        newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators?.map((validator) => {
-          if (validator.type === 'date') {
-            validator['allowFutureDates'] = isAllowFutureDate ? 'false' : 'true';
-          }
-        });
+        validators?.map((validator) => validator?.type === 'date' ? validator['allowFutureDates'] = isAllowFutureDate ? 'false' : 'true' : null);
         onSchemaChange(newSchema);
         isAllowFutureDate ? setIsAllowFutureDate(false) : setIsAllowFutureDate(true);
       }
-    }, [checkDateValidatorExists, isAllowFutureDate, onSchemaChange, pageIndex, questionIndex, schema, sectionIndex]);
+    }, [checkIfDateValidatorExists, isAllowFutureDate, onSchemaChange, pageIndex, questionIndex, schema, sectionIndex]);
+
+    const checkIfDecimalValidatorExists = useCallback(() => {
+      return !!schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions.disallowDecimals;
+    }, [pageIndex, questionIndex, schema.pages, sectionIndex]);
+
+    const handleDisallowDecimalValueChange = useCallback(() => {
+      const doesValidatorExist = checkIfDecimalValidatorExists();
+      const updatedSchema = { ...schema };
+      const questionOptions = updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions;
+      questionOptions.disallowDecimals = doesValidatorExist ? !questionOptions?.disallowDecimals : true;
+      setIsDisallowDecimals(questionOptions.disallowDecimals);
+      onSchemaChange(updatedSchema);
+    }, [checkIfDecimalValidatorExists, onSchemaChange, pageIndex, questionIndex, schema, sectionIndex]);
 
     const handleElementChange = useCallback(
       (
@@ -300,8 +310,10 @@ const RuleBuilder = React.memo(
             <RuleHeader
               isRequired={isRequired}
               isAllowFutureDate={isAllowFutureDate}
+              isDisallowDecimals={isDisallowDecimals}
               handleRequiredChange={handleRequiredChange}
               handleAllowFutureDateChange={handleAllowFutureDateChange}
+              handleDisallowDecimalValueChange={handleDisallowDecimalValueChange}
               ruleId={ruleId}
               question={question}
             />
@@ -363,8 +375,10 @@ export default RuleBuilder;
 interface RuleHeaderProps {
   isRequired: boolean;
   isAllowFutureDate: boolean;
+  isDisallowDecimals: boolean;
   handleRequiredChange: () => void;
   handleAllowFutureDateChange: () => void;
+  handleDisallowDecimalValueChange: () => void;
   ruleId: string;
   question: Question;
 }
@@ -372,8 +386,10 @@ export const RuleHeader = React.memo(
   ({
     isRequired,
     isAllowFutureDate,
+    isDisallowDecimals,
     handleRequiredChange,
     handleAllowFutureDateChange,
+    handleDisallowDecimalValueChange,
     ruleId,
     question,
   }: RuleHeaderProps) => {
@@ -394,6 +410,16 @@ export const RuleHeader = React.memo(
             hideLabel
             toggled={isAllowFutureDate}
             onToggle={handleAllowFutureDateChange}
+            size="sm"
+          />
+        )}
+        {question?.questionOptions?.rendering === 'number' && (
+          <Toggle
+            id={`toggle-disallow-decimal-value-${ruleId}`}
+            labelText="Disallow Decimal Value"
+            hideLabel
+            toggled={isDisallowDecimals}
+            onToggle={handleDisallowDecimalValueChange}
             size="sm"
           />
         )}
