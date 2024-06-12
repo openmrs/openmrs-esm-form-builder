@@ -70,6 +70,10 @@
     {
       "name": "delete-conditional-logic-modal",
       "component": "deleteConditionalLogicModal"
+    },
+    {
+      "name": "delete-conditions-or-actions-modal",
+      "component": "deleteConditionsOrActionsModal"
     }
   ]
 }
