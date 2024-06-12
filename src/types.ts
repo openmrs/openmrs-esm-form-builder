@@ -70,6 +70,7 @@ export interface Schema {
           max?: string;
           min?: string;
           conceptMappings?: Array<Record<string, string>>;
+          disallowDecimals?: boolean;
         };
         validators?: Array<Record<string, string>>;
       }>;
@@ -131,6 +132,7 @@ export interface QuestionOptions {
   calculate?: {
     calculateExpression: string;
   };
+  disallowDecimals?: boolean;
   rows?: string;
   orderSettingUuid?: string;
   orderType?: string;
