@@ -117,7 +117,9 @@ const RuleBuilder = React.memo(
         onSchemaChange(newSchema);
         setIsAllowFutureDate(true);
       } else {
-        validators?.map((validator) => validator?.type === 'date' ? validator['allowFutureDates'] = isAllowFutureDate ? 'false' : 'true' : null);
+        validators?.map((validator) =>
+          validator?.type === 'date' ? (validator['allowFutureDates'] = isAllowFutureDate ? 'false' : 'true') : null,
+        );
         onSchemaChange(newSchema);
         isAllowFutureDate ? setIsAllowFutureDate(false) : setIsAllowFutureDate(true);
       }
@@ -130,7 +132,8 @@ const RuleBuilder = React.memo(
     const handleDisallowDecimalValueChange = useCallback(() => {
       const doesValidatorExist = checkIfDecimalValidatorExists();
       const updatedSchema = { ...schema };
-      const questionOptions = updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions;
+      const questionOptions =
+        updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions;
       questionOptions.disallowDecimals = doesValidatorExist ? !questionOptions?.disallowDecimals : true;
       setIsDisallowDecimals(questionOptions.disallowDecimals);
       onSchemaChange(updatedSchema);
@@ -226,7 +229,6 @@ const RuleBuilder = React.memo(
           questionLabel: question?.label,
           ruleId,
           rules,
-          currentRule,
           handleAddLogic,
           setConditions,
           setActions,
@@ -235,7 +237,7 @@ const RuleBuilder = React.memo(
           deleteAll: deleteAll ? true : false,
         });
       },
-      [question?.id, question?.label, ruleId, rules, currentRule, handleAddLogic, setRules],
+      [question?.id, question?.label, ruleId, rules, handleAddLogic, setRules],
     );
 
     const launchDeleteConditionsOrActions = useCallback(
@@ -253,8 +255,10 @@ const RuleBuilder = React.memo(
           setElement,
           elementKey,
           setCurrentRule,
+          currentRule,
         });
       },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       [question?.label],
     );
 
@@ -268,23 +272,23 @@ const RuleBuilder = React.memo(
         }
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [question.id]);
+    }, [question?.id]);
 
     useEffect(() => {
-      if (currentRule) {
-        setRules((prevRule: Array<formRule>) => {
-          if (!prevRule) return [currentRule];
-          const currentRuleIndex = prevRule.findIndex((rule) => rule.id === ruleId);
-          if (currentRuleIndex !== -1) {
-            const updatedRules = [...prevRule];
-            updatedRules[currentRuleIndex] = currentRule;
-            return updatedRules;
-          } else {
-            return [...prevRule, currentRule];
-          }
-        });
-      }
-    }, [currentRule, setRules, ruleId]);
+      if (!currentRule) return;
+      setRules((prevRule: Array<formRule>) => {
+        if (!prevRule) return [currentRule];
+        const currentRuleIndex = prevRule.findIndex((rule) => rule.id === ruleId);
+        if (currentRuleIndex !== -1) {
+          const updatedRules = [...prevRule];
+          updatedRules[currentRuleIndex] = currentRule;
+          return updatedRules;
+        } else {
+          return [...prevRule, currentRule];
+        }
+      });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [setRules, currentRule]);
 
     const addCondition = useCallback(
       () => addElement(conditions, setConditions, 'conditions', handleConditionChange),

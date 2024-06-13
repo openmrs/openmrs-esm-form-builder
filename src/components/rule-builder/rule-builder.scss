@@ -1,6 +1,17 @@
 @use '@carbon/colors';
 @use '@carbon/type';
 
+@keyframes fadeInDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .actionCondition {
   width: 150px;
 }
@@ -31,6 +42,8 @@
   border-left: 0.25rem solid  colors.$gray-20;
   padding-left: 1rem;
   margin-bottom: 30px;
+  animation: fadeInDown 0.25s ease-in-out;
+  animation: fadeOutUp 0.25s ease-in-out;
 }
 
 .ruleHeaderContainer {
@@ -45,8 +58,6 @@
   flex-direction: row;
   align-items: center;
   gap: 0.5rem;
-  text-decoration: none;
-  color: black;
 }
 
 .icon{
