@@ -6,7 +6,6 @@ import {
   Button,
   ComboBox,
   Form,
-  FormGroup,
   FormLabel,
   InlineLoading,
   InlineNotification,
@@ -20,11 +19,11 @@ import {
   Search,
   Select,
   SelectItem,
+  SelectSkeleton,
   Stack,
   Tag,
   TextInput,
   Tile,
-  SelectSkeleton,
 } from '@carbon/react';
 import { ArrowUpRight } from '@carbon/react/icons';
 import { showSnackbar, useConfig } from '@openmrs/esm-framework';
@@ -34,24 +33,24 @@ import type { ConfigObject } from '../../config-schema';
 import type {
   Concept,
   ConceptMapping,
-  Question,
-  QuestionType,
-  Schema,
   PatientIdentifierType,
   PersonAttributeType,
   Program,
   ProgramWorkflow,
+  Question,
+  QuestionType,
+  Schema,
 } from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { useConceptName } from '../../hooks/useConceptName';
-import { usePatientIdentifierName } from '../../hooks/usePatientIdentifierName';
-import { usePersonAttributeName } from '../../hooks/usePersonAttributeName';
 import { usePatientIdentifierLookup } from '../../hooks/usePatientIdentifierLookup';
+import { usePatientIdentifierName } from '../../hooks/usePatientIdentifierName';
 import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
-import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { usePersonAttributeLookup } from '../../hooks/usePersonAttributeLookup';
+import { usePersonAttributeName } from '../../hooks/usePersonAttributeName';
+import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
+import { usePrograms, useProgramWorkStates } from '../../hooks/useProgramStates';
 import styles from './question-modal.scss';
-import { useProgramWorkStates, usePrograms } from '../../hooks/useProgramStates';
 
 interface EditQuestionModalProps {
   closeModal: () => void;
@@ -507,82 +506,84 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               </div>
             )}
 
-            {fieldType !== 'ui-select-extended' && (
-              <div>
-                {questionToEdit.type === 'programState' ? (
-                  <Stack gap={5}>
-                    {isLoadingPrograms && <SelectSkeleton />}
-                    {programsLookupError ? (
+            {questionToEdit.type === 'programState' && (
+              <Stack gap={5}>
+                {isLoadingPrograms && <SelectSkeleton />}
+                {programsLookupError ? (
+                  <InlineNotification
+                    kind="error"
+                    lowContrast
+                    className={styles.error}
+                    title={t('errorFetchingPrograms', 'Error fetching programs')}
+                    subtitle={t('pleaseTryAgain', 'Please try again.')}
+                  />
+                ) : null}
+                {programs && (
+                  <ComboBox
+                    id="programLookup"
+                    items={programs}
+                    itemToString={(item: Program) => item?.name}
+                    onChange={({ selectedItem }: { selectedItem: Program }) => {
+                      handleProgramChange(selectedItem);
+                    }}
+                    placeholder={t('addProgram', 'Add program')}
+                    selectedItem={selectedProgram}
+                    titleText={t('program', 'Program')}
+                  />
+                )}
+
+                {selectedProgram && (
+                  <ComboBox
+                    id="programWorkflowLookup"
+                    items={programWorkflows}
+                    itemToString={(item: ProgramWorkflow) => item.concept.display ?? ''}
+                    onChange={({ selectedItem }: { selectedItem: ProgramWorkflow }) =>
+                      handleProgramWorkflowChange(selectedItem)
+                    }
+                    placeholder={t('addProgramWorkflow', 'Add program workflow')}
+                    selectedItem={programWorkflow}
+                    titleText={t('programWorkflow', 'Program workflow')}
+                  />
+                )}
+                {programWorkflow && (
+                  <>
+                    {isLoadingProgramStates && <SelectSkeleton />}
+                    {programStatesLookupError && (
                       <InlineNotification
                         kind="error"
                         lowContrast
                         className={styles.error}
-                        title={t('errorFetchingPrograms', 'Error fetching programs')}
+                        title={t('errorFetchingProgramState', 'Error fetching program state')}
                         subtitle={t('pleaseTryAgain', 'Please try again.')}
                       />
-                    ) : null}
-                    {programs && (
-                      <ComboBox
-                        id="programLookup"
-                        items={programs}
-                        itemToString={(item: Program) => item?.name}
-                        onChange={({ selectedItem }: { selectedItem: Program }) => {
-                          handleProgramChange(selectedItem);
-                        }}
-                        placeholder={t('addProgram', 'Add program')}
-                        selectedItem={selectedProgram}
-                        titleText={t('program', 'Program')}
+                    )}
+                    {programStates?.length > 0 && (
+                      <MultiSelect
+                        titleText={t('programState', 'Program state')}
+                        id="programState"
+                        items={programStates}
+                        itemToString={(item: ProgramState) => (item ? item?.concept?.display : '')}
+                        selectionFeedback="top-after-reopen"
+                        onChange={(data: ProgramStateData) => setSelectedProgramState(data.selectedItems)}
+                        selectedItems={selectedProgramState}
                       />
                     )}
+                    {selectedProgramState?.map((answer) => (
+                      <div>
+                        <Tag className={styles.tag} key={answer?.uuid} type={'blue'}>
+                          {answer?.concept?.display}
+                        </Tag>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </Stack>
+            )}
 
-                    {selectedProgram && (
-                      <ComboBox
-                        id="programWorkflowLookup"
-                        items={programWorkflows}
-                        itemToString={(item: ProgramWorkflow) => item?.concept?.display}
-                        onChange={({ selectedItem }: { selectedItem: ProgramWorkflow }) =>
-                          handleProgramWorkflowChange(selectedItem)
-                        }
-                        placeholder={t('addProgramWorkflow', 'Add program workflow')}
-                        selectedItem={programWorkflow}
-                        titleText={t('programWorkflow', 'Program workflow')}
-                      />
-                    )}
-                    {programWorkflow && (
-                      <>
-                        {isLoadingProgramStates && <SelectSkeleton />}
-                        {programStatesLookupError && (
-                          <InlineNotification
-                            kind="error"
-                            lowContrast
-                            className={styles.error}
-                            title={t('errorFetchingProgramState', 'Error fetching program state')}
-                            subtitle={t('pleaseTryAgain', 'Please try again.')}
-                          />
-                        )}
-                        {programStates?.length > 0 && (
-                          <MultiSelect
-                            titleText={t('programState', 'Program state')}
-                            id="programState"
-                            items={programStates}
-                            itemToString={(item: ProgramState) => (item ? item?.concept?.display : '')}
-                            selectionFeedback="top-after-reopen"
-                            onChange={(data: ProgramStateData) => setSelectedProgramState(data.selectedItems)}
-                            selectedItems={selectedProgramState}
-                          />
-                        )}
-                        {selectedProgramState?.map((answer) => (
-                          <div>
-                            <Tag className={styles.tag} key={answer?.uuid} type={'blue'}>
-                              {answer?.concept?.display}
-                            </Tag>
-                          </div>
-                        ))}
-                      </>
-                    )}
-                  </Stack>
-                ) : (
-                  <>
+            {fieldType !== 'ui-select-extended' &&
+              (questionType === 'obs' || (!questionType && questionToEdit.type === 'obs')) && (
+                <>
+                  <div>
                     <FormLabel className={styles.label}>
                       {t('searchForBackingConcept', 'Search for a backing concept')}
                     </FormLabel>
@@ -672,325 +673,131 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                         })()}
                       </>
                     )}
-                  </>
-                )}
-              </div>
-            )}
+                  </div>
 
-            {fieldType !== 'ui-select-extended' &&
-              questionToEdit.type !== 'patientIdentifier' &&
-              questionToEdit.type !== 'personAttribute' &&
-              questionToEdit.type !== 'programState' && (
-                <div>
-                  <FormLabel className={styles.label}>
-                    {t('searchForBackingConcept', 'Search for a backing concept')}
-                  </FormLabel>
-                  {conceptNameLookupError ? (
-                    <InlineNotification
-                      kind="error"
-                      lowContrast
-                      className={styles.error}
-                      title={t('errorFetchingConceptName', "Couldn't resolve concept name")}
-                      subtitle={t(
-                        'conceptDoesNotExist',
-                        `The linked concept '{{conceptName}}' does not exist in your dictionary`,
-                        {
-                          conceptName: questionToEdit.questionOptions.concept,
-                        },
-                      )}
-                    />
-                  ) : null}
-                  {isLoadingConceptName ? (
-                    <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />
-                  ) : (
-                    <>
-                      <Search
-                        defaultValue={conceptName}
-                        id="conceptLookup"
-                        onClear={() => setSelectedConcept(null)}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleConceptChange(e.target.value?.trim())
-                        }
-                        placeholder={t('searchConcept', 'Search using a concept name or UUID')}
-                        required
+                  <Stack gap={5}>
+                    {!hasConceptChanged &&
+                    questionToEdit?.questionOptions.answers?.length &&
+                    questionToEdit.type !== 'programState' ? (
+                      <MultiSelect
+                        className={styles.multiSelect}
+                        direction="top"
+                        id="selectAnswers"
+                        itemToString={(item: Item) => item.text}
+                        initialSelectedItems={questionToEdit?.questionOptions?.answers?.map((answer) => ({
+                          id: answer.concept,
+                          text: answer.label,
+                        }))}
+                        items={questionToEdit?.questionOptions?.answers?.map((answer) => ({
+                          id: answer.concept,
+                          text: answer.label ?? '',
+                        }))}
+                        onChange={({
+                          selectedItems,
+                        }: {
+                          selectedItems: Array<{
+                            id: string;
+                            text: string;
+                          }>;
+                        }) => {
+                          setAnswersChanged(true);
+                          setSelectedAnswers(selectedItems.sort());
+                        }}
                         size="md"
-                        value={selectedConcept?.display}
+                        titleText={t('selectAnswersToDisplay', 'Select answers to display')}
                       />
-                      {(() => {
-                        if (!conceptToLookup) return null;
-                        if (isLoadingConcepts)
-                          return (
-                            <InlineLoading
-                              className={styles.loader}
-                              description={t('searching', 'Searching') + '...'}
-                            />
-                          );
-                        if (concepts?.length && !isLoadingConcepts) {
-                          return (
-                            <ul className={styles.conceptList}>
-                              {concepts?.map((concept, index) => (
-                                <li
-                                  role="menuitem"
-                                  className={styles.concept}
-                                  key={index}
-                                  onClick={() => handleConceptSelect(concept)}
-                                >
-                                  {concept.display}
-                                </li>
-                              ))}
-                            </ul>
-                          );
-                        }
-                        return (
-                          <Layer>
-                            <Tile className={styles.emptyResults}>
-                              <span>
-                                {t('noMatchingConcepts', 'No concepts were found that match')}{' '}
-                                <strong>"{conceptToLookup}".</strong>
-                              </span>
-                            </Tile>
+                    ) : null}
+                    {!hasConceptChanged &&
+                    questionToEdit?.questionOptions?.answers?.length &&
+                    !answersChanged &&
+                    questionToEdit.type !== 'programState' ? (
+                      <div>
+                        {questionToEdit?.questionOptions?.answers?.map((answer) => (
+                          <Tag className={styles.tag} key={answer?.concept} type={'blue'}>
+                            {answer?.label}
+                          </Tag>
+                        ))}
+                      </div>
+                    ) : null}
+                    {hasConceptChanged && answersFromConcept.length ? (
+                      <MultiSelect
+                        className={styles.multiSelect}
+                        direction="top"
+                        id="selectAnswers"
+                        itemToString={(item: Item) => item.text}
+                        items={answersFromConcept.map((answer) => ({
+                          id: answer.concept,
+                          text: answer.label,
+                        }))}
+                        onChange={({
+                          selectedItems,
+                        }: {
+                          selectedItems: Array<{
+                            id: string;
+                            text: string;
+                          }>;
+                        }) => setSelectedAnswers(selectedItems.sort())}
+                        size="md"
+                        titleText={t('selectAnswersToDisplay', 'Select answers to display')}
+                      />
+                    ) : null}
+                    {(hasConceptChanged ?? answersChanged) && (
+                      <div>
+                        {selectedAnswers.map((selectedAnswer) => (
+                          <Tag className={styles.tag} key={selectedAnswer.id} type={'blue'}>
+                            {selectedAnswer.text}
+                          </Tag>
+                        ))}
+                      </div>
+                    )}
+                    <RadioButtonGroup
+                      defaultSelected={
+                        /true/.test(questionToEdit?.questionOptions?.showComment?.toString()) ? 'yes' : 'no'
+                      }
+                      name="addObsComment"
+                      legendText={t('addObsCommentTextBox', 'Add obs comment text box')}
+                    >
+                      <RadioButton
+                        id="obsCommentYes"
+                        defaultChecked={true}
+                        labelText={t('yes', 'Yes')}
+                        onClick={() => setAddObsComment(true)}
+                        value="yes"
+                      />
+                      <RadioButton
+                        id="obsCommentNo"
+                        defaultChecked={false}
+                        labelText={t('no', 'No')}
+                        onClick={() => setAddObsComment(false)}
+                        value="no"
+                      />
+                    </RadioButtonGroup>
 
-                            <div className={styles.oclLauncherBanner}>
-                              {
-                                <p className={styles.bodyShort01}>
-                                  {t('conceptSearchHelpText', "Can't find a concept?")}
-                                </p>
-                              }
-                              <a
-                                className={styles.oclLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                href={'https://app.openconceptlab.org/'}
-                              >
-                                {t('searchInOCL', 'Search in OCL')}
-                                <ArrowUpRight size={16} />
-                              </a>
-                            </div>
-                          </Layer>
-                        );
-                      })()}
-                    </>
-                  )}
-
-                  {questionToEdit.type === 'obs' && (
-                    <>
-                      <RadioButtonGroup
-                        defaultSelected={
-                          /true/.test(questionToEdit?.questionOptions?.showComment?.toString()) ? 'yes' : 'no'
-                        }
-                        name="addObsComment"
-                        legendText={t('addObsCommentTextBox', 'Add obs comment text box')}
-                      >
-                        <RadioButton
-                          id="obsCommentYes"
-                          defaultChecked={true}
-                          labelText={t('yes', 'Yes')}
-                          onClick={() => setAddObsComment(true)}
-                          value="yes"
-                        />
-                        <RadioButton
-                          id="obsCommentNo"
-                          defaultChecked={false}
-                          labelText={t('no', 'No')}
-                          onClick={() => setAddObsComment(false)}
-                          value="no"
-                        />
-                      </RadioButtonGroup>
-
-                      <RadioButtonGroup
-                        defaultSelected={
-                          /true/.test(questionToEdit?.questionOptions?.showDate?.toString()) ? 'yes' : 'no'
-                        }
-                        name="addInlineDate"
-                        legendText={t('addInlineDate', 'Add inline date')}
-                      >
-                        <RadioButton
-                          id="inlineDateYes"
-                          defaultChecked={true}
-                          labelText={t('yes', 'Yes')}
-                          onClick={() => setAddInlineDate(true)}
-                          value="yes"
-                        />
-                        <RadioButton
-                          id="inlineDateNo"
-                          defaultChecked={false}
-                          labelText={t('no', 'No')}
-                          onClick={() => setAddInlineDate(false)}
-                          value="no"
-                        />
-                      </RadioButtonGroup>
-                    </>
-                  )}
-                </div>
+                    <RadioButtonGroup
+                      defaultSelected={
+                        /true/.test(questionToEdit?.questionOptions?.showDate?.toString()) ? 'yes' : 'no'
+                      }
+                      name="addInlineDate"
+                      legendText={t('addInlineDate', 'Add inline date')}
+                    >
+                      <RadioButton
+                        id="inlineDateYes"
+                        defaultChecked={true}
+                        labelText={t('yes', 'Yes')}
+                        onClick={() => setAddInlineDate(true)}
+                        value="yes"
+                      />
+                      <RadioButton
+                        id="inlineDateNo"
+                        defaultChecked={false}
+                        labelText={t('no', 'No')}
+                        onClick={() => setAddInlineDate(false)}
+                        value="no"
+                      />
+                    </RadioButtonGroup>
+                  </Stack>
+                </>
               )}
-
-            {conceptMappings?.length ? (
-              <FormGroup>
-                <FormLabel className={styles.label}>{t('mappings', 'Mappings')}</FormLabel>
-                <table className={styles.tableStriped}>
-                  <thead>
-                    <tr>
-                      <th>{t('relationship', 'Relationship')}</th>
-                      <th>{t('source', 'Source')}</th>
-                      <th>{t('code', 'Code')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {conceptMappings.map((mapping, index) => (
-                      <tr key={`mapping-${index}`}>
-                        <td>{mapping.relationship ?? '--'}</td>
-                        <td>{mapping.type ?? '--'}</td>
-                        <td>{mapping.value ?? '--'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </FormGroup>
-            ) : null}
-
-            {conceptMappings?.length ? (
-              <FormGroup>
-                <FormLabel className={styles.label}>{t('mappings', 'Mappings')}</FormLabel>
-                <table className={styles.tableStriped}>
-                  <thead>
-                    <tr>
-                      <th>{t('relationship', 'Relationship')}</th>
-                      <th>{t('source', 'Source')}</th>
-                      <th>{t('code', 'Code')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {conceptMappings.map((mapping, index) => (
-                      <tr key={`mapping-${index}`}>
-                        <td>{mapping.relationship ?? '--'}</td>
-                        <td>{mapping.type ?? '--'}</td>
-                        <td>{mapping.value ?? '--'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </FormGroup>
-            ) : null}
-
-            {(questionType === 'obs' || (!questionType && questionToEdit.type === 'obs')) && (
-              <Stack gap={5}>
-                <RadioButtonGroup
-                  defaultSelected={/true/.test(questionToEdit?.questionOptions?.showComment?.toString()) ? 'yes' : 'no'}
-                  name="addObsComment"
-                  legendText={t('addObsCommentTextBox', 'Add obs comment text box')}
-                >
-                  <RadioButton
-                    id="obsCommentYes"
-                    defaultChecked={true}
-                    labelText={t('yes', 'Yes')}
-                    onClick={() => setAddObsComment(true)}
-                    value="yes"
-                  />
-                  <RadioButton
-                    id="obsCommentNo"
-                    defaultChecked={false}
-                    labelText={t('no', 'No')}
-                    onClick={() => setAddObsComment(false)}
-                    value="no"
-                  />
-                </RadioButtonGroup>
-
-                <RadioButtonGroup
-                  defaultSelected={/true/.test(questionToEdit?.questionOptions?.showDate?.toString()) ? 'yes' : 'no'}
-                  name="addInlineDate"
-                  legendText={t('addInlineDate', 'Add inline date')}
-                >
-                  <RadioButton
-                    id="inlineDateYes"
-                    defaultChecked={true}
-                    labelText={t('yes', 'Yes')}
-                    onClick={() => setAddInlineDate(true)}
-                    value="yes"
-                  />
-                  <RadioButton
-                    id="inlineDateNo"
-                    defaultChecked={false}
-                    labelText={t('no', 'No')}
-                    onClick={() => setAddInlineDate(false)}
-                    value="no"
-                  />
-                </RadioButtonGroup>
-              </Stack>
-            )}
-            {!hasConceptChanged &&
-            questionToEdit?.questionOptions.answers?.length &&
-            questionToEdit.type !== 'programState' ? (
-              <MultiSelect
-                className={styles.multiSelect}
-                direction="top"
-                id="selectAnswers"
-                itemToString={(item: Item) => item.text}
-                initialSelectedItems={questionToEdit?.questionOptions?.answers?.map((answer) => ({
-                  id: answer.concept,
-                  text: answer.label,
-                }))}
-                items={questionToEdit?.questionOptions?.answers?.map((answer) => ({
-                  id: answer.concept,
-                  text: answer.label ?? '',
-                }))}
-                onChange={({
-                  selectedItems,
-                }: {
-                  selectedItems: Array<{
-                    id: string;
-                    text: string;
-                  }>;
-                }) => {
-                  setAnswersChanged(true);
-                  setSelectedAnswers(selectedItems.sort());
-                }}
-                size="md"
-                titleText={t('selectAnswersToDisplay', 'Select answers to display')}
-              />
-            ) : null}
-            {!hasConceptChanged &&
-            questionToEdit?.questionOptions?.answers?.length &&
-            !answersChanged &&
-            questionToEdit.type !== 'programState' ? (
-              <div>
-                {questionToEdit?.questionOptions?.answers?.map((answer) => (
-                  <Tag className={styles.tag} key={answer?.concept} type={'blue'}>
-                    {answer?.label}
-                  </Tag>
-                ))}
-              </div>
-            ) : null}
-            {hasConceptChanged && answersFromConcept.length ? (
-              <MultiSelect
-                className={styles.multiSelect}
-                direction="top"
-                id="selectAnswers"
-                itemToString={(item: Item) => item.text}
-                items={answersFromConcept.map((answer) => ({
-                  id: answer.concept,
-                  text: answer.label,
-                }))}
-                onChange={({
-                  selectedItems,
-                }: {
-                  selectedItems: Array<{
-                    id: string;
-                    text: string;
-                  }>;
-                }) => setSelectedAnswers(selectedItems.sort())}
-                size="md"
-                titleText={t('selectAnswersToDisplay', 'Select answers to display')}
-              />
-            ) : null}
-            {(hasConceptChanged ?? answersChanged) && (
-              <div>
-                {selectedAnswers.map((selectedAnswer) => (
-                  <Tag className={styles.tag} key={selectedAnswer.id} type={'blue'}>
-                    {selectedAnswer.text}
-                  </Tag>
-                ))}
-              </div>
-            )}
           </Stack>
         </ModalBody>
         <ModalFooter>
