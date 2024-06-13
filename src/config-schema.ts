@@ -17,6 +17,7 @@ export const configSchema = {
       'patientIdentifier',
       'personAttribute',
       'testOrder',
+      'programState',
     ],
   },
   fieldTypes: {

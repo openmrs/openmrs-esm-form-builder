@@ -248,7 +248,6 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
 
 function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
   const pageSize = 10;
-  const config = useConfig<ConfigObject>();
   const isTablet = useLayoutType() === 'tablet';
   const responsiveSize = isTablet ? 'lg' : 'sm';
   const [filter, setFilter] = useState('');
@@ -339,17 +338,6 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
 
   return (
     <>
-      {config.showSchemaSaveWarning && (
-        <InlineNotification
-          className={styles.warningMessage}
-          kind="info"
-          lowContrast
-          title={t(
-            'schemaSaveWarningMessage',
-            "The dev3 server is ephemeral at best and can't be relied upon to save your schemas permanently. To avoid losing your work, please save your schemas to your local machine. Alternatively, upload your schema to the distro repo to have it persisted across server resets.",
-          )}
-        />
-      )}
       <div className={styles.flexContainer}>
         <div className={styles.filterContainer}>
           <Dropdown
@@ -447,6 +435,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
 const Dashboard: React.FC = () => {
   const { t } = useTranslation();
   const { forms, error, isLoading, isValidating, mutate } = useForms();
+  const { showSchemaSaveWarning } = useConfig<ConfigObject>();
 
   return (
     <main>
@@ -465,7 +454,22 @@ const Dashboard: React.FC = () => {
             return <EmptyState />;
           }
 
-          return <FormsList forms={forms} isValidating={isValidating} mutate={mutate} t={t} />;
+          return (
+            <>
+              {showSchemaSaveWarning && (
+                <InlineNotification
+                  className={styles.warningMessage}
+                  kind="info"
+                  lowContrast
+                  title={t(
+                    'schemaSaveWarningMessage',
+                    "The dev3 server is ephemeral at best and can't be relied upon to save your schemas permanently. To avoid losing your work, please save your schemas to your local machine. Alternatively, upload your schema to the distro repo to have it persisted across server resets.",
+                  )}
+                />
+              )}
+              <FormsList forms={forms} isValidating={isValidating} mutate={mutate} t={t} />
+            </>
+          );
         })()}
       </div>
     </main>
