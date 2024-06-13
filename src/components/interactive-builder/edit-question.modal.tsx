@@ -71,6 +71,14 @@ interface ProgramStateData {
   selectedItems: Array<ProgramState>;
 }
 
+const DatePickerType = {
+  both: 'both',
+  calendar: 'calendar',
+  timer: 'timer',
+} as const;
+
+type DatePickerTypeValue = (typeof DatePickerType)[keyof typeof DatePickerType];
+
 const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   closeModal,
   onSchemaChange,
@@ -115,6 +123,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const { concepts, isLoadingConcepts } = useConceptLookup(conceptToLookup);
   const { conceptName, conceptNameLookupError, isLoadingConceptName } = useConceptName(
     questionToEdit.questionOptions.concept,
+  );
+  const [datePickerType, setDatePickerType] = useState<(typeof DatePickerType)[DatePickerTypeValue]>(
+    DatePickerType.both,
   );
   const { patientIdentifierTypes } = usePatientIdentifierTypes();
   const { personAttributeTypes } = usePersonAttributeTypes();
@@ -266,6 +277,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           ...(addInlineDate && {
             showDate: addInlineDate ? addInlineDate : /true/.test(questionToEdit.questionOptions.showDate.toString()),
           }),
+          datePickerType: datePickerType ? datePickerType : questionToEdit?.datePickerType,
           attributeType: selectedPersonAttributeType
             ? selectedPersonAttributeType['uuid']
             : questionToEdit.questionOptions.attributeType,
@@ -435,6 +447,36 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               />
             ) : null}
 
+            {questionToEdit.type === 'encounterDatetime' ? (
+              <RadioButtonGroup
+                defaultSelected="both"
+                name="datePickerType"
+                legendText={t('datePickerType', 'The type of date picker to show ')}
+              >
+                <RadioButton
+                  id="both"
+                  defaultChecked={true}
+                  labelText={t('calendarAndTimer', 'Calendar and timer')}
+                  onClick={() => setDatePickerType(DatePickerType.both)}
+                  value="both"
+                />
+                <RadioButton
+                  id="calendar"
+                  defaultChecked={false}
+                  labelText={t('calendarOnly', 'Calendar only')}
+                  onClick={() => setDatePickerType(DatePickerType.calendar)}
+                  value="calendar"
+                />
+                <RadioButton
+                  id="timer"
+                  defaultChecked={false}
+                  labelText={t('timerOnly', 'Timer only')}
+                  onClick={() => setDatePickerType(DatePickerType.timer)}
+                  value="timer"
+                />
+              </RadioButtonGroup>
+            ) : null}
+
             {questionToEdit.type === 'patientIdentifier' && (
               <div>
                 <FormLabel className={styles.label}>
@@ -578,6 +620,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
             )}
 
             {fieldType !== 'ui-select-extended' &&
+              questionToEdit.type !== 'encounterDatetime' &&
               (questionType === 'obs' || (!questionType && questionToEdit.type === 'obs')) && (
                 <>
                   <div>
