@@ -1,5 +1,5 @@
 import type { OpenmrsResource } from '@openmrs/esm-framework';
-import type { ReferencedForm, RenderType, RequiredFieldProps } from '@openmrs/openmrs-form-engine-lib';
+import type { ProgramState, ReferencedForm, RenderType, RequiredFieldProps } from '@openmrs/openmrs-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
 
 export interface Form {
@@ -48,7 +48,8 @@ export type QuestionType =
   | 'obsGroup'
   | 'patientIdentifier'
   | 'personAttribute'
-  | 'testOrder';
+  | 'testOrder'
+  | 'programState';
 
 export interface Schema {
   name: string;
@@ -141,6 +142,8 @@ export interface QuestionOptions {
   weekList?: [];
   showComment?: string;
   showDate?: string;
+  programUuid?: string;
+  workflowUuid?: string;
 }
 
 export interface Answer {
@@ -235,4 +238,19 @@ export interface OpenmrsObs extends OpenmrsResource {
   status: string;
   interpretation: string;
   [anythingElse: string]: unknown;
+}
+
+export interface Program {
+  uuid: string;
+  name: string;
+  allWorkflows: Array<ProgramWorkflow>;
+}
+
+export interface ProgramWorkflow {
+  uuid: string;
+  states: Array<ProgramState>;
+  concept: {
+    display: string;
+    uuid: string;
+  };
 }
