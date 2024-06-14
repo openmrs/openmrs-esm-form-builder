@@ -1,23 +1,22 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, ComposedModal, Form, FormGroup, ModalBody, ModalFooter, ModalHeader, TextInput } from '@carbon/react';
+import { Button, Form, FormGroup, ModalBody, ModalFooter, ModalHeader, TextInput } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import type { Schema } from '../../types';
 
 interface PageModalProps {
+  closeModal: () => void;
   schema: Schema;
   onSchemaChange: (schema: Schema) => void;
-  showModal: boolean;
-  onModalChange: (showModal: boolean) => void;
 }
 
-const PageModal: React.FC<PageModalProps> = ({ schema, onSchemaChange, showModal, onModalChange }) => {
+const PageModal: React.FC<PageModalProps> = ({ closeModal, schema, onSchemaChange }) => {
   const { t } = useTranslation();
   const [pageTitle, setPageTitle] = useState('');
 
   const handleUpdatePageTitle = () => {
     updatePages();
-    onModalChange(false);
+    closeModal();
   };
 
   const updatePages = () => {
@@ -49,8 +48,8 @@ const PageModal: React.FC<PageModalProps> = ({ schema, onSchemaChange, showModal
   };
 
   return (
-    <ComposedModal open={showModal} onClose={() => onModalChange(false)} preventCloseOnClickOutside>
-      <ModalHeader title={t('createNewPage', 'Create a new page')} />
+    <>
+      <ModalHeader title={t('createNewPage', 'Create a new page')} closeModal={closeModal} />
       <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
           <FormGroup legendText={''}>
@@ -64,14 +63,14 @@ const PageModal: React.FC<PageModalProps> = ({ schema, onSchemaChange, showModal
         </ModalBody>
       </Form>
       <ModalFooter>
-        <Button onClick={() => onModalChange(false)} kind="secondary">
+        <Button onClick={closeModal} kind="secondary">
           {t('cancel', 'Cancel')}
         </Button>
         <Button disabled={!pageTitle} onClick={handleUpdatePageTitle}>
           <span>{t('save', 'Save')}</span>
         </Button>
       </ModalFooter>
-    </ComposedModal>
+    </>
   );
 };
 

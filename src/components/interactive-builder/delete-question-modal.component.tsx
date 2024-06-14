@@ -10,7 +10,6 @@ interface DeleteQuestionModal {
   pageIndex: number;
   question: Question;
   questionIndex: number;
-  resetIndices: () => void;
   schema: Schema;
   sectionIndex: number;
   showModal: boolean;
@@ -22,7 +21,6 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
   pageIndex,
   question,
   questionIndex,
-  resetIndices,
   schema,
   sectionIndex,
 }) => {
@@ -31,7 +29,6 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
   const restoreQuestion = () => {
     schema.pages[pageIndex].sections[sectionIndex].questions.splice(questionIndex, 0, question);
     onSchemaChange({ ...schema });
-    resetIndices();
 
     showSnackbar({
       title: t('questionRestored', 'Question restored'),
@@ -46,7 +43,6 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
       schema.pages[pageIndex].sections[sectionIndex].questions.splice(questionIndex, 1);
 
       onSchemaChange({ ...schema });
-      resetIndices();
 
       showSnackbar({
         actionButtonLabel: t('undo', 'Undo'),
