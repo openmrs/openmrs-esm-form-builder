@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React, { useState } from 'react';
 import { useTranslation, type TFunction } from 'react-i18next';
 import flattenDeep from 'lodash-es/flattenDeep';
