@@ -29,6 +29,7 @@ export interface Action {
   logicalOperator?: string;
   actionCondition?: string;
   actionField?: string;
+  calculateField?: string;
   errorMessage?: string;
 }
 
@@ -53,6 +54,7 @@ interface RuleBuilderProps {
   handleAddLogic: (fieldId: string) => void;
 }
 
+const helpLink: string = 'https://openmrs.atlassian.net/wiki/spaces/projects/pages/114426045/Validation+Rule+Builder';
 const RuleBuilder = React.memo(
   ({
     ruleId,
@@ -139,6 +141,24 @@ const RuleBuilder = React.memo(
       onSchemaChange(updatedSchema);
     }, [checkIfDecimalValidatorExists, onSchemaChange, pageIndex, questionIndex, schema, sectionIndex]);
 
+    const shouldDeleteForHideAction = (action: Action) => {
+      return action.calculateField?.length || action.errorMessage?.length || action.actionField?.length;
+    };
+
+    const shouldDeleteForFailAction = (action: Action) => {
+      return action.calculateField?.length || action.actionField?.length;
+    };
+
+    const shouldDeleteForCalculateAction = (action: Action) => {
+      return action.actionField?.length || action.errorMessage?.length;
+    };
+
+    const deleteProperties = (action: Action, properties: Array<string>) => {
+      properties.forEach((property) => {
+        delete action[property];
+      });
+    };
+
     const handleElementChange = useCallback(
       (
         id: string,
@@ -152,7 +172,19 @@ const RuleBuilder = React.memo(
         const updateElement = (prevElement: Array<Condition | Action>) => {
           const newElement: Array<Condition | Action> = [...prevElement];
           newElement[index] = { ...newElement[index], [field]: value };
+          if (elementKey === 'actions' && field === 'actionCondition') {
+            const updatedActions = [...newElement];
+            const action = updatedActions[index];
+            if (value === 'Hide' && shouldDeleteForHideAction(action)) {
+              deleteProperties(action, ['calculateField', 'actionField', 'errorMessage']);
+            } else if (value === 'Fail' && shouldDeleteForFailAction(action)) {
+              deleteProperties(action, ['calculateField', 'actionField']);
+            } else if (value === 'Calculate' && shouldDeleteForCalculateAction(action)) {
+              deleteProperties(action, ['actionField', 'errorMessage']);
+            }
 
+            setActions(updatedActions);
+          }
           if ('targetValue' in newElement[index]) {
             const condition = newElement[index] as Condition;
             if (
@@ -177,15 +209,17 @@ const RuleBuilder = React.memo(
       [],
     );
 
+    const handleActionChange = useCallback(
+      (id: string, field: string, value: string, index: number) => {
+        handleElementChange(id, field, value, index, actions, setActions, 'actions');
+      },
+      [actions, handleElementChange],
+    );
+
     const handleConditionChange = useCallback(
       (id: string, field: string, value: string, index: number) =>
         handleElementChange(id, field, value, index, conditions, setConditions, 'conditions'),
       [handleElementChange, conditions],
-    );
-    const handleActionChange = useCallback(
-      (id: string, field: string, value: string, index: number) =>
-        handleElementChange(id, field, value, index, actions, setActions, 'actions'),
-      [handleElementChange, actions],
     );
 
     const addElement = useCallback(
@@ -322,14 +356,7 @@ const RuleBuilder = React.memo(
               question={question}
             />
           )}
-          {!isNewRule && (
-            <ConfigurableLink to="" className={styles.helpLink}>
-              <span>
-                <Help />
-              </span>
-              <p>Learn about conditional logic</p>
-            </ConfigurableLink>
-          )}
+          {!isNewRule && <ConditionalLogicHelpLink />}
         </div>
         <div className={styles.ruleBuilderContainer}>
           <div className={styles.conditionsContainer}>
@@ -376,6 +403,16 @@ const RuleBuilder = React.memo(
 
 export default RuleBuilder;
 
+export const ConditionalLogicHelpLink = () => {
+  return (
+    <ConfigurableLink to={helpLink} className={styles.helpLink}>
+      <span>
+        <Help />
+      </span>
+      <p>Learn about conditional logic</p>
+    </ConfigurableLink>
+  );
+};
 interface RuleHeaderProps {
   isRequired: boolean;
   isAllowFutureDate: boolean;
@@ -431,6 +468,7 @@ export const RuleHeader = React.memo(
     );
   },
 );
+
 interface RuleConditionProps {
   fieldId: string;
   questions: Array<Question>;
@@ -631,23 +669,27 @@ export const RuleAction = React.memo(
     const { t } = useTranslation();
     const [action, setAction] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string>(actions[index]?.errorMessage || '');
+    const [isCalculate, setIsCalculate] = useState<boolean>(false);
     const debouncedErrorMessage = useDebounce(errorMessage, 500);
     const showErrorMessageBox = action === 'Fail';
-
     const handleSelectAction = (selectedAction: string) => {
       setAction(selectedAction);
     };
-
     useEffect(() => {
       handleActionChange(fieldId, 'errorMessage', debouncedErrorMessage, index);
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedErrorMessage, fieldId, index]);
 
     useEffect(() => {
-      if (actions[index]?.errorMessage) {
+      if (actions[index]?.errorMessage || actions?.[index]?.actionCondition === 'Fail') {
         setAction('Fail');
       }
-    }, [actions, index]);
+      if (action === 'Calculate' || actions[index]?.['actionCondition'] === 'Calculate') {
+        setIsCalculate(true);
+      } else if (action !== 'Caculate') {
+        setIsCalculate(false);
+      }
+    }, [actions, index, setIsCalculate, action]);
     return (
       <div>
         <div className={styles.ruleSetContainer}>
@@ -672,28 +714,51 @@ export const RuleAction = React.memo(
               aria-label="action-condition"
               className={styles.actionCondition}
               initialSelectedItem={actions[index]?.[`actionCondition`] || 'Select a action'}
-              items={['Hide', 'Fail']}
+              items={['Hide', 'Fail', 'Calculate']}
               onChange={({ selectedItem }: { selectedItem: string }) => {
                 handleActionChange(fieldId, `actionCondition`, selectedItem, index);
                 handleSelectAction(selectedItem);
               }}
               size={isTablet ? 'lg' : 'sm'}
             />
-            <Dropdown
-              id={`actionField-${index}`}
-              className={styles.actionField}
-              initialSelectedItem={
-                questions.find((question) => question.id === actions[index]?.[`actionField`]) || {
-                  label: 'Choose a field',
+            {!isCalculate && (
+              <Dropdown
+                id={`actionField-${index}`}
+                className={styles.actionField}
+                initialSelectedItem={
+                  questions.find((question) => question.id === actions[index]?.[`actionField`]) || {
+                    label: 'Choose a field',
+                  }
                 }
-              }
-              items={questions}
-              itemToString={(item: Question) => (item ? item.label : '')}
-              onChange={({ selectedItem }: { selectedItem: Question }) =>
-                handleActionChange(fieldId, 'actionField', selectedItem.id, index)
-              }
-              size={isTablet ? 'lg' : 'sm'}
-            />
+                items={questions}
+                itemToString={(item: Question) => (item ? item.label : '')}
+                onChange={({ selectedItem }: { selectedItem: Question }) => {
+                  handleActionChange(fieldId, 'actionField', selectedItem?.id, index);
+                }}
+                size={isTablet ? 'lg' : 'sm'}
+              />
+            )}
+            {isCalculate && (
+              <Dropdown
+                id={`calculateField-${index}`}
+                className={styles.calculateField}
+                selectedItem={actions[index]?.[`calculateField`] || 'Select Calculate Expression'}
+                items={[
+                  'BMI',
+                  'BSA',
+                  'Height For Age Zscore',
+                  'BMI For Age Zscore',
+                  'Weight For Height Zscore',
+                  'Age Based On Date',
+                  'Months On ART',
+                  'Time Difference',
+                ]}
+                onChange={({ selectedItem }: { selectedItem: string }) =>
+                  handleActionChange(fieldId, 'calculateField', selectedItem, index)
+                }
+                size={isTablet ? 'lg' : 'sm'}
+              />
+            )}
           </div>
           <Layer className={styles.layer}>
             <OverflowMenu
