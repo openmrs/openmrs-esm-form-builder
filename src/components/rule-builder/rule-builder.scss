@@ -19,6 +19,9 @@
 .actionField {
   width: 270px;
 }
+.calculateField {
+  width: 270px;
+}
 
 .actionsContainer {
   display: flex;
@@ -43,7 +46,6 @@
   padding-left: 1rem;
   margin-bottom: 30px;
   animation: fadeInDown 0.25s ease-in-out;
-  animation: fadeOutUp 0.25s ease-in-out;
 }
 
 .ruleHeaderContainer {
