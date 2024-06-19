@@ -51,6 +51,9 @@ export type QuestionType =
   | 'testOrder'
   | 'programState';
 
+export interface HideProps {
+  hideWhenExpression: string;
+}
 export interface Schema {
   name: string;
   pages: Array<{
@@ -72,8 +75,12 @@ export interface Schema {
           min?: string;
           conceptMappings?: Array<Record<string, string>>;
           disallowDecimals?: boolean;
+          calculate?: {
+            calculateExpression: string;
+          };
         };
         validators?: Array<Record<string, string>>;
+        hide?: HideProps;
       }>;
     }>;
   }>;
