@@ -58,7 +58,6 @@ interface EditQuestionModalProps {
   pageIndex: number;
   questionIndex: number;
   questionToEdit: Question;
-  resetIndices: () => void;
   schema: Schema;
   sectionIndex: number;
 }
@@ -78,7 +77,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   pageIndex,
   questionIndex,
   questionToEdit,
-  resetIndices,
   schema,
   sectionIndex,
 }) => {
@@ -279,7 +277,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] = data;
 
       onSchemaChange({ ...schema });
-      resetIndices();
       setQuestionLabel('');
       setQuestionId('');
       setIsQuestionRequired(false);

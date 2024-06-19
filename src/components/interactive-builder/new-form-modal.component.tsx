@@ -1,27 +1,16 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Button,
-  ComposedModal,
-  Form,
-  FormGroup,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  Stack,
-  TextInput,
-} from '@carbon/react';
+import { Button, Form, FormGroup, ModalBody, ModalFooter, ModalHeader, Stack, TextInput } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import type { Schema } from '../../types';
 
 interface NewFormModalProps {
   schema: Schema;
   onSchemaChange: (schema: Schema) => void;
-  onModalChange: (showModal: boolean) => void;
-  showModal: boolean;
+  closeModal: () => void;
 }
 
-const NewFormModal: React.FC<NewFormModalProps> = ({ schema, onSchemaChange, showModal, onModalChange }) => {
+const NewFormModal: React.FC<NewFormModalProps> = ({ schema, onSchemaChange, closeModal }) => {
   const { t } = useTranslation();
   const [formName, setFormName] = useState('');
   const [formDescription, setFormDescription] = useState('');
@@ -55,13 +44,13 @@ const NewFormModal: React.FC<NewFormModalProps> = ({ schema, onSchemaChange, sho
         description: formDescription,
       });
 
-      onModalChange(false);
+      closeModal();
     }
   };
 
   return (
-    <ComposedModal open={showModal} onClose={() => onModalChange(false)} preventCloseOnClickOutside>
-      <ModalHeader title={t('createNewForm', 'Create a new form')} />
+    <>
+      <ModalHeader title={t('createNewForm', 'Create a new form')} closeModal={closeModal} />
       <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
           <Stack gap={5}>
@@ -90,14 +79,14 @@ const NewFormModal: React.FC<NewFormModalProps> = ({ schema, onSchemaChange, sho
         </ModalBody>
       </Form>
       <ModalFooter>
-        <Button kind="secondary" onClick={() => onModalChange(false)}>
+        <Button kind="secondary" onClick={closeModal}>
           {t('cancel', 'Cancel')}
         </Button>
         <Button disabled={!formName} onClick={handleCreateForm}>
           <span>{t('createForm', 'Create Form')}</span>
         </Button>
       </ModalFooter>
-    </ComposedModal>
+    </>
   );
 };
 

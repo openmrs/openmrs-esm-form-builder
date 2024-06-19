@@ -17,6 +17,36 @@ export const systemAdministrationFormBuilderCardLink = getAsyncLifecycle(
   options,
 );
 
+export const newFormModal = getAsyncLifecycle(
+  () => import('./components/interactive-builder/new-form-modal.component'),
+  options,
+);
+
+export const newPageModal = getAsyncLifecycle(
+  () => import('./components/interactive-builder/page-modal.component'),
+  options,
+);
+
+export const deletePageModal = getAsyncLifecycle(
+  () => import('./components/interactive-builder/delete-page-modal.component'),
+  options,
+);
+
+export const newSectionModal = getAsyncLifecycle(
+  () => import('./components/interactive-builder/section-modal.component'),
+  options,
+);
+
+export const deleteSectionModal = getAsyncLifecycle(
+  () => import('./components/interactive-builder/delete-section-modal.component'),
+  options,
+);
+
+export const addQuestionModal = getAsyncLifecycle(
+  () => import('./components/interactive-builder/add-question-modal.component'),
+  options,
+);
+
 export const deleteQuestionModal = getAsyncLifecycle(
   () => import('./components/interactive-builder/delete-question-modal.component'),
   options,

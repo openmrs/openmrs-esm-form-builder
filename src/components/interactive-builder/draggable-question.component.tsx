@@ -18,7 +18,6 @@ interface DraggableQuestionProps {
   question: Question;
   questionCount: number;
   questionIndex: number;
-  resetIndices: () => void;
   schema: Schema;
   sectionIndex: number;
 }
@@ -31,7 +30,6 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   question,
   questionCount,
   questionIndex,
-  resetIndices,
   schema,
   sectionIndex,
 }) => {
@@ -46,11 +44,10 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
       pageIndex,
       sectionIndex,
       questionIndex,
-      resetIndices,
       onSchemaChange,
       schema,
     });
-  }, [onSchemaChange, pageIndex, question, questionIndex, resetIndices, schema, sectionIndex]);
+  }, [onSchemaChange, pageIndex, question, questionIndex, schema, sectionIndex]);
 
   const launchDeleteQuestionModal = useCallback(() => {
     const dispose = showModal('delete-question-modal', {
@@ -59,11 +56,10 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
       sectionIndex,
       question,
       questionIndex,
-      resetIndices,
       onSchemaChange,
       schema,
     });
-  }, [onSchemaChange, pageIndex, question, questionIndex, resetIndices, schema, sectionIndex]);
+  }, [onSchemaChange, pageIndex, question, questionIndex, schema, sectionIndex]);
 
   const { attributes, listeners, transform, isDragging, setNodeRef } = useDraggable({
     id: draggableId,
