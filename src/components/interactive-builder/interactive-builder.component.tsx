@@ -6,7 +6,7 @@ import { Accordion, AccordionItem, Button, IconButton, InlineLoading } from '@ca
 import { Add, TrashCan, Edit } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { showModal, showSnackbar, useFeatureFlag } from '@openmrs/esm-framework';
-import RuleBuilder, { type formRule } from '../rule-builder/rule-builder.component';
+import RuleBuilder, { type FormRule } from '../rule-builder/rule-builder.component';
 import DraggableQuestion from './draggable/draggable-question.component';
 import Droppable from './droppable/droppable-container.component';
 import EditableValue from './editable/editable-value.component';
@@ -43,7 +43,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   });
   const keyboardSensor = useSensor(KeyboardSensor);
   const sensors = useSensors(mouseSensor, keyboardSensor);
-  const isValidationRuleBuilder = useFeatureFlag('form-rule-builder');
+  const isValidationRuleBuilderEnabled = useFeatureFlag('validation-rule-builder');
   const { t } = useTranslation();
   const { formUuid } = useParams<{ formUuid: string }>();
   const isEditingExistingForm = Boolean(formUuid);
@@ -458,16 +458,16 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                         sectionIndex={sectionIndex}
                                       />
                                       {activeFields.includes(question.id) &&
-                                        isValidationRuleBuilder &&
+                                        isValidationRuleBuilderEnabled &&
                                         (() => {
                                           const rulesForQuestionIndex = rules?.findIndex(
-                                            (rule: formRule) => rule.question === question.id,
+                                            (rule: FormRule) => rule.question === question.id,
                                           );
                                           const rulesForQuestion =
                                             rulesForQuestionIndex !== -1 && rulesForQuestionIndex !== undefined
-                                              ? rules?.filter((rule: formRule) => rule.question === question.id)
+                                              ? rules?.filter((rule: FormRule) => rule.question === question.id)
                                               : [{ id: uuidv4(), isNewRule: false, question: question.id }];
-                                          return rulesForQuestion.map((rule: formRule) => (
+                                          return rulesForQuestion.map((rule: FormRule) => (
                                             <RuleBuilder
                                               ruleId={rule.id}
                                               key={question.id}

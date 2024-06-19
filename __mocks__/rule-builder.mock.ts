@@ -1,7 +1,7 @@
-import { type formRule } from '../src/components/rule-builder/rule-builder.component';
+import { type FormRule } from '../src/components/rule-builder/rule-builder.component';
 import { type Schema, type Question } from '../src/types';
 interface UseFormMockValues {
-  rules: Array<formRule>;
+  rules: Array<FormRule>;
   setRules: () => jest.Mock;
 }
 

@@ -10,6 +10,12 @@ import type {
 import type { AuditInfo } from './components/audit-details/audit-details.component';
 import type { questionTypes } from '@constants';
 
+export interface ComparisonOperators {
+  key: string;
+  defaultLabel: string;
+  type: string
+}
+
 export interface Form {
   uuid: string;
   name: string;
@@ -52,6 +58,7 @@ export type DatePickerType = 'both' | 'calendar' | 'timer';
 export interface HideProps {
   hideWhenExpression: string;
 }
+
 export interface Schema {
   name: string;
   pages: Array<{

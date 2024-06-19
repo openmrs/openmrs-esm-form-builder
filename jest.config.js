@@ -2,9 +2,9 @@
 module.exports = {
   clearMocks: true,
   transform: {
-    '^.+\\.(j|t)sx?$': '@swc/jest',
+    '^.+\\.tsx?$': ['@swc/jest'],
   },
-  transformIgnorePatterns: ['/node_modules/(?!@openmrs)', '/node_modules/(?!(@openmrs|uuid))'],
+  transformIgnorePatterns: ['/node_modules/(?!@openmrs)'],
   moduleDirectories: ['node_modules', '__mocks__', 'tools', 'src', __dirname],
   moduleNameMapper: {
     '^@resources/(.*)$': '<rootDir>/src/resources/$1',
@@ -21,6 +21,7 @@ module.exports = {
     '^dexie$': '<rootDir>/node_modules/dexie',
     '^react-i18next$': '<rootDir>/__mocks__/react-i18next.js',
     'react-markdown': '<rootDir>/__mocks__/react-markdown.tsx',
+    '^uuid$': '<rootDir>/node_modules/uuid',
   },
   setupFilesAfterEnv: ['<rootDir>/tools/setup-tests.ts'],
   testEnvironment: 'jsdom',

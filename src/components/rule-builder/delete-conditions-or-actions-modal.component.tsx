@@ -1,7 +1,7 @@
 import { ModalHeader, ModalBody, ModalFooter, Button } from '@carbon/react';
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { type Action, type Condition, type formRule } from './rule-builder.component';
+import { type Action, type Condition, type FormRule } from './rule-builder.component';
 import { showSnackbar } from '@openmrs/esm-framework';
 
 interface DeleteConditionsOrActionsModalProps {
@@ -10,7 +10,7 @@ interface DeleteConditionsOrActionsModalProps {
   elementId: string;
   element: Array<Condition | Action>;
   setElement: React.Dispatch<React.SetStateAction<Array<Condition | Action>>>;
-  setCurrentRule: React.Dispatch<React.SetStateAction<formRule>>;
+  setCurrentRule: React.Dispatch<React.SetStateAction<FormRule>>;
   elementKey: string;
 }
 
