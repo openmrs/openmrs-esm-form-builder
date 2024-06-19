@@ -3254,9 +3254,10 @@ __metadata:
   linkType: hard
 
 "@openmrs/openmrs-form-engine-lib@npm:next":
-  version: 2.0.0-pre.1230
-  resolution: "@openmrs/openmrs-form-engine-lib@npm:2.0.0-pre.1230"
+  version: 2.0.0-pre.1238
+  resolution: "@openmrs/openmrs-form-engine-lib@npm:2.0.0-pre.1238"
   dependencies:
+    "@carbon/react": "npm:>1.47.0 <1.50.0"
     ace-builds: "npm:^1.33.2"
     classnames: "npm:^2.5.1"
     dayjs: "npm:1.x"
@@ -3268,7 +3269,6 @@ __metadata:
     react-webcam: "npm:^7.2.0"
     yup: "npm:^1.4.0"
   peerDependencies:
-    "@carbon/react": 1.x
     "@openmrs/esm-framework": 5.x
     "@openmrs/esm-patient-common-lib": 8.x
     dayjs: 1.x
@@ -3277,7 +3277,7 @@ __metadata:
     react-i18next: 11.x
     rxjs: 6.x
     swr: 2.x
-  checksum: 10/c289331af487cc1bf36bd87178477ad7ab2d87f6245cb1bd84c907bb31c4fadf708ab4870eb4983fa0f02c2464158ad3feceb709dde7ba61ce5eb0d50bf6b7fe
+  checksum: 10/0a76a4c082a31f4ae74c19b4a90c7586eaf939afb76c641e6fe7cca96f35aa0cf1dd2bd2d2198344b9f26d56a9ac813faf7e51af8f7682514954c952ef4359e6
   languageName: node
   linkType: hard
 
