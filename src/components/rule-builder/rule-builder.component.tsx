@@ -159,6 +159,211 @@ const RuleBuilder = React.memo(
       });
     };
 
+    const [validatorIndex, setvalidatorIndex] = useState<number>();
+    const getSchemaCondition = (condition: string, targetField?: string, answer?: string) => {
+      switch (condition) {
+        case 'Is Empty':
+          return `isEmpty(${targetField})`;
+        case 'Not Empty':
+          return `!isEmpty(${targetField})`;
+        case 'Greater than or equal to':
+          return `${targetField} >= ${answer}`;
+        case 'Less than or equal to':
+          return `${targetField} <= ${answer}`;
+        case 'Equals':
+          return `${targetField} === '${answer}'`;
+        case 'not Equals':
+          return `${targetField} !== '${answer}'`;
+      }
+    };
+
+    const getCalculateExpression = (expression: string, height?: string, weight?: string) => {
+      switch (expression) {
+        case 'BMI':
+          return `calcBMI('${height}', '${weight}')`;
+        case 'BSA':
+          return `calcBSA('${height}', '${weight}')`;
+        case 'Height For Age Zscore':
+          return `calcHeightForAgeZscore('${height}', '${weight}')`;
+        case 'BMI For Age Zscore':
+          return `calcBMIForAgeZscore('${height}', '${weight}')`;
+        case 'Weight For Height Zscore':
+          return `calcWeightForHeightZscore('${height}', ${weight}})`;
+      }
+    };
+    const getLogicalOperator = (logicalOperator: string) => {
+      switch (logicalOperator) {
+        case 'and':
+          return ' && ';
+        case 'or':
+          return ' || ';
+      }
+    };
+
+    const ruleHasActions = (rule: formRule) => {
+      return rule?.actions?.some(
+        (action: Action) => action?.actionField !== undefined || action?.calculateField !== undefined,
+      );
+    };
+
+    const ruleHasActionField = (rule: formRule) => {
+      return rule?.actions?.some((action) => action?.actionField !== undefined);
+    };
+
+    const ruleHasCalculateField = (rule: formRule) => {
+      return rule?.actions?.some((action) => action?.calculateField !== undefined);
+    };
+
+    const buildConditionSchema = useCallback((rule: formRule) => {
+      let conditionSchema = '';
+      rule?.conditions?.forEach((condition) => {
+        const { targetField, targetCondition, targetValue, logicalOperator } = condition;
+        const operator = getLogicalOperator(logicalOperator);
+        conditionSchema += operator ? operator : '';
+        const result = getSchemaCondition(targetCondition, targetField, targetValue);
+        conditionSchema += result ? result : '';
+      });
+      return conditionSchema;
+    }, []);
+
+    const addOrUpdateValidator = useCallback(
+      (
+        schema: Schema,
+        pageIndex: number,
+        sectionIndex: number,
+        questionIndex: number,
+        conditionSchema: string,
+        errorMessage: string,
+      ) => {
+        const validators = schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators;
+        const existingValidator =
+          validatorIndex >= 1
+            ? schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators[validatorIndex - 1]
+            : undefined;
+        if (existingValidator) {
+          existingValidator.failsWhenExpression = conditionSchema;
+          existingValidator.message = errorMessage;
+        } else {
+          validators.push({
+            type: 'js_expression',
+            failsWhenExpression: conditionSchema,
+            message: errorMessage,
+          });
+          setvalidatorIndex(validators.length);
+        }
+      },
+      [validatorIndex],
+    );
+
+    const processActionFields = useCallback(
+      (rule: formRule, newSchema: Schema, conditionSchema: string) => {
+        rule?.actions?.forEach((action: Action) => {
+          const { actionField, actionCondition, errorMessage } = action;
+          const { pageIndex, sectionIndex, questionIndex } = findQuestionIndexes(newSchema, actionField);
+
+          if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
+            if (actionCondition === 'Hide') {
+              newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].hide = {
+                hideWhenExpression: conditionSchema,
+              };
+            } else if (actionCondition === 'Fail' && errorMessage) {
+              addOrUpdateValidator(newSchema, pageIndex, sectionIndex, questionIndex, conditionSchema, errorMessage);
+            }
+          }
+        });
+      },
+      [addOrUpdateValidator],
+    );
+
+    const isQuestionIndexValid = (pageIndex: number, sectionIndex: number, questionIndex: number) => {
+      return pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1;
+    };
+    const applyCalculateToSchema = useCallback(
+      (rule: formRule, schema: Schema, height: string, weight: string) => {
+        rule?.actions
+          ?.filter((action: Action) => action.actionCondition === 'Calculate')
+          .forEach((action: Action) => {
+            const calculateExpression = getCalculateExpression(action.calculateField, height, weight);
+            if (isQuestionIndexValid(pageIndex, sectionIndex, questionIndex)) {
+              schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions.calculate = {
+                calculateExpression,
+              };
+            }
+          });
+      },
+      [pageIndex, questionIndex, sectionIndex],
+    );
+
+    const removeCalculationExpressionFromSchema = useCallback(
+      (schema: Schema) => {
+        if (isQuestionIndexValid(pageIndex, sectionIndex, questionIndex)) {
+          delete schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions?.calculate;
+        }
+      },
+      [pageIndex, questionIndex, sectionIndex],
+    );
+
+    const isValidForCalculation = useCallback(
+      (validConditionsCount: number, conditionSchema, height: string, weight: string) => {
+        return (
+          validConditionsCount === 2 &&
+          ((conditionSchema.includes(`!isEmpty(${weight})`) &&
+            conditionSchema.includes(`!isEmpty(${height})`)) as boolean)
+        );
+      },
+      [],
+    );
+
+    const evaluateConditionsForCalculation = useCallback((rule: formRule) => {
+      let validConditionsCount: number = 0;
+      let height: string = '',
+        weight: string = '';
+      rule?.conditions?.forEach((condition, index) => {
+        if (condition.targetField !== '') validConditionsCount++;
+        if (index === 0) height = condition.targetField;
+        else if (index === 1) weight = condition.targetField;
+      });
+      return { validConditionsCount, height, weight };
+    }, []);
+
+    const processCalculateFields = useCallback(
+      (rule: formRule, newSchema: Schema, conditionSchema: string) => {
+        const { validConditionsCount, height, weight } = evaluateConditionsForCalculation(rule);
+        if (isValidForCalculation(validConditionsCount, conditionSchema, height, weight)) {
+          applyCalculateToSchema(rule, schema, height, weight);
+        } else {
+          removeCalculationExpressionFromSchema(newSchema);
+        }
+        onSchemaChange(newSchema);
+      },
+      [
+        applyCalculateToSchema,
+        evaluateConditionsForCalculation,
+        isValidForCalculation,
+        onSchemaChange,
+        removeCalculationExpressionFromSchema,
+        schema,
+      ],
+    );
+
+    const findQuestionIndexes = (schema: Schema, actionField: string) => {
+      let pageIndex = -1,
+        sectionIndex = -1,
+        questionIndex = -1;
+      schema.pages.forEach((page, pIndex) => {
+        page.sections?.forEach((section, sIndex) => {
+          section.questions.forEach((question, qIndex) => {
+            if (question.id === actionField) {
+              pageIndex = pIndex;
+              sectionIndex = sIndex;
+              questionIndex = qIndex;
+            }
+          });
+        });
+      });
+      return { pageIndex, sectionIndex, questionIndex };
+    };
+
     const handleElementChange = useCallback(
       (
         id: string,
@@ -295,6 +500,24 @@ const RuleBuilder = React.memo(
       // eslint-disable-next-line react-hooks/exhaustive-deps
       [question?.label],
     );
+
+    useEffect(() => {
+      const newSchema = { ...schema };
+      const rule = currentRule;
+
+      if (ruleHasActions(rule)) {
+        const conditionSchema = buildConditionSchema(rule);
+
+        if (ruleHasActionField(rule)) {
+          processActionFields(rule, newSchema, conditionSchema);
+        } else if (ruleHasCalculateField(rule)) {
+          processCalculateFields(rule, newSchema, conditionSchema);
+        }
+
+        onSchemaChange(newSchema);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [buildConditionSchema, currentRule, onSchemaChange, processActionFields, validatorIndex]);
 
     useEffect(() => {
       if (rules) {
