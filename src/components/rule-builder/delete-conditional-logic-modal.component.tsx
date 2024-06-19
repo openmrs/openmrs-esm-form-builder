@@ -1,7 +1,7 @@
 import { ModalHeader, ModalBody, ModalFooter, Button } from '@carbon/react';
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { type Action, type Condition, type formRule } from './rule-builder.component';
+import { type Action, type Condition, type FormRule } from './rule-builder.component';
 import { v4 as uuid } from 'uuid';
 import { showSnackbar } from '@openmrs/esm-framework';
 
@@ -10,13 +10,13 @@ interface DeleteConditionalLogicModalProps {
   questionId?: string;
   questionLabel: string;
   ruleId?: string;
-  currentRule?: formRule;
-  rules?: Array<formRule>;
+  currentRule?: FormRule;
+  rules?: Array<FormRule>;
   handleAddLogic?: (fieldId: string) => void;
   setConditions?: React.Dispatch<React.SetStateAction<Array<Condition>>>;
   setActions?: React.Dispatch<React.SetStateAction<Array<Action>>>;
-  setCurrentRule?: React.Dispatch<React.SetStateAction<formRule>>;
-  setRules: React.Dispatch<React.SetStateAction<Array<formRule>>>;
+  setCurrentRule?: React.Dispatch<React.SetStateAction<FormRule>>;
+  setRules: React.Dispatch<React.SetStateAction<Array<FormRule>>>;
   deleteAll?: boolean; // Flag to determine if all conditional logic should be deleted
 }
 
@@ -41,7 +41,7 @@ const DeleteConditionalLogicModal = ({
       if (setConditions) setConditions([]);
       if (setActions) setActions([]);
       if (setCurrentRule) setCurrentRule({ id: uuid(), question: questionId });
-      setRules((prevRule: Array<formRule>) => prevRule.filter((rule) => rule.question !== questionId));
+      setRules((prevRule: Array<FormRule>) => prevRule.filter((rule) => rule.question !== questionId));
       showSnackbar({
         title: t(
           'conditionalLogicDeletedMessage',
@@ -64,7 +64,7 @@ const DeleteConditionalLogicModal = ({
 
   const deleteSpecificConditionalLogic = useCallback(() => {
     try {
-      setRules((prevRule: Array<formRule>) => {
+      setRules((prevRule: Array<FormRule>) => {
         const newRule = [...prevRule];
         const elementIndex = rules?.findIndex((e) => e.id === ruleId);
         if (elementIndex !== -1) {

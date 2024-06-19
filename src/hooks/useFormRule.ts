@@ -1,9 +1,9 @@
 import { type Dispatch, type SetStateAction, createContext, useContext } from 'react';
-import { type formRule } from '../components/rule-builder/rule-builder.component';
+import { type FormRule } from '../components/rule-builder/rule-builder.component';
 
 export const RuleContext = createContext<{
-  rules: Array<formRule>;
-  setRules: Dispatch<SetStateAction<Array<formRule>>>;
+  rules: Array<FormRule>;
+  setRules: Dispatch<SetStateAction<Array<FormRule>>>;
 } | null>(null);
 
 export const useFormRule = () => {

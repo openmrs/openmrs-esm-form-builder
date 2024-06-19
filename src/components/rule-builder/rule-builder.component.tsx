@@ -1,18 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styles from './rule-builder.scss';
 import { Flash, FlowConnection, Link, Help } from '@carbon/react/icons';
-import { Dropdown } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import { ConfigurableLink, showModal, useLayoutType } from '@openmrs/esm-framework';
-import type { Page, Question, Schema, Section } from '../../types';
-import { Toggle } from '@carbon/react';
+import { ConfigurableLink, showModal, useLayoutType, useDebounce } from '@openmrs/esm-framework';
+import type { ComparisonOperators, Page, Question, Schema, Section } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
-import { OverflowMenuItem, OverflowMenu } from '@carbon/react';
-import { Layer } from '@carbon/react';
-import { TextArea } from '@carbon/react';
+import { OverflowMenuItem, OverflowMenu, Layer, TextArea, Toggle, Dropdown } from '@carbon/react';
 import { useFormRule } from '../../hooks/useFormRule';
-import { useDebounce } from '@openmrs/esm-framework';
 import CustomComboBox from './custom-combo-box.component';
+import { ActionType, comparisonOperators } from '../../constants';
 
 export interface Condition {
   id: string;
@@ -33,7 +29,7 @@ export interface Action {
   errorMessage?: string;
 }
 
-export interface formRule {
+export interface FormRule {
   id: string;
   question: string;
   conditions?: Array<Condition>;
@@ -82,7 +78,7 @@ const RuleBuilder = React.memo(
     const [isDisallowDecimals, setIsDisallowDecimals] = useState<boolean>(question?.questionOptions?.disallowDecimals);
     const [conditions, setConditions] = useState<Array<Condition>>([{ id: uuidv4(), isNew: false }]);
     const [actions, setActions] = useState<Array<Action>>([{ id: uuidv4(), isNew: false }]);
-    const [currentRule, setCurrentRule] = useState<formRule>({
+    const [currentRule, setCurrentRule] = useState<FormRule>({
       id: uuidv4(),
       question: question.id,
       actions: actions,
@@ -93,7 +89,7 @@ const RuleBuilder = React.memo(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isToggleVisible, setIsToggleVisible] = useState<boolean>(isNewRule);
     const isTablet = useLayoutType() === 'tablet';
-
+    const responsiveSize = isTablet ? 'lg' : 'sm';
     const handleRequiredChange = useCallback(() => {
       if (question) {
         const newSchema = { ...schema };
@@ -200,21 +196,21 @@ const RuleBuilder = React.memo(
       }
     };
 
-    const ruleHasActions = (rule: formRule) => {
+    const ruleHasActions = (rule: FormRule) => {
       return rule?.actions?.some(
         (action: Action) => action?.actionField !== undefined || action?.calculateField !== undefined,
       );
     };
 
-    const ruleHasActionField = (rule: formRule) => {
+    const ruleHasActionField = (rule: FormRule) => {
       return rule?.actions?.some((action) => action?.actionField !== undefined);
     };
 
-    const ruleHasCalculateField = (rule: formRule) => {
+    const ruleHasCalculateField = (rule: FormRule) => {
       return rule?.actions?.some((action) => action?.calculateField !== undefined);
     };
 
-    const buildConditionSchema = useCallback((rule: formRule) => {
+    const buildConditionSchema = useCallback((rule: FormRule) => {
       let conditionSchema = '';
       rule?.conditions?.forEach((condition) => {
         const { targetField, targetCondition, targetValue, logicalOperator } = condition;
@@ -256,7 +252,7 @@ const RuleBuilder = React.memo(
     );
 
     const processActionFields = useCallback(
-      (rule: formRule, newSchema: Schema, conditionSchema: string) => {
+      (rule: FormRule, newSchema: Schema, conditionSchema: string) => {
         rule?.actions?.forEach((action: Action) => {
           const { actionField, actionCondition, errorMessage } = action;
           const { pageIndex, sectionIndex, questionIndex } = findQuestionIndexes(newSchema, actionField);
@@ -279,7 +275,7 @@ const RuleBuilder = React.memo(
       return pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1;
     };
     const applyCalculateToSchema = useCallback(
-      (rule: formRule, schema: Schema, height: string, weight: string) => {
+      (rule: FormRule, schema: Schema, height: string, weight: string) => {
         rule?.actions
           ?.filter((action: Action) => action.actionCondition === 'Calculate')
           .forEach((action: Action) => {
@@ -314,7 +310,7 @@ const RuleBuilder = React.memo(
       [],
     );
 
-    const evaluateConditionsForCalculation = useCallback((rule: formRule) => {
+    const evaluateConditionsForCalculation = useCallback((rule: FormRule) => {
       let validConditionsCount: number = 0;
       let height: string = '',
         weight: string = '';
@@ -327,7 +323,7 @@ const RuleBuilder = React.memo(
     }, []);
 
     const processCalculateFields = useCallback(
-      (rule: formRule, newSchema: Schema, conditionSchema: string) => {
+      (rule: FormRule, newSchema: Schema, conditionSchema: string) => {
         const { validConditionsCount, height, weight } = evaluateConditionsForCalculation(rule);
         if (isValidForCalculation(validConditionsCount, conditionSchema, height, weight)) {
           applyCalculateToSchema(rule, schema, height, weight);
@@ -447,14 +443,14 @@ const RuleBuilder = React.memo(
     );
 
     const addNewConditionalLogic = useCallback(() => {
-      const newRule: formRule = {
+      const newRule: FormRule = {
         id: uuidv4(),
         question: question.id,
         actions: [{ id: uuidv4(), isNew: false }],
         conditions: [{ id: uuidv4(), isNew: false }],
         isNewRule: true,
       };
-      setRules((prevRule: Array<formRule>) => {
+      setRules((prevRule: Array<FormRule>) => {
         const updatedRule = [...prevRule, newRule];
         return updatedRule;
       });
@@ -533,7 +529,7 @@ const RuleBuilder = React.memo(
 
     useEffect(() => {
       if (!currentRule) return;
-      setRules((prevRule: Array<formRule>) => {
+      setRules((prevRule: Array<FormRule>) => {
         if (!prevRule) return [currentRule];
         const currentRuleIndex = prevRule.findIndex((rule) => rule.id === ruleId);
         if (currentRuleIndex !== -1) {
@@ -589,7 +585,7 @@ const RuleBuilder = React.memo(
                 fieldId={condition.id}
                 questions={questions}
                 answers={answers}
-                isTablet={isTablet}
+                responsiveSize={responsiveSize}
                 isNewCondition={condition.isNew}
                 isNewRule={isNewRule}
                 deleteCondition={() => deleteCondition(condition.id)}
@@ -608,7 +604,7 @@ const RuleBuilder = React.memo(
                 key={action.id}
                 fieldId={action.id}
                 questions={questions}
-                isTablet={isTablet}
+                responsiveSize={responsiveSize}
                 isNewAction={action.isNew}
                 deleteAction={() => deleteAction(action.id)}
                 addAction={addAction}
@@ -627,12 +623,13 @@ const RuleBuilder = React.memo(
 export default RuleBuilder;
 
 export const ConditionalLogicHelpLink = () => {
+  const { t } = useTranslation();
   return (
-    <ConfigurableLink to={helpLink} className={styles.helpLink}>
+    <ConfigurableLink rel="noopener noreferrer" to={helpLink} className={styles.helpLink}>
       <span>
         <Help />
       </span>
-      <p>Learn about conditional logic</p>
+      <p>{t('learnAboutConditionalLogic', 'Learn about conditional logic')}</p>
     </ConfigurableLink>
   );
 };
@@ -657,11 +654,12 @@ export const RuleHeader = React.memo(
     ruleId,
     question,
   }: RuleHeaderProps) => {
+    const { t } = useTranslation();
     return (
       <div className={styles.toggleContainer}>
         <Toggle
           id={`toggle-required-${ruleId}`}
-          labelText="Required"
+          labelText={t('required','Required')}
           hideLabel
           toggled={isRequired}
           onToggle={handleRequiredChange}
@@ -670,7 +668,7 @@ export const RuleHeader = React.memo(
         {question?.questionOptions?.rendering === 'date' && (
           <Toggle
             id={`toggle-allow-future-date-${ruleId}`}
-            labelText="Allow Future dates"
+            labelText={t('allowFutureDates', 'Allow Future Dates')}
             hideLabel
             toggled={isAllowFutureDate}
             onToggle={handleAllowFutureDateChange}
@@ -680,7 +678,7 @@ export const RuleHeader = React.memo(
         {question?.questionOptions?.rendering === 'number' && (
           <Toggle
             id={`toggle-disallow-decimal-value-${ruleId}`}
-            labelText="Disallow Decimal Value"
+            labelText={t('disAllowDecimalValue','Disallow Decimal Value')}
             hideLabel
             toggled={isDisallowDecimals}
             onToggle={handleDisallowDecimalValueChange}
@@ -689,14 +687,13 @@ export const RuleHeader = React.memo(
         )}
       </div>
     );
-  },
-);
+  });
 
 interface RuleConditionProps {
   fieldId: string;
   questions: Array<Question>;
   answers: Array<Record<string, string>>;
-  isTablet: boolean;
+  responsiveSize: string;
   launchDeleteConditionalLogicModal: (deleteAll: boolean) => void;
   deleteCondition: () => void;
   addNewConditionalLogic: () => void;
@@ -711,7 +708,7 @@ interface RuleConditionProps {
 export const RuleCondition = React.memo(
   ({
     fieldId,
-    isTablet,
+    responsiveSize,
     questions,
     isNewCondition,
     isNewRule,
@@ -724,8 +721,9 @@ export const RuleCondition = React.memo(
     conditions,
     addNewConditionalLogic,
   }: RuleConditionProps) => {
+
     const { t } = useTranslation();
-    const answer = answers.filter((answer) => answer !== undefined);
+    const filteredAnswers = answers.filter((answer) => answer !== undefined);
     const [isConditionValueVisible, setIsConditionValueVisible] = useState<boolean>(
       Boolean(conditions[index]?.targetValue),
     );
@@ -751,7 +749,7 @@ export const RuleCondition = React.memo(
               onChange={({ selectedItem }: { selectedItem: string }) => {
                 handleConditionChange(fieldId, `logicalOperator`, selectedItem, index);
               }}
-              size={isTablet ? 'lg' : 'sm'}
+              size={responsiveSize}
             />
           ) : (
             <div className={styles.ruleDescriptor} id="when-rule-descriptor">
@@ -766,7 +764,7 @@ export const RuleCondition = React.memo(
             className={styles.targetField}
             initialSelectedItem={
               questions?.find((question) => question.id === conditions[index]?.[`targetField`]) || {
-                label: 'Choose a field',
+                label: t('selectField', 'Select a field')
               }
             }
             items={questions}
@@ -774,35 +772,31 @@ export const RuleCondition = React.memo(
             onChange={({ selectedItem }: { selectedItem: Question }) =>
               handleConditionChange(fieldId, `targetField`, selectedItem.id, index)
             }
-            size={isTablet ? 'lg' : 'sm'}
+            size={responsiveSize}
           />
           <Dropdown
             id={`targetCondition-${index}`}
             aria-label="target-condition"
             className={styles.targetCondition}
             selectedItem={conditions[index]?.[`targetCondition`] || 'Select Condition'}
-            items={[
-              'Is Empty',
-              'Not Empty',
-              'Greater than or equal to',
-              'Less than or equal to',
-              'Equals',
-              'not Equals',
-            ]}
-            onChange={({ selectedItem }: { selectedItem: string }) => {
-              handleConditionChange(fieldId, `targetCondition`, selectedItem, index);
-              handleSelectCondition(selectedItem);
+            items={comparisonOperators.map(operator => ({
+              ...operator,
+              label: t(operator.key, operator.defaultLabel),
+            }))}
+            onChange={({ selectedItem }: { selectedItem: ComparisonOperators }) => {
+              handleConditionChange(fieldId, `targetCondition`, selectedItem.defaultLabel, index);
+              handleSelectCondition(selectedItem.defaultLabel);
             }}
-            size={isTablet ? 'lg' : 'sm'}
+            size={responsiveSize}
           />
           {isConditionValueVisible && (
             <CustomComboBox
               id={'target-value'}
               key={'target-value'}
               value={inputValue}
-              items={answer}
+              items={filteredAnswers}
               onChange={handleValueChange}
-              size={isTablet ? 'lg' : 'sm'}
+              size={responsiveSize}
             />
           )}
         </div>
@@ -810,7 +804,7 @@ export const RuleCondition = React.memo(
           <OverflowMenu
             aria-label={t('optionsMenu', 'Options Menu')}
             className={styles.overflowMenu}
-            size={isTablet ? 'lg' : 'sm'}
+            size={responsiveSize}
             align="left"
             flipped
           >
@@ -868,7 +862,7 @@ export const RuleCondition = React.memo(
 interface RuleActionProps {
   fieldId: string;
   questions: Array<Question>;
-  isTablet: boolean;
+  responsiveSize: string;
   deleteAction: () => void;
   isNewAction: boolean;
   addAction: () => void;
@@ -880,7 +874,7 @@ interface RuleActionProps {
 export const RuleAction = React.memo(
   ({
     fieldId,
-    isTablet,
+    responsiveSize,
     questions,
     index,
     isNewAction,
@@ -889,12 +883,13 @@ export const RuleAction = React.memo(
     handleActionChange,
     actions,
   }: RuleActionProps) => {
+
     const { t } = useTranslation();
     const [action, setAction] = useState<string>('');
-    const [errorMessage, setErrorMessage] = useState<string>(actions[index]?.errorMessage || '');
-    const [isCalculate, setIsCalculate] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState(actions[index]?.errorMessage || '');
+    const [isCalculate, setIsCalculate] = useState(false);
     const debouncedErrorMessage = useDebounce(errorMessage, 500);
-    const showErrorMessageBox = action === 'Fail';
+    const showErrorMessageBox = action === ActionType.Fail as string;
     const handleSelectAction = (selectedAction: string) => {
       setAction(selectedAction);
     };
@@ -904,12 +899,12 @@ export const RuleAction = React.memo(
     }, [debouncedErrorMessage, fieldId, index]);
 
     useEffect(() => {
-      if (actions[index]?.errorMessage || actions?.[index]?.actionCondition === 'Fail') {
-        setAction('Fail');
+      if (actions[index]?.errorMessage || actions?.[index]?.actionCondition === ActionType.Fail as string) {
+        setAction(ActionType.Fail);
       }
-      if (action === 'Calculate' || actions[index]?.['actionCondition'] === 'Calculate') {
+      if (action === ActionType.Calculate as string || actions[index]?.['actionCondition'] === ActionType.Calculate as string) {
         setIsCalculate(true);
-      } else if (action !== 'Caculate') {
+      } else if (action !== ActionType.Calculate as string) {
         setIsCalculate(false);
       }
     }, [actions, index, setIsCalculate, action]);
@@ -942,7 +937,7 @@ export const RuleAction = React.memo(
                 handleActionChange(fieldId, `actionCondition`, selectedItem, index);
                 handleSelectAction(selectedItem);
               }}
-              size={isTablet ? 'lg' : 'sm'}
+              size={responsiveSize}
             />
             {!isCalculate && (
               <Dropdown
@@ -950,7 +945,7 @@ export const RuleAction = React.memo(
                 className={styles.actionField}
                 initialSelectedItem={
                   questions.find((question) => question.id === actions[index]?.[`actionField`]) || {
-                    label: 'Choose a field',
+                    label: t('selectField', 'Select a field')
                   }
                 }
                 items={questions}
@@ -958,14 +953,14 @@ export const RuleAction = React.memo(
                 onChange={({ selectedItem }: { selectedItem: Question }) => {
                   handleActionChange(fieldId, 'actionField', selectedItem?.id, index);
                 }}
-                size={isTablet ? 'lg' : 'sm'}
+                size={responsiveSize}
               />
             )}
             {isCalculate && (
               <Dropdown
                 id={`calculateField-${index}`}
                 className={styles.calculateField}
-                selectedItem={actions[index]?.[`calculateField`] || 'Select Calculate Expression'}
+                selectedItem={actions[index]?.[`calculateField`] || t('selectCalculateExpression','Select Calculate Expression')}
                 items={[
                   'BMI',
                   'BSA',
@@ -979,7 +974,7 @@ export const RuleAction = React.memo(
                 onChange={({ selectedItem }: { selectedItem: string }) =>
                   handleActionChange(fieldId, 'calculateField', selectedItem, index)
                 }
-                size={isTablet ? 'lg' : 'sm'}
+                size={responsiveSize}
               />
             )}
           </div>
@@ -990,7 +985,7 @@ export const RuleAction = React.memo(
               className={styles.overflowMenu}
               align="left"
               flipped
-              size={isTablet ? 'lg' : 'sm'}
+              size={responsiveSize}
             >
               <OverflowMenuItem
                 id="addAction"

@@ -71,8 +71,8 @@ export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
 
   registerFeatureFlag(
-    'form-rule-builder',
-    'Form Validation Rule Builder',
-    'Enables conditional logic in forms to streamline workflow',
+    'validation-rule-builder',
+    'Validation Rule Builder',
+    'Adds a UI for dynamically adding custom form logic to form schemas in the O3 Form Builder without writing JSON code',
   );
 }

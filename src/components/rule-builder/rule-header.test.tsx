@@ -26,8 +26,8 @@ describe('RuleHeader', () => {
 
   it('should render the disallow decimal value toggle button', () => {
     renderRuleHeader(false);
-    const disAllowDecimalToggleButton = document.querySelector(`#toggle-disallow-decimal-value-${ruleId}`);
-    expect(disAllowDecimalToggleButton).toBeInTheDocument();
+    const disallowDecimalToggleButton = document.querySelector(`#toggle-disallow-decimal-value-${ruleId}`);
+    expect(disallowDecimalToggleButton).toBeInTheDocument();
   });
 
   it('should not render the allow future date toggle button', () => {
@@ -54,10 +54,10 @@ describe('RuleHeader', () => {
 
   it('should check the disallow decimal value toggle button is clicked', async () => {
     renderRuleHeader(false);
-    const disAllowDecimalToggleButton = document.querySelector(`#toggle-disallow-decimal-value-${ruleId}`);
-    expect(disAllowDecimalToggleButton).toBeInTheDocument();
+    const disallowDecimalToggleButton = document.querySelector(`#toggle-disallow-decimal-value-${ruleId}`);
+    expect(disallowDecimalToggleButton).toBeInTheDocument();
     const user = userEvent.setup();
-    await user.click(disAllowDecimalToggleButton);
+    await user.click(disallowDecimalToggleButton);
     expect(handleDisallowDecimalValueChange).toHaveBeenCalledTimes(1);
   });
 

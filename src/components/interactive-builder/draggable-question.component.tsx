@@ -3,12 +3,10 @@ import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
 import { Button, CopyButton } from '@carbon/react';
-import { Draggable, Edit, TrashCan } from '@carbon/react/icons';
-import { showModal } from '@openmrs/esm-framework';
+import { Draggable, Edit, TrashCan, Settings } from '@carbon/react/icons';
+import { showModal, useFeatureFlag } from '@openmrs/esm-framework';
 import type { Question, Schema } from '../../types';
 import styles from './draggable-question.scss';
-import { useFeatureFlag } from '@openmrs/esm-framework';
-import { Settings } from '@carbon/react/icons';
 
 interface DraggableQuestionProps {
   handleDuplicateQuestion: (question: Question, pageId: number, sectionId: number) => void;
@@ -34,7 +32,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   sectionIndex,
 }) => {
   const { t } = useTranslation();
-  const isValidationRuleBuilder = useFeatureFlag('form-rule-builder');
+  const isValidationRuleBuilderEnabled = useFeatureFlag('validation-rule-builder');
   const draggableId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
 
   const launchEditQuestionModal = useCallback(() => {
@@ -114,7 +112,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           renderIcon={(props) => <TrashCan size={16} {...props} />}
           size="md"
         />
-        {isValidationRuleBuilder && (
+        {isValidationRuleBuilderEnabled && (
           <Button
             enterDelayMs={300}
             hasIconOnly
@@ -122,7 +120,6 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
             kind="ghost"
             onClick={() => handleAddLogic(question.id)}
             renderIcon={(props) => <Settings size={16} {...props} />}
-            size="md"
           />
         )}
       </div>
