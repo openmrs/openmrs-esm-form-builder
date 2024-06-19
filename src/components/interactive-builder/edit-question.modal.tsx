@@ -31,6 +31,7 @@ import type { ProgramState, RenderType } from '@openmrs/openmrs-form-engine-lib'
 
 import type { ConfigObject } from '../../config-schema';
 import type {
+  DatePickerType,
   Concept,
   ConceptMapping,
   PatientIdentifierType,
@@ -104,13 +105,14 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const [conceptToLookup, setConceptToLookup] = useState('');
   const [personAttributeTypeToLookup, setPersonAttributeTypeToLookup] = useState('');
   const [patientIdentifierTypeToLookup, setPatientIdentifierTypeToLookup] = useState('');
-  const [fieldType, setFieldType] = useState<RenderType | null>(null);
+  const [fieldType, setFieldType] = useState<RenderType | null>(questionToEdit.questionOptions.rendering);
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
   const [max, setMax] = useState('');
   const [min, setMin] = useState('');
   const [questionId, setQuestionId] = useState('');
   const [questionLabel, setQuestionLabel] = useState('');
   const [questionType, setQuestionType] = useState<QuestionType | null>(null);
+  const [datePickerType, setDatePickerType] = useState<DatePickerType | null>(questionToEdit.datePickerFormat);
   const [rows, setRows] = useState('');
   const [selectedAnswers, setSelectedAnswers] = useState<
     Array<{
@@ -838,6 +840,36 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                       />
                     </RadioButtonGroup>
                   </Stack>
+
+                  {fieldType === 'date' || fieldType === 'datetime' ? (
+                    <RadioButtonGroup
+                      defaultSelected={questionToEdit.datePickerFormat ?? 'both'}
+                      name="datePickerType"
+                      legendText={t('datePickerType', 'The type of date picker to show ')}
+                    >
+                      <RadioButton
+                        id="both"
+                        defaultChecked={questionToEdit.datePickerFormat === 'both'}
+                        labelText={t('calendarAndTimer', 'Calendar and timer')}
+                        onClick={() => setDatePickerType('both')}
+                        value="both"
+                      />
+                      <RadioButton
+                        id="calendar"
+                        defaultChecked={questionToEdit.datePickerFormat === 'calendar'}
+                        labelText={t('calendarOnly', 'Calendar only')}
+                        onClick={() => setDatePickerType('calendar')}
+                        value="calendar"
+                      />
+                      <RadioButton
+                        id="timer"
+                        defaultChecked={questionToEdit.datePickerFormat === 'timer'}
+                        labelText={t('timerOnly', 'Timer only')}
+                        onClick={() => setDatePickerType('timer')}
+                        value="timer"
+                      />
+                    </RadioButtonGroup>
+                  ) : null}
                 </>
               )}
           </Stack>
