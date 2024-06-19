@@ -40,6 +40,7 @@ import type {
   QuestionType,
   Program,
   ProgramWorkflow,
+  DatePickerType,
 } from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
@@ -56,14 +57,6 @@ interface AddQuestionModalProps {
   schema: Schema;
   sectionIndex: number;
 }
-
-const DatePickerType = {
-  both: 'both',
-  calendar: 'calendar',
-  timer: 'timer',
-} as const;
-
-type DatePickerTypeValue = (typeof DatePickerType)[keyof typeof DatePickerType];
 
 interface Item {
   text: string;
@@ -92,9 +85,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [conceptMappings, setConceptMappings] = useState<Array<ConceptMapping>>([]);
   const [conceptToLookup, setConceptToLookup] = useState('');
   const debouncedConceptToLookup = useDebounce(conceptToLookup);
-  const [datePickerType, setDatePickerType] = useState<(typeof DatePickerType)[DatePickerTypeValue]>(
-    DatePickerType.both,
-  );
+  const [datePickerType, setDatePickerType] = useState<DatePickerType>('both');
   const [renderingType, setRenderingType] = useState<RenderType | null>(null);
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
   const [max, setMax] = useState('');
@@ -197,7 +188,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         type: questionType,
         required: isQuestionRequired,
         id: questionId ?? computedQuestionId,
-        ...(questionType === 'encounterDatetime' && { datePickerFormat: datePickerType }),
+        ...((renderingType === 'date' || renderingType === 'datetime') && { datePickerFormat: datePickerType }),
         questionOptions: {
           rendering: renderingType,
           concept: selectedConcept?.uuid ? selectedConcept?.uuid : '',
@@ -678,7 +669,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 </>
               ) : null}
 
-              {questionType === 'encounterDatetime' ? (
+              {renderingType === 'date' || renderingType === 'datetime' ? (
                 <RadioButtonGroup
                   defaultSelected="both"
                   name="datePickerType"
@@ -688,21 +679,21 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                     id="both"
                     defaultChecked={true}
                     labelText={t('calendarAndTimer', 'Calendar and timer')}
-                    onClick={() => setDatePickerType(DatePickerType.both)}
+                    onClick={() => setDatePickerType('both')}
                     value="both"
                   />
                   <RadioButton
                     id="calendar"
                     defaultChecked={false}
                     labelText={t('calendarOnly', 'Calendar only')}
-                    onClick={() => setDatePickerType(DatePickerType.calendar)}
+                    onClick={() => setDatePickerType('calendar')}
                     value="calendar"
                   />
                   <RadioButton
                     id="timer"
                     defaultChecked={false}
                     labelText={t('timerOnly', 'Timer only')}
-                    onClick={() => setDatePickerType(DatePickerType.timer)}
+                    onClick={() => setDatePickerType('timer')}
                     value="timer"
                   />
                 </RadioButtonGroup>
