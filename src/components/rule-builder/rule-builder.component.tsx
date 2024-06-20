@@ -462,9 +462,14 @@ const RuleBuilder = React.memo(
           closeModal: () => dispose(),
           questionId: question?.id,
           questionLabel: question?.label,
+          schema,
+          onSchemaChange,
           ruleId,
           rules,
+          currentRule,
+          validatorIndex,
           handleAddLogic,
+          setvalidatorIndex,
           setConditions,
           setActions,
           setCurrentRule,
@@ -472,7 +477,18 @@ const RuleBuilder = React.memo(
           deleteAll: deleteAll ? true : false,
         });
       },
-      [question?.id, question?.label, ruleId, rules, handleAddLogic, setRules],
+      [
+        question?.id,
+        question?.label,
+        schema,
+        onSchemaChange,
+        ruleId,
+        rules,
+        currentRule,
+        validatorIndex,
+        handleAddLogic,
+        setRules,
+      ],
     );
 
     const launchDeleteConditionsOrActions = useCallback(
@@ -503,7 +519,6 @@ const RuleBuilder = React.memo(
 
       if (ruleHasActions(rule)) {
         const conditionSchema = buildConditionSchema(rule);
-
         if (ruleHasActionField(rule)) {
           processActionFields(rule, newSchema, conditionSchema);
         } else if (ruleHasCalculateField(rule)) {
@@ -513,7 +528,7 @@ const RuleBuilder = React.memo(
         onSchemaChange(newSchema);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [buildConditionSchema, currentRule, onSchemaChange, processActionFields, validatorIndex]);
+    }, [buildConditionSchema, currentRule, onSchemaChange, processActionFields]);
 
     useEffect(() => {
       if (rules) {
@@ -659,7 +674,7 @@ export const RuleHeader = React.memo(
       <div className={styles.toggleContainer}>
         <Toggle
           id={`toggle-required-${ruleId}`}
-          labelText={t('required','Required')}
+          labelText={t('required', 'Required')}
           hideLabel
           toggled={isRequired}
           onToggle={handleRequiredChange}
@@ -678,7 +693,7 @@ export const RuleHeader = React.memo(
         {question?.questionOptions?.rendering === 'number' && (
           <Toggle
             id={`toggle-disallow-decimal-value-${ruleId}`}
-            labelText={t('disAllowDecimalValue','Disallow Decimal Value')}
+            labelText={t('disAllowDecimalValue', 'Disallow Decimal Value')}
             hideLabel
             toggled={isDisallowDecimals}
             onToggle={handleDisallowDecimalValueChange}
@@ -687,7 +702,8 @@ export const RuleHeader = React.memo(
         )}
       </div>
     );
-  });
+  },
+);
 
 interface RuleConditionProps {
   fieldId: string;
@@ -721,7 +737,6 @@ export const RuleCondition = React.memo(
     conditions,
     addNewConditionalLogic,
   }: RuleConditionProps) => {
-
     const { t } = useTranslation();
     const filteredAnswers = answers.filter((answer) => answer !== undefined);
     const [isConditionValueVisible, setIsConditionValueVisible] = useState<boolean>(
@@ -764,7 +779,7 @@ export const RuleCondition = React.memo(
             className={styles.targetField}
             initialSelectedItem={
               questions?.find((question) => question.id === conditions[index]?.[`targetField`]) || {
-                label: t('selectField', 'Select a field')
+                label: t('selectField', 'Select a field'),
               }
             }
             items={questions}
@@ -779,7 +794,7 @@ export const RuleCondition = React.memo(
             aria-label="target-condition"
             className={styles.targetCondition}
             selectedItem={conditions[index]?.[`targetCondition`] || 'Select Condition'}
-            items={comparisonOperators.map(operator => ({
+            items={comparisonOperators.map((operator) => ({
               ...operator,
               label: t(operator.key, operator.defaultLabel),
             }))}
@@ -883,13 +898,12 @@ export const RuleAction = React.memo(
     handleActionChange,
     actions,
   }: RuleActionProps) => {
-
     const { t } = useTranslation();
     const [action, setAction] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState(actions[index]?.errorMessage || '');
     const [isCalculate, setIsCalculate] = useState(false);
     const debouncedErrorMessage = useDebounce(errorMessage, 500);
-    const showErrorMessageBox = action === ActionType.Fail as string;
+    const showErrorMessageBox = action === (ActionType.Fail as string);
     const handleSelectAction = (selectedAction: string) => {
       setAction(selectedAction);
     };
@@ -899,12 +913,15 @@ export const RuleAction = React.memo(
     }, [debouncedErrorMessage, fieldId, index]);
 
     useEffect(() => {
-      if (actions[index]?.errorMessage || actions?.[index]?.actionCondition === ActionType.Fail as string) {
+      if (actions[index]?.errorMessage || actions?.[index]?.actionCondition === (ActionType.Fail as string)) {
         setAction(ActionType.Fail);
       }
-      if (action === ActionType.Calculate as string || actions[index]?.['actionCondition'] === ActionType.Calculate as string) {
+      if (
+        action === (ActionType.Calculate as string) ||
+        actions[index]?.['actionCondition'] === (ActionType.Calculate as string)
+      ) {
         setIsCalculate(true);
-      } else if (action !== ActionType.Calculate as string) {
+      } else if (action !== (ActionType.Calculate as string)) {
         setIsCalculate(false);
       }
     }, [actions, index, setIsCalculate, action]);
@@ -945,7 +962,7 @@ export const RuleAction = React.memo(
                 className={styles.actionField}
                 initialSelectedItem={
                   questions.find((question) => question.id === actions[index]?.[`actionField`]) || {
-                    label: t('selectField', 'Select a field')
+                    label: t('selectField', 'Select a field'),
                   }
                 }
                 items={questions}
@@ -960,7 +977,9 @@ export const RuleAction = React.memo(
               <Dropdown
                 id={`calculateField-${index}`}
                 className={styles.calculateField}
-                selectedItem={actions[index]?.[`calculateField`] || t('selectCalculateExpression','Select Calculate Expression')}
+                selectedItem={
+                  actions[index]?.[`calculateField`] || t('selectCalculateExpression', 'Select Calculate Expression')
+                }
                 items={[
                   'BMI',
                   'BSA',
