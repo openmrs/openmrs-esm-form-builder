@@ -112,7 +112,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const [questionId, setQuestionId] = useState('');
   const [questionLabel, setQuestionLabel] = useState('');
   const [questionType, setQuestionType] = useState<QuestionType | null>(null);
-  const [datePickerType, setDatePickerType] = useState<DatePickerType | null>(questionToEdit.datePickerFormat);
+  const [datePickerType, setDatePickerType] = useState<DatePickerType | null>(
+    questionToEdit.datePickerFormat ?? 'both',
+  );
   const [rows, setRows] = useState('');
   const [selectedAnswers, setSelectedAnswers] = useState<
     Array<{
@@ -840,38 +842,38 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                       />
                     </RadioButtonGroup>
                   </Stack>
-
-                  {fieldType === 'date' || fieldType === 'datetime' ? (
-                    <RadioButtonGroup
-                      defaultSelected={questionToEdit.datePickerFormat ?? 'both'}
-                      name="datePickerType"
-                      legendText={t('datePickerType', 'The type of date picker to show ')}
-                    >
-                      <RadioButton
-                        id="both"
-                        defaultChecked={questionToEdit.datePickerFormat === 'both'}
-                        labelText={t('calendarAndTimer', 'Calendar and timer')}
-                        onClick={() => setDatePickerType('both')}
-                        value="both"
-                      />
-                      <RadioButton
-                        id="calendar"
-                        defaultChecked={questionToEdit.datePickerFormat === 'calendar'}
-                        labelText={t('calendarOnly', 'Calendar only')}
-                        onClick={() => setDatePickerType('calendar')}
-                        value="calendar"
-                      />
-                      <RadioButton
-                        id="timer"
-                        defaultChecked={questionToEdit.datePickerFormat === 'timer'}
-                        labelText={t('timerOnly', 'Timer only')}
-                        onClick={() => setDatePickerType('timer')}
-                        value="timer"
-                      />
-                    </RadioButtonGroup>
-                  ) : null}
                 </>
               )}
+
+            {fieldType === 'date' || fieldType === 'datetime' ? (
+              <RadioButtonGroup
+                defaultSelected={questionToEdit.datePickerFormat ?? 'both'}
+                name="datePickerType"
+                legendText={t('datePickerType', 'The type of date picker to show ')}
+              >
+                <RadioButton
+                  id="both"
+                  defaultChecked={questionToEdit.datePickerFormat === 'both'}
+                  labelText={t('calendarAndTimer', 'Calendar and timer')}
+                  onClick={() => setDatePickerType('both')}
+                  value="both"
+                />
+                <RadioButton
+                  id="calendar"
+                  defaultChecked={questionToEdit.datePickerFormat === 'calendar'}
+                  labelText={t('calendarOnly', 'Calendar only')}
+                  onClick={() => setDatePickerType('calendar')}
+                  value="calendar"
+                />
+                <RadioButton
+                  id="timer"
+                  defaultChecked={questionToEdit.datePickerFormat === 'timer'}
+                  labelText={t('timerOnly', 'Timer only')}
+                  onClick={() => setDatePickerType('timer')}
+                  value="timer"
+                />
+              </RadioButtonGroup>
+            ) : null}
           </Stack>
         </ModalBody>
         <ModalFooter>
