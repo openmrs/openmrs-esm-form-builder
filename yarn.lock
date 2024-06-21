@@ -3254,9 +3254,10 @@ __metadata:
   linkType: hard
 
 "@openmrs/openmrs-form-engine-lib@npm:next":
-  version: 2.0.0-pre.1208
-  resolution: "@openmrs/openmrs-form-engine-lib@npm:2.0.0-pre.1208"
+  version: 2.0.0-pre.1238
+  resolution: "@openmrs/openmrs-form-engine-lib@npm:2.0.0-pre.1238"
   dependencies:
+    "@carbon/react": "npm:>1.47.0 <1.50.0"
     ace-builds: "npm:^1.33.2"
     classnames: "npm:^2.5.1"
     dayjs: "npm:1.x"
@@ -3268,7 +3269,6 @@ __metadata:
     react-webcam: "npm:^7.2.0"
     yup: "npm:^1.4.0"
   peerDependencies:
-    "@carbon/react": 1.x
     "@openmrs/esm-framework": 5.x
     "@openmrs/esm-patient-common-lib": 8.x
     dayjs: 1.x
@@ -3277,7 +3277,7 @@ __metadata:
     react-i18next: 11.x
     rxjs: 6.x
     swr: 2.x
-  checksum: 10/f7b43ae65c868ae3c717795c4e7ca77bb22a2bbbfd3cf9717e86170f016859658ea8eaaad39cf7cde0f3f2dde4e46ffcf849929b3fda8783182f47fa5e2b7b37
+  checksum: 10/0a76a4c082a31f4ae74c19b4a90c7586eaf939afb76c641e6fe7cca96f35aa0cf1dd2bd2d2198344b9f26d56a9ac813faf7e51af8f7682514954c952ef4359e6
   languageName: node
   linkType: hard
 
@@ -5564,10 +5564,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ace-builds@npm:^1.32.8, ace-builds@npm:^1.33.2":
+"ace-builds@npm:^1.32.8":
   version: 1.34.0
   resolution: "ace-builds@npm:1.34.0"
   checksum: 10/bf15b5f9fb3d71687a6b1a3085768a1ac814d106bde0e8c1665a6bd317aade0f5cad74ff1aa3937dabede97bbf5794248804de397845a02e43228b86b286fb26
+  languageName: node
+  linkType: hard
+
+"ace-builds@npm:^1.33.2":
+  version: 1.35.0
+  resolution: "ace-builds@npm:1.35.0"
+  checksum: 10/230d62e9766feb2c1203b613eaed114c9c2568c25554b4431cdf01375a221684fb6548c488b02a01eceade366ded45e1bdb08b79a17934dde38ebd5db94f1dd6
   languageName: node
   linkType: hard
 

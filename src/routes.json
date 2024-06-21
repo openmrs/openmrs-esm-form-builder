@@ -24,6 +24,30 @@
   ],
   "modals": [
     {
+      "name": "new-form-modal",
+      "component": "newFormModal"
+    },
+    {
+      "name": "new-page-modal",
+      "component": "newPageModal"
+    },
+    {
+      "name": "delete-page-modal",
+      "component": "deletePageModal"
+    },
+    {
+      "name": "new-section-modal",
+      "component": "newSectionModal"
+    },
+    {
+      "name": "delete-section-modal",
+      "component": "deleteSectionModal"
+    },
+    {
+      "name": "add-question-modal",
+      "component": "addQuestionModal"
+    },
+    {
       "name": "delete-question-modal",
       "component": "deleteQuestionModal"
     },

@@ -1,32 +1,23 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, ComposedModal, Form, FormGroup, ModalBody, ModalFooter, ModalHeader, TextInput } from '@carbon/react';
+import { Button, Form, FormGroup, ModalBody, ModalFooter, ModalHeader, TextInput } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import type { Schema } from '../../types';
 
 interface SectionModalProps {
+  closeModal: () => void;
   schema: Schema;
   onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
-  resetIndices: () => void;
-  showModal: boolean;
-  onModalChange: (showModal: boolean) => void;
 }
 
-const SectionModal: React.FC<SectionModalProps> = ({
-  schema,
-  onSchemaChange,
-  pageIndex,
-  resetIndices,
-  showModal,
-  onModalChange,
-}) => {
+const SectionModal: React.FC<SectionModalProps> = ({ closeModal, schema, onSchemaChange, pageIndex }) => {
   const { t } = useTranslation();
   const [sectionTitle, setSectionTitle] = useState('');
 
   const handleUpdatePageSections = () => {
     updateSections();
-    onModalChange(false);
+    closeModal();
   };
 
   const updateSections = () => {
@@ -38,7 +29,6 @@ const SectionModal: React.FC<SectionModalProps> = ({
       });
       onSchemaChange({ ...schema });
       setSectionTitle('');
-      resetIndices();
 
       showSnackbar({
         title: t('success', 'Success!'),
@@ -58,8 +48,8 @@ const SectionModal: React.FC<SectionModalProps> = ({
   };
 
   return (
-    <ComposedModal open={showModal} onClose={() => onModalChange(false)} preventCloseOnClickOutside>
-      <ModalHeader title={t('createNewSection', 'Create a new section')} />
+    <>
+      <ModalHeader title={t('createNewSection', 'Create a new section')} closeModal={closeModal} />
       <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
           <FormGroup legendText={''}>
@@ -73,14 +63,14 @@ const SectionModal: React.FC<SectionModalProps> = ({
         </ModalBody>
       </Form>
       <ModalFooter>
-        <Button onClick={() => onModalChange(false)} kind="secondary">
+        <Button onClick={closeModal} kind="secondary">
           {t('cancel', 'Cancel')}
         </Button>
         <Button disabled={!sectionTitle} onClick={handleUpdatePageSections}>
           <span>{t('save', 'Save')}</span>
         </Button>
       </ModalFooter>
-    </ComposedModal>
+    </>
   );
 };
 export default SectionModal;
