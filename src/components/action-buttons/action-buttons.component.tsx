@@ -8,7 +8,7 @@ import { showSnackbar, useConfig } from '@openmrs/esm-framework';
 import { handleFormValidation } from '../../form-validator.resource';
 import { publishForm, unpublishForm } from '../../forms.resource';
 import { useForm } from '../../hooks/useForm';
-import SaveFormModal from '../modals/save-form-modal.component';
+import SaveFormModal from '../modals/save-form.modal';
 import type { ConfigObject } from '../../config-schema';
 import type { Schema } from '../../types';
 import styles from './action-buttons.scss';
