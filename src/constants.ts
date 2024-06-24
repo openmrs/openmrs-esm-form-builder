@@ -1,4 +1,5 @@
 import type { RenderType } from '@openmrs/esm-form-engine-lib';
+import { type ComparisonOperators } from './types';
 
 export const questionTypes = [
   'control',
@@ -54,7 +55,6 @@ export const renderTypeOptions: Record<Exclude<QuestionType, 'obs'>, Array<Rende
   patientIdentifier: ['text'],
   programState: ['select'],
 };
-import { type ComparisonOperators } from './types';
 
 export const comparisonOperators: Array<ComparisonOperators> = [
   { key: 'isEmpty', defaultLabel: 'Is Empty', type: 'string' },
@@ -63,6 +63,7 @@ export const comparisonOperators: Array<ComparisonOperators> = [
   { key: 'lessThanOrEqualTo', defaultLabel: 'Less than or equal to', type: 'string' },
   { key: 'equals', defaultLabel: 'Equals', type: 'string' },
   { key: 'notEquals', defaultLabel: 'Not Equals', type: 'string' },
+  { key: 'doesNotMatchExpression', defaultLabel: 'Does not match expression', type: 'string' },
 ];
 
 export enum ActionType {
