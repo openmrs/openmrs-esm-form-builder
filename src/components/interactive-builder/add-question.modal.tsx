@@ -41,6 +41,7 @@ import type {
   Program,
   ProgramWorkflow,
   DatePickerType,
+  DatePickerTypeOptions,
 } from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
@@ -129,16 +130,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     patientIdentifier: ['text'],
     programState: ['select'],
   };
-
-  interface DatePickerTypeOption {
-    value: DatePickerType;
-    label: string;
-    defaultChecked: boolean;
-  }
-
-  interface DatePickerTypeOptions {
-    [key: string]: Array<DatePickerTypeOption>;
-  }
 
   const datePickerTypeOptions: DatePickerTypeOptions = {
     datetime: [{ value: 'both', label: t('calendarAndTimer', 'Calendar and timer'), defaultChecked: true }],
