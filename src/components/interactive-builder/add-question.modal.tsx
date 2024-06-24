@@ -130,9 +130,43 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     programState: ['select'],
   };
 
+  interface DatePickerTypeOption {
+    value: DatePickerType;
+    label: string;
+    defaultChecked: boolean;
+  }
+
+  interface DatePickerTypeOptions {
+    [key: string]: Array<DatePickerTypeOption>;
+  }
+
+  const datePickerTypeOptions: DatePickerTypeOptions = {
+    datetime: [{ value: 'both', label: t('calendarAndTimer', 'Calendar and timer'), defaultChecked: true }],
+    date: [{ value: 'calendar', label: t('calendarOnly', 'Calendar only'), defaultChecked: false }],
+    time: [{ value: 'timer', label: t('timerOnly', 'Timer only'), defaultChecked: false }],
+  };
+
   const handleConceptChange = (event: React.ChangeEvent<HTMLInputElement>) => setConceptToLookup(event.target.value);
 
+  const updateDatePickerType = (concept: Concept) => {
+    const conceptDataType = concept.datatype.name;
+    switch (conceptDataType) {
+      case 'Datetime':
+        setDatePickerType('both');
+        break;
+      case 'Date':
+        setDatePickerType('calendar');
+        break;
+      case 'Time':
+        setDatePickerType('timer');
+        break;
+      default:
+        break;
+    }
+  };
+
   const handleConceptSelect = (concept: Concept) => {
+    updateDatePickerType(concept);
     setConceptToLookup('');
     setSelectedConcept(concept);
     setAnswers(
@@ -485,6 +519,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                         id="conceptLookup"
                         onClear={() => {
                           setSelectedConcept(null);
+                          setDatePickerType('both');
                           setAnswers([]);
                           setConceptMappings([]);
                         }}
@@ -671,31 +706,30 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
               {renderingType === 'date' || renderingType === 'datetime' ? (
                 <RadioButtonGroup
-                  defaultSelected="both"
                   name="datePickerType"
                   legendText={t('datePickerType', 'The type of date picker to show ')}
                 >
-                  <RadioButton
-                    id="both"
-                    defaultChecked={true}
-                    labelText={t('calendarAndTimer', 'Calendar and timer')}
-                    onClick={() => setDatePickerType('both')}
-                    value="both"
-                  />
-                  <RadioButton
-                    id="calendar"
-                    defaultChecked={false}
-                    labelText={t('calendarOnly', 'Calendar only')}
-                    onClick={() => setDatePickerType('calendar')}
-                    value="calendar"
-                  />
-                  <RadioButton
-                    id="timer"
-                    defaultChecked={false}
-                    labelText={t('timerOnly', 'Timer only')}
-                    onClick={() => setDatePickerType('timer')}
-                    value="timer"
-                  />
+                  {selectedConcept && selectedConcept.datatype
+                    ? datePickerTypeOptions[selectedConcept.datatype.name.toLowerCase()].map((type) => (
+                        <RadioButton
+                          id={type.value}
+                          labelText={type.label}
+                          onClick={() => setDatePickerType(type.value)}
+                          checked={datePickerType === type.value}
+                          value={type.value}
+                        />
+                      ))
+                    : Object.values(datePickerTypeOptions)
+                        .flat()
+                        .map((type) => (
+                          <RadioButton
+                            id={type.value}
+                            checked={datePickerType === type.value}
+                            labelText={type.label}
+                            onClick={() => setDatePickerType(type.value)}
+                            value={type.value}
+                          />
+                        ))}
                 </RadioButtonGroup>
               ) : null}
 
