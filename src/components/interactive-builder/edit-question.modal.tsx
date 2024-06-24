@@ -71,6 +71,14 @@ interface ProgramStateData {
   selectedItems: Array<ProgramState>;
 }
 
+const DatePickerType = {
+  both: 'both',
+  calendar: 'calendar',
+  timer: 'timer',
+} as const;
+
+type DatePickerTypeValue = (typeof DatePickerType)[keyof typeof DatePickerType];
+
 const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   closeModal,
   onSchemaChange,
@@ -115,6 +123,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const { concepts, isLoadingConcepts } = useConceptLookup(conceptToLookup);
   const { conceptName, conceptNameLookupError, isLoadingConceptName } = useConceptName(
     questionToEdit.questionOptions.concept,
+  );
+  const [datePickerFormat, setDatePickerFormat] = useState<(typeof DatePickerType)[DatePickerTypeValue]>(
+    DatePickerType.both,
   );
   const { patientIdentifierTypes } = usePatientIdentifierTypes();
   const { personAttributeTypes } = usePersonAttributeTypes();
@@ -250,14 +261,19 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
         type: questionType ? questionType : questionToEdit.type,
         required: isQuestionRequired ? isQuestionRequired : /true/.test(questionToEdit?.required?.toString()),
         id: questionId ? questionId : questionToEdit.id,
+        ...(datePickerFormat && {
+          datePickerFormat: datePickerFormat,
+        }),
         questionOptions: {
           rendering: fieldType ? fieldType : questionToEdit.questionOptions.rendering,
           concept: selectedConcept?.uuid ? selectedConcept.uuid : questionToEdit.questionOptions.concept,
           conceptMappings: conceptMappings?.length ? conceptMappings : questionToEdit.questionOptions.conceptMappings,
           answers: mappedAnswers,
-          identifierType: selectedPatientIdentifierType
-            ? selectedPatientIdentifierType['uuid']
-            : questionToEdit.questionOptions.identifierType,
+          ...(questionType === 'patientIdentifier' && {
+            identifierType: selectedPatientIdentifierType
+              ? selectedPatientIdentifierType['uuid']
+              : questionToEdit.questionOptions.identifierType,
+          }),
           ...(addObsComment && {
             showComment: addObsComment
               ? addObsComment
@@ -435,6 +451,33 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               />
             ) : null}
 
+            {questionToEdit.type === 'encounterDatetime' ? (
+              <RadioButtonGroup
+                defaultSelected={questionToEdit?.datePickerFormat}
+                name="datePickerFormat"
+                legendText={t('datePickerType', 'The type of date picker to show ')}
+              >
+                <RadioButton
+                  id="both"
+                  labelText={t('calendarAndTimer', 'Calendar and timer')}
+                  onClick={() => setDatePickerFormat(DatePickerType.both)}
+                  value="both"
+                />
+                <RadioButton
+                  id="calendar"
+                  labelText={t('calendarOnly', 'Calendar only')}
+                  onClick={() => setDatePickerFormat(DatePickerType.calendar)}
+                  value="calendar"
+                />
+                <RadioButton
+                  id="timer"
+                  labelText={t('timerOnly', 'Timer only')}
+                  onClick={() => setDatePickerFormat(DatePickerType.timer)}
+                  value="timer"
+                />
+              </RadioButtonGroup>
+            ) : null}
+
             {questionToEdit.type === 'patientIdentifier' && (
               <div>
                 <FormLabel className={styles.label}>
@@ -578,6 +621,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
             )}
 
             {fieldType !== 'ui-select-extended' &&
+              questionToEdit.type !== 'encounterDatetime' &&
               (questionType === 'obs' || (!questionType && questionToEdit.type === 'obs')) && (
                 <>
                   <div>
