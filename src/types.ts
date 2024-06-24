@@ -10,10 +10,52 @@ import type {
 import type { AuditInfo } from './components/audit-details/audit-details.component';
 import type { questionTypes } from '@constants';
 
+export enum ActionType {
+  LOGICAL_OPERATOR = 'logicalOperator',
+  ACTION_CONDITION = 'actionCondition',
+  ACTION_FIELD = 'actionField',
+  CALCULATE_FIELD = 'calculateField',
+  ERROR_MESSAGE = 'errorMessage',
+}
+
+export enum ConditionType {
+  TARGET_FIELD = 'targetField',
+  TARGET_CONDITION = 'targetCondition',
+  TARGET_VALUE = 'targetValue',
+  LOGICAL_OPERATOR = 'logicalOperator',
+}
+
+export enum LogicalOperatorType {
+  AND = 'and',
+  OR = 'or',
+}
+
+export enum RenderingType {
+  DATE = 'date',
+  NUMBER = 'number',
+}
+
+export enum RuleElementType {
+  CONDITIONS = 'conditions',
+  ACTIONS = 'actions',
+}
+
+export enum TriggerType {
+  HIDE = 'Hide',
+  FAIL = 'Fail',
+  CALCULATE = 'Calculate',
+}
+
 export interface ComparisonOperators {
   key: string;
   defaultLabel: string;
-  type: string
+  type: string;
+}
+
+export interface CalculationFunctions {
+  key: string;
+  defaultLabel: string;
+  type: string;
 }
 
 export interface Form {

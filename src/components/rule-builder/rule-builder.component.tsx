@@ -1,14 +1,34 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import styles from './rule-builder.scss';
-import { Flash, FlowConnection, Link, Help } from '@carbon/react/icons';
 import { useTranslation } from 'react-i18next';
-import { ConfigurableLink, showModal, useLayoutType, useDebounce } from '@openmrs/esm-framework';
-import type { ComparisonOperators, Page, Question, Schema, Section } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 import { OverflowMenuItem, OverflowMenu, Layer, TextArea, Toggle, Dropdown } from '@carbon/react';
+import { Flash, FlowConnection, Link, Help } from '@carbon/react/icons';
+import { ConfigurableLink, showModal, useLayoutType, useDebounce } from '@openmrs/esm-framework';
+import {
+  ActionType,
+  ConditionType,
+  LogicalOperatorType,
+  RenderingType,
+  RuleElementType,
+  TriggerType,
+  type CalculationFunctions,
+  type ComparisonOperators,
+  type Page,
+  type Question,
+  type Schema,
+  type Section,
+} from '../../types';
 import { useFormRule } from '../../hooks/useFormRule';
 import CustomComboBox from './custom-combo-box.component';
-import { ActionType, comparisonOperators } from '../../constants';
+import {
+  calculateFunctions,
+  comparisonOperators,
+  dateBasedCalculationFunctions,
+  emptyStates,
+  heightAndWeightBasedCalculationFunctions,
+  helpLink,
+} from '../../constants';
+import styles from './rule-builder.scss';
 
 export interface Condition {
   id: string;
@@ -50,15 +70,6 @@ interface RuleBuilderProps {
   handleAddLogic: (fieldId: string) => void;
 }
 
-const helpLink: string = 'https://openmrs.atlassian.net/wiki/spaces/projects/pages/114426045/Validation+Rule+Builder';
-const dateBasedCalculationFunctions: Array<string> = ['Age Based On Date', 'Expected Delivery Date', 'Months On ART'];
-const heightAndWeightBasedCalculationFunctions: Array<string> = [
-  'BMI',
-  'BSA',
-  'Height For Age Zscore',
-  'BMI For Age Zscore',
-  'Weight For Height Zscore',
-];
 const RuleBuilder = React.memo(
   ({
     ruleId,
@@ -80,7 +91,7 @@ const RuleBuilder = React.memo(
     const [isRequired, setIsRequired] = useState<boolean>(question?.required ? true : false);
     const [isAllowFutureDate, setIsAllowFutureDate] = useState<boolean>(
       question?.validators?.some((validator) =>
-        validator.type === 'date' && validator?.allowFutureDates === 'true' ? true : false,
+        validator.type === (RenderingType.DATE as string) && validator?.allowFutureDates === 'true' ? true : false,
       ),
     );
     const [isDisallowDecimals, setIsDisallowDecimals] = useState<boolean>(question?.questionOptions?.disallowDecimals);
@@ -109,7 +120,7 @@ const RuleBuilder = React.memo(
 
     const checkIfDateValidatorExists = useCallback(() => {
       return schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators.some(
-        (item) => item['type'] === 'date',
+        (item) => item['type'] === (RenderingType.DATE as string),
       );
     }, [pageIndex, questionIndex, schema.pages, sectionIndex]);
 
@@ -124,7 +135,9 @@ const RuleBuilder = React.memo(
         setIsAllowFutureDate(true);
       } else {
         validators?.map((validator) =>
-          validator?.type === 'date' ? (validator['allowFutureDates'] = isAllowFutureDate ? 'false' : 'true') : null,
+          validator?.type === (RenderingType.DATE as string)
+            ? (validator['allowFutureDates'] = isAllowFutureDate ? 'false' : 'true')
+            : null,
         );
         onSchemaChange(newSchema);
         isAllowFutureDate ? setIsAllowFutureDate(false) : setIsAllowFutureDate(true);
@@ -274,11 +287,11 @@ const RuleBuilder = React.memo(
           const { pageIndex, sectionIndex, questionIndex } = findQuestionIndexes(newSchema, actionField);
 
           if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
-            if (actionCondition === 'Hide') {
+            if (actionCondition === (TriggerType.HIDE as string)) {
               newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].hide = {
                 hideWhenExpression: conditionSchema,
               };
-            } else if (actionCondition === 'Fail' && errorMessage) {
+            } else if (actionCondition === (TriggerType.FAIL as string) && errorMessage) {
               addOrUpdateValidator(newSchema, pageIndex, sectionIndex, questionIndex, conditionSchema, errorMessage);
             }
           }
@@ -294,7 +307,7 @@ const RuleBuilder = React.memo(
     const applyCalculationExpressionToSchema = useCallback(
       (rule: FormRule, schema: Schema, height: string, weight: string, dateField?: string, renderingType?: string) => {
         rule?.actions?.forEach((action: Action) => {
-          if (action?.actionCondition !== 'Calculate') return;
+          if (action?.actionCondition !== (TriggerType.CALCULATE as string)) return;
 
           const isDateBased = dateBasedCalculationFunctions.includes(action?.calculateField);
           const isHeightAndWeightBased = heightAndWeightBasedCalculationFunctions.includes(action?.calculateField);
@@ -309,7 +322,8 @@ const RuleBuilder = React.memo(
           if (!calculateExpression) return;
 
           const shouldApplyCalculation =
-            renderingType === 'date' || isQuestionIndexValid(pageIndex, sectionIndex, questionIndex);
+            renderingType === (RenderingType.DATE as string) ||
+            isQuestionIndexValid(pageIndex, sectionIndex, questionIndex);
           if (shouldApplyCalculation) {
             schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions.calculate = {
               calculateExpression,
@@ -379,7 +393,7 @@ const RuleBuilder = React.memo(
         }
       };
 
-      if (renderingType === 'date') {
+      if (renderingType === (RenderingType.DATE as string)) {
         rule?.conditions?.forEach(updateForDateType);
       } else {
         rule?.conditions?.forEach(updateForOtherTypes);
@@ -400,7 +414,7 @@ const RuleBuilder = React.memo(
           renderingType,
         );
 
-        if (renderingType === 'date' && isValidForDateCalculation(conditionSchema, dateField)) {
+        if (renderingType === (RenderingType.DATE as string) && isValidForDateCalculation(conditionSchema, dateField)) {
           applyCalculationExpressionToSchema(rule, newSchema, '', '', dateField, renderingType);
           onSchemaChange(newSchema);
           return;
@@ -456,24 +470,24 @@ const RuleBuilder = React.memo(
         const updateElement = (prevElement: Array<Condition | Action>) => {
           const newElement: Array<Condition | Action> = [...prevElement];
           newElement[index] = { ...newElement[index], [field]: value };
-          if (elementKey === 'actions' && field === 'actionCondition') {
+          if (elementKey === (RuleElementType.ACTIONS as string) && field === (ActionType.ACTION_CONDITION as string)) {
             const updatedActions = [...newElement];
             const action = updatedActions[index];
-            if (value === 'Hide' && shouldDeleteForHideAction(action)) {
-              deleteProperties(action, ['calculateField', 'actionField', 'errorMessage']);
-            } else if (value === 'Fail' && shouldDeleteForFailAction(action)) {
-              deleteProperties(action, ['calculateField', 'actionField']);
-            } else if (value === 'Calculate' && shouldDeleteForCalculateAction(action)) {
-              deleteProperties(action, ['actionField', 'errorMessage']);
+            if (value === (TriggerType.HIDE as string) && shouldDeleteForHideAction(action)) {
+              deleteProperties(action, [ActionType.CALCULATE_FIELD, ActionType.ACTION_FIELD, ActionType.ERROR_MESSAGE]);
+            } else if (value === (TriggerType.FAIL as string) && shouldDeleteForFailAction(action)) {
+              deleteProperties(action, [ActionType.CALCULATE_FIELD, ActionType.ACTION_FIELD]);
+            } else if (value === (TriggerType.CALCULATE as string) && shouldDeleteForCalculateAction(action)) {
+              deleteProperties(action, [ActionType.ACTION_FIELD, ActionType.ERROR_MESSAGE]);
             }
 
             setActions(updatedActions);
           }
-          if ('targetValue' in newElement[index]) {
+          if (ConditionType.TARGET_VALUE in newElement[index]) {
             const condition = newElement[index] as Condition;
             if (
-              elementKey === 'conditions' &&
-              ['Is Empty', 'Not Empty'].includes(condition?.targetCondition) &&
+              elementKey === (RuleElementType.CONDITIONS as string) &&
+              emptyStates.includes(condition?.targetCondition) &&
               condition?.targetValue
             ) {
               delete condition.targetValue;
@@ -495,14 +509,14 @@ const RuleBuilder = React.memo(
 
     const handleActionChange = useCallback(
       (id: string, field: string, value: string, index: number) => {
-        handleElementChange(id, field, value, index, actions, setActions, 'actions');
+        handleElementChange(id, field, value, index, actions, setActions, RuleElementType.ACTIONS);
       },
       [actions, handleElementChange],
     );
 
     const handleConditionChange = useCallback(
       (id: string, field: string, value: string, index: number) =>
-        handleElementChange(id, field, value, index, conditions, setConditions, 'conditions'),
+        handleElementChange(id, field, value, index, conditions, setConditions, RuleElementType.CONDITIONS),
       [handleElementChange, conditions],
     );
 
@@ -520,7 +534,12 @@ const RuleBuilder = React.memo(
           newRule[elementKey][elements.length] = newElement;
           return newRule;
         });
-        handleElementChange(newElement?.id as string, 'logicalOperator', 'and', elements.length);
+        handleElementChange(
+          newElement?.id as string,
+          ConditionType.LOGICAL_OPERATOR,
+          LogicalOperatorType.AND,
+          elements.length,
+        );
       },
       [],
     );
@@ -642,19 +661,19 @@ const RuleBuilder = React.memo(
     }, [setRules, currentRule]);
 
     const addCondition = useCallback(
-      () => addElement(conditions, setConditions, 'conditions', handleConditionChange),
+      () => addElement(conditions, setConditions, RuleElementType.CONDITIONS, handleConditionChange),
       [conditions, addElement, handleConditionChange],
     );
     const addAction = useCallback(
-      () => addElement(actions, setActions, 'actions', handleActionChange),
+      () => addElement(actions, setActions, RuleElementType.ACTIONS, handleActionChange),
       [actions, addElement, handleActionChange],
     );
     const deleteAction = useCallback(
-      (id: string) => launchDeleteConditionsOrActions(id, actions, setActions, 'actions'),
+      (id: string) => launchDeleteConditionsOrActions(id, actions, setActions, RuleElementType.ACTIONS),
       [actions, launchDeleteConditionsOrActions],
     );
     const deleteCondition = useCallback(
-      (id: string) => launchDeleteConditionsOrActions(id, conditions, setConditions, 'conditions'),
+      (id: string) => launchDeleteConditionsOrActions(id, conditions, setConditions, RuleElementType.CONDITIONS),
       [conditions, launchDeleteConditionsOrActions],
     );
 
@@ -753,6 +772,7 @@ export const RuleHeader = React.memo(
     question,
   }: RuleHeaderProps) => {
     const { t } = useTranslation();
+    const renderingType = question?.questionOptions?.rendering;
     return (
       <div className={styles.toggleContainer}>
         <Toggle
@@ -763,7 +783,7 @@ export const RuleHeader = React.memo(
           onToggle={handleRequiredChange}
           size="sm"
         />
-        {question?.questionOptions?.rendering === 'date' && (
+        {renderingType === RenderingType.DATE && (
           <Toggle
             id={`toggle-allow-future-date-${ruleId}`}
             labelText={t('allowFutureDates', 'Allow Future Dates')}
@@ -773,7 +793,7 @@ export const RuleHeader = React.memo(
             size="sm"
           />
         )}
-        {question?.questionOptions?.rendering === 'number' && (
+        {renderingType === RenderingType.NUMBER && (
           <Toggle
             id={`toggle-disallow-decimal-value-${ruleId}`}
             labelText={t('disAllowDecimalValue', 'Disallow Decimal Value')}
@@ -826,11 +846,11 @@ export const RuleCondition = React.memo(
       Boolean(conditions[index]?.targetValue),
     );
     const handleSelectCondition = (selectedCondition: string) => {
-      setIsConditionValueVisible(!['Is Empty', 'Not Empty'].includes(selectedCondition));
+      setIsConditionValueVisible(!emptyStates.includes(selectedCondition));
     };
     const [inputValue, setInputValue] = useState(conditions[index]?.targetValue || '');
     const handleValueChange = (selectedItem: string) => {
-      handleConditionChange(fieldId, 'targetValue', selectedItem, index);
+      handleConditionChange(fieldId, ConditionType.TARGET_VALUE, selectedItem, index);
       setInputValue(selectedItem);
     };
 
@@ -841,11 +861,11 @@ export const RuleCondition = React.memo(
             <Dropdown
               id={`logicalOperator-${index}`}
               className={styles.logicalOperator}
-              initialSelectedItem={conditions[index]?.logicalOperator || 'and'}
+              initialSelectedItem={conditions[index]?.logicalOperator || LogicalOperatorType.AND}
               defaultSelectedItem="and"
               items={['and', 'or']}
               onChange={({ selectedItem }: { selectedItem: string }) => {
-                handleConditionChange(fieldId, `logicalOperator`, selectedItem, index);
+                handleConditionChange(fieldId, ConditionType.LOGICAL_OPERATOR, selectedItem, index);
               }}
               size={responsiveSize}
             />
@@ -861,14 +881,14 @@ export const RuleCondition = React.memo(
             id={`targetField-${index}`}
             className={styles.targetField}
             initialSelectedItem={
-              questions?.find((question) => question.id === conditions[index]?.[`targetField`]) || {
+              questions?.find((question) => question.id === conditions[index]?.targetField) || {
                 label: t('selectField', 'Select a field'),
               }
             }
             items={questions}
             itemToString={(item: Question) => (item ? item.label : '')}
             onChange={({ selectedItem }: { selectedItem: Question }) =>
-              handleConditionChange(fieldId, `targetField`, selectedItem.id, index)
+              handleConditionChange(fieldId, ConditionType.TARGET_FIELD, selectedItem.id, index)
             }
             size={responsiveSize}
           />
@@ -876,13 +896,13 @@ export const RuleCondition = React.memo(
             id={`targetCondition-${index}`}
             aria-label="target-condition"
             className={styles.targetCondition}
-            selectedItem={conditions[index]?.[`targetCondition`] || 'Select Condition'}
+            selectedItem={conditions[index]?.targetCondition || 'Select Condition'}
             items={comparisonOperators.map((operator) => ({
               ...operator,
               label: t(operator.key, operator.defaultLabel),
             }))}
             onChange={({ selectedItem }: { selectedItem: ComparisonOperators }) => {
-              handleConditionChange(fieldId, `targetCondition`, selectedItem.defaultLabel, index);
+              handleConditionChange(fieldId, ConditionType.TARGET_CONDITION, selectedItem.defaultLabel, index);
               handleSelectCondition(selectedItem.defaultLabel);
             }}
             size={responsiveSize}
@@ -986,25 +1006,28 @@ export const RuleAction = React.memo(
     const [errorMessage, setErrorMessage] = useState(actions[index]?.errorMessage || '');
     const [isCalculate, setIsCalculate] = useState(false);
     const debouncedErrorMessage = useDebounce(errorMessage, 500);
-    const showErrorMessageBox = action === (ActionType.Fail as string);
+    const showErrorMessageBox = action === (TriggerType.FAIL as string);
     const handleSelectAction = (selectedAction: string) => {
       setAction(selectedAction);
     };
     useEffect(() => {
-      handleActionChange(fieldId, 'errorMessage', debouncedErrorMessage, index);
+      handleActionChange(fieldId, ActionType.ERROR_MESSAGE, debouncedErrorMessage, index);
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedErrorMessage, fieldId, index]);
 
     useEffect(() => {
-      if (actions[index]?.errorMessage || actions?.[index]?.actionCondition === (ActionType.Fail as string)) {
-        setAction(ActionType.Fail);
+      if (
+        actions[index]?.[ActionType.ERROR_MESSAGE] ||
+        actions?.[index]?.actionCondition === (TriggerType.FAIL as string)
+      ) {
+        setAction(TriggerType.FAIL);
       }
       if (
-        action === (ActionType.Calculate as string) ||
-        actions[index]?.['actionCondition'] === (ActionType.Calculate as string)
+        action === (TriggerType.CALCULATE as string) ||
+        actions[index]?.[ActionType.ACTION_CONDITION] === (TriggerType.CALCULATE as string)
       ) {
         setIsCalculate(true);
-      } else if (action !== (ActionType.Calculate as string)) {
+      } else if (action !== (TriggerType.CALCULATE as string)) {
         setIsCalculate(false);
       }
     }, [actions, index, setIsCalculate, action]);
@@ -1031,10 +1054,10 @@ export const RuleAction = React.memo(
               id={`actionCondition-${index}`}
               aria-label="action-condition"
               className={styles.actionCondition}
-              initialSelectedItem={actions[index]?.[`actionCondition`] || 'Select a action'}
+              initialSelectedItem={actions[index]?.actionCondition || 'Select a action'}
               items={['Hide', 'Fail', 'Calculate']}
               onChange={({ selectedItem }: { selectedItem: string }) => {
-                handleActionChange(fieldId, `actionCondition`, selectedItem, index);
+                handleActionChange(fieldId, ActionType.ACTION_CONDITION, selectedItem, index);
                 handleSelectAction(selectedItem);
               }}
               size={responsiveSize}
@@ -1044,14 +1067,14 @@ export const RuleAction = React.memo(
                 id={`actionField-${index}`}
                 className={styles.actionField}
                 initialSelectedItem={
-                  questions.find((question) => question.id === actions[index]?.[`actionField`]) || {
+                  questions.find((question) => question.id === actions[index]?.actionField) || {
                     label: t('selectField', 'Select a field'),
                   }
                 }
                 items={questions}
                 itemToString={(item: Question) => (item ? item.label : '')}
                 onChange={({ selectedItem }: { selectedItem: Question }) => {
-                  handleActionChange(fieldId, 'actionField', selectedItem?.id, index);
+                  handleActionChange(fieldId, ActionType.ACTION_FIELD, selectedItem?.id, index);
                 }}
                 size={responsiveSize}
               />
@@ -1061,20 +1084,14 @@ export const RuleAction = React.memo(
                 id={`calculateField-${index}`}
                 className={styles.calculateField}
                 selectedItem={
-                  actions[index]?.[`calculateField`] || t('selectCalculateExpression', 'Select Calculate Expression')
+                  actions[index]?.calculateField || t('selectCalculateExpression', 'Select Calculate Expression')
                 }
-                items={[
-                  'BMI',
-                  'BSA',
-                  'Height For Age Zscore',
-                  'BMI For Age Zscore',
-                  'Weight For Height Zscore',
-                  'Age Based On Date',
-                  'Months On ART',
-                  'Expected Delivery Date',
-                ]}
-                onChange={({ selectedItem }: { selectedItem: string }) =>
-                  handleActionChange(fieldId, 'calculateField', selectedItem, index)
+                items={calculateFunctions.map((functionItem) => ({
+                  ...functionItem,
+                  label: t(functionItem.key, functionItem.defaultLabel),
+                }))}
+                onChange={({ selectedItem }: { selectedItem: CalculationFunctions }) =>
+                  handleActionChange(fieldId, ActionType.CALCULATE_FIELD, selectedItem.defaultLabel, index)
                 }
                 size={responsiveSize}
               />
