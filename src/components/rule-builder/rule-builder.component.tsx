@@ -51,6 +51,14 @@ interface RuleBuilderProps {
 }
 
 const helpLink: string = 'https://openmrs.atlassian.net/wiki/spaces/projects/pages/114426045/Validation+Rule+Builder';
+const dateBasedCalculationFunctions: Array<string> = ['Age Based On Date', 'Expected Delivery Date', 'Months On ART'];
+const heightAndWeightBasedCalculationFunctions: Array<string> = [
+  'BMI',
+  'BSA',
+  'Height For Age Zscore',
+  'BMI For Age Zscore',
+  'Weight For Height Zscore',
+];
 const RuleBuilder = React.memo(
   ({
     ruleId,
@@ -173,7 +181,7 @@ const RuleBuilder = React.memo(
       }
     };
 
-    const getCalculateExpression = (expression: string, height?: string, weight?: string) => {
+    const getCalculateExpression = (expression: string, height?: string, weight?: string, dateField?: string) => {
       switch (expression) {
         case 'BMI':
           return `calcBMI('${height}', '${weight}')`;
@@ -185,6 +193,12 @@ const RuleBuilder = React.memo(
           return `calcBMIForAgeZscore('${height}', '${weight}')`;
         case 'Weight For Height Zscore':
           return `calcWeightForHeightZscore('${height}', ${weight}})`;
+        case 'Expected Delivery Date':
+          return `calcEDD('${dateField}')`;
+        case 'Months On ART':
+          return `calcMonthsOnART('${dateField}')`;
+        case 'Age Based On Date':
+          return `calcAgeBasedOnDate('${dateField}')`;
       }
     };
     const getLogicalOperator = (logicalOperator: string) => {
@@ -274,18 +288,32 @@ const RuleBuilder = React.memo(
     const isQuestionIndexValid = (pageIndex: number, sectionIndex: number, questionIndex: number) => {
       return pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1;
     };
-    const applyCalculateToSchema = useCallback(
-      (rule: FormRule, schema: Schema, height: string, weight: string) => {
-        rule?.actions
-          ?.filter((action: Action) => action.actionCondition === 'Calculate')
-          .forEach((action: Action) => {
-            const calculateExpression = getCalculateExpression(action.calculateField, height, weight);
-            if (isQuestionIndexValid(pageIndex, sectionIndex, questionIndex)) {
-              schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions.calculate = {
-                calculateExpression,
-              };
-            }
-          });
+
+    const applyCalculationExpressionToSchema = useCallback(
+      (rule: FormRule, schema: Schema, height: string, weight: string, dateField?: string, renderingType?: string) => {
+        rule?.actions?.forEach((action: Action) => {
+          if (action?.actionCondition !== 'Calculate') return;
+
+          const isDateBased = dateBasedCalculationFunctions.includes(action?.calculateField);
+          const isHeightAndWeightBased = heightAndWeightBasedCalculationFunctions.includes(action?.calculateField);
+
+          let calculateExpression = '';
+          if (isDateBased) {
+            calculateExpression = getCalculateExpression(action?.calculateField, '', '', dateField);
+          } else if (isHeightAndWeightBased) {
+            calculateExpression = getCalculateExpression(action?.calculateField, height, weight);
+          }
+
+          if (!calculateExpression) return;
+
+          const shouldApplyCalculation =
+            renderingType === 'date' || isQuestionIndexValid(pageIndex, sectionIndex, questionIndex);
+          if (shouldApplyCalculation) {
+            schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions.calculate = {
+              calculateExpression,
+            };
+          }
+        });
       },
       [pageIndex, questionIndex, sectionIndex],
     );
@@ -300,45 +328,98 @@ const RuleBuilder = React.memo(
     );
 
     const isValidForCalculation = useCallback(
-      (validConditionsCount: number, conditionSchema, height: string, weight: string) => {
+      (
+        validConditionsCount: number,
+        conditionSchema: string,
+        height: string,
+        weight: string,
+        logicalOperator: string,
+      ) => {
+        const expectedCondition1 = `!isEmpty(${height}) ${logicalOperator} !isEmpty(${weight})`;
+        const expectedCondition2 = `!isEmpty(${weight}) ${logicalOperator} !isEmpty(${height})`;
         return (
           validConditionsCount === 2 &&
-          ((conditionSchema.includes(`!isEmpty(${weight})`) &&
-            conditionSchema.includes(`!isEmpty(${height})`)) as boolean)
+          (conditionSchema === expectedCondition1 || conditionSchema === expectedCondition2)
         );
       },
       [],
     );
 
-    const evaluateConditionsForCalculation = useCallback((rule: FormRule) => {
-      let validConditionsCount: number = 0;
-      let height: string = '',
-        weight: string = '';
-      rule?.conditions?.forEach((condition, index) => {
-        if (condition.targetField !== '') validConditionsCount++;
-        if (index === 0) height = condition.targetField;
-        else if (index === 1) weight = condition.targetField;
-      });
-      return { validConditionsCount, height, weight };
+    const getRenderingType = useCallback(
+      (rule: FormRule): string => {
+        return rule?.conditions
+          ?.map((condition: Condition) => {
+            const { pageIndex, sectionIndex, questionIndex } = findQuestionIndexes(schema, condition?.targetField);
+            const renderingType: string =
+              schema.pages[pageIndex]?.sections[sectionIndex]?.questions[questionIndex]?.questionOptions?.rendering;
+            return renderingType;
+          })
+          .join(',');
+      },
+      [schema],
+    );
+
+    const evaluateConditionsForCalculation = useCallback((rule: FormRule, renderingType: string) => {
+      let validConditionsCount = 0;
+      let height = '',
+        weight = '',
+        dateField = '';
+
+      const updateForDateType = (condition: Condition) => {
+        dateField = condition.targetField;
+      };
+
+      const updateForOtherTypes = (condition: Condition, index: number) => {
+        if (condition.targetField !== '') {
+          validConditionsCount++;
+          if (index === 0) height = condition.targetField;
+          else if (index === 1) weight = condition.targetField;
+        }
+      };
+
+      if (renderingType === 'date') {
+        rule?.conditions?.forEach(updateForDateType);
+      } else {
+        rule?.conditions?.forEach(updateForOtherTypes);
+      }
+
+      return { validConditionsCount, height, weight, dateField };
+    }, []);
+
+    const isValidForDateCalculation = useCallback((conditionSchema: string, dateField: string) => {
+      return conditionSchema.includes(`!isEmpty(${dateField})`);
     }, []);
 
     const processCalculateFields = useCallback(
       (rule: FormRule, newSchema: Schema, conditionSchema: string) => {
-        const { validConditionsCount, height, weight } = evaluateConditionsForCalculation(rule);
-        if (isValidForCalculation(validConditionsCount, conditionSchema, height, weight)) {
-          applyCalculateToSchema(rule, schema, height, weight);
+        const renderingType = getRenderingType(rule);
+        const { validConditionsCount, height, weight, dateField } = evaluateConditionsForCalculation(
+          rule,
+          renderingType,
+        );
+
+        if (renderingType === 'date' && isValidForDateCalculation(conditionSchema, dateField)) {
+          applyCalculationExpressionToSchema(rule, newSchema, '', '', dateField, renderingType);
+          onSchemaChange(newSchema);
+          return;
+        }
+
+        if (isValidForCalculation(validConditionsCount, conditionSchema, height, weight, '&&')) {
+          applyCalculationExpressionToSchema(rule, newSchema, height, weight, '', renderingType);
         } else {
           removeCalculationExpressionFromSchema(newSchema);
         }
+
         onSchemaChange(newSchema);
       },
       [
-        applyCalculateToSchema,
+        applyCalculationExpressionToSchema,
         evaluateConditionsForCalculation,
+        getRenderingType,
         isValidForCalculation,
+        isValidForDateCalculation,
         onSchemaChange,
         removeCalculationExpressionFromSchema,
-        schema,
       ],
     );
 
@@ -988,7 +1069,7 @@ export const RuleAction = React.memo(
                   'Weight For Height Zscore',
                   'Age Based On Date',
                   'Months On ART',
-                  'Time Difference',
+                  'Expected Delivery Date',
                 ]}
                 onChange={({ selectedItem }: { selectedItem: string }) =>
                   handleActionChange(fieldId, 'calculateField', selectedItem, index)
