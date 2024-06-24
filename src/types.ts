@@ -116,6 +116,7 @@ export interface Question {
   label: string;
   type: string;
   questionOptions: QuestionOptions;
+  datePickerFormat?: string;
   questions?: Array<Question>;
   required?: string | boolean | RequiredFieldProps;
   validators?: Array<Record<string, string>>;
