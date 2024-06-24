@@ -1,62 +1,47 @@
-import React, { useState } from 'react';
-import { Button, ComposedModal, InlineLoading, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
+import React, { useCallback, useState } from 'react';
+import { Button, InlineLoading } from '@carbon/react';
 import { useParams } from 'react-router-dom';
 import type { IMarker } from 'react-ace';
 import type { TFunction } from 'react-i18next';
-import { showSnackbar, useConfig } from '@openmrs/esm-framework';
+import { showModal, showSnackbar, useConfig } from '@openmrs/esm-framework';
 
 import { handleFormValidation } from '../../form-validator.resource';
 import { publishForm, unpublishForm } from '../../forms.resource';
 import { useForm } from '../../hooks/useForm';
 import SaveFormModal from '../modals/save-form.modal';
 import type { ConfigObject } from '../../config-schema';
-import type { Schema } from '../../types';
+import type { Schema, Status } from '../../types';
 import styles from './action-buttons.scss';
 
 interface ActionButtonsProps {
-  schema: Schema;
-  t: TFunction;
   isValidating: boolean;
+  onFormValidation: () => Promise<void>;
+  schema: Schema;
+  schemaErrors: Array<MarkerProps>;
   setPublishedWithErrors: (status: boolean) => void;
   setValidationComplete: (validationStatus: boolean) => void;
   setValidationResponse: (errors: Array<unknown>) => void;
-  onFormValidation: () => Promise<void>;
-  schemaErrors: Array<MarkerProps>;
+  t: TFunction;
 }
 
 interface MarkerProps extends IMarker {
   text: string;
 }
 
-type Status =
-  | 'idle'
-  | 'publishing'
-  | 'published'
-  | 'unpublishing'
-  | 'unpublished'
-  | 'error'
-  | 'validateBeforePublishing'
-  | 'validated';
-
 function ActionButtons({
-  schema,
-  t,
   isValidating,
-  setPublishedWithErrors,
   onFormValidation,
+  schema,
+  schemaErrors,
+  setPublishedWithErrors,
   setValidationComplete,
   setValidationResponse,
-  schemaErrors,
+  t,
 }: ActionButtonsProps) {
   const { formUuid } = useParams<{ formUuid?: string }>();
   const { form, mutate } = useForm(formUuid);
   const [status, setStatus] = useState<Status>('idle');
-  const [showUnpublishModal, setShowUnpublishModal] = useState(false);
   const { dataTypeToRenderingMap, enableFormValidation } = useConfig<ConfigObject>();
-
-  const launchUnpublishModal = () => {
-    setShowUnpublishModal(true);
-  };
 
   async function handlePublish() {
     try {
@@ -96,11 +81,12 @@ function ActionButtons({
     await handlePublish();
   }
 
-  async function handleUnpublish() {
+  const handleUnpublish = useCallback(async () => {
     setStatus('unpublishing');
 
     try {
       await unpublishForm(form.uuid);
+      setStatus('unpublished');
 
       showSnackbar({
         title: t('formUnpublished', 'Form unpublished'),
@@ -109,7 +95,6 @@ function ActionButtons({
         subtitle: `${form.name} ` + t('formUnpublishedSuccessfully', 'form was unpublished successfully'),
       });
 
-      setStatus('unpublished');
       await mutate();
     } catch (error) {
       if (error instanceof Error) {
@@ -121,8 +106,15 @@ function ActionButtons({
         setStatus('error');
       }
     }
-    setShowUnpublishModal(false);
-  }
+  }, [form?.name, form?.uuid, mutate, t]);
+
+  const launchUnpublishModal = useCallback(() => {
+    const dispose = showModal('unpublish-form-modal', {
+      closeModal: () => dispose(),
+      onUnpublishForm: handleUnpublish,
+      status,
+    });
+  }, [handleUnpublish, status]);
 
   return (
     <div className={styles.actionButtons}>
@@ -171,39 +163,6 @@ function ActionButtons({
             {t('unpublishForm', 'Unpublish form')}
           </Button>
         ) : null}
-        {showUnpublishModal ? (
-          <ComposedModal open={true} onClose={() => setShowUnpublishModal(false)} preventCloseOnClickOutside>
-            <ModalHeader
-              title={t('unpublishConfirmation', 'Are you sure you want to unpublish this form?')}
-            ></ModalHeader>
-            <ModalBody>
-              <p>
-                {t(
-                  'unpublishExplainerText',
-                  'Unpublishing a form means you can no longer access it from your frontend. Unpublishing forms does not delete their associated schemas, it only affects whether or not you can access them in your frontend.',
-                )}
-              </p>
-            </ModalBody>
-            <ModalFooter>
-              <Button kind="secondary" onClick={() => setShowUnpublishModal(false)}>
-                {t('cancel', 'Cancel')}
-              </Button>
-              <Button
-                disabled={status === 'unpublishing'}
-                kind={status === 'unpublishing' ? 'secondary' : 'danger'}
-                onClick={handleUnpublish}
-              >
-                {status === 'unpublishing' ? (
-                  <InlineLoading className={styles.spinner} description={t('unpublishing', 'Unpublishing') + '...'} />
-                ) : (
-                  <span>{t('confirm', 'Confirm')}</span>
-                )}
-              </Button>
-            </ModalFooter>
-          </ComposedModal>
-        ) : (
-          false
-        )}
       </>
     </div>
   );

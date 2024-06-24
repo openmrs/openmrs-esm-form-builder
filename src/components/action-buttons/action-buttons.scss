@@ -13,4 +13,9 @@
   &:global(.cds--inline-loading) {
     min-height: 1rem;
   }
+
+  :global(.cds--inline-loading__text) {
+    font-size: unset;
+  }
 }
+
