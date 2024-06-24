@@ -10,7 +10,7 @@ import { publishForm, unpublishForm } from '../../forms.resource';
 import { useForm } from '../../hooks/useForm';
 import SaveFormModal from '../modals/save-form.modal';
 import type { ConfigObject } from '../../config-schema';
-import type { Schema, Status } from '../../types';
+import type { Schema } from '../../types';
 import styles from './action-buttons.scss';
 
 interface ActionButtonsProps {
@@ -27,6 +27,16 @@ interface ActionButtonsProps {
 interface MarkerProps extends IMarker {
   text: string;
 }
+
+type Status =
+  | 'error'
+  | 'idle'
+  | 'published'
+  | 'publishing'
+  | 'unpublished'
+  | 'unpublishing'
+  | 'validateBeforePublishing'
+  | 'validated';
 
 function ActionButtons({
   isValidating,
@@ -112,9 +122,8 @@ function ActionButtons({
     const dispose = showModal('unpublish-form-modal', {
       closeModal: () => dispose(),
       onUnpublishForm: handleUnpublish,
-      status,
     });
-  }, [handleUnpublish, status]);
+  }, [handleUnpublish]);
 
   return (
     <div className={styles.actionButtons}>

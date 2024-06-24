@@ -211,7 +211,6 @@
   "unpublishConfirmation": "Are you sure you want to unpublish this form?",
   "unpublishExplainerText": "Unpublishing a form means you can no longer access it from your frontend. Unpublishing forms does not delete their associated schemas, it only affects whether or not you can access them in your frontend.",
   "unpublishForm": "Unpublish Form",
-  "unpublishing": "Unpublishing",
   "updateExistingForm": "Update existing version",
   "validateAndPublishForm": "Validate and publish form",
   "validateForm": "Validate form",

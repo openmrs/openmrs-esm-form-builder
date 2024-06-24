@@ -252,13 +252,3 @@ export interface ProgramWorkflow {
     uuid: string;
   };
 }
-
-export type Status =
-  | 'error'
-  | 'idle'
-  | 'published'
-  | 'publishing'
-  | 'unpublished'
-  | 'unpublishing'
-  | 'validateBeforePublishing'
-  | 'validated';
