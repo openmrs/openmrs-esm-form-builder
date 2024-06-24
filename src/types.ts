@@ -262,3 +262,13 @@ export interface ProgramWorkflow {
     uuid: string;
   };
 }
+
+export interface DatePickerTypeOption {
+  value: DatePickerType;
+  label: string;
+  defaultChecked: boolean;
+}
+
+export interface DatePickerTypeOptions {
+  [key: string]: Array<DatePickerTypeOption>;
+}
