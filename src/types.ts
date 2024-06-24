@@ -154,10 +154,17 @@ export interface Answer {
 
 export type ConceptMapping = Record<string, string>;
 
+interface ConceptDatatype {
+  uuid: string;
+  name: string;
+  description: string;
+}
+
 export interface Concept {
   uuid: string;
   display: string;
   mappings: Array<Mapping>;
+  datatype: ConceptDatatype;
   answers: Array<ConceptAnswer>;
   allowDecimal?: boolean;
 }
