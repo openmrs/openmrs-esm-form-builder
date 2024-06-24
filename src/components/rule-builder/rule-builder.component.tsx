@@ -178,6 +178,8 @@ const RuleBuilder = React.memo(
           return `${targetField} === '${answer}'`;
         case 'not Equals':
           return `${targetField} !== '${answer}'`;
+        case 'Does not match expression':
+          return `doesNotMatchExpression('${answer}', ${targetField})`;
       }
     };
 
