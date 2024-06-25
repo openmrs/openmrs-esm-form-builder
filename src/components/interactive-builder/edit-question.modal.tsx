@@ -609,13 +609,13 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                         selectedItems={selectedProgramState}
                       />
                     )}
-                    {selectedProgramState?.map((answer) => (
-                      <div>
+                    <div>
+                      {selectedProgramState?.map((answer) => (
                         <Tag className={styles.tag} key={answer?.uuid} type={'blue'}>
                           {answer?.concept?.display}
                         </Tag>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </>
                 )}
               </Stack>
