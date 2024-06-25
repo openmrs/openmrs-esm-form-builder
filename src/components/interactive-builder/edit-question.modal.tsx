@@ -286,7 +286,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
             ? selectedPersonAttributeType['uuid']
             : questionToEdit.questionOptions.attributeType,
           ...(selectedProgram && { programUuid: selectedProgram.uuid }),
-          ...(programWorkflow && { programWorkflow: programWorkflow.uuid }),
+          ...(programWorkflow && { workflowUuid: programWorkflow.uuid }),
         },
       };
 
@@ -335,6 +335,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       (workflow) => workflow.uuid === questionToEdit.questionOptions.workflowUuid,
     );
     setProgramWorkflow(previousWorkflow);
+    setProgramWorkflows(selectedProgram?.allWorkflows);
   }, [questionToEdit.questionOptions.workflowUuid, selectedProgram]);
 
   useEffect(() => {
@@ -576,7 +577,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                   <ComboBox
                     id="programWorkflowLookup"
                     items={programWorkflows}
-                    itemToString={(item: ProgramWorkflow) => item.concept.display ?? ''}
+                    itemToString={(item: ProgramWorkflow) => item?.concept?.display ?? ''}
                     onChange={({ selectedItem }: { selectedItem: ProgramWorkflow }) =>
                       handleProgramWorkflowChange(selectedItem)
                     }

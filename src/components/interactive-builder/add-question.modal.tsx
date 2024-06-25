@@ -119,10 +119,11 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [addInlineDate, setAddInlineDate] = useState(false);
   const [selectedProgramState, setSelectedProgramState] = useState<Array<ProgramState>>([]);
   const [selectedProgram, setSelectedProgram] = useState<Program>(null);
-  const [programWorkflow, setProgramWorkflow] = useState('');
+  const [programWorkflow, setProgramWorkflow] = useState<ProgramWorkflow>(null);
   const { programs, programsLookupError, isLoadingPrograms } = usePrograms();
-  const { programStates, programStatesLookupError, isLoadingProgramStates, mutateProgramStates } =
-    useProgramWorkStates(programWorkflow);
+  const { programStates, programStatesLookupError, isLoadingProgramStates, mutateProgramStates } = useProgramWorkStates(
+    programWorkflow?.uuid,
+  );
   const [programWorkflows, setProgramWorkflows] = useState<Array<ProgramWorkflow>>([]);
 
   const renderTypeOptions = {
@@ -224,7 +225,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
               label: answer.concept.display,
             })),
             programUuid: selectedProgram.uuid,
-            workflowUuid: programWorkflow,
+            workflowUuid: programWorkflow.uuid,
           }),
         },
         validators: [],
@@ -274,7 +275,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   };
 
   const handleProgramWorkflowChange = (selectedItem: ProgramWorkflow) => {
-    setProgramWorkflow(selectedItem?.uuid);
+    setProgramWorkflow(selectedItem);
     void mutateProgramStates();
   };
 
