@@ -2,16 +2,11 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation, type TFunction } from 'react-i18next';
 import {
   Button,
-  ComposedModal,
   DataTable,
   DataTableSkeleton,
   Dropdown,
-  Form,
   InlineLoading,
   InlineNotification,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
   Table,
   TableBody,
   TableCell,
@@ -27,18 +22,18 @@ import {
 } from '@carbon/react';
 import { Add, DocumentImport, Download, Edit, TrashCan } from '@carbon/react/icons';
 import {
-  type FetchResponse,
   ConfigurableLink,
   navigate,
+  openmrsFetch,
+  restBaseUrl,
+  showModal,
   showSnackbar,
   useConfig,
   useLayoutType,
   usePagination,
-  openmrsFetch,
-  restBaseUrl,
+  type FetchResponse,
 } from '@openmrs/esm-framework';
 import { type KeyedMutator, preload } from 'swr';
-
 import type { ConfigObject } from '../../config-schema';
 import type { Form as TypedForm } from '../../types';
 import { deleteForm } from '../../forms.resource';
@@ -91,8 +86,7 @@ function CustomTag({ condition }: { condition?: boolean }) {
 function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) {
   const { clobdata } = useClobdata(form);
   const formResources = form?.resources;
-  const [showDeleteFormModal, setShowDeleteFormModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeletingForm, setIsDeletingForm] = useState(false);
 
   const downloadableSchema = useMemo(
     () =>
@@ -115,7 +109,6 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
             });
 
             await mutate();
-            setShowDeleteFormModal(false);
           }
         })
         .catch((e: Error) =>
@@ -125,10 +118,18 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
             subtitle: e?.message,
           }),
         )
-        .finally(() => setIsDeleting(false));
+        .finally(() => setIsDeletingForm(false));
     },
     [form.name, mutate, t],
   );
+
+  const launchDeleteFormModal = useCallback(() => {
+    const dispose = showModal('delete-form-modal', {
+      closeModal: () => dispose(),
+      isDeletingForm,
+      onDeleteForm: () => handleDeleteForm(form.uuid),
+    });
+  }, [form.uuid, handleDeleteForm, isDeletingForm]);
 
   const ImportButton = () => {
     return (
@@ -183,50 +184,13 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
       <Button
         enterDelayMs={300}
         renderIcon={TrashCan}
-        onClick={() => setShowDeleteFormModal(true)}
+        onClick={launchDeleteFormModal}
         kind={'ghost'}
         iconDescription={t('deleteSchema', 'Delete schema')}
         hasIconOnly
         size={responsiveSize}
         tooltipAlignment="center"
       />
-    );
-  };
-
-  const DeleteFormModal = () => {
-    return (
-      <ComposedModal
-        danger
-        open={showDeleteFormModal}
-        onClose={() => setShowDeleteFormModal(false)}
-        preventCloseOnClickOutside
-      >
-        <ModalHeader title={t('deleteForm', 'Delete form')} />
-        <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
-          <ModalBody>
-            <p>{t('deleteFormConfirmation', 'Are you sure you want to delete this form?')}</p>
-          </ModalBody>
-        </Form>
-        <ModalFooter>
-          <Button kind="secondary" onClick={() => setShowDeleteFormModal(false)}>
-            {t('cancel', 'Cancel')}
-          </Button>
-          <Button
-            disabled={isDeleting}
-            kind="danger"
-            onClick={() => {
-              setIsDeleting(true);
-              handleDeleteForm(form.uuid);
-            }}
-          >
-            {isDeleting ? (
-              <InlineLoading className={styles.spinner} description={t('deleting', 'Deleting') + '...'} />
-            ) : (
-              <span>{t('delete', 'Delete')}</span>
-            )}
-          </Button>
-        </ModalFooter>
-      </ComposedModal>
     );
   };
 
@@ -241,7 +205,6 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
         </>
       )}
       <DeleteButton />
-      {showDeleteFormModal && <DeleteFormModal />}
     </>
   );
 }

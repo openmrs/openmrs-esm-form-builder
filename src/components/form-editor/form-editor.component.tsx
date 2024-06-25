@@ -3,16 +3,11 @@ import classNames from 'classnames';
 import {
   Button,
   Column,
-  ComposedModal,
   CopyButton,
   FileUploader,
-  Form,
   Grid,
   InlineLoading,
   InlineNotification,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
   Tab,
   TabList,
   TabPanel,
@@ -21,8 +16,8 @@ import {
 } from '@carbon/react';
 import { ArrowLeft, Maximize, Minimize, Download } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { ConfigurableLink, useConfig } from '@openmrs/esm-framework';
+import { type TFunction, useTranslation } from 'react-i18next';
+import { ConfigurableLink, showModal, useConfig } from '@openmrs/esm-framework';
 import type { IMarker } from 'react-ace';
 import type { FormSchema } from '@openmrs/openmrs-form-engine-lib';
 import type { Schema } from '../../types';
@@ -44,6 +39,10 @@ interface ErrorProps {
   title: string;
 }
 
+interface TranslationFnProps {
+  t: TFunction;
+}
+
 interface MarkerProps extends IMarker {
   text: string;
 }
@@ -62,13 +61,11 @@ const ErrorNotification = ({ error, title }: ErrorProps) => {
   );
 };
 
-const FormEditor: React.FC = () => {
-  const { t } = useTranslation();
+const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   const { formUuid } = useParams<{ formUuid: string }>();
   const { blockRenderingWithErrors, dataTypeToRenderingMap } = useConfig<ConfigObject>();
   const isNewSchema = !formUuid;
   const [schema, setSchema] = useState<Schema>();
-  const [showDraftSchemaModal, setShowDraftSchemaModal] = useState(false);
   const { form, formError, isLoadingForm } = useForm(formUuid);
   const { clobdata, clobdataError, isLoadingClobdata } = useClobdata(form);
   const [status, setStatus] = useState<Status>('idle');
@@ -83,6 +80,17 @@ const FormEditor: React.FC = () => {
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
+  const handleSchemaChange = useCallback((updatedSchema: string) => {
+    setStringifiedSchema(updatedSchema);
+  }, []);
+
+  const launchRestoreDraftSchemaModal = useCallback(() => {
+    const dispose = showModal('restore-draft-schema-modal', {
+      closeModal: () => dispose(),
+      onSchemaChange: handleSchemaChange,
+    });
+  }, [handleSchemaChange]);
+
   useEffect(() => {
     if (formUuid) {
       if (form && Object.keys(form).length > 0) {
@@ -90,7 +98,7 @@ const FormEditor: React.FC = () => {
       }
 
       if (status === 'formLoaded' && !isLoadingClobdata && clobdata === undefined) {
-        setShowDraftSchemaModal(true);
+        launchRestoreDraftSchemaModal();
       }
 
       if (clobdata && Object.keys(clobdata).length > 0) {
@@ -99,28 +107,11 @@ const FormEditor: React.FC = () => {
         localStorage.setItem('formJSON', JSON.stringify(clobdata));
       }
     }
-  }, [clobdata, form, formUuid, isLoadingClobdata, isLoadingFormOrSchema, status]);
+  }, [clobdata, form, formUuid, isLoadingClobdata, isLoadingFormOrSchema, launchRestoreDraftSchemaModal, status]);
 
   useEffect(() => {
     setStringifiedSchema(JSON.stringify(schema, null, 2));
   }, [schema]);
-
-  const handleLoadDraftSchema = useCallback(() => {
-    setShowDraftSchemaModal(false);
-
-    try {
-      const draftSchema = localStorage.getItem('formJSON');
-      if (draftSchema) {
-        setSchema(JSON.parse(draftSchema) as Schema);
-      }
-    } catch (e) {
-      console.error('Error fetching draft schema from localStorage: ', e?.message);
-    }
-  }, []);
-
-  const handleSchemaChange = useCallback((updatedSchema: string) => {
-    setStringifiedSchema(updatedSchema);
-  }, []);
 
   const updateSchema = useCallback((updatedSchema: Schema) => {
     setSchema(updatedSchema);
@@ -229,7 +220,7 @@ const FormEditor: React.FC = () => {
     }
   }, [stringifiedSchema, updateSchema, resetErrorMessage]);
 
-  const handleRenderSchemaChanges = () => {
+  const handleRenderSchemaChanges = useCallback(() => {
     if (errors.length && blockRenderingWithErrors) {
       setValidationOn(true);
       return;
@@ -239,37 +230,7 @@ const FormEditor: React.FC = () => {
     } else {
       renderSchemaChanges();
     }
-  };
-
-  const DraftSchemaModal = () => {
-    return (
-      <ComposedModal
-        open={showDraftSchemaModal}
-        onClose={() => setShowDraftSchemaModal(false)}
-        preventCloseOnClickOutside
-      >
-        <ModalHeader title={t('schemaNotFound', 'Schema not found')} />
-        <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
-          <ModalBody>
-            <p>
-              {t(
-                'schemaNotFoundText',
-                "The schema originally associated with this form could not be found. A draft schema was found saved in your browser's local storage. Would you like to load it instead?",
-              )}
-            </p>
-          </ModalBody>
-        </Form>
-        <ModalFooter>
-          <Button onClick={() => setShowDraftSchemaModal(false)} kind="secondary">
-            {t('cancel', 'Cancel')}
-          </Button>
-          <Button onClick={handleLoadDraftSchema}>
-            <span>{t('loadDraft', 'Load draft')}</span>
-          </Button>
-        </ModalFooter>
-      </ComposedModal>
-    );
-  };
+  }, [blockRenderingWithErrors, errors.length, renderSchemaChanges]);
 
   const handleSchemaImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files[0];
@@ -311,157 +272,150 @@ const FormEditor: React.FC = () => {
   const responsiveSize = isMaximized ? 16 : 8;
 
   return (
-    <>
-      <Header title={t('schemaEditor', 'Schema editor')} />
-      <BackButton />
-      <div className={styles.container}>
-        {showDraftSchemaModal && <DraftSchemaModal />}
-        <Grid
-          className={classNames(styles.grid as string, {
-            [styles.maximized]: isMaximized,
-          })}
-        >
-          <Column lg={responsiveSize} md={responsiveSize} className={styles.column}>
-            <div className={styles.actionButtons}>
-              {isLoadingFormOrSchema ? (
-                <InlineLoading description={t('loadingSchema', 'Loading schema') + '...'} />
-              ) : (
-                <h1 className={styles.formName}>{form?.name}</h1>
-              )}
-            </div>
-            <div>
-              <div className={styles.heading}>
-                <span className={styles.tabHeading}>{t('schemaEditor', 'Schema editor')}</span>
-                <div className={styles.topBtns}>
-                  {!schema ? (
-                    <FileUploader
-                      onChange={handleSchemaImport}
-                      labelTitle=""
-                      labelDescription=""
-                      buttonLabel={t('importSchema', 'Import schema')}
-                      buttonKind="ghost"
-                      size="lg"
-                      filenameStatus="edit"
-                      accept={['.json']}
-                      multiple={false}
-                      disabled={false}
-                      iconDescription={t('importSchema', 'Import schema')}
-                      name="form-import"
-                    />
-                  ) : null}
-                  {isNewSchema && !schema ? (
-                    <Button kind="ghost" onClick={inputDummySchema}>
-                      {t('inputDummySchema', 'Input dummy schema')}
-                    </Button>
-                  ) : null}
-                  <Button kind="ghost" onClick={handleRenderSchemaChanges} disabled={invalidJsonErrorMessage}>
-                    <span>{t('renderChanges', 'Render changes')}</span>
+    <div className={styles.container}>
+      <Grid
+        className={classNames(styles.grid as string, {
+          [styles.maximized]: isMaximized,
+        })}
+      >
+        <Column lg={responsiveSize} md={responsiveSize} className={styles.column}>
+          <div className={styles.actionButtons}>
+            {isLoadingFormOrSchema ? (
+              <InlineLoading description={t('loadingSchema', 'Loading schema') + '...'} />
+            ) : (
+              <h1 className={styles.formName}>{form?.name}</h1>
+            )}
+          </div>
+          <div>
+            <div className={styles.heading}>
+              <span className={styles.tabHeading}>{t('schemaEditor', 'Schema editor')}</span>
+              <div className={styles.topBtns}>
+                {!schema ? (
+                  <FileUploader
+                    onChange={handleSchemaImport}
+                    labelTitle=""
+                    labelDescription=""
+                    buttonLabel={t('importSchema', 'Import schema')}
+                    buttonKind="ghost"
+                    size="lg"
+                    filenameStatus="edit"
+                    accept={['.json']}
+                    multiple={false}
+                    disabled={false}
+                    iconDescription={t('importSchema', 'Import schema')}
+                    name="form-import"
+                  />
+                ) : null}
+                {isNewSchema && !schema ? (
+                  <Button kind="ghost" onClick={inputDummySchema}>
+                    {t('inputDummySchema', 'Input dummy schema')}
                   </Button>
-                </div>
-                {schema ? (
-                  <>
+                ) : null}
+                <Button kind="ghost" onClick={handleRenderSchemaChanges} disabled={invalidJsonErrorMessage}>
+                  <span>{t('renderChanges', 'Render changes')}</span>
+                </Button>
+              </div>
+              {schema ? (
+                <>
+                  <Button
+                    enterDelayMs={300}
+                    renderIcon={isMaximized ? Minimize : Maximize}
+                    kind={'ghost'}
+                    iconDescription={
+                      isMaximized ? t('minimizeEditor', 'Minimize editor') : t('maximizeEditor', 'Maximize editor')
+                    }
+                    hasIconOnly
+                    size="md"
+                    tooltipAlignment="start"
+                    onClick={handleToggleMaximize}
+                  />
+                  <CopyButton
+                    align="top"
+                    className="cds--btn--md"
+                    enterDelayMs={300}
+                    iconDescription={t('copySchema', 'Copy schema')}
+                    kind="ghost"
+                    onClick={handleCopySchema}
+                  />
+                  <a download={`${form?.name}.json`} href={window.URL.createObjectURL(downloadableSchema)}>
                     <Button
                       enterDelayMs={300}
-                      renderIcon={isMaximized ? Minimize : Maximize}
+                      renderIcon={Download}
                       kind={'ghost'}
-                      iconDescription={
-                        isMaximized ? t('minimizeEditor', 'Minimize editor') : t('maximizeEditor', 'Maximize editor')
-                      }
+                      iconDescription={t('downloadSchema', 'Download schema')}
                       hasIconOnly
                       size="md"
                       tooltipAlignment="start"
-                      onClick={handleToggleMaximize}
                     />
-                    <CopyButton
-                      align="top"
-                      className="cds--btn--md"
-                      enterDelayMs={300}
-                      iconDescription={t('copySchema', 'Copy schema')}
-                      kind="ghost"
-                      onClick={handleCopySchema}
-                    />
-                    <a download={`${form?.name}.json`} href={window.URL.createObjectURL(downloadableSchema)}>
-                      <Button
-                        enterDelayMs={300}
-                        renderIcon={Download}
-                        kind={'ghost'}
-                        iconDescription={t('downloadSchema', 'Download schema')}
-                        hasIconOnly
-                        size="md"
-                        tooltipAlignment="start"
-                      />
-                    </a>
-                  </>
-                ) : null}
-              </div>
-              {formError ? (
-                <ErrorNotification error={formError} title={t('formError', 'Error loading form metadata')} />
+                  </a>
+                </>
               ) : null}
-              {clobdataError ? (
-                <ErrorNotification error={clobdataError} title={t('schemaLoadError', 'Error loading schema')} />
-              ) : null}
-              <div className={styles.editorContainer}>
-                <SchemaEditor
-                  validationOn={validationOn}
-                  setValidationOn={setValidationOn}
-                  errors={errors}
-                  setErrors={setErrors}
-                  isLoading={isLoadingFormOrSchema}
-                  onSchemaChange={handleSchemaChange}
-                  stringifiedSchema={stringifiedSchema}
-                />
-              </div>
             </div>
-          </Column>
-          <Column lg={8} md={8} className={styles.column}>
-            <ActionButtons
-              schema={schema}
-              t={t}
-              schemaErrors={errors}
-              setPublishedWithErrors={setPublishedWithErrors}
-              onFormValidation={onValidateForm}
-              setValidationResponse={setValidationResponse}
-              setValidationComplete={setValidationComplete}
-              isValidating={isValidating}
-            />
-            {validationComplete && (
-              <ValidationMessage
-                hasValidationErrors={validationResponse.length > 0}
-                publishedWithErrors={publishedWithErrors}
-                errorsCount={validationResponse.length}
+            {formError ? (
+              <ErrorNotification error={formError} title={t('formError', 'Error loading form metadata')} />
+            ) : null}
+            {clobdataError ? (
+              <ErrorNotification error={clobdataError} title={t('schemaLoadError', 'Error loading schema')} />
+            ) : null}
+            <div className={styles.editorContainer}>
+              <SchemaEditor
+                errors={errors}
+                isLoading={isLoadingFormOrSchema}
+                onSchemaChange={handleSchemaChange}
+                setErrors={setErrors}
+                setValidationOn={setValidationOn}
+                stringifiedSchema={stringifiedSchema}
+                validationOn={validationOn}
               />
-            )}
-            <Tabs>
-              <TabList aria-label="Form previews">
-                <Tab>{t('preview', 'Preview')}</Tab>
-                <Tab>{t('interactiveBuilder', 'Interactive Builder')}</Tab>
-                {form && <Tab>{t('auditDetails', 'Audit Details')}</Tab>}
-              </TabList>
-              <TabPanels>
-                <TabPanel>
-                  <FormRenderer schema={schema} isLoading={isLoadingFormOrSchema} />
-                </TabPanel>
-                <TabPanel>
-                  <InteractiveBuilder
-                    schema={schema}
-                    onSchemaChange={updateSchema}
-                    isLoading={isLoadingFormOrSchema}
-                    validationResponse={validationResponse}
-                  />
-                </TabPanel>
-                <TabPanel>{form && <AuditDetails form={form} key={form.uuid} />}</TabPanel>
-              </TabPanels>
-            </Tabs>
-          </Column>
-        </Grid>
-      </div>
-    </>
+            </div>
+          </div>
+        </Column>
+        <Column lg={8} md={8} className={styles.column}>
+          <ActionButtons
+            schema={schema}
+            t={t}
+            schemaErrors={errors}
+            setPublishedWithErrors={setPublishedWithErrors}
+            onFormValidation={onValidateForm}
+            setValidationResponse={setValidationResponse}
+            setValidationComplete={setValidationComplete}
+            isValidating={isValidating}
+          />
+          {validationComplete && (
+            <ValidationMessage
+              hasValidationErrors={validationResponse.length > 0}
+              publishedWithErrors={publishedWithErrors}
+              errorsCount={validationResponse.length}
+            />
+          )}
+          <Tabs>
+            <TabList aria-label="Form previews">
+              <Tab>{t('preview', 'Preview')}</Tab>
+              <Tab>{t('interactiveBuilder', 'Interactive Builder')}</Tab>
+              {form && <Tab>{t('auditDetails', 'Audit Details')}</Tab>}
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                <FormRenderer schema={schema} isLoading={isLoadingFormOrSchema} />
+              </TabPanel>
+              <TabPanel>
+                <InteractiveBuilder
+                  schema={schema}
+                  onSchemaChange={updateSchema}
+                  isLoading={isLoadingFormOrSchema}
+                  validationResponse={validationResponse}
+                />
+              </TabPanel>
+              <TabPanel>{form && <AuditDetails form={form} key={form.uuid} />}</TabPanel>
+            </TabPanels>
+          </Tabs>
+        </Column>
+      </Grid>
+    </div>
   );
 };
 
-function BackButton() {
-  const { t } = useTranslation();
-
+function BackButton({ t }: TranslationFnProps) {
   return (
     <div className={styles.backButton}>
       <ConfigurableLink to={window.getOpenmrsSpaBase() + 'form-builder'}>
@@ -474,6 +428,18 @@ function BackButton() {
         </Button>
       </ConfigurableLink>
     </div>
+  );
+}
+
+function FormEditor() {
+  const { t } = useTranslation();
+
+  return (
+    <>
+      <Header title={t('schemaEditor', 'Schema editor')} />
+      <BackButton t={t} />
+      <FormEditorContent t={t} />
+    </>
   );
 }
 

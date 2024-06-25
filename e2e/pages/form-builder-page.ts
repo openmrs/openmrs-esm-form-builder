@@ -13,7 +13,7 @@ export class FormBuilderPage {
   readonly publishFormButton = () => this.page.getByRole('button', { name: /^publish form$/i });
   readonly unpublishFormButton = () => this.page.getByRole('button', { name: /unpublish form/i });
   readonly unpublishFormConfirmationButton = () =>
-    this.page.getByRole('dialog').getByRole('button', { name: /confirm/i });
+    this.page.getByRole('button', { name: /^danger unpublish$/i, exact: true });
   readonly updateExistingFormButton = () => this.page.getByRole('button', { name: /update existing version/i });
   readonly formNameInput = () => this.page.getByLabel(/form name/i);
   readonly formVersionInput = () => this.page.getByLabel(/version/i);
