@@ -121,7 +121,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       text: string;
     }>
   >([]);
-  const [selectedConcept, setSelectedConcept] = useState<Concept | null>();
+  const [selectedConcept, setSelectedConcept] = useState<Concept | null>(null);
 
   const { concepts, isLoadingConcepts } = useConceptLookup(conceptToLookup);
   const { conceptName, conceptNameLookupError, isLoadingConceptName } = useConceptName(
