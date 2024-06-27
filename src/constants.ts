@@ -15,6 +15,7 @@ export const heightAndWeightBasedCalculationFunctions: Array<string> = [
   'Weight For Height Zscore',
 ];
 export const emptyStates: Array<string> = ['Is Empty', 'Not Empty'];
+export const arrContains: Array<string> = ['Contains any', 'Does not contains any'];
 
 export const comparisonOperators: Array<ComparisonOperators> = [
   { key: 'isEmpty', defaultLabel: 'Is Empty', type: 'string' },
@@ -24,6 +25,10 @@ export const comparisonOperators: Array<ComparisonOperators> = [
   { key: 'equals', defaultLabel: 'Equals', type: 'string' },
   { key: 'notEquals', defaultLabel: 'Not Equals', type: 'string' },
   { key: 'doesNotMatchExpression', defaultLabel: 'Does not match expression', type: 'string' },
+  { key: 'arrContains', defaultLabel: 'Contains', type: 'string' },
+  { key: 'arrNotContains', defaultLabel: 'Does not contains', type: 'string' },
+  { key: 'arrContainsAny', defaultLabel: 'Contains any', type: 'string' },
+  { key: 'arrNotContainsAny', defaultLabel: 'Does not contains any', type: 'string' },
 ];
 
 export const calculateFunctions: Array<CalculationFunctions> = [
