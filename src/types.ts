@@ -23,6 +23,7 @@ export enum ConditionType {
   TARGET_CONDITION = 'targetCondition',
   TARGET_VALUE = 'targetValue',
   LOGICAL_OPERATOR = 'logicalOperator',
+  TARGET_VALUES = 'targetValues',
 }
 
 export enum LogicalOperatorType {

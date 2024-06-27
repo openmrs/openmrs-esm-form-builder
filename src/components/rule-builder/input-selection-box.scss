@@ -43,3 +43,7 @@
   background: none;
   font-size: 1rem;
 }
+.combobox .multiSelect {
+  position: relative;
+  bottom: 8px;// Adjust the z-index to a higher value to ensure it's on top
+}

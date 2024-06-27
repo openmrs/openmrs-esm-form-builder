@@ -19,8 +19,9 @@ import {
   type Section,
 } from '../../types';
 import { useFormRule } from '../../hooks/useFormRule';
-import CustomComboBox from './custom-combo-box.component';
+import InputSelectionBox from './input-selection-box.component';
 import {
+  arrContains,
   calculateFunctions,
   comparisonOperators,
   dateBasedCalculationFunctions,
@@ -37,6 +38,7 @@ export interface Condition {
   targetField?: string;
   targetCondition?: string;
   targetValue?: string;
+  targetValues?: Array<{ concept: string; label: string }>;
 }
 
 export interface Action {
@@ -170,14 +172,23 @@ const RuleBuilder = React.memo(
       return action.actionField?.length || action.errorMessage?.length;
     };
 
-    const deleteProperties = (action: Action, properties: Array<string>) => {
+    const deleteProperties = (element: Action | Condition, properties: Array<string>) => {
       properties.forEach((property) => {
-        delete action[property];
+        delete element[property];
       });
     };
 
     const [validatorIndex, setvalidatorIndex] = useState<number>();
-    const getSchemaCondition = (condition: string, targetField?: string, answer?: string) => {
+    const getSchemaCondition = (
+      condition: string,
+      targetField?: string,
+      answer?: string,
+      selectedAnswers?: Array<{
+        concept: string;
+        label: string;
+      }>,
+    ) => {
+      const selectedConcepts = selectedAnswers?.map((item) => `'${item.concept}'`).join(', ');
       switch (condition) {
         case 'Is Empty':
           return `isEmpty(${targetField})`;
@@ -193,6 +204,14 @@ const RuleBuilder = React.memo(
           return `${targetField} !== '${answer}'`;
         case 'Does not match expression':
           return `doesNotMatchExpression('${answer}', ${targetField})`;
+        case 'Contains':
+          return `arrContains('${targetField}', '${answer}')`;
+        case 'Does not contains':
+          return `!arrContains('${targetField}', '${answer}')`;
+        case 'Contains any':
+          return `arrContainsAny(${targetField}, [${selectedConcepts}])`;
+        case 'Does not contains any':
+          return `!arrContainsAny(${targetField}, ${selectedConcepts})`;
       }
     };
 
@@ -242,10 +261,10 @@ const RuleBuilder = React.memo(
     const buildConditionSchema = useCallback((rule: FormRule) => {
       let conditionSchema = '';
       rule?.conditions?.forEach((condition) => {
-        const { targetField, targetCondition, targetValue, logicalOperator } = condition;
+        const { targetField, targetCondition, targetValue, logicalOperator, targetValues } = condition;
         const operator = getLogicalOperator(logicalOperator);
         conditionSchema += operator ? operator : '';
-        const result = getSchemaCondition(targetCondition, targetField, targetValue);
+        const result = getSchemaCondition(targetCondition, targetField, targetValue, targetValues);
         conditionSchema += result ? result : '';
       });
       return conditionSchema;
@@ -461,7 +480,7 @@ const RuleBuilder = React.memo(
       (
         id: string,
         field: string,
-        value: string,
+        value: string | Array<{ concept: string; label: string }>,
         index: number,
         element: Array<Condition | Action>,
         setElement: React.Dispatch<React.SetStateAction<Array<Condition | Action>>>,
@@ -470,31 +489,63 @@ const RuleBuilder = React.memo(
         const updateElement = (prevElement: Array<Condition | Action>) => {
           const newElement: Array<Condition | Action> = [...prevElement];
           newElement[index] = { ...newElement[index], [field]: value };
-          if (elementKey === (RuleElementType.ACTIONS as string) && field === (ActionType.ACTION_CONDITION as string)) {
-            const updatedActions = [...newElement];
-            const action = updatedActions[index];
-            if (value === (TriggerType.HIDE as string) && shouldDeleteForHideAction(action)) {
-              deleteProperties(action, [ActionType.CALCULATE_FIELD, ActionType.ACTION_FIELD, ActionType.ERROR_MESSAGE]);
-            } else if (value === (TriggerType.FAIL as string) && shouldDeleteForFailAction(action)) {
-              deleteProperties(action, [ActionType.CALCULATE_FIELD, ActionType.ACTION_FIELD]);
-            } else if (value === (TriggerType.CALCULATE as string) && shouldDeleteForCalculateAction(action)) {
-              deleteProperties(action, [ActionType.ACTION_FIELD, ActionType.ERROR_MESSAGE]);
-            }
 
-            setActions(updatedActions);
+          if (elementKey === (RuleElementType.ACTIONS as string) && field === (ActionType.ACTION_CONDITION as string)) {
+            updateActionsBasedOnTriggerType(newElement, index, value as string);
+          } else if (
+            elementKey === (RuleElementType.CONDITIONS as string) &&
+            field === (ConditionType.TARGET_CONDITION as string)
+          ) {
+            updateConditionsBasedOnTargetCondition(newElement, index, value as string);
           }
-          if (ConditionType.TARGET_VALUE in newElement[index]) {
-            const condition = newElement[index] as Condition;
-            if (
-              elementKey === (RuleElementType.CONDITIONS as string) &&
-              emptyStates.includes(condition?.targetCondition) &&
-              condition?.targetValue
-            ) {
+
+          clearTargetValueIfEmptyState(newElement, index, elementKey);
+
+          return newElement;
+        };
+
+        const updateActionsBasedOnTriggerType = (actions: Array<Action>, index: number, value: string) => {
+          const action = actions[index];
+          const propertiesToDelete = getPropertiesToDeleteForAction(value, action);
+          deleteProperties(action, propertiesToDelete);
+          setActions(actions);
+        };
+
+        const getPropertiesToDeleteForAction = (triggerType: string, action: Action): Array<string> => {
+          switch (triggerType) {
+            case TriggerType.HIDE as string:
+              return shouldDeleteForHideAction(action)
+                ? [ActionType.CALCULATE_FIELD, ActionType.ACTION_FIELD, ActionType.ERROR_MESSAGE]
+                : [];
+            case TriggerType.FAIL as string:
+              return shouldDeleteForFailAction(action) ? [ActionType.CALCULATE_FIELD, ActionType.ACTION_FIELD] : [];
+            case TriggerType.CALCULATE as string:
+              return shouldDeleteForCalculateAction(action) ? [ActionType.ACTION_FIELD, ActionType.ERROR_MESSAGE] : [];
+            default:
+              return [];
+          }
+        };
+
+        const updateConditionsBasedOnTargetCondition = (conditions: Array<Condition>, index: number, value: string) => {
+          const condition = conditions[index];
+          const propertiesToDelete = arrContains.includes(value)
+            ? [ConditionType.TARGET_VALUE]
+            : [ConditionType.TARGET_VALUES];
+          deleteProperties(condition, propertiesToDelete);
+          setConditions(conditions);
+        };
+
+        const clearTargetValueIfEmptyState = (
+          elements: Array<Condition | Action>,
+          index: number,
+          elementKey: string,
+        ) => {
+          if (elementKey === (RuleElementType.CONDITIONS as string)) {
+            const condition = elements[index] as Condition;
+            if (emptyStates.includes(condition?.targetCondition) && condition?.targetValue) {
               delete condition.targetValue;
             }
           }
-
-          return newElement;
         };
 
         setElement(updateElement);
@@ -515,7 +566,7 @@ const RuleBuilder = React.memo(
     );
 
     const handleConditionChange = useCallback(
-      (id: string, field: string, value: string, index: number) =>
+      (id: string, field: string, value: string | Array<{ concept: string; label: string }>, index: number) =>
         handleElementChange(id, field, value, index, conditions, setConditions, RuleElementType.CONDITIONS),
       [handleElementChange, conditions],
     );
@@ -820,7 +871,12 @@ interface RuleConditionProps {
   isNewRule: boolean;
   addCondition: () => void;
   index: number;
-  handleConditionChange: (id: string, field: string, value: string, index: number) => void;
+  handleConditionChange: (
+    id: string,
+    field: string,
+    value: string | Array<{ concept: string; label: string }>,
+    index: number,
+  ) => void;
   conditions: Array<Condition>;
 }
 
@@ -842,16 +898,28 @@ export const RuleCondition = React.memo(
   }: RuleConditionProps) => {
     const { t } = useTranslation();
     const filteredAnswers = answers.filter((answer) => answer !== undefined);
+    const [isMultipleAnswers, setIsMultipleAnswers] = useState(Boolean(conditions[index]?.targetValues));
     const [isConditionValueVisible, setIsConditionValueVisible] = useState<boolean>(
       Boolean(conditions[index]?.targetValue),
     );
+    const answer = filteredAnswers?.find((answer) => answer.concept === conditions[index]?.targetValue)?.label;
+    const [inputValue, setInputValue] = useState(answer || '');
+    const [selectedAnswers, setSelectedAnswers] = useState(conditions[index]?.targetValues || []);
+
     const handleSelectCondition = (selectedCondition: string) => {
+      setIsMultipleAnswers(arrContains.includes(selectedCondition));
       setIsConditionValueVisible(!emptyStates.includes(selectedCondition));
     };
-    const [inputValue, setInputValue] = useState(conditions[index]?.targetValue || '');
-    const handleValueChange = (selectedItem: string) => {
-      handleConditionChange(fieldId, ConditionType.TARGET_VALUE, selectedItem, index);
-      setInputValue(selectedItem);
+
+    const handleValueChange = (selectedItem: string | Array<{ concept: string; label: string }>) => {
+      const isString = typeof selectedItem === 'string';
+      const conditionType = isString ? ConditionType.TARGET_VALUE : ConditionType.TARGET_VALUES;
+
+      handleConditionChange(fieldId, conditionType, selectedItem, index);
+
+      if (isString) {
+        setInputValue(selectedItem);
+      }
     };
 
     return (
@@ -907,11 +975,14 @@ export const RuleCondition = React.memo(
             }}
             size={responsiveSize}
           />
-          {isConditionValueVisible && (
-            <CustomComboBox
+          {(isConditionValueVisible || isMultipleAnswers) && (
+            <InputSelectionBox
               id={'target-value'}
               key={'target-value'}
               value={inputValue}
+              selectedAnswers={selectedAnswers}
+              setSelectedAnswers={setSelectedAnswers}
+              isMultipleAnswers={isMultipleAnswers}
               items={filteredAnswers}
               onChange={handleValueChange}
               size={responsiveSize}
