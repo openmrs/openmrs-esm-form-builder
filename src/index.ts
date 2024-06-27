@@ -52,12 +52,12 @@ export const editQuestionModal = getAsyncLifecycle(
 );
 
 export const deleteConditionalLogicModal = getAsyncLifecycle(
-  () => import('./components/rule-builder/delete-conditional-logic-modal.component'),
+  () => import('./components/rule-builder/delete-conditional-logic.modal'),
   options,
 );
 
 export const deleteConditionsOrActionsModal = getAsyncLifecycle(
-  () => import('./components/rule-builder/delete-conditions-or-actions-modal.component'),
+  () => import('./components/rule-builder/delete-conditions-or-actions.modal'),
   options,
 );
 
