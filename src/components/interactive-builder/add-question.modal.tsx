@@ -73,6 +73,21 @@ interface RequiredLabelProps {
   t: TFunction;
 }
 
+export const updateDatePickerType = (concept: Concept): DatePickerType | null => {
+  const conceptDataType = concept.datatype.name;
+  switch (conceptDataType) {
+    case 'Datetime':
+      return 'both';
+    case 'Date':
+      return 'calendar';
+    case 'Time':
+      return 'timer';
+    default:
+      console.warn(`Unsupported datatype for date fields: ${conceptDataType}`);
+      return null;
+  }
+};
+
 const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   closeModal,
   onSchemaChange,
@@ -139,25 +154,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
   const handleConceptChange = (event: React.ChangeEvent<HTMLInputElement>) => setConceptToLookup(event.target.value);
 
-  const updateDatePickerType = (concept: Concept) => {
-    const conceptDataType = concept.datatype.name;
-    switch (conceptDataType) {
-      case 'Datetime':
-        setDatePickerType('both');
-        break;
-      case 'Date':
-        setDatePickerType('calendar');
-        break;
-      case 'Time':
-        setDatePickerType('timer');
-        break;
-      default:
-        break;
-    }
-  };
-
   const handleConceptSelect = (concept: Concept) => {
-    updateDatePickerType(concept);
+    const updatedDatePickerType = updateDatePickerType(concept);
+    if (updatedDatePickerType) setDatePickerType(updatedDatePickerType);
     setConceptToLookup('');
     setSelectedConcept(concept);
     setAnswers(
@@ -213,7 +212,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         type: questionType,
         required: isQuestionRequired,
         id: questionId ?? computedQuestionId,
-        ...((renderingType === 'date' || renderingType === 'datetime') && { datePickerFormat: datePickerType }),
+        ...((renderingType === 'date' || renderingType === 'datetime') &&
+          datePickerType && { datePickerFormat: datePickerType }),
         questionOptions: {
           rendering: renderingType,
           concept: selectedConcept?.uuid ? selectedConcept?.uuid : '',

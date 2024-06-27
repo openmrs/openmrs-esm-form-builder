@@ -53,6 +53,7 @@ import { usePersonAttributeName } from '../../hooks/usePersonAttributeName';
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { usePrograms, useProgramWorkStates } from '../../hooks/useProgramStates';
 import styles from './question-modal.scss';
+import { updateDatePickerType } from './add-question.modal';
 
 interface EditQuestionModalProps {
   closeModal: () => void;
@@ -84,12 +85,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { fieldTypes, questionTypes } = useConfig<ConfigObject>();
-
-  const datePickerTypeOptions: DatePickerTypeOptions = {
-    datetime: [{ value: 'both', label: t('calendarAndTimer', 'Calendar and timer'), defaultChecked: true }],
-    date: [{ value: 'calendar', label: t('calendarOnly', 'Calendar only'), defaultChecked: false }],
-    time: [{ value: 'timer', label: t('timerOnly', 'Timer only'), defaultChecked: false }],
-  };
 
   const [answersChanged, setAnswersChanged] = useState(false);
   const [answersFromConcept, setAnswersFromConcept] = useState<
@@ -152,6 +147,12 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const hasConceptChanged = selectedConcept && questionToEdit?.questionOptions?.concept !== selectedConcept?.uuid;
   const [addInlineDate, setAddInlineDate] = useState(false);
 
+  const datePickerTypeOptions: DatePickerTypeOptions = {
+    datetime: [{ value: 'both', label: t('calendarAndTimer', 'Calendar and timer'), defaultChecked: true }],
+    date: [{ value: 'calendar', label: t('calendarOnly', 'Calendar only'), defaultChecked: false }],
+    time: [{ value: 'timer', label: t('timerOnly', 'Timer only'), defaultChecked: false }],
+  };
+
   const debouncedSearch = useMemo(() => {
     return debounce((searchTerm: string) => setConceptToLookup(searchTerm), 500) as (searchTerm: string) => void;
   }, []);
@@ -172,25 +173,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     setSelectedPersonAttributeType(attributeType);
   };
 
-  const updateDatePickerType = (concept: Concept) => {
-    const conceptDataType = concept.datatype.name;
-    switch (conceptDataType) {
-      case 'Datetime':
-        setDatePickerType('both');
-        break;
-      case 'Date':
-        setDatePickerType('calendar');
-        break;
-      case 'Time':
-        setDatePickerType('timer');
-        break;
-      default:
-        break;
-    }
-  };
-
   const handleConceptSelect = (concept: Concept) => {
-    updateDatePickerType(concept);
+    const datePickerType = updateDatePickerType(concept);
+    if (datePickerType) setDatePickerType(datePickerType);
     setConceptToLookup('');
     setSelectedAnswers([]);
     setSelectedConcept(concept);
