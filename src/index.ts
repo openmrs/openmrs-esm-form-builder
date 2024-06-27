@@ -61,6 +61,18 @@ export const deleteConditionsOrActionsModal = getAsyncLifecycle(
   options,
 );
 
+export const restoreDraftSchemaModal = getAsyncLifecycle(
+  () => import('./components/form-editor/restore-draft-schema.modal'),
+  options,
+);
+
+export const unpublishFormModal = getAsyncLifecycle(
+  () => import('./components/action-buttons/unpublish-form.modal'),
+  options,
+);
+
+export const deleteFormModal = getAsyncLifecycle(() => import('./components/dashboard/delete-form.modal'), options);
+
 export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
 

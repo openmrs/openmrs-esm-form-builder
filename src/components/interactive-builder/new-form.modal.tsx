@@ -50,7 +50,7 @@ const NewFormModal: React.FC<NewFormModalProps> = ({ schema, onSchemaChange, clo
 
   return (
     <>
-      <ModalHeader title={t('createNewForm', 'Create a new form')} closeModal={closeModal} />
+      <ModalHeader closeModal={closeModal} title={t('createNewForm', 'Create a new form')} />
       <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
           <Stack gap={5}>

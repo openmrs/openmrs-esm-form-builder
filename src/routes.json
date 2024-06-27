@@ -62,6 +62,18 @@
     {
       "name": "delete-conditions-or-actions-modal",
       "component": "deleteConditionsOrActionsModal"
+    },
+    {
+      "name": "restore-draft-schema-modal",
+      "component": "restoreDraftSchemaModal"
+    },
+    {
+      "name": "unpublish-form-modal",
+      "component": "unpublishFormModal"
+    },
+    {
+      "name": "delete-form-modal",
+      "component": "deleteFormModal"
     }
   ]
 }
