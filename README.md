@@ -97,6 +97,16 @@ yarn test-e2e --headed
 
 Read the [e2e testing guide](/e2e/README.md) to learn more about End-to-End tests in this project.
 
+#### Troubleshooting
+
+If you can't debug tests in [UI mode](https://playwright.dev/docs/test-ui-mode) because your local web server reloads due to static file changes, use the [Playwright Inspector](https://playwright.dev/docs/running-tests#debug-tests-with-the-playwright-inspector) instead. Run the following command:
+
+```sh
+yarn test-e2e --headed --debug
+```
+
+This approach should avoid issues caused by Webpack and static file changes.
+
 ## Building
 
 ```sh

@@ -17,45 +17,51 @@ export const systemAdministrationFormBuilderCardLink = getAsyncLifecycle(
   options,
 );
 
-export const newFormModal = getAsyncLifecycle(
-  () => import('./components/interactive-builder/new-form-modal.component'),
-  options,
-);
+export const newFormModal = getAsyncLifecycle(() => import('./components/interactive-builder/new-form.modal'), options);
 
-export const newPageModal = getAsyncLifecycle(
-  () => import('./components/interactive-builder/page-modal.component'),
-  options,
-);
+export const newPageModal = getAsyncLifecycle(() => import('./components/interactive-builder/page.modal'), options);
 
 export const deletePageModal = getAsyncLifecycle(
-  () => import('./components/interactive-builder/delete-page-modal.component'),
+  () => import('./components/interactive-builder/delete-page.modal'),
   options,
 );
 
 export const newSectionModal = getAsyncLifecycle(
-  () => import('./components/interactive-builder/section-modal.component'),
+  () => import('./components/interactive-builder/section.modal'),
   options,
 );
 
 export const deleteSectionModal = getAsyncLifecycle(
-  () => import('./components/interactive-builder/delete-section-modal.component'),
+  () => import('./components/interactive-builder/delete-section.modal'),
   options,
 );
 
 export const addQuestionModal = getAsyncLifecycle(
-  () => import('./components/interactive-builder/add-question-modal.component'),
+  () => import('./components/interactive-builder/add-question.modal'),
   options,
 );
 
 export const deleteQuestionModal = getAsyncLifecycle(
-  () => import('./components/interactive-builder/delete-question-modal.component'),
+  () => import('./components/interactive-builder/delete-question.modal'),
   options,
 );
 
 export const editQuestionModal = getAsyncLifecycle(
-  () => import('./components/interactive-builder/edit-question-modal.component'),
+  () => import('./components/interactive-builder/edit-question.modal'),
   options,
 );
+
+export const restoreDraftSchemaModal = getAsyncLifecycle(
+  () => import('./components/form-editor/restore-draft-schema.modal'),
+  options,
+);
+
+export const unpublishFormModal = getAsyncLifecycle(
+  () => import('./components/action-buttons/unpublish-form.modal'),
+  options,
+);
+
+export const deleteFormModal = getAsyncLifecycle(() => import('./components/dashboard/delete-form.modal'), options);
 
 export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
