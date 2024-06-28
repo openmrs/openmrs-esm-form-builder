@@ -129,7 +129,7 @@ const InputSelectionBox = React.memo(
           </div>
         ) : (
           <MultiSelect
-            id="multiselect"
+            id="multi-select"
             className={styles.multiSelect}
             titleText=""
             label={t('selectAnswers', 'Select Answers')}

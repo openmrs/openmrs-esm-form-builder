@@ -36,7 +36,7 @@ describe('RuleBuilder', () => {
     expect(targetCondition).toBeInTheDocument();
     const user = userEvent.setup();
 
-    // To check if the target-condition dropdown is visible based on target-condition
+    // To check if the target-value dropdown is visible based on target-condition
     await user.click(targetCondition);
     const dropDownButton = screen.getByText('Select Condition');
     await user.click(dropDownButton);
@@ -45,7 +45,7 @@ describe('RuleBuilder', () => {
     const conditionalValueDropDown = document.querySelector('#target-value');
     expect(conditionalValueDropDown).toBeInTheDocument();
 
-    // To check if the target-condition dropdown is not visible based on target-condition
+    // To check if the target-value dropdown is not visible based on target-condition
     const selectedCondition = screen.getByText('Equals');
     await userEvent.click(selectedCondition);
     const isEmptyCondition = screen.getByText('Is Empty');
@@ -74,6 +74,42 @@ describe('RuleBuilder', () => {
     const hideAction = screen.getByText('Hide');
     await user.click(hideAction);
     expect(errorMessageBox).not.toBeInTheDocument();
+  });
+
+  it('should display the calculate expression logic', async () => {
+    renderRuleBuilder();
+    const targetAction = screen.getByLabelText('action-condition');
+    expect(targetAction).toBeInTheDocument();
+    const user = userEvent.setup();
+    await user.click(targetAction);
+
+    // To check if the calculate action exists
+    const dropdownBtn = screen.getByText('Select a action');
+    await user.click(dropdownBtn);
+    const calculateAction = screen.getByText('Calculate');
+    await user.click(calculateAction);
+    const fnDropdown = screen.getByText('Select Calculate Expression');
+    expect(fnDropdown).toBeInTheDocument();
+    await user.click(fnDropdown);
+
+    // To check if the calculating function exists based on the target action
+    const functionName = screen.getByText('BSA');
+    expect(functionName).toBeInTheDocument();
+  });
+
+  it('should render the multi-select input box', async () => {
+    renderRuleBuilder();
+    const targetCondition = screen.getByLabelText('target-condition');
+    expect(targetCondition).toBeInTheDocument();
+    const user = userEvent.setup();
+    await user.click(targetCondition);
+    const dropDownButton = screen.getByText('Select Condition');
+    await user.click(dropDownButton);
+    const arrContainsCondition = screen.getByText('Contains any');
+    expect(arrContainsCondition).toBeInTheDocument();
+    await user.click(arrContainsCondition);
+    const mutliSelectBox = document.querySelector('#multi-select');
+    expect(mutliSelectBox).toBeInTheDocument();
   });
 });
 
