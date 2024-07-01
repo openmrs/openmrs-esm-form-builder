@@ -73,7 +73,7 @@ interface RequiredLabelProps {
   t: TFunction;
 }
 
-export const updateDatePickerType = (concept: Concept): DatePickerType | null => {
+export const getDatePickerType = (concept: Concept): DatePickerType | null => {
   const conceptDataType = concept.datatype.name;
   switch (conceptDataType) {
     case 'Datetime':
@@ -155,7 +155,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const handleConceptChange = (event: React.ChangeEvent<HTMLInputElement>) => setConceptToLookup(event.target.value);
 
   const handleConceptSelect = (concept: Concept) => {
-    const updatedDatePickerType = updateDatePickerType(concept);
+    const updatedDatePickerType = getDatePickerType(concept);
     if (updatedDatePickerType) setDatePickerType(updatedDatePickerType);
     setConceptToLookup('');
     setSelectedConcept(concept);

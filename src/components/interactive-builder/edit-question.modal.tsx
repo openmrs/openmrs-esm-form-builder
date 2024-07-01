@@ -53,7 +53,7 @@ import { usePersonAttributeName } from '../../hooks/usePersonAttributeName';
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { usePrograms, useProgramWorkStates } from '../../hooks/useProgramStates';
 import styles from './question-modal.scss';
-import { updateDatePickerType } from './add-question.modal';
+import { getDatePickerType } from './add-question.modal';
 
 interface EditQuestionModalProps {
   closeModal: () => void;
@@ -174,7 +174,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   };
 
   const handleConceptSelect = (concept: Concept) => {
-    const datePickerType = updateDatePickerType(concept);
+    const datePickerType = getDatePickerType(concept);
     if (datePickerType) setDatePickerType(datePickerType);
     setConceptToLookup('');
     setSelectedAnswers([]);
