@@ -11,7 +11,6 @@ const handleDisallowDecimalValueChange = jest.fn();
 const ruleId = 'a0776e98-86d8-460f-a2c4-26dc97e6fc8a';
 
 describe('RuleHeader', () => {
-
   it('should render the required toggle button', () => {
     renderRuleHeader(false);
     const requiredToggle = document.querySelector(`#toggle-required-${ruleId}`);
@@ -63,20 +62,27 @@ describe('RuleHeader', () => {
 
   test.each([
     [true, 'on'],
-    [false, 'off']
+    [false, 'off'],
   ])('should check the toggle button is %s state', (required, state) => {
     renderRuleHeader(true, required);
     const isRequiredToggleButton = document.querySelector(`#toggle-required-${ruleId}`);
     expect(isRequiredToggleButton).toBeInTheDocument();
-    if(state === 'on'){
+    if (state === 'on') {
+      // eslint-disable-next-line playwright/missing-playwright-await
       expect(isRequiredToggleButton).toBeChecked();
-    }else if(state === 'off'){
+    } else if (state === 'off') {
+      // eslint-disable-next-line playwright/missing-playwright-await
       expect(isRequiredToggleButton).not.toBeChecked();
     }
-  })
+  });
 });
 
-function renderRuleHeader(isDate: boolean, isRequired?: boolean, isAllowFutureDate?: boolean, isDisallowDecimals?: boolean) {
+function renderRuleHeader(
+  isDate: boolean,
+  isRequired?: boolean,
+  isAllowFutureDate?: boolean,
+  isDisallowDecimals?: boolean,
+) {
   render(
     <RuleHeader
       ruleId={ruleId}
@@ -87,6 +93,6 @@ function renderRuleHeader(isDate: boolean, isRequired?: boolean, isAllowFutureDa
       handleRequiredChange={handleRequiredChange}
       handleAllowFutureDateChange={handleAllowFutureDateChange}
       handleDisallowDecimalValueChange={handleDisallowDecimalValueChange}
-    />
+    />,
   );
 }
