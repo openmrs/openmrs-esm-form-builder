@@ -2,6 +2,55 @@ import type { OpenmrsResource } from '@openmrs/esm-framework';
 import type { ProgramState, ReferencedForm, RenderType, RequiredFieldProps } from '@openmrs/openmrs-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
 
+export enum ActionType {
+  LOGICAL_OPERATOR = 'logicalOperator',
+  ACTION_CONDITION = 'actionCondition',
+  ACTION_FIELD = 'actionField',
+  CALCULATE_FIELD = 'calculateField',
+  ERROR_MESSAGE = 'errorMessage',
+}
+
+export enum ConditionType {
+  TARGET_FIELD = 'targetField',
+  TARGET_CONDITION = 'targetCondition',
+  TARGET_VALUE = 'targetValue',
+  LOGICAL_OPERATOR = 'logicalOperator',
+  TARGET_VALUES = 'targetValues',
+}
+
+export enum LogicalOperatorType {
+  AND = 'and',
+  OR = 'or',
+}
+
+export enum RenderingType {
+  DATE = 'date',
+  NUMBER = 'number',
+}
+
+export enum RuleElementType {
+  CONDITIONS = 'conditions',
+  ACTIONS = 'actions',
+}
+
+export enum TriggerType {
+  HIDE = 'Hide',
+  FAIL = 'Fail',
+  CALCULATE = 'Calculate',
+}
+
+export interface ComparisonOperators {
+  key: string;
+  defaultLabel: string;
+  type: string;
+}
+
+export interface CalculationFunctions {
+  key: string;
+  defaultLabel: string;
+  type: string;
+}
+
 export interface Form {
   uuid: string;
   name: string;
@@ -51,6 +100,10 @@ export type QuestionType =
   | 'testOrder'
   | 'programState';
 
+export interface HideProps {
+  hideWhenExpression: string;
+}
+
 export interface Schema {
   name: string;
   pages: Array<{
@@ -71,8 +124,13 @@ export interface Schema {
           max?: string;
           min?: string;
           conceptMappings?: Array<Record<string, string>>;
+          disallowDecimals?: boolean;
+          calculate?: {
+            calculateExpression: string;
+          };
         };
         validators?: Array<Record<string, string>>;
+        hide?: HideProps;
       }>;
     }>;
   }>;
@@ -133,6 +191,7 @@ export interface QuestionOptions {
   calculate?: {
     calculateExpression: string;
   };
+  disallowDecimals?: boolean;
   rows?: string;
   orderSettingUuid?: string;
   orderType?: string;

@@ -1,18 +1,20 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { DndContext, KeyboardSensor, MouseSensor, closestCorners, useSensor, useSensors } from '@dnd-kit/core';
 import { Accordion, AccordionItem, Button, InlineLoading } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
-import { showModal, showSnackbar } from '@openmrs/esm-framework';
+import { showModal, showSnackbar, useFeatureFlag } from '@openmrs/esm-framework';
 import type { FormSchema } from '@openmrs/openmrs-form-engine-lib';
-
 import type { Schema, Question } from '../../types';
 import DraggableQuestion from './draggable-question.component';
 import Droppable from './droppable-container.component';
 import EditableValue from './editable-value.component';
 import styles from './interactive-builder.scss';
+import RuleBuilder, { type FormRule } from '../rule-builder/rule-builder.component';
+import { useFormRule } from '../../hooks/useFormRule';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ValidationError {
   errorMessage?: string;
@@ -33,6 +35,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   schema,
   validationResponse,
 }) => {
+  const { rules } = useFormRule();
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 10, // Enable sort function when dragging 10px 💡 here!!!
@@ -40,10 +43,11 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   });
   const keyboardSensor = useSensor(KeyboardSensor);
   const sensors = useSensors(mouseSensor, keyboardSensor);
-
+  const isValidationRuleBuilderEnabled = useFeatureFlag('validation-rule-builder');
   const { t } = useTranslation();
   const { formUuid } = useParams<{ formUuid: string }>();
   const isEditingExistingForm = Boolean(formUuid);
+  const [activeFields, setActiveFields] = useState<Array<string>>([]);
 
   const initializeSchema = useCallback(() => {
     const dummySchema: FormSchema = {
@@ -242,6 +246,12 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     [onSchemaChange, schema, t],
   );
 
+  const handleAddLogic = useCallback((fieldId: string) => {
+    setActiveFields((prevFields) =>
+      prevFields.includes(fieldId) ? prevFields.filter((id) => id !== fieldId) : [...prevFields, fieldId],
+    );
+  }, []);
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, delta } = event;
 
@@ -429,6 +439,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                     <Droppable id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}>
                                       <DraggableQuestion
                                         handleDuplicateQuestion={duplicateQuestion}
+                                        handleAddLogic={handleAddLogic}
                                         key={question.id}
                                         onSchemaChange={onSchemaChange}
                                         pageIndex={pageIndex}
@@ -438,6 +449,31 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                         schema={schema}
                                         sectionIndex={sectionIndex}
                                       />
+                                      {activeFields.includes(question.id) &&
+                                        isValidationRuleBuilderEnabled &&
+                                        (() => {
+                                          const rulesForQuestionIndex = rules?.findIndex(
+                                            (rule: FormRule) => rule.question === question.id,
+                                          );
+                                          const rulesForQuestion =
+                                            rulesForQuestionIndex !== -1 && rulesForQuestionIndex !== undefined
+                                              ? rules?.filter((rule: FormRule) => rule.question === question.id)
+                                              : [{ id: uuidv4(), isNewRule: false, question: question.id }];
+                                          return rulesForQuestion.map((rule: FormRule) => (
+                                            <RuleBuilder
+                                              ruleId={rule.id}
+                                              key={question.id}
+                                              question={question}
+                                              pageIndex={pageIndex}
+                                              sectionIndex={sectionIndex}
+                                              questionIndex={questionIndex}
+                                              handleAddLogic={handleAddLogic}
+                                              isNewRule={rule.isNewRule}
+                                              schema={schema}
+                                              onSchemaChange={onSchemaChange}
+                                            />
+                                          ));
+                                        })()}
                                       {getValidationError(question) && (
                                         <div className={styles.validationErrorMessage}>
                                           {getValidationError(question)}
