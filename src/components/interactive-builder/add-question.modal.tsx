@@ -146,6 +146,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     programState: ['select'],
   };
 
+  // Maps the data type of a concept to a date picker type.
   const datePickerTypeOptions: Record<string, Array<DatePickerTypeOption>> = {
     datetime: [{ value: 'both', label: t('calendarAndTimer', 'Calendar and timer'), defaultChecked: true }],
     date: [{ value: 'calendar', label: t('calendarOnly', 'Calendar only'), defaultChecked: false }],
@@ -700,6 +701,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   name="datePickerType"
                   legendText={t('datePickerType', 'The type of date picker to show ')}
                 >
+                  {/** Filters out the date picker types based on the selected concept's data type. 
+                       If no concept is selected, all date picker types are shown. 
+                  */}
                   {selectedConcept && selectedConcept.datatype
                     ? datePickerTypeOptions[selectedConcept.datatype.name.toLowerCase()].map((type) => (
                         <RadioButton
