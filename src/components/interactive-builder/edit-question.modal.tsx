@@ -41,7 +41,7 @@ import type {
   Question,
   QuestionType,
   Schema,
-  DatePickerTypeOptions,
+  DatePickerTypeOption,
 } from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { useConceptName } from '../../hooks/useConceptName';
@@ -147,7 +147,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const hasConceptChanged = selectedConcept && questionToEdit?.questionOptions?.concept !== selectedConcept?.uuid;
   const [addInlineDate, setAddInlineDate] = useState(false);
 
-  const datePickerTypeOptions: DatePickerTypeOptions = {
+  const datePickerTypeOptions: Record<string, Array<DatePickerTypeOption>> = {
     datetime: [{ value: 'both', label: t('calendarAndTimer', 'Calendar and timer'), defaultChecked: true }],
     date: [{ value: 'calendar', label: t('calendarOnly', 'Calendar only'), defaultChecked: false }],
     time: [{ value: 'timer', label: t('timerOnly', 'Timer only'), defaultChecked: false }],

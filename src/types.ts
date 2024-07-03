@@ -154,17 +154,11 @@ export interface Answer {
 
 export type ConceptMapping = Record<string, string>;
 
-interface ConceptDatatype {
-  uuid: string;
-  name: string;
-  description: string;
-}
-
 export interface Concept {
   uuid: string;
   display: string;
   mappings: Array<Mapping>;
-  datatype: ConceptDatatype;
+  datatype: OpenmrsResource;
   answers: Array<ConceptAnswer>;
   allowDecimal?: boolean;
 }
@@ -267,8 +261,4 @@ export interface DatePickerTypeOption {
   value: DatePickerType;
   label: string;
   defaultChecked: boolean;
-}
-
-export interface DatePickerTypeOptions {
-  [key: string]: Array<DatePickerTypeOption>;
 }
