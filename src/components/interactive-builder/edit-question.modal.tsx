@@ -825,7 +825,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
             {fieldType === 'date' || fieldType === 'datetime' ? (
               <RadioButtonGroup
                 name="datePickerType"
-                legendText={t('datePickerType', 'The type of date picker to show ')}
+                legendText={t('datePickerType', 'The type of date picker to show')}
               >
                 {selectedConcept && selectedConcept.datatype
                   ? datePickerTypeOptions[selectedConcept.datatype.name.toLowerCase()].map((type) => (
