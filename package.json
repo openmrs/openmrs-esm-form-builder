@@ -46,7 +46,7 @@
     "url": "https://github.com/openmrs/openmrs-esm-form-builder/issues"
   },
   "dependencies": {
-    "@carbon/react": "^1.38.0",
+    "@carbon/react": "^1.47.0",
     "@openmrs/openmrs-form-engine-lib": "next",
     "ajv": "^8.13.0",
     "dotenv": "^16.4.5",
@@ -116,8 +116,5 @@
     "*.{ts,tsx}": "eslint --cache --fix --max-warnings 0",
     "*.{css,scss,ts,tsx}": "prettier --write --list-different"
   },
-  "packageManager": "yarn@4.3.1",
-  "resolutions": {
-    "@carbon/react": "1.37.0"
-  }
+  "packageManager": "yarn@4.3.1"
 }
