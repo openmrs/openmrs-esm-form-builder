@@ -274,7 +274,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
         }),
         questionOptions: {
           rendering: fieldType ? fieldType : questionToEdit.questionOptions.rendering,
-          concept: selectedConcept?.uuid ? selectedConcept.uuid : questionToEdit.questionOptions.concept,
+          ...((selectedConcept || questionToEdit.questionOptions.concept) && {
+            concept: selectedConcept ? selectedConcept.uuid : questionToEdit.questionOptions.concept,
+          }),
           conceptMappings: conceptMappings?.length ? conceptMappings : questionToEdit.questionOptions.conceptMappings,
           answers: mappedAnswers,
           ...(questionType === 'patientIdentifier' && {

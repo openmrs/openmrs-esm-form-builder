@@ -217,7 +217,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           datePickerType && { datePickerFormat: datePickerType }),
         questionOptions: {
           rendering: renderingType,
-          concept: selectedConcept?.uuid ? selectedConcept?.uuid : '',
+          ...(selectedConcept && { concept: selectedConcept?.uuid }),
           ...(conceptMappings.length && { conceptMappings }),
           ...(selectedAnswers.length && {
             answers: selectedAnswers.map((answer) => ({
