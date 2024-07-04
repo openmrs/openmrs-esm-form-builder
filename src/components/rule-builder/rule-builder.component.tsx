@@ -210,13 +210,13 @@ const RuleBuilder = React.memo(
         case 'Does not match expression':
           return `doesNotMatchExpression('${answer}', ${targetField})`;
         case 'Contains':
-          return `arrContains('${targetField}', '${answer}')`;
+          return `arrayContains('${targetField}', '${answer}')`;
         case 'Does not contains':
-          return `!arrContains('${targetField}', '${answer}')`;
+          return `!arrayContains('${targetField}', '${answer}')`;
         case 'Contains any':
-          return `arrContainsAny(${targetField}, [${selectedConcepts}])`;
+          return `arrayContainsAny(${targetField}, [${selectedConcepts}])`;
         case 'Does not contains any':
-          return `!arrContainsAny(${targetField}, ${selectedConcepts})`;
+          return `!arrayContainsAny(${targetField}, ${selectedConcepts})`;
       }
     };
 
