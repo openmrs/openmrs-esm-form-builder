@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import { OverflowMenuItem, OverflowMenu, Layer, TextArea, Toggle, Dropdown } from '@carbon/react';
@@ -11,6 +11,7 @@ import {
   RenderingType,
   RuleElementType,
   TriggerType,
+  type HideProps,
   type CalculationFunctions,
   type ComparisonOperators,
   type Page,
@@ -106,6 +107,9 @@ const RuleBuilder = React.memo(
       conditions: conditions,
       isNewRule: false,
     });
+    const prevPageIndex = useRef(-1);
+    const prevSectionIndex = useRef(-1);
+    const prevQuestionIndex = useRef(-1);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isToggleVisible, setIsToggleVisible] = useState<boolean>(isNewRule);
@@ -299,24 +303,117 @@ const RuleBuilder = React.memo(
       [validatorIndex],
     );
 
+    // Deletes the previous action if the user mistakenly chose the wrong action.
+    const deletePreviousAction = (newSchema: Schema) => {
+      if (prevPageIndex.current !== -1 || prevSectionIndex.current !== -1 || prevQuestionIndex.current !== -1) {
+        if (prevPageIndex.current !== -1 && prevSectionIndex.current !== -1 && prevQuestionIndex.current !== -1)
+          delete newSchema.pages[prevPageIndex.current].sections[prevSectionIndex.current].questions[
+            prevQuestionIndex.current
+          ].hide;
+        else if (prevPageIndex.current !== -1 && prevSectionIndex.current !== -1)
+          delete newSchema.pages[prevPageIndex.current].sections[prevSectionIndex.current].hide;
+        else if (prevPageIndex.current !== -1) delete newSchema.pages[prevPageIndex.current].hide;
+      }
+    };
+
+    const handleFieldAction = useCallback(
+      (
+        newSchema: Schema,
+        pageIndex: number,
+        sectionIndex: number,
+        questionIndex: number,
+        actionCondition: string,
+        conditionSchema: string,
+        errorMessage: string,
+      ) => {
+        if (actionCondition === (TriggerType.HIDE as string)) {
+          newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].hide = {
+            hideWhenExpression: conditionSchema,
+          };
+        } else if (actionCondition === (TriggerType.FAIL as string) && errorMessage) {
+          addOrUpdateValidator(newSchema, pageIndex, sectionIndex, questionIndex, conditionSchema, errorMessage);
+        }
+      },
+      [addOrUpdateValidator],
+    );
+
+    const updateSchemaBasedOnActionType = useCallback(
+      (
+        newSchema: Schema,
+        actionFieldType: string,
+        pageIndex: number,
+        sectionIndex: number,
+        questionIndex: number,
+        actionCondition: string,
+        conditionSchema: string,
+        errorMessage: string,
+        hidingSchema: HideProps,
+      ) => {
+        if (pageIndex === -1) return;
+
+        switch (actionFieldType) {
+          case 'page':
+            newSchema.pages[pageIndex].hide = hidingSchema;
+            break;
+          case 'section':
+            if (sectionIndex !== -1) {
+              newSchema.pages[pageIndex].sections[sectionIndex].hide = hidingSchema;
+            }
+            break;
+          case 'field':
+            if (sectionIndex !== -1 && questionIndex !== -1) {
+              handleFieldAction(
+                newSchema,
+                pageIndex,
+                sectionIndex,
+                questionIndex,
+                actionCondition,
+                conditionSchema,
+                errorMessage,
+              );
+            }
+            break;
+        }
+      },
+      [handleFieldAction],
+    );
+
     const processActionFields = useCallback(
       (rule: FormRule, newSchema: Schema, conditionSchema: string) => {
         rule?.actions?.forEach((action: Action) => {
           const { actionField, actionCondition, errorMessage } = action;
-          const { pageIndex, sectionIndex, questionIndex } = findQuestionIndexes(newSchema, actionField);
+          const hidingLogic = { hideWhenExpression: conditionSchema };
+          const actionFieldType = actionCondition.includes('page')
+            ? 'page'
+            : actionCondition.includes('section')
+              ? 'section'
+              : 'field';
 
-          if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
-            if (actionCondition === (TriggerType.HIDE as string)) {
-              newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].hide = {
-                hideWhenExpression: conditionSchema,
-              };
-            } else if (actionCondition === (TriggerType.FAIL as string) && errorMessage) {
-              addOrUpdateValidator(newSchema, pageIndex, sectionIndex, questionIndex, conditionSchema, errorMessage);
-            }
-          }
+          const { pageIndex, sectionIndex, questionIndex } = findQuestionIndexes(
+            newSchema,
+            actionField,
+            actionFieldType,
+          );
+
+          deletePreviousAction(newSchema);
+          updateSchemaBasedOnActionType(
+            newSchema,
+            actionFieldType,
+            pageIndex,
+            sectionIndex,
+            questionIndex,
+            actionCondition,
+            conditionSchema,
+            errorMessage,
+            hidingLogic,
+          );
+
+          prevPageIndex.current = pageIndex;
+          prevQuestionIndex.current = questionIndex;
+          prevSectionIndex.current = sectionIndex;
         });
       },
-      [addOrUpdateValidator],
+      [updateSchemaBasedOnActionType],
     );
 
     const isQuestionIndexValid = (pageIndex: number, sectionIndex: number, questionIndex: number) => {
@@ -384,7 +481,11 @@ const RuleBuilder = React.memo(
       (rule: FormRule): string => {
         return rule?.conditions
           ?.map((condition: Condition) => {
-            const { pageIndex, sectionIndex, questionIndex } = findQuestionIndexes(schema, condition?.targetField);
+            const { pageIndex, sectionIndex, questionIndex } = findQuestionIndexes(
+              schema,
+              condition?.targetField,
+              'field',
+            );
             const renderingType: string =
               schema.pages[pageIndex]?.sections[sectionIndex]?.questions[questionIndex]?.questionOptions?.rendering;
             return renderingType;
@@ -458,21 +559,38 @@ const RuleBuilder = React.memo(
       ],
     );
 
-    const findQuestionIndexes = (schema: Schema, actionField: string) => {
+    const findQuestionIndexes = (schema: Schema, actionField: string, actionFieldType?: string) => {
       let pageIndex = -1,
         sectionIndex = -1,
         questionIndex = -1;
-      schema.pages.forEach((page, pIndex) => {
-        page.sections?.forEach((section, sIndex) => {
-          section.questions.forEach((question, qIndex) => {
-            if (question.id === actionField) {
+      if (actionFieldType === 'page') {
+        schema.pages.forEach((page, pIndex) => {
+          if (page.label === actionField) {
+            pageIndex = pIndex;
+          }
+        });
+      } else if (actionFieldType === 'section') {
+        schema.pages.forEach((page, pIndex) => {
+          page.sections?.forEach((section, sIndex) => {
+            if (section.label === actionField) {
               pageIndex = pIndex;
               sectionIndex = sIndex;
-              questionIndex = qIndex;
             }
           });
         });
-      });
+      } else if (actionFieldType === 'field') {
+        schema.pages.forEach((page, pIndex) => {
+          page.sections?.forEach((section, sIndex) => {
+            section.questions.forEach((question, qIndex) => {
+              if (question.id === actionField) {
+                pageIndex = pIndex;
+                sectionIndex = sIndex;
+                questionIndex = qIndex;
+              }
+            });
+          });
+        });
+      }
       return { pageIndex, sectionIndex, questionIndex };
     };
 
@@ -551,7 +669,7 @@ const RuleBuilder = React.memo(
         setElement(updateElement);
         setCurrentRule((prevRule) => {
           const newRule = { ...prevRule };
-          newRule[elementKey] = updateElement(newRule[elementKey] as Array<Condition>);
+          newRule[elementKey] = updateElement(newRule[elementKey] as Array<Condition | Action>);
           return newRule;
         });
       },
@@ -779,6 +897,8 @@ const RuleBuilder = React.memo(
                 handleActionChange={handleActionChange}
                 index={index}
                 actions={actions}
+                pages={pages}
+                sections={sections}
               />
             ))}
           </div>
@@ -1058,6 +1178,8 @@ interface RuleActionProps {
   index: number;
   handleActionChange: (id: string, field: string, value: string, index: number) => void;
   actions: Array<Action>;
+  pages: Array<Page>;
+  sections: Array<Section>;
 }
 
 export const RuleAction = React.memo(
@@ -1071,16 +1193,27 @@ export const RuleAction = React.memo(
     addAction,
     handleActionChange,
     actions,
+    pages,
+    sections,
   }: RuleActionProps) => {
     const { t } = useTranslation();
     const [action, setAction] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState(actions[index]?.errorMessage || '');
+    const [actionField, setActionField] = useState([]);
     const [isCalculate, setIsCalculate] = useState(false);
     const debouncedErrorMessage = useDebounce(errorMessage, 500);
     const showErrorMessageBox = action === (TriggerType.FAIL as string);
+    const actionFieldMap: { [key: string]: Array<Page | Section> } = {
+      section: sections,
+      page: pages,
+    };
+
     const handleSelectAction = (selectedAction: string) => {
       setAction(selectedAction);
+      const actionKey = Object.keys(actionFieldMap).find((key) => selectedAction.includes(key));
+      setActionField(actionKey ? actionFieldMap[actionKey] : questions);
     };
+
     useEffect(() => {
       handleActionChange(fieldId, ActionType.ERROR_MESSAGE, debouncedErrorMessage, index);
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1126,7 +1259,7 @@ export const RuleAction = React.memo(
               aria-label="action-condition"
               className={styles.actionCondition}
               initialSelectedItem={actions[index]?.actionCondition || 'Select a action'}
-              items={['Hide', 'Fail', 'Calculate']}
+              items={['Hide', 'Hide (section)', 'Hide (page)', 'Fail', 'Calculate']}
               onChange={({ selectedItem }: { selectedItem: string }) => {
                 handleActionChange(fieldId, ActionType.ACTION_CONDITION, selectedItem, index);
                 handleSelectAction(selectedItem);
@@ -1139,13 +1272,16 @@ export const RuleAction = React.memo(
                 className={styles.actionField}
                 initialSelectedItem={
                   questions.find((question) => question.id === actions[index]?.actionField) || {
-                    label: t('selectField', 'Select a field'),
+                    label: actions[index]?.actionField
+                      ? actions[index]?.actionField
+                      : t('selectField', 'Select a field'),
                   }
                 }
-                items={questions}
-                itemToString={(item: Question) => (item ? item.label : '')}
-                onChange={({ selectedItem }: { selectedItem: Question }) => {
-                  handleActionChange(fieldId, ActionType.ACTION_FIELD, selectedItem?.id, index);
+                items={actionField}
+                itemToString={(item: Question | Section | Page) => (item ? item.label : '')}
+                onChange={({ selectedItem }: { selectedItem: Question | Section | Page }) => {
+                  const selectedItemId: string = 'id' in selectedItem ? selectedItem.id : selectedItem.label;
+                  handleActionChange(fieldId, ActionType.ACTION_FIELD, selectedItemId, index);
                 }}
                 size={responsiveSize}
               />
