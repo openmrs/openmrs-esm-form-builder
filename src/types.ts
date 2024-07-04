@@ -36,6 +36,7 @@ export enum RuleElementType {
 export enum TriggerType {
   HIDE = 'Hide',
   FAIL = 'Fail',
+  DISABLE = 'Disable',
   CALCULATE = 'Calculate',
 }
 
@@ -49,6 +50,11 @@ export interface CalculationFunctions {
   key: string;
   defaultLabel: string;
   type: string;
+}
+
+export interface DisableProps {
+  disableWhenExpression?: string;
+  isDisabled?: boolean;
 }
 
 export interface Form {
@@ -130,6 +136,7 @@ export interface Schema {
           };
         };
         validators?: Array<Record<string, string>>;
+        disable?: DisableProps;
         hide?: HideProps;
       }>;
       hide?: HideProps;
@@ -182,6 +189,7 @@ export interface Question {
   questions?: Array<Question>;
   required?: string | boolean | RequiredFieldProps;
   validators?: Array<Record<string, string>>;
+  disable?: DisableProps;
 }
 
 export interface QuestionOptions {

@@ -18,6 +18,7 @@ import {
   type Question,
   type Schema,
   type Section,
+  type DisableProps,
 } from '../../types';
 import { useFormRule } from '../../hooks/useFormRule';
 import InputSelectionBox from './input-selection-box.component';
@@ -378,6 +379,17 @@ const RuleBuilder = React.memo(
       [handleFieldAction],
     );
 
+    const updateSchemaForDisableActionType = (
+      newSchema: Schema,
+      pageIndex: number,
+      sectionIndex: number,
+      questionIndex: number,
+      disableSchema: DisableProps,
+    ) => {
+      if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
+        newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].disable = disableSchema;
+      }
+    };
     const processActionFields = useCallback(
       (rule: FormRule, newSchema: Schema, conditionSchema: string) => {
         rule?.actions?.forEach((action: Action) => {
@@ -388,29 +400,34 @@ const RuleBuilder = React.memo(
             : actionCondition.includes('section')
               ? 'section'
               : 'field';
-
           const { pageIndex, sectionIndex, questionIndex } = findQuestionIndexes(
             newSchema,
             actionField,
             actionFieldType,
           );
+          if (actionCondition === (TriggerType.DISABLE as string)) {
+            const disableSchema = {
+              disableWhenExpression: conditionSchema,
+            };
+            updateSchemaForDisableActionType(newSchema, pageIndex, sectionIndex, questionIndex, disableSchema);
+          } else {
+            deletePreviousAction(newSchema);
+            updateSchemaBasedOnActionType(
+              newSchema,
+              actionFieldType,
+              pageIndex,
+              sectionIndex,
+              questionIndex,
+              actionCondition,
+              conditionSchema,
+              errorMessage,
+              hidingLogic,
+            );
 
-          deletePreviousAction(newSchema);
-          updateSchemaBasedOnActionType(
-            newSchema,
-            actionFieldType,
-            pageIndex,
-            sectionIndex,
-            questionIndex,
-            actionCondition,
-            conditionSchema,
-            errorMessage,
-            hidingLogic,
-          );
-
-          prevPageIndex.current = pageIndex;
-          prevQuestionIndex.current = questionIndex;
-          prevSectionIndex.current = sectionIndex;
+            prevPageIndex.current = pageIndex;
+            prevQuestionIndex.current = questionIndex;
+            prevSectionIndex.current = sectionIndex;
+          }
         });
       },
       [updateSchemaBasedOnActionType],
@@ -1259,7 +1276,7 @@ export const RuleAction = React.memo(
               aria-label="action-condition"
               className={styles.actionCondition}
               initialSelectedItem={actions[index]?.actionCondition || 'Select a action'}
-              items={['Hide', 'Hide (section)', 'Hide (page)', 'Fail', 'Calculate']}
+              items={['Hide', 'Hide (section)', 'Hide (page)', 'Fail', 'Disable', 'Calculate']}
               onChange={({ selectedItem }: { selectedItem: string }) => {
                 handleActionChange(fieldId, ActionType.ACTION_CONDITION, selectedItem, index);
                 handleSelectAction(selectedItem);
