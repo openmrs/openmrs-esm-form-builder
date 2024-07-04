@@ -61,7 +61,7 @@ describe('RuleBuilder', () => {
     await user.click(targetAction);
 
     // To check if the Error Message Box is visible based on target action
-    const dropDownButton = screen.getByText('Select a action');
+    const dropDownButton = screen.getByText('Select an action');
     await user.click(dropDownButton);
     const failAction = screen.getByText('Fail');
     await user.click(failAction);
@@ -84,7 +84,7 @@ describe('RuleBuilder', () => {
     await user.click(targetAction);
 
     // To check if the calculate action exists
-    const dropdownBtn = screen.getByText('Select a action');
+    const dropdownBtn = screen.getByText('Select an action');
     await user.click(dropdownBtn);
     const calculateAction = screen.getByText('Calculate');
     await user.click(calculateAction);
@@ -110,6 +110,57 @@ describe('RuleBuilder', () => {
     await user.click(arrContainsCondition);
     const mutliSelectBox = document.querySelector('#multi-select');
     expect(mutliSelectBox).toBeInTheDocument();
+  });
+
+  it('should render the disable action field', async () => {
+    renderRuleBuilder();
+    const targetAction = screen.getByLabelText('action-condition');
+    const user = userEvent.setup();
+    await user.click(targetAction);
+
+    // To check if the disable action exists
+    const dropdownBtn = screen.getByText('Select an action');
+    expect(dropdownBtn).toBeInTheDocument();
+    await user.click(dropdownBtn);
+    const disableAction = screen.getByText('Disable');
+    expect(disableAction).toBeInTheDocument();
+    await user.click(disableAction);
+  });
+
+  it('should dynamically render the action field based on the selection of hiding a page or section', async () => {
+    const user = userEvent.setup();
+
+    // Test hiding the page field
+    renderRuleBuilder();
+    const actionConditionSelect = screen.getByLabelText('action-condition');
+    await user.click(actionConditionSelect);
+
+    // Verify the dropdown for selecting an action is present
+    const actionDropdown = screen.getByText('Select an action');
+    expect(actionDropdown).toBeInTheDocument();
+    await user.click(actionDropdown);
+
+    // Select and verify the "Hide (page)" action
+    const hidePageOption = screen.getByText('Hide (page)');
+    expect(hidePageOption).toBeInTheDocument();
+    await user.click(hidePageOption);
+
+    // Verify the page selection field is present
+    const pageSelectionField = screen.getByText('Select a page');
+    expect(pageSelectionField).toBeInTheDocument();
+
+    // Test hiding the section field
+    renderRuleBuilder();
+    await user.click(actionDropdown);
+
+    // Select and verify the "Hide (section)" action
+    const hideSectionOption = screen.getByText('Hide (section)');
+    expect(hideSectionOption).toBeInTheDocument();
+    await user.click(hideSectionOption);
+
+    // Verify the section selection field is present
+    const sectionSelectionField = screen.getByText('Select a section');
+    expect(sectionSelectionField).toBeInTheDocument();
   });
 });
 

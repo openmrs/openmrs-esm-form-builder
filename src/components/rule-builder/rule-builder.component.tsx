@@ -1275,7 +1275,7 @@ export const RuleAction = React.memo(
               id={`actionCondition-${index}`}
               aria-label="action-condition"
               className={styles.actionCondition}
-              initialSelectedItem={actions[index]?.actionCondition || 'Select a action'}
+              initialSelectedItem={actions[index]?.actionCondition || 'Select an action'}
               items={['Hide', 'Hide (section)', 'Hide (page)', 'Fail', 'Disable', 'Calculate']}
               onChange={({ selectedItem }: { selectedItem: string }) => {
                 handleActionChange(fieldId, ActionType.ACTION_CONDITION, selectedItem, index);
@@ -1287,11 +1287,15 @@ export const RuleAction = React.memo(
               <Dropdown
                 id={`actionField-${index}`}
                 className={styles.actionField}
-                initialSelectedItem={
+                selectedItem={
                   questions.find((question) => question.id === actions[index]?.actionField) || {
                     label: actions[index]?.actionField
                       ? actions[index]?.actionField
-                      : t('selectField', 'Select a field'),
+                      : action.includes('page')
+                        ? t('selectPage', 'Select a page')
+                        : action.includes('section')
+                          ? t('selectSection', 'Select a section')
+                          : t('selectField', 'Select a field'),
                   }
                 }
                 items={actionField}
