@@ -132,7 +132,9 @@ export interface Schema {
         validators?: Array<Record<string, string>>;
         hide?: HideProps;
       }>;
+      hide?: HideProps;
     }>;
+    hide?: HideProps;
   }>;
   processor: string;
   uuid: string;
@@ -161,12 +163,14 @@ export interface SchemaContextType {
 export interface Page {
   label: string;
   sections: Array<Section>;
+  hide?: HideProps;
 }
 
 export interface Section {
   label: string;
   questions: Array<Question>;
   isExpanded: string | boolean;
+  hide?: HideProps;
 }
 
 export interface Question {
