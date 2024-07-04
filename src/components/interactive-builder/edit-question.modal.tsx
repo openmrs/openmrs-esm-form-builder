@@ -176,7 +176,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 
   const handleConceptSelect = (concept: Concept) => {
     const datePickerType = getDatePickerType(concept);
-    if (datePickerType) setDatePickerType(datePickerType);
+    if (datePickerType) {
+      setDatePickerType(datePickerType);
+    }
     setConceptToLookup('');
     setSelectedAnswers([]);
     setSelectedConcept(concept);
