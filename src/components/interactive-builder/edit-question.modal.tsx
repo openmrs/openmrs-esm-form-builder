@@ -31,6 +31,7 @@ import type { ProgramState, RenderType } from '@openmrs/openmrs-form-engine-lib'
 
 import type { ConfigObject } from '../../config-schema';
 import type {
+  DatePickerType,
   Concept,
   ConceptMapping,
   PatientIdentifierType,
@@ -40,6 +41,7 @@ import type {
   Question,
   QuestionType,
   Schema,
+  DatePickerTypeOption,
 } from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { useConceptName } from '../../hooks/useConceptName';
@@ -51,6 +53,7 @@ import { usePersonAttributeName } from '../../hooks/usePersonAttributeName';
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { usePrograms, useProgramWorkStates } from '../../hooks/useProgramStates';
 import styles from './question-modal.scss';
+import { getDatePickerType } from './add-question.modal';
 
 interface EditQuestionModalProps {
   closeModal: () => void;
@@ -70,14 +73,6 @@ interface Item {
 interface ProgramStateData {
   selectedItems: Array<ProgramState>;
 }
-
-const DatePickerType = {
-  both: 'both',
-  calendar: 'calendar',
-  timer: 'timer',
-} as const;
-
-type DatePickerTypeValue = (typeof DatePickerType)[keyof typeof DatePickerType];
 
 const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   closeModal,
@@ -104,13 +99,16 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const [conceptToLookup, setConceptToLookup] = useState('');
   const [personAttributeTypeToLookup, setPersonAttributeTypeToLookup] = useState('');
   const [patientIdentifierTypeToLookup, setPatientIdentifierTypeToLookup] = useState('');
-  const [fieldType, setFieldType] = useState<RenderType | null>(null);
+  const [fieldType, setFieldType] = useState<RenderType | null>(questionToEdit.questionOptions.rendering);
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
   const [max, setMax] = useState('');
   const [min, setMin] = useState('');
   const [questionId, setQuestionId] = useState('');
   const [questionLabel, setQuestionLabel] = useState('');
   const [questionType, setQuestionType] = useState<QuestionType | null>(null);
+  const [datePickerType, setDatePickerType] = useState<DatePickerType | null>(
+    questionToEdit.datePickerFormat ?? 'both',
+  );
   const [rows, setRows] = useState('');
   const [selectedAnswers, setSelectedAnswers] = useState<
     Array<{
@@ -123,9 +121,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const { concepts, isLoadingConcepts } = useConceptLookup(conceptToLookup);
   const { conceptName, conceptNameLookupError, isLoadingConceptName } = useConceptName(
     questionToEdit.questionOptions.concept,
-  );
-  const [datePickerFormat, setDatePickerFormat] = useState<(typeof DatePickerType)[DatePickerTypeValue]>(
-    DatePickerType.both,
   );
   const { patientIdentifierTypes } = usePatientIdentifierTypes();
   const { personAttributeTypes } = usePersonAttributeTypes();
@@ -152,6 +147,13 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const hasConceptChanged = selectedConcept && questionToEdit?.questionOptions?.concept !== selectedConcept?.uuid;
   const [addInlineDate, setAddInlineDate] = useState(false);
 
+  // Maps the data type of a concept to a date picker type.
+  const datePickerTypeOptions: Record<string, Array<DatePickerTypeOption>> = {
+    datetime: [{ value: 'both', label: t('calendarAndTimer', 'Calendar and timer'), defaultChecked: true }],
+    date: [{ value: 'calendar', label: t('calendarOnly', 'Calendar only'), defaultChecked: false }],
+    time: [{ value: 'timer', label: t('timerOnly', 'Timer only'), defaultChecked: false }],
+  };
+
   const debouncedSearch = useMemo(() => {
     return debounce((searchTerm: string) => setConceptToLookup(searchTerm), 500) as (searchTerm: string) => void;
   }, []);
@@ -173,6 +175,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   };
 
   const handleConceptSelect = (concept: Concept) => {
+    const datePickerType = getDatePickerType(concept);
+    if (datePickerType) {
+      setDatePickerType(datePickerType);
+    }
     setConceptToLookup('');
     setSelectedAnswers([]);
     setSelectedConcept(concept);
@@ -261,12 +267,16 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
         type: questionType ? questionType : questionToEdit.type,
         required: isQuestionRequired ? isQuestionRequired : /true/.test(questionToEdit?.required?.toString()),
         id: questionId ? questionId : questionToEdit.id,
-        ...(datePickerFormat && {
-          datePickerFormat: datePickerFormat,
+        ...(((fieldType && (fieldType === 'date' || fieldType === 'datetime')) ||
+          questionToEdit.questionOptions.rendering === 'date' ||
+          questionToEdit.questionOptions.rendering === 'datetime') && {
+          datePickerFormat: datePickerType,
         }),
         questionOptions: {
           rendering: fieldType ? fieldType : questionToEdit.questionOptions.rendering,
-          concept: selectedConcept?.uuid ? selectedConcept.uuid : questionToEdit.questionOptions.concept,
+          ...((selectedConcept || questionToEdit.questionOptions.concept) && {
+            concept: selectedConcept ? selectedConcept.uuid : questionToEdit.questionOptions.concept,
+          }),
           conceptMappings: conceptMappings?.length ? conceptMappings : questionToEdit.questionOptions.conceptMappings,
           answers: mappedAnswers,
           ...(questionType === 'patientIdentifier' && {
@@ -452,33 +462,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               />
             ) : null}
 
-            {questionToEdit.type === 'encounterDatetime' ? (
-              <RadioButtonGroup
-                defaultSelected={questionToEdit?.datePickerFormat}
-                name="datePickerFormat"
-                legendText={t('datePickerType', 'The type of date picker to show ')}
-              >
-                <RadioButton
-                  id="both"
-                  labelText={t('calendarAndTimer', 'Calendar and timer')}
-                  onClick={() => setDatePickerFormat(DatePickerType.both)}
-                  value="both"
-                />
-                <RadioButton
-                  id="calendar"
-                  labelText={t('calendarOnly', 'Calendar only')}
-                  onClick={() => setDatePickerFormat(DatePickerType.calendar)}
-                  value="calendar"
-                />
-                <RadioButton
-                  id="timer"
-                  labelText={t('timerOnly', 'Timer only')}
-                  onClick={() => setDatePickerFormat(DatePickerType.timer)}
-                  value="timer"
-                />
-              </RadioButtonGroup>
-            ) : null}
-
             {questionToEdit.type === 'patientIdentifier' && (
               <div>
                 <FormLabel className={styles.label}>
@@ -651,7 +634,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                         <Search
                           defaultValue={conceptName}
                           id="conceptLookup"
-                          onClear={() => setSelectedConcept(null)}
+                          onClear={() => {
+                            setSelectedConcept(null);
+                            setDatePickerType('both');
+                          }}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             handleConceptChange(e.target.value?.trim())
                           }
@@ -840,6 +826,38 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                   </Stack>
                 </>
               )}
+
+            {fieldType === 'date' || fieldType === 'datetime' ? (
+              <RadioButtonGroup
+                name="datePickerType"
+                legendText={t('datePickerType', 'The type of date picker to show')}
+              >
+                {/** Filters out the date picker types based on the selected concept's data type. 
+                     If no concept is selected, all date picker types are shown. 
+                */}
+                {selectedConcept && selectedConcept.datatype
+                  ? datePickerTypeOptions[selectedConcept.datatype.name.toLowerCase()].map((type) => (
+                      <RadioButton
+                        id={type.value}
+                        labelText={type.label}
+                        onClick={() => setDatePickerType(type.value)}
+                        checked={datePickerType === type.value}
+                        value={type.value}
+                      />
+                    ))
+                  : Object.values(datePickerTypeOptions)
+                      .flat()
+                      .map((type) => (
+                        <RadioButton
+                          id={type.value}
+                          checked={datePickerType === type.value}
+                          labelText={type.label}
+                          onClick={() => setDatePickerType(type.value)}
+                          value={type.value}
+                        />
+                      ))}
+              </RadioButtonGroup>
+            ) : null}
           </Stack>
         </ModalBody>
         <ModalFooter>

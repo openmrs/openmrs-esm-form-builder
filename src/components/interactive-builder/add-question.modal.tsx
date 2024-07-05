@@ -40,6 +40,8 @@ import type {
   QuestionType,
   Program,
   ProgramWorkflow,
+  DatePickerType,
+  DatePickerTypeOption,
 } from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
@@ -57,14 +59,6 @@ interface AddQuestionModalProps {
   sectionIndex: number;
 }
 
-const DatePickerType = {
-  both: 'both',
-  calendar: 'calendar',
-  timer: 'timer',
-} as const;
-
-type DatePickerTypeValue = (typeof DatePickerType)[keyof typeof DatePickerType];
-
 interface Item {
   text: string;
 }
@@ -79,6 +73,21 @@ interface RequiredLabelProps {
   t: TFunction;
 }
 
+export const getDatePickerType = (concept: Concept): DatePickerType | null => {
+  const conceptDataType = concept.datatype.name;
+  switch (conceptDataType) {
+    case 'Datetime':
+      return 'both';
+    case 'Date':
+      return 'calendar';
+    case 'Time':
+      return 'timer';
+    default:
+      console.warn(`Unsupported datatype for date fields: ${conceptDataType}`);
+      return null;
+  }
+};
+
 const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   closeModal,
   onSchemaChange,
@@ -92,9 +101,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [conceptMappings, setConceptMappings] = useState<Array<ConceptMapping>>([]);
   const [conceptToLookup, setConceptToLookup] = useState('');
   const debouncedConceptToLookup = useDebounce(conceptToLookup);
-  const [datePickerType, setDatePickerType] = useState<(typeof DatePickerType)[DatePickerTypeValue]>(
-    DatePickerType.both,
-  );
+  const [datePickerType, setDatePickerType] = useState<DatePickerType>('both');
   const [renderingType, setRenderingType] = useState<RenderType | null>(null);
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
   const [max, setMax] = useState('');
@@ -139,9 +146,18 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     programState: ['select'],
   };
 
+  // Maps the data type of a concept to a date picker type.
+  const datePickerTypeOptions: Record<string, Array<DatePickerTypeOption>> = {
+    datetime: [{ value: 'both', label: t('calendarAndTimer', 'Calendar and timer'), defaultChecked: true }],
+    date: [{ value: 'calendar', label: t('calendarOnly', 'Calendar only'), defaultChecked: false }],
+    time: [{ value: 'timer', label: t('timerOnly', 'Timer only'), defaultChecked: false }],
+  };
+
   const handleConceptChange = (event: React.ChangeEvent<HTMLInputElement>) => setConceptToLookup(event.target.value);
 
   const handleConceptSelect = (concept: Concept) => {
+    const updatedDatePickerType = getDatePickerType(concept);
+    if (updatedDatePickerType) setDatePickerType(updatedDatePickerType);
     setConceptToLookup('');
     setSelectedConcept(concept);
     setAnswers(
@@ -197,10 +213,11 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         type: questionType,
         required: isQuestionRequired,
         id: questionId ?? computedQuestionId,
-        ...(questionType === 'encounterDatetime' && { datePickerFormat: datePickerType }),
+        ...((renderingType === 'date' || renderingType === 'datetime') &&
+          datePickerType && { datePickerFormat: datePickerType }),
         questionOptions: {
           rendering: renderingType,
-          concept: selectedConcept?.uuid ? selectedConcept?.uuid : '',
+          ...(selectedConcept && { concept: selectedConcept?.uuid }),
           ...(conceptMappings.length && { conceptMappings }),
           ...(selectedAnswers.length && {
             answers: selectedAnswers.map((answer) => ({
@@ -494,6 +511,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                         id="conceptLookup"
                         onClear={() => {
                           setSelectedConcept(null);
+                          setDatePickerType('both');
                           setAnswers([]);
                           setConceptMappings([]);
                         }}
@@ -678,33 +696,35 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 </>
               ) : null}
 
-              {questionType === 'encounterDatetime' ? (
+              {renderingType === 'date' || renderingType === 'datetime' ? (
                 <RadioButtonGroup
-                  defaultSelected="both"
                   name="datePickerType"
                   legendText={t('datePickerType', 'The type of date picker to show ')}
                 >
-                  <RadioButton
-                    id="both"
-                    defaultChecked={true}
-                    labelText={t('calendarAndTimer', 'Calendar and timer')}
-                    onClick={() => setDatePickerType(DatePickerType.both)}
-                    value="both"
-                  />
-                  <RadioButton
-                    id="calendar"
-                    defaultChecked={false}
-                    labelText={t('calendarOnly', 'Calendar only')}
-                    onClick={() => setDatePickerType(DatePickerType.calendar)}
-                    value="calendar"
-                  />
-                  <RadioButton
-                    id="timer"
-                    defaultChecked={false}
-                    labelText={t('timerOnly', 'Timer only')}
-                    onClick={() => setDatePickerType(DatePickerType.timer)}
-                    value="timer"
-                  />
+                  {/** Filters out the date picker types based on the selected concept's data type. 
+                       If no concept is selected, all date picker types are shown. 
+                  */}
+                  {selectedConcept && selectedConcept.datatype
+                    ? datePickerTypeOptions[selectedConcept.datatype.name.toLowerCase()].map((type) => (
+                        <RadioButton
+                          id={type.value}
+                          labelText={type.label}
+                          onClick={() => setDatePickerType(type.value)}
+                          checked={datePickerType === type.value}
+                          value={type.value}
+                        />
+                      ))
+                    : Object.values(datePickerTypeOptions)
+                        .flat()
+                        .map((type) => (
+                          <RadioButton
+                            id={type.value}
+                            checked={datePickerType === type.value}
+                            labelText={type.label}
+                            onClick={() => setDatePickerType(type.value)}
+                            value={type.value}
+                          />
+                        ))}
                 </RadioButtonGroup>
               ) : null}
 
