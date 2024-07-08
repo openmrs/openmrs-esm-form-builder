@@ -6,14 +6,16 @@
     "eslint:recommended",
     "plugin:playwright/recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking"
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:jest-dom/recommended",
+    "plugin:testing-library/react"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": true,
     "tsconfigRootDir": "__dirname"
   },
-  "plugins": ["@typescript-eslint", "react-hooks"],
+  "plugins": ["@typescript-eslint", "jest-dom", "react-hooks", "testing-library"],
   "root": true,
   "rules": {
     "react-hooks/exhaustive-deps": "warn",

@@ -110,6 +110,8 @@ export interface HideProps {
   hideWhenExpression: string;
 }
 
+export type DatePickerType = 'both' | 'calendar' | 'timer';
+
 export interface Schema {
   name: string;
   pages: Array<{
@@ -185,7 +187,7 @@ export interface Question {
   label: string;
   type: string;
   questionOptions: QuestionOptions;
-  datePickerFormat?: string;
+  datePickerFormat?: DatePickerType;
   questions?: Array<Question>;
   required?: string | boolean | RequiredFieldProps;
   validators?: Array<Record<string, string>>;
@@ -227,6 +229,7 @@ export interface Concept {
   uuid: string;
   display: string;
   mappings: Array<Mapping>;
+  datatype: OpenmrsResource;
   answers: Array<ConceptAnswer>;
   allowDecimal?: boolean;
 }
@@ -323,4 +326,10 @@ export interface ProgramWorkflow {
     display: string;
     uuid: string;
   };
+}
+
+export interface DatePickerTypeOption {
+  value: DatePickerType;
+  label: string;
+  defaultChecked: boolean;
 }
