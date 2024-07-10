@@ -5,151 +5,161 @@ interface UseFormMockValues {
   setRules: () => jest.Mock;
 }
 
-export const useFormMockValues: UseFormMockValues = { rules: [], setRules: () => jest.fn()}
+export const useFormMockValues: UseFormMockValues = { rules: [], setRules: () => jest.fn() };
 export const numberRenderingQuestion: Question = {
-  'label': 'Age',
-  'type': 'obs',
-  'required': true,
-  'id': 'age',
-  'questionOptions': {
-    'rendering': 'number',
-    'concept': '162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-    'conceptMappings': [
+  label: 'Age',
+  type: 'obs',
+  required: true,
+  id: 'age',
+  questionOptions: {
+    rendering: 'number',
+    concept: '162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    conceptMappings: [
       {
-        'relationship': 'SAME-AS',
-        'type': 'CIEL',
-        'value': '162370'
+        relationship: 'SAME-AS',
+        type: 'CIEL',
+        value: '162370',
       },
       {
-        'relationship': 'SAME-AS',
-        'type': 'SNOMED CT',
-        'value': '419702001'
-      }
+        relationship: 'SAME-AS',
+        type: 'SNOMED CT',
+        value: '419702001',
+      },
+    ],
+    answers: [
+      {
+        concept: 'a899b35c-1350-11df-a1f1-0026b9348838',
+        label: 'Yes',
+      },
+      {
+        concept: 'a899b42e-1350-11df-a1f1-0026b9348838',
+        label: 'No',
+      },
     ]
   },
-  'validators': []
-}
+  validators: [],
+};
 
 export const dateRenderingQuestion: Question = {
-  'label': 'date',
-  'type': 'obs',
-  'required': false,
-  'id': 'date',
-  'questionOptions': {
-    'rendering': 'date',
-    'concept': '162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-    'conceptMappings': [
+  label: 'date',
+  type: 'obs',
+  required: false,
+  id: 'date',
+  questionOptions: {
+    rendering: 'date',
+    concept: '162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    conceptMappings: [
       {
-        'relationship': 'SAME-AS',
-        'type': 'CIEL',
-        'value': '162370'
+        relationship: 'SAME-AS',
+        type: 'CIEL',
+        value: '162370',
       },
       {
-        'relationship': 'SAME-AS',
-        'type': 'SNOMED CT',
-        'value': '419702001'
-      }
+        relationship: 'SAME-AS',
+        type: 'SNOMED CT',
+        value: '419702001',
+      },
     ],
-    'answers': []
+    answers: [],
   },
-  'validators': []
-}
+  validators: [],
+};
 
 export const schema: Schema = {
-  'name': 'form1',
-  'pages': [
+  name: 'form1',
+  pages: [
     {
-      'label': 'page1',
-      'sections': [
+      label: 'page1',
+      sections: [
         {
-          'label': 'section1',
-          'isExpanded': 'true',
-          'questions': [
+          label: 'section1',
+          isExpanded: 'true',
+          questions: [
             {
-              'label': 'Name',
-              'type': 'obs',
-              'required': true,
-              'id': 'name',
-              'questionOptions': {
-                'rendering': 'text',
-                'concept': '162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-                'conceptMappings': [
+              label: 'Name',
+              type: 'obs',
+              required: true,
+              id: 'name',
+              questionOptions: {
+                rendering: 'text',
+                concept: '162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                conceptMappings: [
                   {
-                    'relationship': 'SAME-AS',
-                    'type': 'CIEL',
-                    'value': '162370'
+                    relationship: 'SAME-AS',
+                    type: 'CIEL',
+                    value: '162370',
                   },
                   {
-                    'relationship': 'SAME-AS',
-                    'type': 'SNOMED CT',
-                    'value': '419702001'
-                  }
-                ]
+                    relationship: 'SAME-AS',
+                    type: 'SNOMED CT',
+                    value: '419702001',
+                  },
+                ],
               },
-              'validators': []
+              validators: [],
             },
             {
-              'label': 'Are you currently in HIV care or under ART?',
-              'id': 'currentlyOnArt',
-              'type': 'obs',
-              'questionOptions': {
-                'rendering': 'select',
-                'concept': 'a8afba58-1350-11df-a1f1-0026b9348838',
-                'answers': [
+              label: 'Are you currently in HIV care or under ART?',
+              id: 'currentlyOnArt',
+              type: 'obs',
+              questionOptions: {
+                rendering: 'select',
+                concept: 'a8afba58-1350-11df-a1f1-0026b9348838',
+                answers: [
                   {
-                    'concept': 'a899b35c-1350-11df-a1f1-0026b9348838',
-                    'label': 'Yes'
+                    concept: 'a899b35c-1350-11df-a1f1-0026b9348838',
+                    label: 'Yes',
                   },
                   {
-                    'concept': 'a899b42e-1350-11df-a1f1-0026b9348838',
-                    'label': 'No'
-                  }
-                ]
+                    concept: 'a899b42e-1350-11df-a1f1-0026b9348838',
+                    label: 'No',
+                  },
+                ],
               },
-              'validators': []
-            }
-          ]
-        }
-      ]
+              validators: [],
+            },
+          ],
+        },
+      ],
     },
     {
-      'label': 'page2',
-      'sections': [
+      label: 'page2',
+      sections: [
         {
-          'label': 'section2',
-          'isExpanded': 'true',
-          'questions': [
+          label: 'section2',
+          isExpanded: 'true',
+          questions: [
             {
-              'label': 'Age',
-              'type': 'obs',
-              'required': true,
-              'id': 'age',
-              'questionOptions': {
-                'rendering': 'text',
-                'concept': '162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-                'conceptMappings': [
+              label: 'Age',
+              type: 'obs',
+              required: true,
+              id: 'age',
+              questionOptions: {
+                rendering: 'text',
+                concept: '162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                conceptMappings: [
                   {
-                    'relationship': 'SAME-AS',
-                    'type': 'CIEL',
-                    'value': '162370'
+                    relationship: 'SAME-AS',
+                    type: 'CIEL',
+                    value: '162370',
                   },
                   {
-                    'relationship': 'SAME-AS',
-                    'type': 'SNOMED CT',
-                    'value': '419702001'
-                  }
-                ]
+                    relationship: 'SAME-AS',
+                    type: 'SNOMED CT',
+                    value: '419702001',
+                  },
+                ],
               },
-              'validators': []
-            }
-          ]
-        }
-      ]
-    }
+              validators: [],
+            },
+          ],
+        },
+      ],
+    },
   ],
-  'processor': 'EncounterFormProcessor',
-  'encounterType': '',
-  'referencedForms': [],
-  'uuid': '',
-  'description': 'desc1'
-}
+  processor: 'EncounterFormProcessor',
+  encounterType: '',
+  referencedForms: [],
+  uuid: '',
+  description: 'desc1',
+};
