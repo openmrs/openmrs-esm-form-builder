@@ -496,18 +496,16 @@ const RuleBuilder = React.memo(
 
     const getRenderingType = useCallback(
       (rule: FormRule): string => {
-        return rule?.conditions
-          ?.map((condition: Condition) => {
-            const { pageIndex, sectionIndex, questionIndex } = findQuestionIndexes(
-              schema,
-              condition?.targetField,
-              'field',
-            );
-            const renderingType: string =
-              schema.pages[pageIndex]?.sections[sectionIndex]?.questions[questionIndex]?.questionOptions?.rendering;
-            return renderingType;
-          })
-          .join(',');
+        return rule?.conditions?.reduce((acc, condition: Condition) => {
+          const { pageIndex, sectionIndex, questionIndex } = findQuestionIndexes(
+            schema,
+            condition?.targetField,
+            'field',
+          );
+          const renderingType: string =
+            schema.pages[pageIndex]?.sections[sectionIndex]?.questions[questionIndex]?.questionOptions?.rendering || '';
+          return acc || renderingType;
+        }, '');
       },
       [schema],
     );
@@ -545,7 +543,8 @@ const RuleBuilder = React.memo(
 
     const processCalculateFields = useCallback(
       (rule: FormRule, newSchema: Schema, conditionSchema: string) => {
-        const renderingType = getRenderingType(rule);
+        const view = getRenderingType(rule);
+        const renderingType = view;
         const { validConditionsCount, height, weight, dateField } = evaluateConditionsForCalculation(
           rule,
           renderingType,
@@ -558,7 +557,7 @@ const RuleBuilder = React.memo(
         }
 
         if (isValidForCalculation(validConditionsCount, conditionSchema, height, weight, '&&')) {
-          applyCalculationExpressionToSchema(rule, newSchema, height, weight, '', renderingType);
+          applyCalculationExpressionToSchema(rule, newSchema, height, weight, '', view);
         } else {
           removeCalculationExpressionFromSchema(newSchema);
         }
@@ -965,6 +964,7 @@ export const RuleHeader = React.memo(
       <div className={styles.toggleContainer}>
         <Toggle
           id={`toggle-required-${ruleId}`}
+          aria-label={t('toggleRequired', 'Toggle Required')}
           labelText={t('required', 'Required')}
           hideLabel
           toggled={isRequired}
@@ -974,6 +974,7 @@ export const RuleHeader = React.memo(
         {renderingType === RenderingType.DATE && (
           <Toggle
             id={`toggle-allow-future-date-${ruleId}`}
+            aria-label={t('toggleAllowFutureDates', 'Toggle Allow Future Dates')}
             labelText={t('allowFutureDates', 'Allow Future Dates')}
             hideLabel
             toggled={isAllowFutureDate}
@@ -984,6 +985,7 @@ export const RuleHeader = React.memo(
         {renderingType === RenderingType.NUMBER && (
           <Toggle
             id={`toggle-disallow-decimal-value-${ruleId}`}
+            aria-label={t('toggleDisAllowDecimalValue', 'Toggle Disallow Decimal Value')}
             labelText={t('disAllowDecimalValue', 'Disallow Decimal Value')}
             hideLabel
             toggled={isDisallowDecimals}
@@ -1075,7 +1077,7 @@ export const RuleCondition = React.memo(
               size={responsiveSize}
             />
           ) : (
-            <div className={styles.ruleDescriptor} id="when-rule-descriptor">
+            <div className={styles.ruleDescriptor} id="whenRuleDescriptor">
               <span className={styles.icon}>
                 <FlowConnection />
               </span>
@@ -1084,6 +1086,7 @@ export const RuleCondition = React.memo(
           )}
           <Dropdown
             id={`targetField-${index}`}
+            aria-label={t('targetFiled', 'Target field')}
             className={styles.targetField}
             initialSelectedItem={
               questions?.find((question) => question.id === conditions[index]?.targetField) || {
@@ -1099,9 +1102,9 @@ export const RuleCondition = React.memo(
           />
           <Dropdown
             id={`targetCondition-${index}`}
-            aria-label="target-condition"
+            aria-label={t('targetCondition', 'Target condition')}
             className={styles.targetCondition}
-            selectedItem={conditions[index]?.targetCondition || 'Select Condition'}
+            selectedItem={conditions[index]?.targetCondition || 'Select condition'}
             items={comparisonOperators.map((operator) => ({
               ...operator,
               label: t(operator.key, operator.defaultLabel),
@@ -1114,7 +1117,8 @@ export const RuleCondition = React.memo(
           />
           {(isConditionValueVisible || isMultipleAnswers) && (
             <InputSelectionBox
-              id={'target-value'}
+              id="targetValue"
+              aria-label={t('targetValue', 'Target value')}
               key={'target-value'}
               value={inputValue}
               selectedAnswers={selectedAnswers}
@@ -1128,23 +1132,26 @@ export const RuleCondition = React.memo(
         </div>
         <Layer className={styles.layer}>
           <OverflowMenu
-            aria-label={t('optionsMenu', 'Options Menu')}
+            id="conditionOptionsMenu"
+            aria-label={t('conditionOptionsMenu', 'Condition Options Menu')}
+            data-testid="condition-options-menu"
             className={styles.overflowMenu}
             size={responsiveSize}
             align="left"
             flipped
           >
             <OverflowMenuItem
-              className={styles.menuItem}
               id="addCondition"
+              aria-label={t('addCondition', 'Add condition')}
+              className={styles.menuItem}
               onClick={addCondition}
               itemText={t('addCondition', 'Add condition')}
               hasDivider
             />
             {!isNewCondition ? (
               <OverflowMenuItem
-                className={styles.menuItem}
                 id="addNewConditionalLogic"
+                className={styles.menuItem}
                 onClick={addNewConditionalLogic}
                 itemText={t('addNewLogic', 'Add new logic')}
               />
@@ -1273,7 +1280,7 @@ export const RuleAction = React.memo(
             )}
             <Dropdown
               id={`actionCondition-${index}`}
-              aria-label="action-condition"
+              aria-label={t('triggerAction', 'Trigger action')}
               className={styles.actionCondition}
               initialSelectedItem={actions[index]?.actionCondition || 'Select an action'}
               items={['Hide', 'Hide (section)', 'Hide (page)', 'Fail', 'Disable', 'Calculate']}
@@ -1327,8 +1334,8 @@ export const RuleAction = React.memo(
           </div>
           <Layer className={styles.layer}>
             <OverflowMenu
-              id="options-menu"
-              aria-label={t('optionsMenu', 'Options menu')}
+              id="actions-options-menu"
+              aria-label={t('actionsOptionsMenu', 'Actions Options menu')}
               className={styles.overflowMenu}
               align="left"
               flipped
