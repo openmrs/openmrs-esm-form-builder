@@ -238,6 +238,12 @@ const RuleBuilder = React.memo(
           return `calcMonthsOnART('${dateField}')`;
         case 'Age Based On Date':
           return `calcAgeBasedOnDate('${dateField}')`;
+        case 'Time Difference in days':
+          return `calcTimeDifference('${dateField}', 'd')`;
+        case 'Time Difference in weeks':
+          return `calcTimeDifference('${dateField}', 'w')`;
+        case 'Time Difference in years':
+          return `calcTimeDifference('${dateField}', 'y')`;
       }
     };
     const getLogicalOperator = (logicalOperator: string) => {
@@ -444,14 +450,12 @@ const RuleBuilder = React.memo(
 
           const isDateBased = dateBasedCalculationFunctions.includes(action?.calculateField);
           const isHeightAndWeightBased = heightAndWeightBasedCalculationFunctions.includes(action?.calculateField);
-
           let calculateExpression = '';
           if (isDateBased) {
             calculateExpression = getCalculateExpression(action?.calculateField, '', '', dateField);
           } else if (isHeightAndWeightBased) {
             calculateExpression = getCalculateExpression(action?.calculateField, height, weight);
           }
-
           if (!calculateExpression) return;
 
           const shouldApplyCalculation =
