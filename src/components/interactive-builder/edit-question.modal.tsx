@@ -253,7 +253,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     } else {
       if (questionToEdit.type === 'programState') {
         mappedAnswers = selectedProgramState.map((answer) => ({
-          value: answer.concept.uuid,
+          value: answer.uuid,
           label: answer.concept.display,
         }));
       } else {
@@ -350,7 +350,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 
   useEffect(() => {
     const previousStates = programWorkflow?.states.filter((state) =>
-      questionToEdit.questionOptions.answers.some((answer) => answer.value === state.concept.uuid),
+      questionToEdit.questionOptions.answers.some((answer) => answer.value === state.uuid),
     );
     setSelectedProgramState(previousStates);
   }, [programWorkflow, questionToEdit.questionOptions.answers]);

@@ -238,7 +238,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             selectedConcept?.allowDecimal === false && { disallowDecimals: true }),
           ...(questionType === 'programState' && {
             answers: selectedProgramState.map((answer) => ({
-              value: answer.concept.uuid,
+              value: answer.uuid,
               label: answer.concept.display,
             })),
             programUuid: selectedProgram.uuid,
