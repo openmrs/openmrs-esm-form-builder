@@ -10,6 +10,7 @@ export const dateBasedCalculationFunctions: Array<string> = [
   'Months On ART',
   'Time Difference in days',
   'Time Difference in weeks',
+  'Time Difference in months',
   'Time Difference in years',
 ];
 
@@ -104,8 +105,9 @@ export const calculateFunctions: Array<CalculationFunctions> = [
   { key: 'ageBasedonArt', defaultLabel: 'Age Based On Date', type: 'string' },
   { key: 'monthsOnArt', defaultLabel: 'Months On ART', type: 'string' },
   { key: 'expectedDeliveryDate', defaultLabel: 'Expected Delivery Date', type: 'string' },
-  { key: 'calculateTimeDiffrenceinDays', defaultLabel: 'Time Difference in days', type: 'string' },
-  { key: 'calculateTimeDiffrenceinWeeks', defaultLabel: 'Time Difference in weeks', type: 'string' },
-  { key: 'calculateTimeDiffrenceinYears', defaultLabel: 'Time Difference in years', type: 'string' },
+  { key: 'calculateTimeDiffrenceInDays', defaultLabel: 'Time Difference in days', type: 'string' },
+  { key: 'calculateTimeDiffrenceInWeeks', defaultLabel: 'Time Difference in weeks', type: 'string' },
+  { key: 'calculateTimeDiffrenceInMonths', defaultLabel: 'Time Difference in months', type: 'string' },
+  { key: 'calculateTimeDiffrenceInYears', defaultLabel: 'Time Difference in years', type: 'string' },
   { key: 'calculateViralLoadStatus', defaultLabel: 'Viral Load Status', type: 'string' },
 ];

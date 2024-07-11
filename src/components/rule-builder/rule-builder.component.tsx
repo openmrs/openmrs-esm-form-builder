@@ -253,6 +253,8 @@ const RuleBuilder = React.memo(
           return `calcTimeDifference('${dateField}', 'd')`;
         case 'Time Difference in weeks':
           return `calcTimeDifference('${dateField}', 'w')`;
+        case 'Time Difference in months':
+          return `calcTimeDifference('${dateField}', 'm')`;
         case 'Time Difference in years':
           return `calcTimeDifference('${dateField}', 'y')`;
         case 'Viral Load Status':
