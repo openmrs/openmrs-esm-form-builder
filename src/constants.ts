@@ -21,6 +21,7 @@ export const heightAndWeightBasedCalculationFunctions: Array<string> = [
   'Weight For Height Zscore',
 ];
 
+export const helperFunctions: Array<string> = ['Viral Load Status'];
 export const emptyStates: Array<string> = ['Is Empty', 'Not Empty'];
 export const arrContains: Array<string> = ['Contains any', 'Does not contains any'];
 
@@ -106,4 +107,5 @@ export const calculateFunctions: Array<CalculationFunctions> = [
   { key: 'calculateTimeDiffrenceinDays', defaultLabel: 'Time Difference in days', type: 'string' },
   { key: 'calculateTimeDiffrenceinWeeks', defaultLabel: 'Time Difference in weeks', type: 'string' },
   { key: 'calculateTimeDiffrenceinYears', defaultLabel: 'Time Difference in years', type: 'string' },
+  { key: 'calculateViralLoadStatus', defaultLabel: 'Viral Load Status', type: 'string' },
 ];

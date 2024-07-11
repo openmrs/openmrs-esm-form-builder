@@ -29,6 +29,7 @@ import {
   dateBasedCalculationFunctions,
   emptyStates,
   heightAndWeightBasedCalculationFunctions,
+  helperFunctions,
   helpLink,
 } from '../../constants';
 import styles from './rule-builder.scss';
@@ -224,7 +225,13 @@ const RuleBuilder = React.memo(
       }
     };
 
-    const getCalculateExpression = (expression: string, height?: string, weight?: string, dateField?: string) => {
+    const getCalculateExpression = (
+      expression: string,
+      targetField?: string,
+      height?: string,
+      weight?: string,
+      dateField?: string,
+    ) => {
       switch (expression) {
         case 'BMI':
           return `calcBMI('${height}', '${weight}')`;
@@ -248,6 +255,8 @@ const RuleBuilder = React.memo(
           return `calcTimeDifference('${dateField}', 'w')`;
         case 'Time Difference in years':
           return `calcTimeDifference('${dateField}', 'y')`;
+        case 'Viral Load Status':
+          return `calcViralLoadStatus(${targetField})`;
       }
     };
     const getLogicalOperator = (logicalOperator: string) => {
@@ -443,48 +452,7 @@ const RuleBuilder = React.memo(
       [updateSchemaBasedOnActionType],
     );
 
-    const isQuestionIndexValid = (pageIndex: number, sectionIndex: number, questionIndex: number) => {
-      return pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1;
-    };
-
-    const applyCalculationExpressionToSchema = useCallback(
-      (rule: FormRule, schema: Schema, height: string, weight: string, dateField?: string, renderingType?: string) => {
-        rule?.actions?.forEach((action: Action) => {
-          if (action?.actionCondition !== (TriggerType.CALCULATE as string)) return;
-
-          const isDateBased = dateBasedCalculationFunctions.includes(action?.calculateField);
-          const isHeightAndWeightBased = heightAndWeightBasedCalculationFunctions.includes(action?.calculateField);
-          let calculateExpression = '';
-          if (isDateBased) {
-            calculateExpression = getCalculateExpression(action?.calculateField, '', '', dateField);
-          } else if (isHeightAndWeightBased) {
-            calculateExpression = getCalculateExpression(action?.calculateField, height, weight);
-          }
-          if (!calculateExpression) return;
-
-          const shouldApplyCalculation =
-            renderingType === (RenderingType.DATE as string) ||
-            isQuestionIndexValid(pageIndex, sectionIndex, questionIndex);
-          if (shouldApplyCalculation) {
-            schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions.calculate = {
-              calculateExpression,
-            };
-          }
-        });
-      },
-      [pageIndex, questionIndex, sectionIndex],
-    );
-
-    const removeCalculationExpressionFromSchema = useCallback(
-      (schema: Schema) => {
-        if (isQuestionIndexValid(pageIndex, sectionIndex, questionIndex)) {
-          delete schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions?.calculate;
-        }
-      },
-      [pageIndex, questionIndex, sectionIndex],
-    );
-
-    const isValidForCalculation = useCallback(
+    const isValidForHeightAndWeightBasedCalculation = useCallback(
       (
         validConditionsCount: number,
         conditionSchema: string,
@@ -502,84 +470,112 @@ const RuleBuilder = React.memo(
       [],
     );
 
-    const getRenderingType = useCallback(
-      (rule: FormRule): string => {
-        return rule?.conditions?.reduce((acc, condition: Condition) => {
-          const { pageIndex, sectionIndex, questionIndex } = findQuestionIndexes(
-            schema,
-            condition?.targetField,
-            'field',
-          );
-          const renderingType: string =
-            schema.pages[pageIndex]?.sections[sectionIndex]?.questions[questionIndex]?.questionOptions?.rendering || '';
-          return acc || renderingType;
-        }, '');
-      },
-      [schema],
-    );
-
-    const evaluateConditionsForCalculation = useCallback((rule: FormRule, renderingType: string) => {
-      let validConditionsCount = 0;
-      let height = '',
-        weight = '',
-        dateField = '';
-
-      const updateForDateType = (condition: Condition) => {
-        dateField = condition.targetField;
-      };
-
-      const updateForOtherTypes = (condition: Condition, index: number) => {
-        if (condition.targetField !== '') {
-          validConditionsCount++;
-          if (index === 0) height = condition.targetField;
-          else if (index === 1) weight = condition.targetField;
-        }
-      };
-
-      if (renderingType === (RenderingType.DATE as string)) {
-        rule?.conditions?.forEach(updateForDateType);
-      } else {
-        rule?.conditions?.forEach(updateForOtherTypes);
-      }
-
-      return { validConditionsCount, height, weight, dateField };
-    }, []);
-
-    const isValidForDateCalculation = useCallback((conditionSchema: string, dateField: string) => {
+    const isValidForDateBasedCalculation = useCallback((conditionSchema: string, dateField: string) => {
       return conditionSchema.includes(`!isEmpty(${dateField})`);
     }, []);
 
-    const processCalculateFields = useCallback(
-      (rule: FormRule, newSchema: Schema, conditionSchema: string) => {
-        const view = getRenderingType(rule);
-        const renderingType = view;
-        const { validConditionsCount, height, weight, dateField } = evaluateConditionsForCalculation(
-          rule,
-          renderingType,
+    const isValidForHelperFunctionCalculation = useCallback((conditionSchema: string, targetField: string) => {
+      return conditionSchema.includes(`!isEmpty(${targetField})`);
+    }, []);
+
+    const updateSchemaWithCalculateExpression = useCallback(
+      (newSchema: Schema, calculateExpression: string) => {
+        if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
+          newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions.calculate = {
+            calculateExpression,
+          };
+        }
+      },
+      [pageIndex, questionIndex, sectionIndex],
+    );
+
+    const handleHeightWeightCalculation = useCallback(
+      (rule: FormRule, conditionSchema: string, action: Action, condition: Condition, newSchema: Schema) => {
+        let height = '',
+          weight = '',
+          validConditionsCount = 0;
+
+        rule?.conditions?.forEach((condition, index) => {
+          if (condition.targetField !== '') {
+            validConditionsCount++;
+            if (index === 0) height = condition.targetField;
+            else if (index === 1) weight = condition.targetField;
+          }
+        });
+
+        if (isValidForHeightAndWeightBasedCalculation(validConditionsCount, conditionSchema, height, weight, '&&')) {
+          const calculateExpression = getCalculateExpression(
+            action?.calculateField,
+            condition?.targetField,
+            height,
+            weight,
+          );
+          updateSchemaWithCalculateExpression(newSchema, calculateExpression);
+        }
+      },
+      [isValidForHeightAndWeightBasedCalculation, updateSchemaWithCalculateExpression],
+    );
+
+    const handleDateBasedCalculation = useCallback(
+      (conditionSchema: string, action: Action, condition: Condition, newSchema: Schema) => {
+        const { targetField: dateField } = condition;
+        const calculateExpression = getCalculateExpression(
+          action?.calculateField,
+          dateField, // targetField
+          '',
+          '',
+          dateField,
         );
 
-        if (renderingType === (RenderingType.DATE as string) && isValidForDateCalculation(conditionSchema, dateField)) {
-          applyCalculationExpressionToSchema(rule, newSchema, '', '', dateField, renderingType);
-          onSchemaChange(newSchema);
-          return;
+        if (isValidForDateBasedCalculation(conditionSchema, dateField)) {
+          updateSchemaWithCalculateExpression(newSchema, calculateExpression);
         }
+      },
+      [isValidForDateBasedCalculation, updateSchemaWithCalculateExpression],
+    );
 
-        if (isValidForCalculation(validConditionsCount, conditionSchema, height, weight, '&&')) {
-          applyCalculationExpressionToSchema(rule, newSchema, height, weight, '', view);
-        } else {
-          removeCalculationExpressionFromSchema(newSchema);
+    const handleHelperFunctionsCalculation = useCallback(
+      (conditionSchema: string, action: Action, condition: Condition, newSchema: Schema) => {
+        const { targetField } = condition;
+        const calculateExpression = getCalculateExpression(action?.calculateField, targetField);
+
+        if (isValidForHelperFunctionCalculation(conditionSchema, targetField)) {
+          updateSchemaWithCalculateExpression(newSchema, calculateExpression);
         }
+      },
+      [isValidForHelperFunctionCalculation, updateSchemaWithCalculateExpression],
+    );
+
+    const updatePreviousIndices = useCallback(() => {
+      prevPageIndex.current = pageIndex;
+      prevQuestionIndex.current = questionIndex;
+      prevSectionIndex.current = sectionIndex;
+    }, [pageIndex, questionIndex, sectionIndex]);
+
+    const processCalculateFields = useCallback(
+      (rule: FormRule, newSchema: Schema, conditionSchema: string) => {
+        rule?.actions?.forEach((action: Action, index: number) => {
+          const { calculateField } = action;
+          const condition: Condition = rule?.conditions[index];
+
+          if (heightAndWeightBasedCalculationFunctions.includes(calculateField)) {
+            handleHeightWeightCalculation(rule, conditionSchema, action, condition, newSchema);
+          } else if (dateBasedCalculationFunctions.includes(calculateField)) {
+            handleDateBasedCalculation(conditionSchema, action, condition, newSchema);
+          } else if (helperFunctions.includes(calculateField)) {
+            handleHelperFunctionsCalculation(conditionSchema, action, condition, newSchema);
+          }
+        });
 
         onSchemaChange(newSchema);
+        updatePreviousIndices();
       },
       [
-        applyCalculationExpressionToSchema,
-        evaluateConditionsForCalculation,
-        getRenderingType,
-        isValidForCalculation,
-        isValidForDateCalculation,
+        handleDateBasedCalculation,
+        handleHeightWeightCalculation,
+        handleHelperFunctionsCalculation,
         onSchemaChange,
-        removeCalculationExpressionFromSchema,
+        updatePreviousIndices,
       ],
     );
 
