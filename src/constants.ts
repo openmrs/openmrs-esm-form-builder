@@ -86,6 +86,8 @@ export const comparisonOperators: Array<ComparisonOperators> = [
   { key: 'lessThanOrEqualTo', defaultLabel: 'Less than or equal to', type: 'string' },
   { key: 'equals', defaultLabel: 'Equals', type: 'string' },
   { key: 'notEquals', defaultLabel: 'Not Equals', type: 'string' },
+  { key: 'includes', defaultLabel: 'Includes', type: 'string' },
+  { key: 'not includes', defaultLabel: 'Not Includes', type: 'string' },
   { key: 'doesNotMatchExpression', defaultLabel: 'Does not match expression', type: 'string' },
   { key: 'arrayContains', defaultLabel: 'Contains', type: 'string' },
   { key: 'arrayNotContains', defaultLabel: 'Does not contains', type: 'string' },

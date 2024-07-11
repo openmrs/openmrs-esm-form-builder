@@ -217,6 +217,10 @@ const RuleBuilder = React.memo(
           return `arrayContainsAny(${targetField}, [${selectedConcepts}])`;
         case 'Does not contains any':
           return `!arrayContainsAny(${targetField}, ${selectedConcepts})`;
+        case 'Includes':
+          return `includes('${targetField}', '${answer}')`;
+        case 'Not Includes':
+          return `!includes('${targetField}', '${answer}')`;
       }
     };
 
