@@ -6,6 +6,9 @@ export const dateBasedCalculationFunctions: Array<string> = [
   'Age Based On Date',
   'Expected Delivery Date',
   'Months On ART',
+  'Time Difference in days',
+  'Time Difference in weeks',
+  'Time Difference in years',
 ];
 export const heightAndWeightBasedCalculationFunctions: Array<string> = [
   'BMI',
@@ -39,4 +42,7 @@ export const calculateFunctions: Array<CalculationFunctions> = [
   { key: 'ageBasedonArt', defaultLabel: 'Age Based On Date', type: 'string' },
   { key: 'monthsOnArt', defaultLabel: 'Months On ART', type: 'string' },
   { key: 'expectedDeliveryDate', defaultLabel: 'Expected Delivery Date', type: 'string' },
+  { key: 'calculateTimeDiffrenceinDays', defaultLabel: 'Time Difference in days', type: 'string' },
+  { key: 'calculateTimeDiffrenceinWeeks', defaultLabel: 'Time Difference in weeks', type: 'string' },
+  { key: 'calculateTimeDiffrenceinYears', defaultLabel: 'Time Difference in years', type: 'string' },
 ];
