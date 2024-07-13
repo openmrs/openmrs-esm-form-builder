@@ -86,6 +86,7 @@
     "@typescript-eslint/eslint-plugin": "^7.9.0",
     "@typescript-eslint/parser": "^6.21.0",
     "css-loader": "^6.11.0",
+    "dayjs": "^1.11.11",
     "eslint": "^8.57.0",
     "eslint-plugin-jest-dom": "^5.4.0",
     "eslint-plugin-playwright": "^0.16.0",
