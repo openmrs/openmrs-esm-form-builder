@@ -1,7 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
-import { OverflowMenuItem, OverflowMenu, Layer, TextArea, Toggle, Dropdown } from '@carbon/react';
+import {
+  OverflowMenuItem,
+  OverflowMenu,
+  Layer,
+  TextArea,
+  Toggle,
+  Dropdown,
+  DatePicker,
+  DatePickerInput,
+} from '@carbon/react';
 import { Flash, FlowConnection, Link, Help } from '@carbon/react/icons';
 import { ConfigurableLink, showModal, useLayoutType, useDebounce } from '@openmrs/esm-framework';
 import {
@@ -27,13 +36,14 @@ import {
   calculateFunctions,
   comparisonOperators,
   dateBasedCalculationFunctions,
+  dateHelperFunction,
   emptyStates,
   heightAndWeightBasedCalculationFunctions,
   helperFunctions,
   helpLink,
 } from '../../constants';
 import styles from './rule-builder.scss';
-
+import dayjs from 'dayjs';
 export interface Condition {
   id: string;
   isNew: boolean;
@@ -222,6 +232,10 @@ const RuleBuilder = React.memo(
           return `includes('${targetField}', '${answer}')`;
         case 'Not Includes':
           return `!includes('${targetField}', '${answer}')`;
+        case 'Is Date Before':
+          return `isDateBefore(${targetField}, '${answer}')`;
+        case 'Is Date After':
+          return `isDateAfter(${targetField}, '${answer}')`;
       }
     };
 
@@ -1042,16 +1056,26 @@ export const RuleCondition = React.memo(
     addNewConditionalLogic,
   }: RuleConditionProps) => {
     const { t } = useTranslation();
+    const isDateFieldIncluded = dateHelperFunction.includes(conditions[index]?.targetCondition);
+    const isTargetValuePresent = Boolean(conditions[index]?.targetValue);
+    const isConditionNotDateField = !isDateFieldIncluded;
     const filteredAnswers = answers.filter((answer) => answer !== undefined);
-    const [isMultipleAnswers, setIsMultipleAnswers] = useState(Boolean(conditions[index]?.targetValues));
-    const [isConditionValueVisible, setIsConditionValueVisible] = useState<boolean>(
-      Boolean(conditions[index]?.targetValue),
-    );
     const answer = filteredAnswers?.find((answer) => answer.concept === conditions[index]?.targetValue)?.label;
-    const [inputValue, setInputValue] = useState(answer || '');
+
+    const [isMultipleAnswers, setIsMultipleAnswers] = useState(Boolean(conditions[index]?.targetValues));
+    const [isDateField, setIsDateField] = useState(isDateFieldIncluded);
+    const [isConditionValueVisible, setIsConditionValueVisible] = useState<boolean>(
+      isTargetValuePresent && isConditionNotDateField,
+    );
+
+    const [inputValue, setInputValue] = useState(answer || conditions[index]?.targetValue);
     const [selectedAnswers, setSelectedAnswers] = useState(conditions[index]?.targetValues || []);
 
     const handleSelectCondition = (selectedCondition: string) => {
+      if (dateHelperFunction.includes(selectedCondition)) {
+        setIsDateField(true);
+        return;
+      }
       setIsMultipleAnswers(arrContains.includes(selectedCondition));
       setIsConditionValueVisible(!emptyStates.includes(selectedCondition));
     };
@@ -1067,6 +1091,9 @@ export const RuleCondition = React.memo(
       }
     };
 
+    const handleDateChange = (value: string) => {
+      handleConditionChange(fieldId, ConditionType.TARGET_VALUE, value, index);
+    };
     return (
       <div className={styles.ruleSetContainer}>
         <div className={styles.sectionContainer}>
@@ -1101,9 +1128,9 @@ export const RuleCondition = React.memo(
             }
             items={questions}
             itemToString={(item: Question) => (item ? item.label : '')}
-            onChange={({ selectedItem }: { selectedItem: Question }) =>
-              handleConditionChange(fieldId, ConditionType.TARGET_FIELD, selectedItem.id, index)
-            }
+            onChange={({ selectedItem }: { selectedItem: Question }) => {
+              handleConditionChange(fieldId, ConditionType.TARGET_FIELD, selectedItem.id, index);
+            }}
             size={responsiveSize}
           />
           <Dropdown
@@ -1134,6 +1161,26 @@ export const RuleCondition = React.memo(
               onChange={handleValueChange}
               size={responsiveSize}
             />
+          )}
+          {isDateField && (
+            <DatePicker
+              id="targetDate"
+              aria-label={t('targetDate', 'Target Date')}
+              className={styles.datePicker}
+              dateFormat="d/m/Y"
+              datePickerType="single"
+              maxDate={new Date().toISOString()}
+              onChange={([date]: [Date | string]) => handleDateChange(dayjs(date).format('YYYY-MM-DD'))}
+              size={responsiveSize}
+              value={dayjs(inputValue).format('DD-MM-YYYY')}
+            >
+              <DatePickerInput
+                id="targetDateInput"
+                placeholder="dd/mm/yyyy"
+                style={{ width: '100px' }}
+                size={responsiveSize}
+              />
+            </DatePicker>
           )}
         </div>
         <Layer className={styles.layer}>
