@@ -25,6 +25,7 @@ export const heightAndWeightBasedCalculationFunctions: Array<string> = [
 export const helperFunctions: Array<string> = ['Viral Load Status'];
 export const emptyStates: Array<string> = ['Is Empty', 'Not Empty'];
 export const arrContains: Array<string> = ['Contains any', 'Does not contains any'];
+export const dateHelperFunction: Array<string> = ['Is Date Before', 'Is Date After'];
 
 export const questionTypes = [
   'control',
@@ -95,6 +96,8 @@ export const comparisonOperators: Array<ComparisonOperators> = [
   { key: 'arrayNotContains', defaultLabel: 'Does not contains', type: 'string' },
   { key: 'arrayContainsAny', defaultLabel: 'Contains any', type: 'string' },
   { key: 'arrayNotContainsAny', defaultLabel: 'Does not contains any', type: 'string' },
+  { key: 'isDateBefore', defaultLabel: 'Is Date Before', type: 'string' },
+  { key: 'isDateAfter', defaultLabel: 'Is Date After', type: 'string' },
 ];
 
 export const calculateFunctions: Array<CalculationFunctions> = [
