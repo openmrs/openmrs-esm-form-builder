@@ -230,6 +230,7 @@
   "startBuilding": "Start building",
   "success": "Success!",
   "targetCondition": "Target condition",
+  "targetDate": "Target Date",
   "targetedConditionalLogicDeletedMessage": "The specific conditional logic associated with \"{{- questionLabel}}\" has been successfully deleted.",
   "targetFiled": "Target field",
   "targetValue": "Target value",
