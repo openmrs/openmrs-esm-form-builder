@@ -15,14 +15,13 @@ jest.mock('../../hooks/useFormRule', () => ({
 }));
 
 describe('RuleBuilder', () => {
-
   it('should render the rule builder without crashing', () => {
     renderRuleBuilder();
 
     expect(screen.getByText(/When/i)).toBeInTheDocument();
     expect(screen.getByText(/Then/i)).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: /Select condition/i})).toBeInTheDocument();
-    expect(screen.getByRole('combobox', {name: /Select an action/i})).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /Select condition/i })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /Select an action/i })).toBeInTheDocument();
   });
 
   it('should display the conditional value dropdown based on selected target condition', async () => {
@@ -53,7 +52,7 @@ describe('RuleBuilder', () => {
     const user = userEvent.setup();
 
     renderRuleBuilder();
-    
+
     // Select "Fail" action to trigger the error message box
     await user.click(screen.getByLabelText(/Trigger action/i));
     await user.click(screen.getByText('Select an action'));
@@ -77,7 +76,7 @@ describe('RuleBuilder', () => {
     await user.click(screen.getByText(/Select an action/i));
     await user.click(screen.getByText(/Calculate/i));
 
-    // Verify the "BSA" function is available for calculation logic 
+    // Verify the "BSA" function is available for calculation logic
     await user.click(screen.getByText(/Select Calculate Expression/i));
     const functionName = screen.getByText(/BSA/i);
     expect(functionName).toBeInTheDocument();
@@ -103,7 +102,7 @@ describe('RuleBuilder', () => {
   it('should dynamically render the action field based on the selection of hiding a page or section', async () => {
     const user = userEvent.setup();
 
-    renderRuleBuilder();``
+    renderRuleBuilder();
 
     // Test hiding the page field
     const actionConditionSelect = screen.getByLabelText(/Trigger Action/i);
@@ -135,6 +134,24 @@ describe('RuleBuilder', () => {
     // Verify the section selection field is present
     const sectionSelectionField = screen.getByText('Select a section');
     expect(sectionSelectionField).toBeInTheDocument();
+  });
+
+  it('should display the "DatePicker" only if the target condition is "is Date After" or "is Date Before', async () => {
+    const user = userEvent.setup();
+
+    renderRuleBuilder();
+
+    // Interact with the target condition dropdown
+    const targetCondition = screen.getByLabelText(/Target condition/i);
+    await user.click(targetCondition);
+
+    // Open and select "is Date Before" from condition dropdown
+    await user.click(screen.getByText(/Select condition/i));
+    await userEvent.click(screen.getByText('Is Date Before'));
+
+    // Verify the Date Picker is visible after Selecting "is Date Before"
+    const conditionalValueDropDown = screen.getByLabelText(/Target Date/i);
+    expect(conditionalValueDropDown).toBeInTheDocument();
   });
 });
 
