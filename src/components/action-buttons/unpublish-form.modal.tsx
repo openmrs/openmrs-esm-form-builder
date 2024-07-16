@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, ModalBody, ModalHeader, ModalFooter } from '@carbon/react';
+import styles from '../modals.scss';
 
 interface UnpublishModalProps {
   closeModal: () => void;
@@ -13,6 +14,7 @@ const UnpublishFormModal: React.FC<UnpublishModalProps> = ({ closeModal, onUnpub
   return (
     <>
       <ModalHeader
+        className={styles.modalHeader}
         closeModal={closeModal}
         title={t('unpublishConfirmation', 'Are you sure you want to unpublish this form?')}
       />
