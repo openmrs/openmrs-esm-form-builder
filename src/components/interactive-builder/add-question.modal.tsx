@@ -7,9 +7,9 @@ import {
   Form,
   FormGroup,
   FormLabel,
-  Layer,
   InlineLoading,
   InlineNotification,
+  Layer,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -19,11 +19,11 @@ import {
   Search,
   Select,
   SelectItem,
+  SelectSkeleton,
   Stack,
   Tag,
   TextInput,
   Tile,
-  SelectSkeleton,
 } from '@carbon/react';
 import { ArrowUpRight } from '@carbon/react/icons';
 import { showSnackbar, useConfig, useDebounce } from '@openmrs/esm-framework';
@@ -46,8 +46,8 @@ import type {
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
-import styles from './question-modal.scss';
 import { useProgramWorkStates, usePrograms } from '../../hooks/useProgramStates';
+import styles from './question-modal.scss';
 
 interface AddQuestionModalProps {
   closeModal: () => void;
@@ -303,7 +303,11 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
   return (
     <>
-      <ModalHeader title={t('createNewQuestion', 'Create a new question')} closeModal={closeModal} />
+      <ModalHeader
+        className={styles.modalHeader}
+        title={t('createNewQuestion', 'Create a new question')}
+        closeModal={closeModal}
+      />
       <Form className={styles.form} onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody hasScrollingContent>
           <FormGroup legendText={''}>
@@ -701,8 +705,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   name="datePickerType"
                   legendText={t('datePickerType', 'The type of date picker to show ')}
                 >
-                  {/** Filters out the date picker types based on the selected concept's data type. 
-                       If no concept is selected, all date picker types are shown. 
+                  {/** Filters out the date picker types based on the selected concept's data type.
+                       If no concept is selected, all date picker types are shown.
                   */}
                   {selectedConcept && selectedConcept.datatype
                     ? datePickerTypeOptions[selectedConcept.datatype.name.toLowerCase()].map((type) => (

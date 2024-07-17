@@ -77,12 +77,21 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   const [publishedWithErrors, setPublishedWithErrors] = useState(false);
   const [errors, setErrors] = useState<Array<MarkerProps>>([]);
   const [validationOn, setValidationOn] = useState(false);
+  const [invalidJsonErrorMessage, setInvalidJsonErrorMessage] = useState('');
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
-  const handleSchemaChange = useCallback((updatedSchema: string) => {
-    setStringifiedSchema(updatedSchema);
+  const resetErrorMessage = useCallback(() => {
+    setInvalidJsonErrorMessage('');
   }, []);
+
+  const handleSchemaChange = useCallback(
+    (updatedSchema: string) => {
+      resetErrorMessage();
+      setStringifiedSchema(updatedSchema);
+    },
+    [resetErrorMessage],
+  );
 
   const launchRestoreDraftSchemaModal = useCallback(() => {
     const dispose = showModal('restore-draft-schema-modal', {
@@ -198,12 +207,6 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
     setStringifiedSchema(JSON.stringify(dummySchema, null, 2));
     updateSchema({ ...dummySchema });
   }, [updateSchema]);
-
-  const [invalidJsonErrorMessage, setInvalidJsonErrorMessage] = useState('');
-
-  const resetErrorMessage = useCallback(() => {
-    setInvalidJsonErrorMessage('');
-  }, []);
 
   const renderSchemaChanges = useCallback(() => {
     resetErrorMessage();
