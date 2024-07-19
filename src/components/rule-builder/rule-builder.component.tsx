@@ -271,6 +271,8 @@ const RuleBuilder = React.memo(
           return `calcNextVisitDate(${arguementsSchema})`;
         case 'Treatment End Date':
           return `calcTreatmentEndDate(${arguementsSchema})`;
+        case 'Gravida':
+          return `calcGravida(${arguementsSchema})`;
       }
     };
 
@@ -296,6 +298,8 @@ const RuleBuilder = React.memo(
           return ['followUpDate', 'arvDispensedInDays'];
         case 'Treatment End Date':
           return ['followUpDate', 'arvDispensedInDays', 'patientStatus'];
+        case 'Gravida':
+          return ['parityTerm', 'parityAbortion'];
       }
     }, []);
     const getLogicalOperator = (logicalOperator: string) => {
