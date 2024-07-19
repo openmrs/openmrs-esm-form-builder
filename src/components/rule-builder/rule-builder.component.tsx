@@ -267,6 +267,8 @@ const RuleBuilder = React.memo(
           return `calcTimeDifference(${arguementsSchema}, 'y')`;
         case 'Viral Load Status':
           return `calcViralLoadStatus(${arguements.join(', ')})`;
+        case 'Next Visit Date':
+          return `calcNextVisitDate(${arguementsSchema})`;
       }
     };
 
