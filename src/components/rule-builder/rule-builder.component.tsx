@@ -230,9 +230,13 @@ const RuleBuilder = React.memo(
         case 'Not Includes':
           return `!includes('${targetField}', '${answer}')`;
         case 'Is Date Before':
-          return `isDateBefore(${targetField}, '${answer}')`;
+          return answer === 'today()'
+            ? `isDateBefore(${targetField}, ${answer})`
+            : `isDateBefore(${targetField}, '${answer}')`;
         case 'Is Date After':
-          return `isDateAfter(${targetField}, '${answer}')`;
+          return answer === 'today()'
+            ? `isDateAfter(${targetField}, ${answer})`
+            : `isDateAfter(${targetField}, '${answer}')`;
       }
     };
 
@@ -1053,6 +1057,7 @@ export const RuleCondition = React.memo(
     };
 
     const handleDateChange = (value: string) => {
+      if (dayjs().format('YYYY-MM-DD') === value) value = 'today()';
       handleConditionChange(fieldId, ConditionType.TARGET_VALUE, value, index);
     };
     return (
