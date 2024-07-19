@@ -11,6 +11,7 @@ export const dateBasedCalculationFunctions: Array<string> = [
   'Time Difference in months',
   'Time Difference in years',
   'Next Visit Date',
+  'Treatment End Date',
 ];
 export const heightAndWeightBasedCalculationFunctions: Array<string> = [
   'BMI',
@@ -57,4 +58,5 @@ export const calculateFunctions: Array<CalculationFunctions> = [
   { key: 'calculateTimeDiffrenceInYears', defaultLabel: 'Time Difference in years', type: 'string' },
   { key: 'calculateViralLoadStatus', defaultLabel: 'Viral Load Status', type: 'string' },
   { key: 'calculateNextVisitDate', defaultLabel: 'Next Visit Date', type: 'string' },
+  { key: 'calculateTreatmentEndDate', defaultLabel: 'Treatment End Date', type: 'string' },
 ];
