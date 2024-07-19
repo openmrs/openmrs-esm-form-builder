@@ -21,7 +21,7 @@ export const heightAndWeightBasedCalculationFunctions: Array<string> = [
   'Weight For Height Zscore',
 ];
 
-export const helperFunctions: Array<string> = ['Viral Load Status'];
+export const helperFunctions: Array<string> = ['Viral Load Status', 'Gravida'];
 export const emptyStates: Array<string> = ['Is Empty', 'Not Empty'];
 export const arrContains: Array<string> = ['Contains any', 'Does not contains any'];
 export const dateHelperFunction: Array<string> = ['Is Date Before', 'Is Date After'];
@@ -59,4 +59,5 @@ export const calculateFunctions: Array<CalculationFunctions> = [
   { key: 'calculateViralLoadStatus', defaultLabel: 'Viral Load Status', type: 'string' },
   { key: 'calculateNextVisitDate', defaultLabel: 'Next Visit Date', type: 'string' },
   { key: 'calculateTreatmentEndDate', defaultLabel: 'Treatment End Date', type: 'string' },
+  { key: 'calculateGravida', defaultLabel: 'Gravida', type: 'string' },
 ];
