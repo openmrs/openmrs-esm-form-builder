@@ -269,6 +269,8 @@ const RuleBuilder = React.memo(
           return `calcViralLoadStatus(${arguements.join(', ')})`;
         case 'Next Visit Date':
           return `calcNextVisitDate(${arguementsSchema})`;
+        case 'Treatment End Date':
+          return `calcTreatmentEndDate(${arguementsSchema})`;
       }
     };
 
