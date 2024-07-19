@@ -35,11 +35,8 @@ import {
   arrContains,
   calculateFunctions,
   comparisonOperators,
-  dateBasedCalculationFunctions,
   dateHelperFunction,
   emptyStates,
-  heightAndWeightBasedCalculationFunctions,
-  helperFunctions,
   helpLink,
 } from '../../constants';
 import styles from './rule-builder.scss';
@@ -239,42 +236,64 @@ const RuleBuilder = React.memo(
       }
     };
 
-    const getCalculateExpression = (
-      expression: string,
-      targetField?: string,
-      height?: string,
-      weight?: string,
-      dateField?: string,
-    ) => {
+    const getCalculateExpression = (expression: string, conditions?: Array<Condition>) => {
+      const arguements = conditions.map((condition: Condition) => condition.targetField);
+      const arguementsSchema = `'${arguements.join("', '")}'`;
+
       switch (expression) {
         case 'BMI':
-          return `calcBMI('${height}', '${weight}')`;
+          return `calcBMI(${arguementsSchema})`;
         case 'BSA':
-          return `calcBSA('${height}', '${weight}')`;
+          return `calcBSA(${arguementsSchema})`;
         case 'Height For Age Zscore':
-          return `calcHeightForAgeZscore('${height}', '${weight}')`;
+          return `calcHeightForAgeZscore(${arguementsSchema})`;
         case 'BMI For Age Zscore':
-          return `calcBMIForAgeZscore('${height}', '${weight}')`;
+          return `calcBMIForAgeZscore(${arguementsSchema})`;
         case 'Weight For Height Zscore':
-          return `calcWeightForHeightZscore('${height}', ${weight}})`;
+          return `calcWeightForHeightZscore(${arguementsSchema})`;
         case 'Expected Delivery Date':
-          return `calcEDD('${dateField}')`;
+          return `calcEDD(${arguementsSchema})`;
         case 'Months On ART':
-          return `calcMonthsOnART('${dateField}')`;
+          return `calcMonthsOnART(${arguementsSchema})`;
         case 'Age Based On Date':
-          return `calcAgeBasedOnDate('${dateField}')`;
+          return `calcAgeBasedOnDate(${arguementsSchema})`;
         case 'Time Difference in days':
-          return `calcTimeDifference('${dateField}', 'd')`;
+          return `calcTimeDifference(${arguementsSchema}, 'd')`;
         case 'Time Difference in weeks':
-          return `calcTimeDifference('${dateField}', 'w')`;
+          return `calcTimeDifference(${arguementsSchema}, 'w')`;
         case 'Time Difference in months':
-          return `calcTimeDifference('${dateField}', 'm')`;
+          return `calcTimeDifference(${arguementsSchema}, 'm')`;
         case 'Time Difference in years':
-          return `calcTimeDifference('${dateField}', 'y')`;
+          return `calcTimeDifference(${arguementsSchema}, 'y')`;
         case 'Viral Load Status':
-          return `calcViralLoadStatus(${targetField})`;
+          return `calcViralLoadStatus(${arguements.join(', ')})`;
       }
     };
+
+    const getArguments = useCallback((expression: string) => {
+      switch (expression) {
+        case 'BMI':
+        case 'BSA':
+        case 'Height For Age Zscore':
+        case 'BMI For Age Zscore':
+        case 'Weight For Height Zscore':
+          return ['height', 'weight'];
+        case 'Expected Delivery Date':
+        case 'Months On ART':
+        case 'Age Based On Date':
+        case 'Time Difference in days':
+        case 'Time Difference in weeks':
+        case 'Time Difference in months':
+        case 'Time Difference in years':
+          return ['date'];
+        case 'Viral Load Status':
+          return ['viralLoadCount'];
+        case 'Next Visit Date':
+          return ['followUpDate', 'arvDispensedInDays'];
+        case 'Treatment End Date':
+          return ['followUpDate', 'arvDispensedInDays', 'patientStatus'];
+      }
+    }, []);
     const getLogicalOperator = (logicalOperator: string) => {
       switch (logicalOperator) {
         case 'and':
@@ -468,31 +487,17 @@ const RuleBuilder = React.memo(
       [updateSchemaBasedOnActionType],
     );
 
-    const isValidForHeightAndWeightBasedCalculation = useCallback(
-      (
-        validConditionsCount: number,
-        conditionSchema: string,
-        height: string,
-        weight: string,
-        logicalOperator: string,
-      ) => {
-        const expectedCondition1 = `!isEmpty(${height}) ${logicalOperator} !isEmpty(${weight})`;
-        const expectedCondition2 = `!isEmpty(${weight}) ${logicalOperator} !isEmpty(${height})`;
-        return (
-          validConditionsCount === 2 &&
-          (conditionSchema === expectedCondition1 || conditionSchema === expectedCondition2)
-        );
+    const isValidForCalculation = useCallback(
+      (conditions: Array<Condition>, conditionSchema: string, actionField: string, calculateField: string) => {
+        const expectedConditionSchema = conditions
+          ?.map((condition: Condition) => `!isEmpty(${condition.targetField})`)
+          .join(' && ');
+        const expectedArguments = getArguments(calculateField);
+        if (expectedArguments.length !== conditions.length || expectedConditionSchema !== conditionSchema) return false;
+        return true;
       },
-      [],
+      [getArguments],
     );
-
-    const isValidForDateBasedCalculation = useCallback((conditionSchema: string, dateField: string) => {
-      return conditionSchema.includes(`!isEmpty(${dateField})`);
-    }, []);
-
-    const isValidForHelperFunctionCalculation = useCallback((conditionSchema: string, targetField: string) => {
-      return conditionSchema.includes(`!isEmpty(${targetField})`);
-    }, []);
 
     const updateSchemaWithCalculateExpression = useCallback(
       (newSchema: Schema, calculateExpression: string) => {
@@ -505,61 +510,13 @@ const RuleBuilder = React.memo(
       [pageIndex, questionIndex, sectionIndex],
     );
 
-    const handleHeightWeightCalculation = useCallback(
-      (rule: FormRule, conditionSchema: string, action: Action, condition: Condition, newSchema: Schema) => {
-        let height = '',
-          weight = '',
-          validConditionsCount = 0;
-
-        rule?.conditions?.forEach((condition, index) => {
-          if (condition.targetField !== '') {
-            validConditionsCount++;
-            if (index === 0) height = condition.targetField;
-            else if (index === 1) weight = condition.targetField;
-          }
-        });
-
-        if (isValidForHeightAndWeightBasedCalculation(validConditionsCount, conditionSchema, height, weight, '&&')) {
-          const calculateExpression = getCalculateExpression(
-            action?.calculateField,
-            condition?.targetField,
-            height,
-            weight,
-          );
-          updateSchemaWithCalculateExpression(newSchema, calculateExpression);
+    const deleteSchemaForCalculateExpression = useCallback(
+      (newSchema: Schema) => {
+        if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
+          delete newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions.calculate;
         }
       },
-      [isValidForHeightAndWeightBasedCalculation, updateSchemaWithCalculateExpression],
-    );
-
-    const handleDateBasedCalculation = useCallback(
-      (conditionSchema: string, action: Action, condition: Condition, newSchema: Schema) => {
-        const { targetField: dateField } = condition;
-        const calculateExpression = getCalculateExpression(
-          action?.calculateField,
-          dateField, // targetField
-          '',
-          '',
-          dateField,
-        );
-
-        if (isValidForDateBasedCalculation(conditionSchema, dateField)) {
-          updateSchemaWithCalculateExpression(newSchema, calculateExpression);
-        }
-      },
-      [isValidForDateBasedCalculation, updateSchemaWithCalculateExpression],
-    );
-
-    const handleHelperFunctionsCalculation = useCallback(
-      (conditionSchema: string, action: Action, condition: Condition, newSchema: Schema) => {
-        const { targetField } = condition;
-        const calculateExpression = getCalculateExpression(action?.calculateField, targetField);
-
-        if (isValidForHelperFunctionCalculation(conditionSchema, targetField)) {
-          updateSchemaWithCalculateExpression(newSchema, calculateExpression);
-        }
-      },
-      [isValidForHelperFunctionCalculation, updateSchemaWithCalculateExpression],
+      [pageIndex, questionIndex, sectionIndex],
     );
 
     const updatePreviousIndices = useCallback(() => {
@@ -570,28 +527,24 @@ const RuleBuilder = React.memo(
 
     const processCalculateFields = useCallback(
       (rule: FormRule, newSchema: Schema, conditionSchema: string) => {
-        rule?.actions?.forEach((action: Action, index: number) => {
+        rule?.actions?.forEach((action: Action) => {
           const { calculateField } = action;
-          const condition: Condition = rule?.conditions[index];
+          const calculateExpression = getCalculateExpression(calculateField, rule.conditions);
 
-          if (heightAndWeightBasedCalculationFunctions.includes(calculateField)) {
-            handleHeightWeightCalculation(rule, conditionSchema, action, condition, newSchema);
-          } else if (dateBasedCalculationFunctions.includes(calculateField)) {
-            handleDateBasedCalculation(conditionSchema, action, condition, newSchema);
-          } else if (helperFunctions.includes(calculateField)) {
-            handleHelperFunctionsCalculation(conditionSchema, action, condition, newSchema);
-          }
+          isValidForCalculation(rule?.conditions, conditionSchema, '', calculateField)
+            ? updateSchemaWithCalculateExpression(newSchema, calculateExpression)
+            : deleteSchemaForCalculateExpression(newSchema);
         });
 
         onSchemaChange(newSchema);
         updatePreviousIndices();
       },
       [
-        handleDateBasedCalculation,
-        handleHeightWeightCalculation,
-        handleHelperFunctionsCalculation,
+        deleteSchemaForCalculateExpression,
+        isValidForCalculation,
         onSchemaChange,
         updatePreviousIndices,
+        updateSchemaWithCalculateExpression,
       ],
     );
 
