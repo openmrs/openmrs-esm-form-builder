@@ -16,23 +16,11 @@
   @include type.type-style('body-01');
 }
 
-.isDragged, .normal {
+.questionBlock {
+  margin: 0 0.5rem;
   display: flex;
   height: 3rem;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-}
-
-.isDragged {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  background-color: rgba(255, 255, 255, 0.552);
-}
-
-.dragIcon {
-  margin-right: 0.5rem;
-
-  :focus {
-    border: none !important;
-  }
 }

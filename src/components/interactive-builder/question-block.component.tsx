@@ -1,36 +1,31 @@
 import React, { useCallback } from 'react';
-import { useDraggable } from '@dnd-kit/core';
-import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
 import { Button, CopyButton } from '@carbon/react';
-import { Draggable, Edit, TrashCan } from '@carbon/react/icons';
+import { Edit, TrashCan } from '@carbon/react/icons';
 import { showModal } from '@openmrs/esm-framework';
 import type { Question, Schema } from '../../types';
-import styles from './draggable-question.scss';
+import styles from './question-block.scss';
 
-interface DraggableQuestionProps {
+interface QuestionBlockProps {
   handleDuplicateQuestion: (question: Question, pageId: number, sectionId: number) => void;
   onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
   question: Question;
-  questionCount: number;
   questionIndex: number;
   schema: Schema;
   sectionIndex: number;
 }
 
-const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
+const QuestionBlock: React.FC<QuestionBlockProps> = ({
   handleDuplicateQuestion,
   onSchemaChange,
   pageIndex,
   question,
-  questionCount,
   questionIndex,
   schema,
   sectionIndex,
 }) => {
   const { t } = useTranslation();
-  const draggableId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
 
   const launchEditQuestionModal = useCallback(() => {
     const dispose = showModal('edit-question-modal', {
@@ -56,31 +51,9 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
     });
   }, [onSchemaChange, pageIndex, question, questionIndex, schema, sectionIndex]);
 
-  const { attributes, listeners, transform, isDragging, setNodeRef } = useDraggable({
-    id: draggableId,
-    disabled: questionCount <= 1,
-  });
-
-  const style = {
-    transform: CSS.Translate.toString(transform),
-  };
-
-  const dragStyles = isDragging ? styles.isDragged : styles.normal;
-
   return (
-    <div className={dragStyles} style={style}>
+    <div className={styles.questionBlock}>
       <div className={styles.iconAndName}>
-        <div ref={setNodeRef} {...attributes} {...listeners}>
-          <Button
-            className={styles.dragIcon}
-            enterDelayMs={300}
-            hasIconOnly
-            iconDescription={t('reorderQuestion', 'Reorder question')}
-            kind="ghost"
-            renderIcon={(props) => <Draggable size={16} {...props} />}
-            size="md"
-          />
-        </div>
         <p className={styles.questionLabel}>{question.label}</p>
       </div>
       <div className={styles.buttonsContainer}>
@@ -90,7 +63,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           feedback={t('duplicated', 'Duplicated') + '!'}
           iconDescription={t('duplicateQuestion', 'Duplicate question')}
           kind="ghost"
-          onClick={() => !isDragging && handleDuplicateQuestion(question, pageIndex, sectionIndex)}
+          onClick={() => handleDuplicateQuestion(question, pageIndex, sectionIndex)}
         />
         <Button
           enterDelayMs={300}
@@ -115,4 +88,4 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   );
 };
 
-export default DraggableQuestion;
+export default QuestionBlock;
