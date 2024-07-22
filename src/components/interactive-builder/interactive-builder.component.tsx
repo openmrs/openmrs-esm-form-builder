@@ -379,7 +379,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                     label={t('deletePage', 'Delete page')}
                     kind="ghost"
                     onClick={() => launchDeletePageModal(pageIndex)}
-                    size="sm"
+                    size="md"
                   >
                     <TrashCan />
                   </IconButton>
