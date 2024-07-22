@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
-import { Button, CopyButton } from '@carbon/react';
+import { CopyButton, IconButton } from '@carbon/react';
 import { Draggable, Edit, TrashCan } from '@carbon/react/icons';
 import { showModal } from '@openmrs/esm-framework';
 import type { Question, Schema } from '../../types';
@@ -29,6 +29,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   schema,
   sectionIndex,
 }) => {
+  const defaultEnterDelayInMs = 300;
   const { t } = useTranslation();
   const draggableId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
 
@@ -71,15 +72,15 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
     <div className={dragStyles} style={style}>
       <div className={styles.iconAndName}>
         <div ref={setNodeRef} {...attributes} {...listeners}>
-          <Button
+          <IconButton
             className={styles.dragIcon}
-            enterDelayMs={300}
-            hasIconOnly
-            iconDescription={t('reorderQuestion', 'Reorder question')}
+            enterDelayMs={defaultEnterDelayInMs}
+            label={t('reorderQuestion', 'Reorder question')}
             kind="ghost"
-            renderIcon={(props) => <Draggable size={16} {...props} />}
             size="md"
-          />
+          >
+            <Draggable />
+          </IconButton>
         </div>
         <p className={styles.questionLabel}>{question.label}</p>
       </div>
@@ -92,24 +93,24 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           kind="ghost"
           onClick={() => !isDragging && handleDuplicateQuestion(question, pageIndex, sectionIndex)}
         />
-        <Button
-          enterDelayMs={300}
-          hasIconOnly
-          iconDescription={t('editQuestion', 'Edit question')}
+        <IconButton
+          enterDelayMs={defaultEnterDelayInMs}
+          label={t('editQuestion', 'Edit question')}
           kind="ghost"
           onClick={launchEditQuestionModal}
-          renderIcon={(props) => <Edit size={16} {...props} />}
           size="md"
-        />
-        <Button
-          enterDelayMs={300}
-          hasIconOnly
-          iconDescription={t('deleteQuestion', 'Delete question')}
+        >
+          <Edit />
+        </IconButton>
+        <IconButton
+          enterDelayMs={defaultEnterDelayInMs}
+          label={t('deleteQuestion', 'Delete question')}
           kind="ghost"
           onClick={launchDeleteQuestionModal}
-          renderIcon={(props) => <TrashCan size={16} {...props} />}
           size="md"
-        />
+        >
+          <TrashCan />
+        </IconButton>
       </div>
     </div>
   );

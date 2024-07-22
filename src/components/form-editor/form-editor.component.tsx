@@ -6,6 +6,7 @@ import {
   CopyButton,
   FileUploader,
   Grid,
+  IconButton,
   InlineLoading,
   InlineNotification,
   Tab,
@@ -62,6 +63,7 @@ const ErrorNotification = ({ error, title }: ErrorProps) => {
 };
 
 const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
+  const defaultEnterDelayInMs = 300;
   const { formUuid } = useParams<{ formUuid: string }>();
   const { blockRenderingWithErrors, dataTypeToRenderingMap } = useConfig<ConfigObject>();
   const isNewSchema = !formUuid;
@@ -320,36 +322,34 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
               </div>
               {schema ? (
                 <>
-                  <Button
-                    enterDelayMs={300}
-                    renderIcon={isMaximized ? Minimize : Maximize}
-                    kind={'ghost'}
-                    iconDescription={
+                  <IconButton
+                    enterDelayInMs={defaultEnterDelayInMs}
+                    kind="ghost"
+                    label={
                       isMaximized ? t('minimizeEditor', 'Minimize editor') : t('maximizeEditor', 'Maximize editor')
                     }
-                    hasIconOnly
-                    size="md"
-                    tooltipAlignment="start"
                     onClick={handleToggleMaximize}
-                  />
+                    size="md"
+                  >
+                    {isMaximized ? <Minimize /> : <Maximize />}
+                  </IconButton>
                   <CopyButton
                     align="top"
                     className="cds--btn--md"
-                    enterDelayMs={300}
+                    enterDelayInMs={defaultEnterDelayInMs}
                     iconDescription={t('copySchema', 'Copy schema')}
                     kind="ghost"
                     onClick={handleCopySchema}
                   />
                   <a download={`${form?.name}.json`} href={window.URL.createObjectURL(downloadableSchema)}>
-                    <Button
-                      enterDelayMs={300}
-                      renderIcon={Download}
-                      kind={'ghost'}
-                      iconDescription={t('downloadSchema', 'Download schema')}
-                      hasIconOnly
+                    <IconButton
+                      enterDelayInMs={defaultEnterDelayInMs}
+                      kind="ghost"
+                      label={t('downloadSchema', 'Download schema')}
                       size="md"
-                      tooltipAlignment="start"
-                    />
+                    >
+                      <Download />
+                    </IconButton>
                   </a>
                 </>
               ) : null}
