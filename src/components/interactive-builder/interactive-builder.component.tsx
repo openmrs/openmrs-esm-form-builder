@@ -2,12 +2,11 @@ import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { DndContext, KeyboardSensor, MouseSensor, closestCorners, useSensor, useSensors } from '@dnd-kit/core';
-import { Accordion, AccordionItem, Button, InlineLoading } from '@carbon/react';
+import { Accordion, AccordionItem, Button, IconButton, InlineLoading } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { showModal, showSnackbar } from '@openmrs/esm-framework';
 import type { FormSchema } from '@openmrs/openmrs-form-engine-lib';
-
 import type { Schema, Question } from '../../types';
 import DraggableQuestion from './draggable-question.component';
 import Droppable from './droppable-container.component';
@@ -375,17 +374,15 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                       onSave={(name) => renamePage(name, pageIndex)}
                     />
                   </div>
-                  <Button
-                    hasIconOnly
+                  <IconButton
                     enterDelayMs={300}
-                    iconDescription={t('deletePage', 'Delete page')}
+                    label={t('deletePage', 'Delete page')}
                     kind="ghost"
-                    onClick={() => {
-                      launchDeletePageModal(pageIndex);
-                    }}
-                    renderIcon={(props) => <TrashCan size={16} {...props} />}
+                    onClick={() => launchDeletePageModal(pageIndex)}
                     size="sm"
-                  />
+                  >
+                    <TrashCan />
+                  </IconButton>
                 </div>
                 <div>
                   {page?.sections?.length ? (
@@ -410,17 +407,15 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                   onSave={(name) => renameSection(name, pageIndex, sectionIndex)}
                                 />
                               </div>
-                              <Button
-                                hasIconOnly
+                              <IconButton
                                 enterDelayMs={300}
-                                iconDescription={t('deleteSection', 'Delete section')}
                                 kind="ghost"
-                                onClick={() => {
-                                  launchDeleteSectionModal(pageIndex, sectionIndex);
-                                }}
-                                renderIcon={(props) => <TrashCan size={16} {...props} />}
-                                size="sm"
-                              />
+                                label={t('deleteSection', 'Delete section')}
+                                onClick={() => launchDeleteSectionModal(pageIndex, sectionIndex)}
+                                size="md"
+                              >
+                                <TrashCan />
+                              </IconButton>
                             </div>
                             <div>
                               {section.questions?.length ? (

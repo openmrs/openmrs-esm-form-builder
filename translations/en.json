@@ -90,7 +90,7 @@
   "formBuilderDocs": "form builder documentation",
   "formCreated": "New form created",
   "formDeleted": "Form deleted",
-  "formDeletedSuccessfully": "deleted successfully",
+  "formDeletedMessage": "The form \"{{- formName}}\" has been deleted successfully",
   "formDescription": "Form description",
   "formDescriptionPlaceholder": "A short description of the form e.g. A form for collecting COVID-19 symptoms",
   "formError": "Error loading form metadata",
