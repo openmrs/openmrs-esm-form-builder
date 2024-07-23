@@ -242,7 +242,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
-    const { active, delta } = event;
+    const { active, over } = event;
 
     if (active) {
       // Get the source information
@@ -251,11 +251,15 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       const sourceSectionIndex = parseInt(activeIdParts[2]);
       const sourceQuestionIndex = parseInt(activeIdParts[3]);
 
+      // Get the destination information
+      const destination = over.id.toString().split('-');
+      const destinationQuestionIndex = parseInt(destination[4]);
+
       // Move the question within the same section
       const questions = schema.pages[sourcePageIndex].sections[sourceSectionIndex].questions;
       const questionToMove = questions[sourceQuestionIndex];
       questions.splice(sourceQuestionIndex, 1);
-      questions.splice(sourceQuestionIndex + delta.y, 0, questionToMove);
+      questions.splice(destinationQuestionIndex, 0, questionToMove);
 
       const updatedSchema = {
         ...schema,
