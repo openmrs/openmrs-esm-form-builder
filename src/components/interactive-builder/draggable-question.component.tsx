@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import classNames from 'classnames';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
@@ -29,8 +30,8 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   schema,
   sectionIndex,
 }) => {
-  const defaultEnterDelayInMs = 300;
   const { t } = useTranslation();
+  const defaultEnterDelayInMs = 300;
   const draggableId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
 
   const launchEditQuestionModal = useCallback(() => {
@@ -57,25 +58,31 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
     });
   }, [onSchemaChange, pageIndex, question, questionIndex, schema, sectionIndex]);
 
-  const { attributes, listeners, transform, isDragging, setNodeRef } = useDraggable({
+  const { attributes, listeners, transform, isDragging, over, setNodeRef } = useDraggable({
     id: draggableId,
     disabled: questionCount <= 1,
   });
 
-  const style = {
-    transform: CSS.Translate.toString(transform),
-  };
-
-  const dragStyles = isDragging ? styles.isDragged : styles.normal;
+  const handleDuplicate = useCallback(() => {
+    if (!isDragging) {
+      handleDuplicateQuestion(question, pageIndex, sectionIndex);
+    }
+  }, [handleDuplicateQuestion, isDragging, question, pageIndex, sectionIndex]);
 
   return (
-    <div className={dragStyles} style={style}>
+    <div
+      className={classNames({
+        [styles.dragContainer]: true,
+        [styles.dragContainerWhenDragging]: isDragging,
+      })}
+      style={{ transform: CSS.Translate.toString(transform) }}
+    >
       <div className={styles.iconAndName}>
         <div ref={setNodeRef} {...attributes} {...listeners}>
           <IconButton
             className={styles.dragIcon}
-            enterDelayMs={defaultEnterDelayInMs}
-            label={t('reorderQuestion', 'Reorder question')}
+            enterDelayMs={over ? 6000 : defaultEnterDelayInMs}
+            label={t('dragToReorder', 'Drag to reorder')}
             kind="ghost"
             size="md"
           >
@@ -91,7 +98,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           feedback={t('duplicated', 'Duplicated') + '!'}
           iconDescription={t('duplicateQuestion', 'Duplicate question')}
           kind="ghost"
-          onClick={() => !isDragging && handleDuplicateQuestion(question, pageIndex, sectionIndex)}
+          onClick={handleDuplicate}
         />
         <IconButton
           enterDelayMs={defaultEnterDelayInMs}
