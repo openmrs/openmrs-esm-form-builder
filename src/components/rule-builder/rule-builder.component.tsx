@@ -41,6 +41,7 @@ import {
 } from '../../constants';
 import styles from './rule-builder.scss';
 import dayjs from 'dayjs';
+import { findQuestionIndexes } from '../utils';
 export interface Condition {
   id: string;
   isNew: boolean;
@@ -435,7 +436,7 @@ const RuleBuilder = React.memo(
           pageIndex: targetPageIndex,
           questionIndex: targetQuestionIndex,
           sectionIndex: targetSectionIndex,
-        } = findQuestionIndexes(newSchema, targetField, 'field');
+        } = findQuestionIndexes(newSchema, targetField);
         const targetConcept =
           newSchema?.pages[targetPageIndex]?.sections[targetSectionIndex]?.questions[targetQuestionIndex]
             .questionOptions.concept;
@@ -688,38 +689,6 @@ const RuleBuilder = React.memo(
         updateSchemaWithCalculateExpression,
       ],
     );
-
-    const findQuestionIndexes = (schema: Schema, actionField: string, actionFieldType: string) => {
-      let pageIndex = -1,
-        sectionIndex = -1,
-        questionIndex = -1;
-
-      schema.pages.some((page, pIndex) => {
-        if (actionFieldType === 'page' && page.label === actionField) {
-          pageIndex = pIndex;
-          return true;
-        }
-
-        return page.sections?.some((section, sIndex) => {
-          if (actionFieldType === 'section' && section.label === actionField) {
-            pageIndex = pIndex;
-            sectionIndex = sIndex;
-            return true;
-          }
-
-          return section.questions?.some((question, qIndex) => {
-            if (actionFieldType === 'field' && question.id === actionField) {
-              pageIndex = pIndex;
-              sectionIndex = sIndex;
-              questionIndex = qIndex;
-              return true;
-            }
-            return false;
-          });
-        });
-      });
-      return { pageIndex, sectionIndex, questionIndex };
-    };
 
     const handleElementChange = useCallback(
       (

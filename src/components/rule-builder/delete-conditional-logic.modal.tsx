@@ -5,6 +5,7 @@ import { type Action, type Condition, type FormRule } from './rule-builder.compo
 import { v4 as uuid } from 'uuid';
 import { showSnackbar } from '@openmrs/esm-framework';
 import { type Schema } from '../../types';
+import { findQuestionIndexes } from '../utils';
 
 interface DeleteConditionalLogicModalProps {
   closeModal: () => void;
@@ -44,23 +45,23 @@ const DeleteConditionalLogicModal = ({
 }: DeleteConditionalLogicModalProps) => {
   const { t } = useTranslation();
 
-  const findQuestionIndexes = (schema: Schema, actionField: string) => {
-    let pageIndex = -1,
-      sectionIndex = -1,
-      questionIndex = -1;
-    schema.pages.forEach((page, pIndex) => {
-      page.sections?.forEach((section, sIndex) => {
-        section.questions.forEach((question, qIndex) => {
-          if (question.id === actionField) {
-            pageIndex = pIndex;
-            sectionIndex = sIndex;
-            questionIndex = qIndex;
-          }
-        });
-      });
-    });
-    return { pageIndex, sectionIndex, questionIndex };
-  };
+  // const findQuestionIndexes = (schema: Schema, actionField: string) => {
+  //   let pageIndex = -1,
+  //     sectionIndex = -1,
+  //     questionIndex = -1;
+  //   schema.pages.forEach((page, pIndex) => {
+  //     page.sections?.forEach((section, sIndex) => {
+  //       section.questions.forEach((question, qIndex) => {
+  //         if (question.id === actionField) {
+  //           pageIndex = pIndex;
+  //           sectionIndex = sIndex;
+  //           questionIndex = qIndex;
+  //         }
+  //       });
+  //     });
+  //   });
+  //   return { pageIndex, sectionIndex, questionIndex };
+  // };
 
   const deleteQuestionHideProperty = (
     schema: Schema,
