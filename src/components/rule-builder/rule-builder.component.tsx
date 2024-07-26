@@ -106,6 +106,10 @@ const RuleBuilder = React.memo(
         validator.type === (RenderingType.DATE as string) && validator?.allowFutureDates === 'true' ? true : false,
       ),
     );
+
+    const [isHistoryEnable, setIsHistoryEnable] = useState<boolean>(
+      question?.historicalExpression?.length > 0 || false,
+    );
     const [isDisallowDecimals, setIsDisallowDecimals] = useState<boolean>(question?.questionOptions?.disallowDecimals);
     const [conditions, setConditions] = useState<Array<Condition>>([{ id: uuidv4(), isNew: false }]);
     const [actions, setActions] = useState<Array<Action>>([{ id: uuidv4(), isNew: false }]);
@@ -116,9 +120,7 @@ const RuleBuilder = React.memo(
       conditions: conditions,
       isNewRule: false,
     });
-    const [isHistoryEnable, setIsHistoryEnable] = useState<boolean>(
-      question?.historicalExpression?.length > 0 || false,
-    );
+
     const prevPageIndex = useRef(-1);
     const prevSectionIndex = useRef(-1);
     const prevQuestionIndex = useRef(-1);
@@ -309,6 +311,29 @@ const RuleBuilder = React.memo(
       }
     };
 
+    const getHistoricalExpressionSchema = useCallback(
+      (
+        condition: string,
+        actionConcept: string,
+        selectedAnswers?: Array<{
+          concept: string;
+          label: string;
+        }>,
+        targetConcept?: string,
+      ) => {
+        const selectedConcepts = selectedAnswers?.map((item) => `'${item.concept}'`).join(', ');
+        switch (condition) {
+          case 'Is Empty':
+            return `_.isEmpty(HD.getObject('prevEnc').getValue('${actionConcept}')) ? undefined : HD.getObject('prevEnc').getValue('${actionConcept}')`;
+          case 'Not Empty':
+            return `!_.isEmpty(HD.getObject('prevEnc').getValue('${actionConcept}')) ? undefined : HD.getObject('prevEnc').getValue('${actionConcept}')`;
+          case 'Contains any':
+            return `arrayContainsAny([${selectedConcepts}], HD.getObject('prevEnc').getValue('${targetConcept}')) ? '${actionConcept}' : HD.getObject('prevEnc').getValue('${actionConcept}')`;
+        }
+      },
+      [],
+    );
+
     const getArguments = useCallback((expression: string) => {
       switch (expression) {
         case 'BMI':
@@ -370,6 +395,72 @@ const RuleBuilder = React.memo(
       return conditionSchema;
     }, []);
 
+    // Deletes the previous action if the user mistakenly chose the wrong action.
+    const deletePreviousAction = useCallback(
+      (newSchema: Schema) => {
+        if (prevPageIndex.current !== -1 && prevSectionIndex.current !== -1 && prevQuestionIndex.current !== -1) {
+          const previousQuestion =
+            newSchema.pages[prevPageIndex.current].sections[prevSectionIndex.current].questions[
+              prevQuestionIndex.current
+            ];
+          switch (true) {
+            case !!previousQuestion.hide:
+              delete previousQuestion.hide;
+              break;
+
+            case !!previousQuestion.historicalExpression:
+              delete previousQuestion.historicalExpression;
+              break;
+
+            case previousQuestion.validators.length > 0:
+              previousQuestion.validators.splice(validatorIndex - 1, 1);
+              break;
+
+            default:
+              break;
+          }
+        } else if (prevPageIndex.current !== -1 && prevSectionIndex.current !== -1)
+          delete newSchema.pages[prevPageIndex.current].sections[prevSectionIndex.current].hide;
+        else if (prevPageIndex.current !== -1) delete newSchema.pages[prevPageIndex.current].hide;
+      },
+      [validatorIndex],
+    );
+
+    // Injecting historicalExpression into the schema
+    const addHistoricalExpression = useCallback(
+      (newSchema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number, condition: Condition) => {
+        const actionConcept = question?.questionOptions?.concept;
+        const { targetCondition, targetValues, targetField } = condition;
+        const {
+          pageIndex: targetPageIndex,
+          questionIndex: targetQuestionIndex,
+          sectionIndex: targetSectionIndex,
+        } = findQuestionIndexes(newSchema, targetField, 'field');
+        const targetConcept =
+          newSchema?.pages[targetPageIndex]?.sections[targetSectionIndex]?.questions[targetQuestionIndex]
+            .questionOptions.concept;
+        const historicalSchema = getHistoricalExpressionSchema(
+          targetCondition,
+          actionConcept,
+          targetValues,
+          targetConcept,
+        );
+        updateSchemaWithHistoricalExpression(newSchema, pageIndex, sectionIndex, questionIndex, historicalSchema);
+      },
+      [getHistoricalExpressionSchema, question?.questionOptions?.concept],
+    );
+
+    // Injecting hideWhenExpression into the schema
+    const addHidingLogic = useCallback(
+      (newSchema: Schema, conditionSchema: string) => {
+        newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].hide = {
+          hideWhenExpression: conditionSchema,
+        };
+      },
+      [pageIndex, questionIndex, sectionIndex],
+    );
+
+    // Injecting validator logic into the schema
     const addOrUpdateValidator = useCallback(
       (
         schema: Schema,
@@ -399,19 +490,6 @@ const RuleBuilder = React.memo(
       [validatorIndex],
     );
 
-    // Deletes the previous action if the user mistakenly chose the wrong action.
-    const deletePreviousAction = (newSchema: Schema) => {
-      if (prevPageIndex.current !== -1 || prevSectionIndex.current !== -1 || prevQuestionIndex.current !== -1) {
-        if (prevPageIndex.current !== -1 && prevSectionIndex.current !== -1 && prevQuestionIndex.current !== -1)
-          delete newSchema.pages[prevPageIndex.current].sections[prevSectionIndex.current].questions[
-            prevQuestionIndex.current
-          ].hide;
-        else if (prevPageIndex.current !== -1 && prevSectionIndex.current !== -1)
-          delete newSchema.pages[prevPageIndex.current].sections[prevSectionIndex.current].hide;
-        else if (prevPageIndex.current !== -1) delete newSchema.pages[prevPageIndex.current].hide;
-      }
-    };
-
     const handleFieldAction = useCallback(
       (
         newSchema: Schema,
@@ -421,16 +499,20 @@ const RuleBuilder = React.memo(
         actionCondition: string,
         conditionSchema: string,
         errorMessage: string,
+        condition: Condition,
       ) => {
-        if (actionCondition === (TriggerType.HIDE as string)) {
-          newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].hide = {
-            hideWhenExpression: conditionSchema,
-          };
-        } else if (actionCondition === (TriggerType.FAIL as string) && errorMessage) {
-          addOrUpdateValidator(newSchema, pageIndex, sectionIndex, questionIndex, conditionSchema, errorMessage);
+        switch (actionCondition) {
+          case TriggerType.HIDE as string:
+            addHidingLogic(newSchema, conditionSchema);
+            break;
+          case TriggerType.FAIL as string:
+            addOrUpdateValidator(newSchema, pageIndex, sectionIndex, questionIndex, conditionSchema, errorMessage);
+            break;
+          case TriggerType.HISTORY as string:
+            addHistoricalExpression(newSchema, pageIndex, sectionIndex, questionIndex, condition);
         }
       },
-      [addOrUpdateValidator],
+      [addHidingLogic, addHistoricalExpression, addOrUpdateValidator],
     );
 
     const updateSchemaBasedOnActionType = useCallback(
@@ -444,6 +526,7 @@ const RuleBuilder = React.memo(
         conditionSchema: string,
         errorMessage: string,
         hidingSchema: HideProps,
+        condition: Condition,
       ) => {
         if (pageIndex === -1) return;
 
@@ -466,6 +549,7 @@ const RuleBuilder = React.memo(
                 actionCondition,
                 conditionSchema,
                 errorMessage,
+                condition,
               );
             }
             break;
@@ -474,6 +558,7 @@ const RuleBuilder = React.memo(
       [handleFieldAction],
     );
 
+    // Injecting disableWhenExpression into the schema
     const updateSchemaForDisableActionType = (
       newSchema: Schema,
       pageIndex: number,
@@ -485,9 +570,23 @@ const RuleBuilder = React.memo(
         newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].disable = disableSchema;
       }
     };
+
+    const updateSchemaWithHistoricalExpression = (
+      newSchema: Schema,
+      pageIndex: number,
+      sectionIndex: number,
+      questionIndex: number,
+      historicalExpressionSchema: string,
+    ) => {
+      if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
+        newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].historicalExpression =
+          historicalExpressionSchema;
+      }
+    };
     const processActionFields = useCallback(
       (rule: FormRule, newSchema: Schema, conditionSchema: string) => {
-        rule?.actions?.forEach((action: Action) => {
+        rule?.actions?.forEach((action: Action, index: number) => {
+          const condition = rule?.conditions[index];
           const { actionField, actionCondition, errorMessage } = action;
           const hidingLogic = { hideWhenExpression: conditionSchema };
           const actionFieldType = actionCondition.includes('page')
@@ -517,6 +616,7 @@ const RuleBuilder = React.memo(
               conditionSchema,
               errorMessage,
               hidingLogic,
+              condition,
             );
 
             prevPageIndex.current = pageIndex;
@@ -525,7 +625,7 @@ const RuleBuilder = React.memo(
           }
         });
       },
-      [updateSchemaBasedOnActionType],
+      [deletePreviousAction, updateSchemaBasedOnActionType],
     );
 
     const isValidForCalculation = useCallback(
@@ -589,38 +689,35 @@ const RuleBuilder = React.memo(
       ],
     );
 
-    const findQuestionIndexes = (schema: Schema, actionField: string, actionFieldType?: string) => {
+    const findQuestionIndexes = (schema: Schema, actionField: string, actionFieldType: string) => {
       let pageIndex = -1,
         sectionIndex = -1,
         questionIndex = -1;
-      if (actionFieldType === 'page') {
-        schema.pages.forEach((page, pIndex) => {
-          if (page.label === actionField) {
+
+      schema.pages.some((page, pIndex) => {
+        if (actionFieldType === 'page' && page.label === actionField) {
+          pageIndex = pIndex;
+          return true;
+        }
+
+        return page.sections?.some((section, sIndex) => {
+          if (actionFieldType === 'section' && section.label === actionField) {
             pageIndex = pIndex;
+            sectionIndex = sIndex;
+            return true;
           }
-        });
-      } else if (actionFieldType === 'section') {
-        schema.pages.forEach((page, pIndex) => {
-          page.sections?.forEach((section, sIndex) => {
-            if (section.label === actionField) {
+
+          return section.questions?.some((question, qIndex) => {
+            if (actionFieldType === 'field' && question.id === actionField) {
               pageIndex = pIndex;
               sectionIndex = sIndex;
+              questionIndex = qIndex;
+              return true;
             }
+            return false;
           });
         });
-      } else if (actionFieldType === 'field') {
-        schema.pages.forEach((page, pIndex) => {
-          page.sections?.forEach((section, sIndex) => {
-            section.questions.forEach((question, qIndex) => {
-              if (question.id === actionField) {
-                pageIndex = pIndex;
-                sectionIndex = sIndex;
-                questionIndex = qIndex;
-              }
-            });
-          });
-        });
-      }
+      });
       return { pageIndex, sectionIndex, questionIndex };
     };
 
@@ -662,6 +759,7 @@ const RuleBuilder = React.memo(
         const getPropertiesToDeleteForAction = (triggerType: string, action: Action): Array<string> => {
           switch (triggerType) {
             case TriggerType.HIDE as string:
+            case TriggerType.HISTORY as string:
               return shouldDeleteForHideAction(action)
                 ? [ActionType.CALCULATE_FIELD, ActionType.ACTION_FIELD, ActionType.ERROR_MESSAGE]
                 : [];
@@ -1346,7 +1444,7 @@ export const RuleAction = React.memo(
               aria-label={t('triggerAction', 'Trigger action')}
               className={styles.actionCondition}
               initialSelectedItem={actions[index]?.actionCondition || 'Select an action'}
-              items={['Hide', 'Hide (section)', 'Hide (page)', 'Fail', 'Disable', 'Calculate']}
+              items={['Hide', 'Hide (section)', 'Hide (page)', 'Fail', 'Disable', 'Calculate', 'Enable History of']}
               onChange={({ selectedItem }: { selectedItem: string }) => {
                 handleActionChange(fieldId, ActionType.ACTION_CONDITION, selectedItem, index);
                 handleSelectAction(selectedItem);

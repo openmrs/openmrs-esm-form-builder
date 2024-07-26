@@ -46,6 +46,7 @@ export enum TriggerType {
   FAIL = 'Fail',
   DISABLE = 'Disable',
   CALCULATE = 'Calculate',
+  HISTORY = 'Enable History of',
 }
 
 export interface ComparisonOperators {
