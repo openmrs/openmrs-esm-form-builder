@@ -1,8 +1,9 @@
 import React, { useCallback } from 'react';
+import classNames from 'classnames';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
-import { Button, CopyButton } from '@carbon/react';
+import { CopyButton, IconButton, Button } from '@carbon/react';
 import { Draggable, Edit, TrashCan, Settings } from '@carbon/react/icons';
 import { showModal, useFeatureFlag } from '@openmrs/esm-framework';
 import type { Question, Schema } from '../../types';
@@ -33,6 +34,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
 }) => {
   const { t } = useTranslation();
   const isValidationRuleBuilderEnabled = useFeatureFlag('validation-rule-builder');
+  const defaultEnterDelayInMs = 300;
   const draggableId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
 
   const launchEditQuestionModal = useCallback(() => {
@@ -59,29 +61,36 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
     });
   }, [onSchemaChange, pageIndex, question, questionIndex, schema, sectionIndex]);
 
-  const { attributes, listeners, transform, isDragging, setNodeRef } = useDraggable({
+  const { attributes, listeners, transform, isDragging, over, setNodeRef } = useDraggable({
     id: draggableId,
     disabled: questionCount <= 1,
   });
-  const style = {
-    transform: CSS.Translate.toString(transform),
-  };
 
-  const dragStyles = isDragging ? styles.isDragged : styles.normal;
+  const handleDuplicate = useCallback(() => {
+    if (!isDragging) {
+      handleDuplicateQuestion(question, pageIndex, sectionIndex);
+    }
+  }, [handleDuplicateQuestion, isDragging, question, pageIndex, sectionIndex]);
 
   return (
-    <div className={dragStyles} style={style}>
+    <div
+      className={classNames({
+        [styles.dragContainer]: true,
+        [styles.dragContainerWhenDragging]: isDragging,
+      })}
+      style={{ transform: CSS.Translate.toString(transform) }}
+    >
       <div className={styles.iconAndName}>
         <div ref={setNodeRef} {...attributes} {...listeners}>
-          <Button
+          <IconButton
             className={styles.dragIcon}
-            enterDelayMs={300}
-            hasIconOnly
-            iconDescription={t('reorderQuestion', 'Reorder question')}
+            enterDelayMs={over ? 6000 : defaultEnterDelayInMs}
+            label={t('dragToReorder', 'Drag to reorder')}
             kind="ghost"
-            renderIcon={(props) => <Draggable size={16} {...props} />}
             size="md"
-          />
+          >
+            <Draggable />
+          </IconButton>
         </div>
         <p className={styles.questionLabel}>{question.label}</p>
       </div>
@@ -92,26 +101,26 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           feedback={t('duplicated', 'Duplicated') + '!'}
           iconDescription={t('duplicateQuestion', 'Duplicate question')}
           kind="ghost"
-          onClick={() => !isDragging && handleDuplicateQuestion(question, pageIndex, sectionIndex)}
+          onClick={handleDuplicate}
         />
-        <Button
-          enterDelayMs={300}
-          hasIconOnly
-          iconDescription={t('editQuestion', 'Edit question')}
+        <IconButton
+          enterDelayMs={defaultEnterDelayInMs}
+          label={t('editQuestion', 'Edit question')}
           kind="ghost"
           onClick={launchEditQuestionModal}
-          renderIcon={(props) => <Edit size={16} {...props} />}
           size="md"
-        />
-        <Button
-          enterDelayMs={300}
-          hasIconOnly
-          iconDescription={t('deleteQuestion', 'Delete question')}
+        >
+          <Edit />
+        </IconButton>
+        <IconButton
+          enterDelayMs={defaultEnterDelayInMs}
+          label={t('deleteQuestion', 'Delete question')}
           kind="ghost"
           onClick={launchDeleteQuestionModal}
-          renderIcon={(props) => <TrashCan size={16} {...props} />}
           size="md"
-        />
+        >
+          <TrashCan />
+        </IconButton>
         {isValidationRuleBuilderEnabled && (
           <Button
             enterDelayMs={300}

@@ -1,6 +1,6 @@
 {
   "name": "@openmrs/esm-form-builder-app",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "license": "MPL-2.0",
   "description": "Form Builder for O3",
   "browser": "dist/openmrs-esm-form-builder-app.js",
@@ -71,7 +71,7 @@
     "@openmrs/esm-framework": "next",
     "@openmrs/esm-patient-common-lib": "next",
     "@openmrs/esm-styleguide": "next",
-    "@playwright/test": "1.44.0",
+    "@playwright/test": "1.45.3",
     "@swc/cli": "^0.1.65",
     "@swc/core": "^1.5.7",
     "@swc/jest": "^0.2.36",

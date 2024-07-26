@@ -6,6 +6,7 @@ import {
   CopyButton,
   FileUploader,
   Grid,
+  IconButton,
   InlineLoading,
   InlineNotification,
   Tab,
@@ -62,6 +63,7 @@ const ErrorNotification = ({ error, title }: ErrorProps) => {
 };
 
 const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
+  const defaultEnterDelayInMs = 300;
   const { formUuid } = useParams<{ formUuid: string }>();
   const { blockRenderingWithErrors, dataTypeToRenderingMap } = useConfig<ConfigObject>();
   const isNewSchema = !formUuid;
@@ -77,12 +79,21 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   const [publishedWithErrors, setPublishedWithErrors] = useState(false);
   const [errors, setErrors] = useState<Array<MarkerProps>>([]);
   const [validationOn, setValidationOn] = useState(false);
+  const [invalidJsonErrorMessage, setInvalidJsonErrorMessage] = useState('');
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
-  const handleSchemaChange = useCallback((updatedSchema: string) => {
-    setStringifiedSchema(updatedSchema);
+  const resetErrorMessage = useCallback(() => {
+    setInvalidJsonErrorMessage('');
   }, []);
+
+  const handleSchemaChange = useCallback(
+    (updatedSchema: string) => {
+      resetErrorMessage();
+      setStringifiedSchema(updatedSchema);
+    },
+    [resetErrorMessage],
+  );
 
   const launchRestoreDraftSchemaModal = useCallback(() => {
     const dispose = showModal('restore-draft-schema-modal', {
@@ -199,12 +210,6 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
     updateSchema({ ...dummySchema });
   }, [updateSchema]);
 
-  const [invalidJsonErrorMessage, setInvalidJsonErrorMessage] = useState('');
-
-  const resetErrorMessage = useCallback(() => {
-    setInvalidJsonErrorMessage('');
-  }, []);
-
   const renderSchemaChanges = useCallback(() => {
     resetErrorMessage();
     {
@@ -317,36 +322,34 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
               </div>
               {schema ? (
                 <>
-                  <Button
-                    enterDelayMs={300}
-                    renderIcon={isMaximized ? Minimize : Maximize}
-                    kind={'ghost'}
-                    iconDescription={
+                  <IconButton
+                    enterDelayInMs={defaultEnterDelayInMs}
+                    kind="ghost"
+                    label={
                       isMaximized ? t('minimizeEditor', 'Minimize editor') : t('maximizeEditor', 'Maximize editor')
                     }
-                    hasIconOnly
-                    size="md"
-                    tooltipAlignment="start"
                     onClick={handleToggleMaximize}
-                  />
+                    size="md"
+                  >
+                    {isMaximized ? <Minimize /> : <Maximize />}
+                  </IconButton>
                   <CopyButton
                     align="top"
                     className="cds--btn--md"
-                    enterDelayMs={300}
+                    enterDelayInMs={defaultEnterDelayInMs}
                     iconDescription={t('copySchema', 'Copy schema')}
                     kind="ghost"
                     onClick={handleCopySchema}
                   />
                   <a download={`${form?.name}.json`} href={window.URL.createObjectURL(downloadableSchema)}>
-                    <Button
-                      enterDelayMs={300}
-                      renderIcon={Download}
-                      kind={'ghost'}
-                      iconDescription={t('downloadSchema', 'Download schema')}
-                      hasIconOnly
+                    <IconButton
+                      enterDelayInMs={defaultEnterDelayInMs}
+                      kind="ghost"
+                      label={t('downloadSchema', 'Download schema')}
                       size="md"
-                      tooltipAlignment="start"
-                    />
+                    >
+                      <Download />
+                    </IconButton>
                   </a>
                 </>
               ) : null}

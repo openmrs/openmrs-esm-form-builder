@@ -13,7 +13,7 @@ const DeleteFormModal: React.FC<DeleteFormModalProps> = ({ closeModal, isDeletin
   const { t } = useTranslation();
   return (
     <>
-      <ModalHeader closeModal={closeModal} title={t('deleteForm', 'Delete form')} />
+      <ModalHeader className={styles.modalHeader} closeModal={closeModal} title={t('deleteForm', 'Delete form')} />
       <Form onSubmit={(event: SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
           <p>{t('deleteFormConfirmation', 'Are you sure you want to delete this form?')}</p>

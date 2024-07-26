@@ -1,20 +1,5 @@
 @use '@carbon/layout';
 
-.spinner {
-  &:global(.cds--inline-loading) {
-    min-height: 1rem;
-  }
-
-  :global(.cds--inline-loading__text) {
-    font-size: unset;
-  }
-}
-
-.saveFormBody {
-  max-height: 75vh;
-  overflow-y: auto;
-}
-
 .modalHeader {
   :global {
     .cds--modal-close-button {
