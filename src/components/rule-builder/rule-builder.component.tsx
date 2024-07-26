@@ -273,7 +273,7 @@ const RuleBuilder = React.memo(
     };
 
     const getCalculateExpression = (expression: string, conditions?: Array<Condition>) => {
-      const arguements = conditions.map((condition: Condition) => condition.targetField);
+      const arguements = conditions?.map((condition: Condition) => condition.targetField);
       const arguementsSchema = `'${arguements.join("', '")}'`;
 
       switch (expression) {
@@ -401,28 +401,28 @@ const RuleBuilder = React.memo(
       (newSchema: Schema) => {
         if (prevPageIndex.current !== -1 && prevSectionIndex.current !== -1 && prevQuestionIndex.current !== -1) {
           const previousQuestion =
-            newSchema.pages[prevPageIndex.current].sections[prevSectionIndex.current].questions[
+            newSchema?.pages[prevPageIndex.current]?.sections[prevSectionIndex.current]?.questions[
               prevQuestionIndex.current
             ];
           switch (true) {
-            case !!previousQuestion.hide:
-              delete previousQuestion.hide;
+            case !!previousQuestion?.hide:
+              delete previousQuestion?.hide;
               break;
 
-            case !!previousQuestion.historicalExpression:
-              delete previousQuestion.historicalExpression;
+            case !!previousQuestion?.historicalExpression:
+              delete previousQuestion?.historicalExpression;
               break;
 
-            case previousQuestion.validators.length > 0:
-              previousQuestion.validators.splice(validatorIndex - 1, 1);
+            case previousQuestion?.validators?.length > 0:
+              previousQuestion?.validators?.splice(validatorIndex - 1, 1);
               break;
 
             default:
               break;
           }
-        } else if (prevPageIndex.current !== -1 && prevSectionIndex.current !== -1)
-          delete newSchema.pages[prevPageIndex.current].sections[prevSectionIndex.current].hide;
-        else if (prevPageIndex.current !== -1) delete newSchema.pages[prevPageIndex.current].hide;
+        } else if (prevPageIndex?.current !== -1 && prevSectionIndex?.current !== -1)
+          delete newSchema?.pages[prevPageIndex?.current]?.sections[prevSectionIndex?.current]?.hide;
+        else if (prevPageIndex?.current !== -1) delete newSchema?.pages[prevPageIndex?.current]?.hide;
       },
       [validatorIndex],
     );
@@ -471,10 +471,10 @@ const RuleBuilder = React.memo(
         conditionSchema: string,
         errorMessage: string,
       ) => {
-        const validators = schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators;
+        const validators = schema?.pages[pageIndex]?.sections[sectionIndex]?.questions[questionIndex]?.validators;
         const existingValidator =
           validatorIndex >= 1
-            ? schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators[validatorIndex - 1]
+            ? schema?.pages[pageIndex]?.sections[sectionIndex]?.questions[questionIndex]?.validators[validatorIndex - 1]
             : undefined;
         if (existingValidator) {
           existingValidator.failsWhenExpression = conditionSchema;
@@ -590,9 +590,9 @@ const RuleBuilder = React.memo(
           const condition = rule?.conditions[index];
           const { actionField, actionCondition, errorMessage } = action;
           const hidingLogic = { hideWhenExpression: conditionSchema };
-          const actionFieldType = actionCondition.includes('page')
+          const actionFieldType = actionCondition?.includes('page')
             ? 'page'
-            : actionCondition.includes('section')
+            : actionCondition?.includes('section')
               ? 'section'
               : 'field';
           const { pageIndex, sectionIndex, questionIndex } = findQuestionIndexes(
@@ -743,7 +743,7 @@ const RuleBuilder = React.memo(
 
         const updateConditionsBasedOnTargetCondition = (conditions: Array<Condition>, index: number, value: string) => {
           const condition = conditions[index];
-          const propertiesToDelete = arrContains.includes(value)
+          const propertiesToDelete = arrContains?.includes(value)
             ? [ConditionType.TARGET_VALUE]
             : [ConditionType.TARGET_VALUES];
           deleteProperties(condition, propertiesToDelete);
@@ -757,7 +757,7 @@ const RuleBuilder = React.memo(
         ) => {
           if (elementKey === (RuleElementType.CONDITIONS as string)) {
             const condition = elements[index] as Condition;
-            if (emptyStates.includes(condition?.targetCondition) && condition?.targetValue) {
+            if (emptyStates?.includes(condition?.targetCondition) && condition?.targetValue) {
               delete condition.targetValue;
             }
           }
@@ -1132,7 +1132,7 @@ export const RuleCondition = React.memo(
     addNewConditionalLogic,
   }: RuleConditionProps) => {
     const { t } = useTranslation();
-    const isDateFieldIncluded = dateHelperFunction.includes(conditions[index]?.targetCondition);
+    const isDateFieldIncluded = dateHelperFunction?.includes(conditions[index]?.targetCondition);
     const isTargetValuePresent = Boolean(conditions[index]?.targetValue);
     const isConditionNotDateField = !isDateFieldIncluded;
     const filteredAnswers = answers.filter((answer) => answer !== undefined);
@@ -1148,12 +1148,12 @@ export const RuleCondition = React.memo(
     const [selectedAnswers, setSelectedAnswers] = useState(conditions[index]?.targetValues || []);
 
     const handleSelectCondition = (selectedCondition: string) => {
-      if (dateHelperFunction.includes(selectedCondition)) {
+      if (dateHelperFunction?.includes(selectedCondition)) {
         setIsDateField(true);
         return;
       }
-      setIsMultipleAnswers(arrContains.includes(selectedCondition));
-      setIsConditionValueVisible(!emptyStates.includes(selectedCondition));
+      setIsMultipleAnswers(arrContains?.includes(selectedCondition));
+      setIsConditionValueVisible(!emptyStates?.includes(selectedCondition));
     };
 
     const handleValueChange = (selectedItem: string | Array<{ concept: string; label: string }>) => {
@@ -1364,7 +1364,7 @@ export const RuleAction = React.memo(
 
     const handleSelectAction = (selectedAction: string) => {
       setAction(selectedAction);
-      const actionKey = Object.keys(actionFieldMap).find((key) => selectedAction.includes(key));
+      const actionKey = Object.keys(actionFieldMap).find((key) => selectedAction?.includes(key));
       setActionField(actionKey ? actionFieldMap[actionKey] : questions);
     };
 
@@ -1428,9 +1428,9 @@ export const RuleAction = React.memo(
                   questions.find((question) => question.id === actions[index]?.actionField) || {
                     label: actions[index]?.actionField
                       ? actions[index]?.actionField
-                      : action.includes('page')
+                      : action?.includes('page')
                         ? t('selectPage', 'Select a page')
-                        : action.includes('section')
+                        : action?.includes('section')
                           ? t('selectSection', 'Select a section')
                           : t('selectField', 'Select a field'),
                   }

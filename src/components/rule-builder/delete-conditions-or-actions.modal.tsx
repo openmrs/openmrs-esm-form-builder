@@ -40,7 +40,7 @@ const DeleteConditionsOrActionsModal = ({
       showSnackbar({
         title: t(
           `${elementKey}DeletedMessage`,
-          `${elementKey.slice(0, 1).toUpperCase()} for the question "{{- questionLabel}}" has been deleted`,
+          `${elementKey.slice(0, 1).toUpperCase() + elementKey.slice(1, elementKey.length)}  for the question "{{- questionLabel}}" has been deleted`,
           { questionLabel: questionLabel },
         ),
       });
