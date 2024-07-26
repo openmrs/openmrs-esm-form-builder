@@ -116,6 +116,9 @@ const RuleBuilder = React.memo(
       conditions: conditions,
       isNewRule: false,
     });
+    const [isHistoryEnable, setIsHistoryEnable] = useState<boolean>(
+      question?.historicalExpression?.length > 0 || false,
+    );
     const prevPageIndex = useRef(-1);
     const prevSectionIndex = useRef(-1);
     const prevQuestionIndex = useRef(-1);
@@ -172,6 +175,32 @@ const RuleBuilder = React.memo(
       setIsDisallowDecimals(questionOptions.disallowDecimals);
       onSchemaChange(updatedSchema);
     }, [checkIfDecimalValidatorExists, onSchemaChange, pageIndex, questionIndex, schema, sectionIndex]);
+
+    const checkIfHistoricalExpressionExists = useCallback(() => {
+      return !!schema?.pages[pageIndex]?.sections[sectionIndex].questions[questionIndex]?.historicalExpression;
+    }, [pageIndex, questionIndex, schema?.pages, sectionIndex]);
+
+    const handleHistoryChange = useCallback(() => {
+      const isHistoricalExpressionExist = checkIfHistoricalExpressionExists();
+      const updatedSchema = { ...schema };
+      const historicalExpressionSchema = `HD.getObject('prevEnc').getValue('${question.questionOptions.concept}')`;
+      if (isHistoricalExpressionExist) {
+        delete schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].historicalExpression;
+      } else {
+        schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].historicalExpression =
+          historicalExpressionSchema;
+      }
+      setIsHistoryEnable((p) => !p);
+      onSchemaChange(updatedSchema);
+    }, [
+      checkIfHistoricalExpressionExists,
+      onSchemaChange,
+      pageIndex,
+      question.questionOptions.concept,
+      questionIndex,
+      schema,
+      sectionIndex,
+    ]);
 
     const shouldDeleteForHideAction = (action: Action) => {
       return action.calculateField?.length || action.errorMessage?.length || action.actionField?.length;
@@ -855,9 +884,11 @@ const RuleBuilder = React.memo(
               isRequired={isRequired}
               isAllowFutureDate={isAllowFutureDate}
               isDisallowDecimals={isDisallowDecimals}
+              isHistoryEnable={isHistoryEnable}
               handleRequiredChange={handleRequiredChange}
               handleAllowFutureDateChange={handleAllowFutureDateChange}
               handleDisallowDecimalValueChange={handleDisallowDecimalValueChange}
+              handleHistoryChange={handleHistoryChange}
               ruleId={ruleId}
               question={question}
             />
@@ -926,9 +957,11 @@ interface RuleHeaderProps {
   isRequired: boolean;
   isAllowFutureDate: boolean;
   isDisallowDecimals: boolean;
+  isHistoryEnable: boolean;
   handleRequiredChange: () => void;
   handleAllowFutureDateChange: () => void;
   handleDisallowDecimalValueChange: () => void;
+  handleHistoryChange: () => void;
   ruleId: string;
   question: Question;
 }
@@ -937,9 +970,11 @@ export const RuleHeader = React.memo(
     isRequired,
     isAllowFutureDate,
     isDisallowDecimals,
+    isHistoryEnable,
     handleRequiredChange,
     handleAllowFutureDateChange,
     handleDisallowDecimalValueChange,
+    handleHistoryChange,
     ruleId,
     question,
   }: RuleHeaderProps) => {
@@ -978,6 +1013,15 @@ export const RuleHeader = React.memo(
             size="sm"
           />
         )}
+        <Toggle
+          id={`toggle-enable-historical-expression-${ruleId}`}
+          aria-label={t('toggleEnableHistory', 'Toggle Enable History')}
+          labelText={t('enableHistory', 'Enable History')}
+          hideLabel
+          toggled={isHistoryEnable}
+          onToggle={handleHistoryChange}
+          size="sm"
+        />
       </div>
     );
   },
