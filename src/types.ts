@@ -138,6 +138,7 @@ export interface Schema {
         validators?: Array<Record<string, string>>;
         disable?: DisableProps;
         hide?: HideProps;
+        historicalExpression?: string;
       }>;
       hide?: HideProps;
     }>;
@@ -192,6 +193,7 @@ export interface Question {
   validators?: Array<Record<string, string>>;
   questionInfo?: string;
   disable?: DisableProps;
+  historicalExpression?: string;
 }
 
 export interface QuestionOptions {
