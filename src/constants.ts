@@ -2,6 +2,7 @@ import type { CalculationFunctions, ComparisonOperators } from './types';
 
 export const helpLink: string =
   'https://openmrs.atlassian.net/wiki/spaces/projects/pages/114426045/Validation+Rule+Builder';
+
 export const dateBasedCalculationFunctions: Array<string> = [
   'Age Based On Date',
   'Expected Delivery Date',
@@ -13,6 +14,7 @@ export const dateBasedCalculationFunctions: Array<string> = [
   'Next Visit Date',
   'Treatment End Date',
 ];
+
 export const heightAndWeightBasedCalculationFunctions: Array<string> = [
   'BMI',
   'BSA',
