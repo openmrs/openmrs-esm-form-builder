@@ -453,12 +453,12 @@ const RuleBuilder = React.memo(
 
     // Injecting hideWhenExpression into the schema
     const addHidingLogic = useCallback(
-      (newSchema: Schema, conditionSchema: string) => {
+      (newSchema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number, conditionSchema: string) => {
         newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].hide = {
           hideWhenExpression: conditionSchema,
         };
       },
-      [pageIndex, questionIndex, sectionIndex],
+      [],
     );
 
     // Injecting validator logic into the schema
@@ -504,7 +504,7 @@ const RuleBuilder = React.memo(
       ) => {
         switch (actionCondition) {
           case TriggerType.HIDE as string:
-            addHidingLogic(newSchema, conditionSchema);
+            addHidingLogic(newSchema, pageIndex, sectionIndex, questionIndex, conditionSchema);
             break;
           case TriggerType.FAIL as string:
             addOrUpdateValidator(newSchema, pageIndex, sectionIndex, questionIndex, conditionSchema, errorMessage);
