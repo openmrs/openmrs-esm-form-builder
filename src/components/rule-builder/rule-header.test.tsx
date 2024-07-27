@@ -28,10 +28,10 @@ describe('RuleHeader', () => {
 
   it('should render the disallow decimal value toggle button', () => {
     renderRuleHeader(false);
-    const disAllowDecimalToggleButton = screen.getByLabelText(/Toggle Disallow Decimal Value/i, {
+    const disallowDecimalToggleButton = screen.getByLabelText(/Toggle Disallow Decimal Value/i, {
       selector: `#toggle-disallow-decimal-value-${ruleId}`,
     });
-    expect(disAllowDecimalToggleButton).toBeInTheDocument();
+    expect(disallowDecimalToggleButton).toBeInTheDocument();
   });
 
   it('should not render the allow future date toggle button', () => {
@@ -62,12 +62,12 @@ describe('RuleHeader', () => {
 
   it('should verify that the disallow decimal value toggle button is clicked', async () => {
     renderRuleHeader(false);
-    const disAllowDecimalToggleButton = screen.getByLabelText(/Toggle Disallow Decimal Value/i, {
+    const disallowDecimalToggleButton = screen.getByLabelText(/Toggle Disallow Decimal Value/i, {
       selector: `#toggle-disallow-decimal-value-${ruleId}`,
     });
-    expect(disAllowDecimalToggleButton).toBeInTheDocument();
+    expect(disallowDecimalToggleButton).toBeInTheDocument();
     const user = userEvent.setup();
-    await user.click(disAllowDecimalToggleButton);
+    await user.click(disallowDecimalToggleButton);
     expect(handleDisallowDecimalValueChange).toHaveBeenCalledTimes(1);
   });
 
@@ -92,11 +92,11 @@ describe('RuleHeader', () => {
   it('should verify that the history toggle is clicked', async () => {
     renderRuleHeader(false);
     const user = userEvent.setup();
-    const disAllowDecimalToggleButton = screen.getByLabelText(/Enable History/i, {
+    const disallowDecimalToggleButton = screen.getByLabelText(/Enable History/i, {
       selector: `#toggle-enable-historical-expression-${ruleId}`,
     });
-    expect(disAllowDecimalToggleButton).toBeInTheDocument();
-    await user.click(disAllowDecimalToggleButton);
+    expect(disallowDecimalToggleButton).toBeInTheDocument();
+    await user.click(disallowDecimalToggleButton);
     expect(handleDisallowDecimalValueChange).toHaveBeenCalledTimes(1);
   });
 });

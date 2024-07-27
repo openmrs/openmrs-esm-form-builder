@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
-import { CopyButton, IconButton, Button } from '@carbon/react';
+import { CopyButton, IconButton } from '@carbon/react';
 import { Draggable, Edit, TrashCan, Settings } from '@carbon/react/icons';
 import { showModal, useFeatureFlag } from '@openmrs/esm-framework';
 import type { Question, Schema } from '../../types';
@@ -122,14 +122,15 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           <TrashCan />
         </IconButton>
         {isValidationRuleBuilderEnabled && (
-          <Button
-            enterDelayMs={300}
-            hasIconOnly
-            iconDescription={t('addConditionalLogic', 'Add conditional logic')}
+          <IconButton
+            enterDelayMs={defaultEnterDelayInMs}
+            label={t('addConditionalLogic', 'Add conditional logic')}
             kind="ghost"
             onClick={() => handleAddLogic(question.id)}
-            renderIcon={(props) => <Settings size={16} {...props} />}
-          />
+            size="sm"
+          >
+            <Settings />
+          </IconButton>
         )}
       </div>
     </div>

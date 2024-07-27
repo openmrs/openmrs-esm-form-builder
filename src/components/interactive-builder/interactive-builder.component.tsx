@@ -12,9 +12,8 @@ import DraggableQuestion from './draggable-question.component';
 import Droppable from './droppable-container.component';
 import EditableValue from './editable-value.component';
 import styles from './interactive-builder.scss';
-import RuleBuilder, { type FormRule } from '../rule-builder/rule-builder.component';
 import { useFormRule } from '../../hooks/useFormRule';
-import { v4 as uuidv4 } from 'uuid';
+import ConditionalLogic from '../rule-builder/conditional-logic';
 
 interface ValidationError {
   errorMessage?: string;
@@ -449,31 +448,18 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                         schema={schema}
                                         sectionIndex={sectionIndex}
                                       />
-                                      {activeFields.includes(question.id) &&
-                                        isValidationRuleBuilderEnabled &&
-                                        (() => {
-                                          const rulesForQuestionIndex = rules?.findIndex(
-                                            (rule: FormRule) => rule.question === question.id,
-                                          );
-                                          const rulesForQuestion =
-                                            rulesForQuestionIndex !== -1 && rulesForQuestionIndex !== undefined
-                                              ? rules?.filter((rule: FormRule) => rule.question === question.id)
-                                              : [{ id: uuidv4(), isNewRule: false, question: question.id }];
-                                          return rulesForQuestion.map((rule: FormRule) => (
-                                            <RuleBuilder
-                                              ruleId={rule.id}
-                                              key={question.id}
-                                              question={question}
-                                              pageIndex={pageIndex}
-                                              sectionIndex={sectionIndex}
-                                              questionIndex={questionIndex}
-                                              handleAddLogic={handleAddLogic}
-                                              isNewRule={rule.isNewRule}
-                                              schema={schema}
-                                              onSchemaChange={onSchemaChange}
-                                            />
-                                          ));
-                                        })()}
+                                      {activeFields.includes(question.id) && isValidationRuleBuilderEnabled && (
+                                        <ConditionalLogic
+                                          question={question}
+                                          rules={rules}
+                                          pageIndex={pageIndex}
+                                          sectionIndex={sectionIndex}
+                                          questionIndex={questionIndex}
+                                          handleAddLogic={handleAddLogic}
+                                          schema={schema}
+                                          onSchemaChange={onSchemaChange}
+                                        />
+                                      )}
                                       {getValidationError(question) && (
                                         <div className={styles.validationErrorMessage}>
                                           {getValidationError(question)}

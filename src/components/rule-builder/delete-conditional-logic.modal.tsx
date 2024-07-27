@@ -1,12 +1,12 @@
-import { ModalHeader, ModalBody, ModalFooter, Button } from '@carbon/react';
 import React, { useCallback } from 'react';
+import { ModalHeader, ModalBody, ModalFooter, Button } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import { type Action, type Condition, type FormRule } from './rule-builder.component';
 import { v4 as uuid } from 'uuid';
 import { showSnackbar } from '@openmrs/esm-framework';
+import { type Action, type Condition, type FormRule } from './rule-builder.component';
 import { type Schema } from '../../types';
-import { findQuestionIndexes } from '../utils';
-
+import { findQuestionIndices } from '../utils';
+import styles from '../modals.scss';
 interface DeleteConditionalLogicModalProps {
   closeModal: () => void;
   questionId?: string;
@@ -26,7 +26,7 @@ interface DeleteConditionalLogicModalProps {
   deleteAll?: boolean; // Flag to determine if all conditional logic should be deleted
 }
 
-const DeleteConditionalLogicModal = ({
+const DeleteConditionalLogicModal: React.FC<DeleteConditionalLogicModalProps> = ({
   closeModal,
   questionId,
   questionLabel,
@@ -42,78 +42,69 @@ const DeleteConditionalLogicModal = ({
   setRules,
   rules,
   deleteAll = false,
-}: DeleteConditionalLogicModalProps) => {
+}) => {
   const { t } = useTranslation();
 
-  // const findQuestionIndexes = (schema: Schema, actionField: string) => {
-  //   let pageIndex = -1,
-  //     sectionIndex = -1,
-  //     questionIndex = -1;
-  //   schema.pages.forEach((page, pIndex) => {
-  //     page.sections?.forEach((section, sIndex) => {
-  //       section.questions.forEach((question, qIndex) => {
-  //         if (question.id === actionField) {
-  //           pageIndex = pIndex;
-  //           sectionIndex = sIndex;
-  //           questionIndex = qIndex;
-  //         }
-  //       });
-  //     });
-  //   });
-  //   return { pageIndex, sectionIndex, questionIndex };
-  // };
-
-  const deleteQuestionHideProperty = (
-    schema: Schema,
-    pageIndex: number,
-    sectionIndex: number,
-    questionIndex: number,
-  ) => {
-    delete schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].hide;
-  };
+  const deleteQuestionHideProperty = useCallback(
+    (schema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number) => {
+      const updatedSchema = { ...schema };
+      delete schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].hide;
+      onSchemaChange(updatedSchema);
+      return updatedSchema;
+    },
+    [onSchemaChange],
+  );
 
   const deleteValidatorProperty = useCallback(
     (schema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number, errorMessage: string) => {
       if (!errorMessage) return;
-
-      const validators = schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators;
+      const updatedSchema = { ...schema };
+      const validators = updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators;
       const existingValidator =
         validatorIndex >= 1
-          ? schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators[validatorIndex - 1]
+          ? updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators[
+              validatorIndex - 1
+            ]
           : undefined;
       const existingValidatorIndex = validators.findIndex((validator) => validator === existingValidator);
       if (existingValidatorIndex !== -1) {
         validators?.splice(existingValidatorIndex, 1);
       }
+      onSchemaChange(updatedSchema);
+      return updatedSchema;
     },
-    [validatorIndex],
+    [onSchemaChange, validatorIndex],
   );
 
   const deleteRuleFromSchema = useCallback(
     (schema: Schema, rule: FormRule) => {
-      const { pageIndex, sectionIndex, questionIndex } = findQuestionIndexes(schema, rule?.actions[0]?.actionField);
+      const { pageIndex, sectionIndex, questionIndex } = findQuestionIndices(schema, rule?.actions[0]?.actionField);
 
       if (pageIndex === -1 || sectionIndex === -1 || questionIndex === -1) {
         return schema;
       }
 
       const action = rule?.actions[0];
-      const newSchema = { ...schema };
+      let updatedSchema = { ...schema };
 
       switch (action?.actionCondition) {
         case 'Hide':
-          deleteQuestionHideProperty(newSchema, pageIndex, sectionIndex, questionIndex);
+          updatedSchema = deleteQuestionHideProperty(updatedSchema, pageIndex, sectionIndex, questionIndex);
           break;
         case 'Fail':
-          deleteValidatorProperty(newSchema, pageIndex, sectionIndex, questionIndex, action?.errorMessage);
-          break;
-        default:
+          updatedSchema = deleteValidatorProperty(
+            updatedSchema,
+            pageIndex,
+            sectionIndex,
+            questionIndex,
+            action?.errorMessage,
+          );
           break;
       }
 
-      return newSchema;
+      return updatedSchema;
     },
-    [deleteValidatorProperty],
+    [deleteQuestionHideProperty, deleteValidatorProperty],
   );
 
   const deleteAllConditionalLogic = useCallback(() => {
@@ -195,6 +186,7 @@ const DeleteConditionalLogicModal = ({
   return (
     <div>
       <ModalHeader
+        className={styles.modalHeader}
         closeModal={closeModal}
         title={
           deleteAll
@@ -222,15 +214,10 @@ const DeleteConditionalLogicModal = ({
         <Button kind="secondary" onClick={closeModal}>
           {t('cancel', 'Cancel')}
         </Button>
-        <Button
-          kind="danger"
-          onClick={() => {
-            deleteLogic();
-          }}
-        >
+        <Button kind="danger" onClick={deleteLogic}>
           <span>
             {deleteAll
-              ? t('deleteConditionalLogic', 'Delete conditional logic')
+              ? t('deleteConditionalLogic', 'Delete conditional logic?')
               : t('confirmDeleteSpecificConditionalLogic', 'Delete selected conditional logic?')}
           </span>
         </Button>
