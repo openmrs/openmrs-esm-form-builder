@@ -397,6 +397,7 @@ const RuleBuilder = React.memo(
     }, []);
 
     // Deletes the previous action if the user mistakenly chose the wrong action.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const deletePreviousAction = useCallback(
       (newSchema: Schema) => {
         if (prevPageIndex.current !== -1 && prevSectionIndex.current !== -1 && prevQuestionIndex.current !== -1) {
@@ -606,7 +607,7 @@ const RuleBuilder = React.memo(
             };
             updateSchemaForDisableActionType(newSchema, pageIndex, sectionIndex, questionIndex, disableSchema);
           } else {
-            deletePreviousAction(newSchema);
+            // deletePreviousAction(newSchema); // donot remove this function
             updateSchemaBasedOnActionType(
               newSchema,
               actionFieldType,
@@ -626,7 +627,7 @@ const RuleBuilder = React.memo(
           }
         });
       },
-      [deletePreviousAction, updateSchemaBasedOnActionType],
+      [updateSchemaBasedOnActionType],
     );
 
     const isValidForCalculation = useCallback(
