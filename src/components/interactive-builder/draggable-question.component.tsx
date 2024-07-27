@@ -2,7 +2,7 @@ import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
-import { Button, CopyButton } from '@carbon/react';
+import { CopyButton, IconButton, Button } from '@carbon/react';
 import { Draggable, Edit, TrashCan, Settings } from '@carbon/react/icons';
 import { showModal, useFeatureFlag } from '@openmrs/esm-framework';
 import type { Question, Schema } from '../../types';
@@ -41,7 +41,7 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   const style = {
     transform: CSS.Translate.toString(transform),
   };
-
+  const defaultEnterDelayInMs = 300;
   const dragStyles = isDragging ? styles.isDragged : styles.normal;
 
   return (
@@ -92,14 +92,15 @@ export const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           size="md"
         />
         {isValidationRuleBuilderEnabled && (
-          <Button
-            enterDelayMs={300}
-            hasIconOnly
-            iconDescription={t('addConditionalLogic', 'Add conditional logic')}
+          <IconButton
+            enterDelayMs={defaultEnterDelayInMs}
+            label={t('addConditionalLogic', 'Add conditional logic')}
             kind="ghost"
             onClick={() => handleAddLogic(question.id)}
-            renderIcon={(props) => <Settings size={16} {...props} />}
-          />
+            size="sm"
+          >
+            <Settings />
+          </IconButton>
         )}
       </div>
     </div>

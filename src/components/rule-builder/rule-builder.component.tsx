@@ -41,7 +41,7 @@ import {
 } from '../../constants';
 import styles from './rule-builder.scss';
 import dayjs from 'dayjs';
-import { findQuestionIndexes } from '../utils';
+import { findQuestionIndices } from '../utils';
 export interface Condition {
   id: string;
   isNew: boolean;
@@ -436,7 +436,7 @@ const RuleBuilder = React.memo(
           pageIndex: targetPageIndex,
           questionIndex: targetQuestionIndex,
           sectionIndex: targetSectionIndex,
-        } = findQuestionIndexes(newSchema, targetField);
+        } = findQuestionIndices(newSchema, targetField);
         const targetConcept =
           newSchema?.pages[targetPageIndex]?.sections[targetSectionIndex]?.questions[targetQuestionIndex]
             .questionOptions.concept;
@@ -595,7 +595,7 @@ const RuleBuilder = React.memo(
             : actionCondition?.includes('section')
               ? 'section'
               : 'field';
-          const { pageIndex, sectionIndex, questionIndex } = findQuestionIndexes(
+          const { pageIndex, sectionIndex, questionIndex } = findQuestionIndices(
             newSchema,
             actionField,
             actionFieldType,
@@ -1051,7 +1051,7 @@ export const RuleHeader = React.memo(
       <div className={styles.toggleContainer}>
         <Toggle
           id={`toggle-required-${ruleId}`}
-          aria-label={t('toggleRequired', 'Toggle Required')}
+          aria-label={t('toggleRequired', 'Toggle required')}
           labelText={t('required', 'Required')}
           hideLabel
           toggled={isRequired}
@@ -1061,8 +1061,8 @@ export const RuleHeader = React.memo(
         {renderingType === RenderingType.DATE && (
           <Toggle
             id={`toggle-allow-future-date-${ruleId}`}
-            aria-label={t('toggleAllowFutureDates', 'Toggle Allow Future Dates')}
-            labelText={t('allowFutureDates', 'Allow Future Dates')}
+            aria-label={t('toggleAllowFutureDates', 'Toggle allow future dates')}
+            labelText={t('allowFutureDates', 'Allow future dates')}
             hideLabel
             toggled={isAllowFutureDate}
             onToggle={handleAllowFutureDateChange}
@@ -1072,8 +1072,8 @@ export const RuleHeader = React.memo(
         {renderingType === RenderingType.NUMBER && (
           <Toggle
             id={`toggle-disallow-decimal-value-${ruleId}`}
-            aria-label={t('toggleDisAllowDecimalValue', 'Toggle Disallow Decimal Value')}
-            labelText={t('disAllowDecimalValue', 'Disallow Decimal Value')}
+            aria-label={t('toggleDisAllowDecimalValue', 'Toggle disallow decimal value')}
+            labelText={t('disAllowDecimalValue', 'Disallow decimal value')}
             hideLabel
             toggled={isDisallowDecimals}
             onToggle={handleDisallowDecimalValueChange}
@@ -1082,8 +1082,8 @@ export const RuleHeader = React.memo(
         )}
         <Toggle
           id={`toggle-enable-historical-expression-${ruleId}`}
-          aria-label={t('toggleEnableHistory', 'Toggle Enable History')}
-          labelText={t('enableHistory', 'Enable History')}
+          aria-label={t('toggleEnableHistory', 'Toggle enable history')}
+          labelText={t('enableHistory', 'Enable history')}
           hideLabel
           toggled={isHistoryEnable}
           onToggle={handleHistoryChange}
@@ -1242,7 +1242,7 @@ export const RuleCondition = React.memo(
           {isDateField && (
             <DatePicker
               id="targetDate"
-              aria-label={t('targetDate', 'Target Date')}
+              aria-label={t('targetDate', 'Target date')}
               className={styles.datePicker}
               dateFormat="d/m/Y"
               datePickerType="single"
@@ -1263,7 +1263,7 @@ export const RuleCondition = React.memo(
         <Layer className={styles.layer}>
           <OverflowMenu
             id="conditionOptionsMenu"
-            aria-label={t('conditionOptionsMenu', 'Condition Options Menu')}
+            aria-label={t('conditionOptionsMenu', 'Condition options menu')}
             data-testid="condition-options-menu"
             className={styles.overflowMenu}
             size={responsiveSize}
@@ -1449,7 +1449,7 @@ export const RuleAction = React.memo(
                 id={`calculateField-${index}`}
                 className={styles.calculateField}
                 selectedItem={
-                  actions[index]?.calculateField || t('selectCalculateExpression', 'Select Calculate Expression')
+                  actions[index]?.calculateField || t('selectCalculateExpression', 'Select calculate expression')
                 }
                 items={calculateFunctions.map((functionItem) => ({
                   ...functionItem,
@@ -1465,7 +1465,7 @@ export const RuleAction = React.memo(
           <Layer className={styles.layer}>
             <OverflowMenu
               id="actions-options-menu"
-              aria-label={t('actionsOptionsMenu', 'Actions Options menu')}
+              aria-label={t('actionsOptionsMenu', 'Actions options menu')}
               className={styles.overflowMenu}
               align="left"
               flipped

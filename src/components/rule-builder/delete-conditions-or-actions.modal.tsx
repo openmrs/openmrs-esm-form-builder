@@ -1,8 +1,9 @@
-import { ModalHeader, ModalBody, ModalFooter, Button } from '@carbon/react';
 import React, { useCallback } from 'react';
+import { ModalHeader, ModalBody, ModalFooter, Button } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import { type Action, type Condition, type FormRule } from './rule-builder.component';
 import { showSnackbar } from '@openmrs/esm-framework';
+import type { Action, Condition, FormRule } from './rule-builder.component';
+import styles from '../modals.scss';
 
 interface DeleteConditionsOrActionsModalProps {
   closeModal: () => void;
@@ -66,6 +67,7 @@ const DeleteConditionsOrActionsModal = ({
   return (
     <div>
       <ModalHeader
+        className={styles.modalHeader}
         closeModal={closeModal}
         title={t(
           `delete${elementKey
@@ -90,12 +92,7 @@ const DeleteConditionsOrActionsModal = ({
         <Button kind="secondary" onClick={closeModal}>
           {t('cancel', 'Cancel')}
         </Button>
-        <Button
-          kind="danger"
-          onClick={() => {
-            deleteConditionsOrActions();
-          }}
-        >
+        <Button kind="danger" onClick={deleteConditionsOrActions}>
           <span>
             {t(
               `confirmDelete${elementKey.slice(0, 1).toUpperCase()}`,

@@ -1,9 +1,10 @@
 import { type Schema } from '../types';
 
-export const findQuestionIndexes = (schema: Schema, questionId: string, type: string = 'field') => {
+export const findQuestionIndices = (schema: Schema, questionId: string, type: string = 'field') => {
   let pageIndex = -1,
     sectionIndex = -1,
     questionIndex = -1;
+
   schema.pages.some((page, pIndex) => {
     if (type === 'page' && page.label === questionId) {
       pageIndex = pIndex;
