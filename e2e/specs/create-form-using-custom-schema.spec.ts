@@ -24,6 +24,12 @@ test('Create a form using a custom JSON schema', async ({ page }) => {
 
   await test.step('Then I click the `Save Form` button', async () => {
     await formBuilderPage.saveForm();
+
+    // Add assertions to check whether the form details are saved
+    await formBuilderPage.formNameInput().fill('A sample test form');
+    await formBuilderPage.formVersionInput().fill('1.0');
+    await formBuilderPage.formDescriptionInput().fill('This is a test form');
+    await formBuilderPage.formEncounterType().selectOption('Admission');
   });
 
   await test.step('And I should get a success message and be redirected to the edit page for the new form', async () => {
