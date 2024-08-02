@@ -292,3 +292,77 @@ test('create calculation logic for `Expected delivery date`', async ({ page }) =
     await expect(formBuilderPage.page.getByText('5/8/2025')).toBeVisible();
   });
 });
+
+test('calculate viral load status', async ({ page }) => {
+  const formBuilderPage = new FormBuilderPage(page);
+
+  await test.step('When I visit the form builder', async () => {
+    await formBuilderPage.gotoFormBuilder();
+  });
+
+  await test.step('And I enable the validation rule builder feature in implementor tools', async () => {
+    await formBuilderPage.formBuilderSetupForRuleBuilder();
+  });
+
+  await test.step('And I navigate to the interactive builder', async () => {
+    await formBuilderPage.page.getByRole('tab', { name: 'Interactive Builder' }).click();
+  });
+
+  await test.step('And I expand the `Test Viral Load Status` section', async () => {
+    await formBuilderPage.page.getByRole('button', { name: /Test Viral Load Status/i }).click();
+    await formBuilderPage.page
+      .getByRole('button', { name: /Add conditional logic/i })
+      .nth(1)
+      .click();
+  });
+
+  await test.step('And I create a calculation logic for `Viral Load Status`', async () => {
+    await formBuilderPage.page
+      .getByLabel('Target field')
+      .getByRole('combobox', { name: /Select a field/i })
+      .click();
+    await formBuilderPage.page
+      .getByLabel('Target field')
+      .getByText(/Viral Load Count/i)
+      .click();
+    await formBuilderPage.page.getByRole('combobox', { name: /Select condition/i }).click();
+    await formBuilderPage.page.getByText('Not Empty').click();
+    await formBuilderPage.page.getByRole('combobox', { name: /Select an action/i }).click();
+    await formBuilderPage.page.getByText('Calculate', { exact: true }).click();
+    await formBuilderPage.page.getByRole('combobox', { name: /Select Calculate Expression/i }).click();
+    await formBuilderPage.page
+      .getByRole('option', { name: /Viral Load Status/i })
+      .locator('div')
+      .click();
+  });
+
+  await test.step('And I navigate to the form preview tab', async () => {
+    await formBuilderPage.page.waitForTimeout(4000); // Adds delay to render the form
+    await formBuilderPage.page.getByRole('tab', { name: /Preview/i }).click();
+  });
+
+  await test.step('And I enter value for the `Viral Load Count`', async () => {
+    await formBuilderPage.page.getByLabel('Viral Load Count').fill('35');
+    await page.getByLabel('Preview', { exact: true }).getByText('Viral Load Status', { exact: true }).click();
+  });
+
+  await test.step('And I see the `Viral load satus` value has `Suppressed` as value', async () => {
+    await expect(
+      formBuilderPage.page
+        .getByRole('group', { name: /Viral Load Status/i })
+        .locator('span')
+        .nth(1),
+    ).toBeChecked();
+  });
+
+  await test.step('When I change the value of `Viral load count`, Then `Viral load status` value changed to `Unsuppressed`', async () => {
+    await formBuilderPage.page.getByLabel(/Viral Load Count/i).fill('100');
+    await page.getByLabel('Preview', { exact: true }).getByText('Viral Load Status', { exact: true }).click();
+    await expect(
+      formBuilderPage.page
+        .getByRole('group', { name: /Viral Load Status/i })
+        .locator('span')
+        .nth(3),
+    ).toBeChecked();
+  });
+});
