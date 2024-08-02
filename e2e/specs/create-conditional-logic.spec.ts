@@ -238,3 +238,57 @@ test('create a calculation logic', async ({ page }) => {
     await expect(formBuilderPage.page.getByLabel(/BSA/i)).toHaveValue('0.67');
   });
 });
+
+test('create calculation logic for `Expected delivery date`', async ({ page }) => {
+  const formBuilderPage = new FormBuilderPage(page);
+
+  await test.step('When I visit the form builder', async () => {
+    await formBuilderPage.gotoFormBuilder();
+  });
+
+  await test.step('And I enable the validation rule builder feature in implementor tools', async () => {
+    await formBuilderPage.formBuilderSetupForRuleBuilder();
+  });
+
+  await test.step('And I navigate to the interactive builder', async () => {
+    await formBuilderPage.page.getByRole('tab', { name: /Interactive Builder/i }).click();
+  });
+
+  await test.step('And I expand the `Delivery Dates` section, and create conditional logic', async () => {
+    await formBuilderPage.page.getByRole('button', { name: /Delivery Date/i }).click();
+    await formBuilderPage.page
+      .getByRole('button', { name: /Add conditional logic/i })
+      .nth(1)
+      .click();
+  });
+
+  await test.step('And I create calculation logic to calculate `Expected delivery date`', async () => {
+    await formBuilderPage.page
+      .getByLabel('Target field')
+      .getByRole('combobox', { name: /Select a field/i })
+      .click();
+    await formBuilderPage.page
+      .getByLabel('Target field')
+      .getByText(/Last Mensuration Period/i)
+      .click();
+    await formBuilderPage.page.getByRole('combobox', { name: /Select condition/i }).click();
+    await formBuilderPage.page.getByText('Not Empty').click();
+    await formBuilderPage.page.getByRole('combobox', { name: /Select an action/i }).click();
+    await formBuilderPage.page.getByText('Calculate', { exact: true }).click();
+    await formBuilderPage.page.getByRole('combobox', { name: /Select Calculate Expression/i }).click();
+    await formBuilderPage.page
+      .getByRole('option', { name: /Expected Delivery Date/i })
+      .locator('div')
+      .click();
+  });
+  await test.step('And I navigate tot form preview tab', async () => {
+    await formBuilderPage.page.waitForTimeout(4000); // Adds delay to render the form
+    await formBuilderPage.page.getByRole('tab', { name: /Preview/i }).click();
+  });
+
+  await test.step('When I select a date in `LMP` field, Then I see the `EDD` has been calculated', async () => {
+    await formBuilderPage.page.getByRole('button', { name: /Calendar Last Mensuration/i }).click();
+    await formBuilderPage.page.getByLabel('Thursday, August 1,').click();
+    await expect(formBuilderPage.page.getByText('5/8/2025')).toBeVisible();
+  });
+});
