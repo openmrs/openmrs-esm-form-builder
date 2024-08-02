@@ -3,7 +3,6 @@
 import { test } from '../core';
 import { expect } from '@playwright/test';
 import { FormBuilderPage } from '../pages';
-import customSchema from '../support/validation-custom-schema.json';
 
 test('create a conditional logic', async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
@@ -12,25 +11,17 @@ test('create a conditional logic', async ({ page }) => {
     await formBuilderPage.gotoFormBuilder();
   });
 
-  await test.step('And I click the `Create New Form` button', async () => {
-    await formBuilderPage.createNewFormButton().click();
+  await test.step('And I enable the validation rule builder feature in implementor tools', async () => {
+    await formBuilderPage.formBuilderSetupForRuleBuilder();
   });
 
-  await test.step('And I Enable the validation rule builder feature', async () => {
-    await formBuilderPage.page.getByTestId('globalImplementerToolsButton').getByRole('button').click();
-    await formBuilderPage.page.getByRole('tab', { name: 'Feature flags' }).click();
-    await formBuilderPage.page.locator('.cds--toggle__switch').click();
-    await formBuilderPage.page.getByRole('button', { name: 'Close' }).click();
-  });
-
-  await test.step('Then I paste in a custom JSON schema into the schema editor and click the `Render Changes` button', async () => {
-    await formBuilderPage.schemaInput().fill(JSON.stringify(customSchema, null, 2));
-    await formBuilderPage.renderChangesButton().click();
-    await formBuilderPage.page.getByRole('button', { name: 'Render changes' }).click();
+  await test.step('And I navigate to the interactive builder', async () => {
     await formBuilderPage.page.getByRole('tab', { name: 'Interactive Builder' }).click();
   });
 
-  await formBuilderPage.page.getByRole('button', { name: 'Demographics' }).click();
+  await test.step('And I expand the `Demographics` section', async () => {
+    await formBuilderPage.page.getByRole('button', { name: 'Demographics' }).click();
+  });
 
   await test.step('And I make the `name` field as require', async () => {
     await formBuilderPage.page.getByRole('button', { name: 'Add conditional logic' }).first().click();
@@ -74,7 +65,6 @@ test('create a conditional logic', async ({ page }) => {
     await formBuilderPage.page.getByRole('button', { name: 'Calendar Date of Birth' }).click();
     await formBuilderPage.page.getByLabel('Increase').click();
     await formBuilderPage.page.getByLabel('Saturday, August 2,').click({ force: true });
-    // await formBuilderPage.page.click('body', { position: { x: 0, y: 0 } });
     await expect(formBuilderPage.page.getByText('Future dates not allowed')).toBeVisible();
     await formBuilderPage.page.getByRole('button', { name: 'Calendar Date of Birth' }).click();
     await formBuilderPage.page.getByLabel('Decrease').click();
