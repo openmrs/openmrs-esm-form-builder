@@ -1,0 +1,481 @@
+{
+    "name": "Patient Form",
+    "pages": [
+      {
+        "label": "patient page",
+        "sections": [
+          {
+            "label": "Demographics",
+            "isExpanded": "true",
+            "questions": [
+              {
+                "label": "Name",
+                "type": "obs",
+                "required": false,
+                "id": "name",
+                "questionOptions": {
+                  "rendering": "text",
+                  "concept": "162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "conceptMappings": [
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "CIEL",
+                      "value": "162370"
+                    },
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "SNOMED CT",
+                      "value": "419702001"
+                    }
+                  ]
+                },
+                "validators": []
+              },
+              {
+                "label": "Date of Birth",
+                "type": "obs",
+                "required": false,
+                "id": "dateOfBirth",
+                "questionOptions": {
+                  "rendering": "date",
+                  "concept": "1896AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                },
+                "validators": []
+              },
+              {
+                "label": "Age",
+                "type": "obs",
+                "required": false,
+                "id": "age",
+                "questionOptions": {
+                  "rendering": "number",
+                  "concept": "162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "conceptMappings": [
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "CIEL",
+                      "value": "162370"
+                    },
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "SNOMED CT",
+                      "value": "419702001"
+                    }
+                  ]
+                },
+                "validators": []
+              }
+            ]
+          },
+          {
+            "label": "Covid Experience",
+            "isExpanded": "true",
+            "questions": [
+              {
+                "label": "Are you affected by COVID ?",
+                "type": "obs",
+                "required": false,
+                "id": "covid",
+                "questionOptions": {
+                  "rendering": "select",
+                  "concept": "a8afba58-1350-11df-a1f1-0026b9348838",
+                  "answers": [
+                    {
+                      "concept": "a899b35c-1350-11df-a1f1-0026b9348838",
+                      "label": "Yes"
+                    },
+                    {
+                      "concept": "a899b42e-1350-11df-a1f1-0026b9348838",
+                      "label": "No"
+                    }
+                  ]
+                },
+                "validators": []
+              },
+              {
+                "label": "What symptoms did you experience during your COVID-19 illness?",
+                "type": "obs",
+                "required": false,
+                "id": "symptoms",
+                "questionOptions": {
+                  "rendering": "text",
+                  "concept": "162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "conceptMappings": [
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "CIEL",
+                      "value": "162370"
+                    },
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "SNOMED CT",
+                      "value": "419702001"
+                    }
+                  ]
+                },
+                "validators": []
+              }
+            ]
+          },
+          {
+            "label": "Vitals and Biomterics",
+            "isExpanded": "true",
+            "questions": [
+              {
+                "label": "Height",
+                "type": "obs",
+                "required": true,
+                "id": "height",
+                "questionOptions": {
+                  "rendering": "number",
+                  "concept": "162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "conceptMappings": [
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "CIEL",
+                      "value": "162370"
+                    },
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "SNOMED CT",
+                      "value": "419702001"
+                    }
+                  ]
+                },
+                "validators": []
+              },
+              {
+                "label": "Weight",
+                "type": "obs",
+                "required": false,
+                "id": "weight",
+                "questionOptions": {
+                  "rendering": "number",
+                  "concept": "162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "conceptMappings": [
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "CIEL",
+                      "value": "162370"
+                    },
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "SNOMED CT",
+                      "value": "419702001"
+                    }
+                  ]
+                },
+                "validators": []
+              },
+              {
+                "label": "BSA",
+                "type": "obs",
+                "required": true,
+                "id": "bsa",
+                "questionOptions": {
+                  "rendering": "number",
+                  "concept": "162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "conceptMappings": [
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "CIEL",
+                      "value": "162370"
+                    },
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "SNOMED CT",
+                      "value": "419702001"
+                    }
+                  ]
+                },
+                "validators": []
+              },
+              {
+                "label": "BMI",
+                "type": "obs",
+                "required": false,
+                "id": "bmi",
+                "questionOptions": {
+                  "rendering": "number",
+                  "concept": "162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "conceptMappings": [
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "CIEL",
+                      "value": "162370"
+                    },
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "SNOMED CT",
+                      "value": "419702001"
+                    }
+                  ]
+                },
+                "validators": []
+              }
+            ]
+          },
+          {
+            "label": "Delivery Date",
+            "isExpanded": "true",
+            "questions": [
+              {
+                "label": "Last Mensuration Period",
+                "type": "obs",
+                "required": true,
+                "id": "LMP",
+                "questionOptions": {
+                  "rendering": "date",
+                  "concept": "162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "conceptMappings": [
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "CIEL",
+                      "value": "162370"
+                    },
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "SNOMED CT",
+                      "value": "419702001"
+                    }
+                  ]
+                },
+                "validators": []
+              },
+              {
+                "label": "Expected Delivery Date",
+                "type": "obs",
+                "required": false,
+                "id": "EDD",
+                "questionOptions": {
+                  "rendering": "date",
+                  "concept": "162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "conceptMappings": [
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "CIEL",
+                      "value": "162370"
+                    },
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "SNOMED CT",
+                      "value": "419702001"
+                    }
+                  ]
+                },
+                "validators": []
+              }
+            ]
+          },
+          {
+            "label": "Test Viral Load Status",
+            "isExpanded": "true",
+            "questions": [
+              {
+                "label": "Viral Load Count",
+                "type": "obs",
+                "required": false,
+                "id": "viralLoadCount",
+                "questionOptions": {
+                  "rendering": "number",
+                  "concept": "856AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "conceptMappings": [
+                    {
+                      "type": "AMPATH",
+                      "value": "856"
+                    },
+                    {
+                      "type": "CIEL",
+                      "value": "856"
+                    },
+                    {
+                      "type": "SNOMED-CT",
+                      "value": "315124004"
+                    },
+                    {
+                      "type": "IMO-ProcedureIT",
+                      "value": "929811"
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Viral Load Status",
+                "type": "obs",
+                "questionOptions": {
+                  "rendering": "radio",
+                  "concept": "2dc9ee04-4d12-4606-ae0f-86895bf14a44",
+                  "answers": [
+                    {
+                      "concept": "5d5e42cc-acc4-4069-b3a8-7163e0db5d96",
+                      "label": "Suppressed",
+                      "conceptMappings": []
+                    },
+                    {
+                      "concept": "a6768be6-c08e-464d-8f53-5f4229508e54",
+                      "label": "Unsuppressed",
+                      "conceptMappings": []
+                    }
+                  ]
+                },
+                "id": "viralLoadStatus"
+              }
+            ]
+          },
+          {
+            "label": "Schedule an appointment",
+            "isExpanded": "true",
+            "questions": [
+              {
+                "label": "Appointment Date",
+                "type": "obs",
+                "required": true,
+                "id": "appointment",
+                "questionOptions": {
+                  "rendering": "date",
+                  "concept": "162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "conceptMappings": [
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "CIEL",
+                      "value": "162370"
+                    },
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "SNOMED CT",
+                      "value": "419702001"
+                    }
+                  ]
+                },
+                "validators": []
+              }
+            ]
+          },
+          {
+            "label": "Calculate Time Difference",
+            "isExpanded": "true",
+            "questions": [
+              {
+                "label": "Date",
+                "type": "obs",
+                "required": false,
+                "id": "date",
+                "datePickerFormat": "calendar",
+                "questionOptions": {
+                  "rendering": "date",
+                  "concept": "162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "conceptMappings": [
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "CIEL",
+                      "value": "162370"
+                    },
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "SNOMED CT",
+                      "value": "419702001"
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Time Difference in Date",
+                "type": "obs",
+                "required": false,
+                "id": "calculateTimeDifferenceInDate",
+                "questionOptions": {
+                  "rendering": "number",
+                  "concept": "162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "conceptMappings": [
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "CIEL",
+                      "value": "162370"
+                    },
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "SNOMED CT",
+                      "value": "419702001"
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Time Difference in Weeks",
+                "type": "obs",
+                "required": false,
+                "id": "calculateTimeDifferenceInWeeks",
+                "questionOptions": {
+                  "rendering": "number",
+                  "concept": "162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "conceptMappings": [
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "CIEL",
+                      "value": "162370"
+                    },
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "SNOMED CT",
+                      "value": "419702001"
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "Time Difference in Years",
+                "type": "obs",
+                "required": false,
+                "id": "timeDifferenceInYears",
+                "questionOptions": {
+                  "rendering": "number",
+                  "concept": "162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "conceptMappings": [
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "CIEL",
+                      "value": "162370"
+                    },
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "SNOMED CT",
+                      "value": "419702001"
+                    }
+                  ]
+                },
+                "validators": []
+              },
+              {
+                "label": "Time Difference in Months",
+                "type": "obs",
+                "required": false,
+                "id": "timeDifferenceInMonths",
+                "questionOptions": {
+                  "rendering": "text",
+                  "concept": "162370AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                  "conceptMappings": [
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "CIEL",
+                      "value": "162370"
+                    },
+                    {
+                      "relationship": "SAME-AS",
+                      "type": "SNOMED CT",
+                      "value": "419702001"
+                    }
+                  ]
+                },
+                "validators": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "processor": "EncounterFormProcessor",
+    "encounterType": "",
+    "referencedForms": [],
+    "uuid": "",
+    "description": "Patient description"
+  }
