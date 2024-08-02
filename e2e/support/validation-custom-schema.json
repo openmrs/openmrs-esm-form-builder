@@ -124,7 +124,7 @@
               {
                 "label": "Height",
                 "type": "obs",
-                "required": true,
+                "required": false,
                 "id": "height",
                 "questionOptions": {
                   "rendering": "number",
@@ -170,7 +170,7 @@
               {
                 "label": "BSA",
                 "type": "obs",
-                "required": true,
+                "required": false,
                 "id": "bsa",
                 "questionOptions": {
                   "rendering": "number",
