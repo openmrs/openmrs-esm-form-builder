@@ -15,7 +15,7 @@ test('create a conditional logic', async ({ page }) => {
   await test.step('And I click the `Create New Form` button', async () => {
     await formBuilderPage.createNewFormButton().click();
   });
-  // await page.pause();
+
   await test.step('And I Enable the validation rule builder feature', async () => {
     await formBuilderPage.page.getByTestId('globalImplementerToolsButton').getByRole('button').click();
     await formBuilderPage.page.getByRole('tab', { name: 'Feature flags' }).click();
