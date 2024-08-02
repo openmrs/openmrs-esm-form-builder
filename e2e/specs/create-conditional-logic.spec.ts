@@ -95,3 +95,81 @@ test('check the toggle functionality', async ({ page }) => {
     await expect(formBuilderPage.page.getByText('Decimal values are not allowed for this field')).toBeHidden();
   });
 });
+
+test('create hiding logic', async ({ page }) => {
+  const formBuilderPage = new FormBuilderPage(page);
+
+  await test.step('When I visit the form builder', async () => {
+    await formBuilderPage.gotoFormBuilder();
+  });
+
+  await test.step('And I enable the validation rule builder feature in implementor tools', async () => {
+    await formBuilderPage.formBuilderSetupForRuleBuilder();
+  });
+
+  await test.step('And I navigate to the interactive builder', async () => {
+    await formBuilderPage.page.getByRole('tab', { name: /Interactive Builder/i }).click();
+  });
+
+  await test.step('And I expand the `Covid Experience` section', async () => {
+    await formBuilderPage.page.getByRole('button', { name: /Covid Experience/i }).click();
+  });
+
+  await test.step('And I create conditional logic of `hideWhenExpression`', async () => {
+    await formBuilderPage.page
+      .getByRole('button', { name: /Add conditional logic/i })
+      .first()
+      .click();
+  });
+
+  await test.step('And I create the hiding logic', async () => {
+    await formBuilderPage.page
+      .getByLabel('Target field')
+      .getByRole('combobox', { name: /Select a field/i })
+      .click();
+    await formBuilderPage.page
+      .getByLabel('Target field')
+      .getByText(/Are you affected by COVID ?/i)
+      .click();
+    await formBuilderPage.page.getByRole('combobox', { name: /Select condition/i }).click();
+    await formBuilderPage.page.getByText('Equals', { exact: true }).click();
+    await formBuilderPage.page.getByPlaceholder(/Target value/i).click();
+    await formBuilderPage.page.getByRole('option', { name: /Yes/i }).click();
+    await formBuilderPage.page.getByRole('combobox', { name: /Select an action/i }).click();
+    await formBuilderPage.page.getByText('Hide', { exact: true }).click();
+    await formBuilderPage.page.getByRole('combobox', { name: /Select a field/i }).click();
+    await formBuilderPage.page
+      .getByRole('option', { name: /What symptoms did you/i })
+      .locator('div')
+      .click();
+  });
+
+  await test.step('And I visit form preview', async () => {
+    await formBuilderPage.page.waitForTimeout(4000); // Adds delay to render the form
+    await formBuilderPage.page.getByRole('tab', { name: /Preview/i }).click();
+  });
+
+  await test.step('And I see the `What symptoms did you experience` field presents in the form', async () => {
+    await expect(
+      formBuilderPage.page.getByLabel('Preview', { exact: true }).getByText(/What symptoms did you/i),
+    ).toBeVisible();
+  });
+
+  await test.step('And I select the value as `yes` for the `are you affected by COVID` field', async () => {
+    await formBuilderPage.page.getByRole('combobox', { name: /Are you affected by COVID ?/i }).click();
+    await formBuilderPage.page.getByText('Yes').click();
+  });
+
+  await test.step('And I see the `What symptoms did you experience` field is vanished successfully', async () => {
+    await expect(formBuilderPage.page.getByLabel(/What symptoms did you/i)).toBeHidden();
+  });
+
+  await test.step('And If I change the value of `are you affected by COVID` field to `no`', async () => {
+    await formBuilderPage.page.getByRole('combobox', { name: /Are you affected by COVID ?/i }).click();
+    await formBuilderPage.page.getByText('No', { exact: true }).click();
+  });
+
+  await test.step('Then I see the `What symptoms did you experience` is visible again', async () => {
+    await expect(formBuilderPage.page.getByLabel(/What symptoms did you/i)).toBeVisible();
+  });
+});
