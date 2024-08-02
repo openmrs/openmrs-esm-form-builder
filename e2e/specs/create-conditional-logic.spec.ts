@@ -4,7 +4,7 @@ import { test } from '../core';
 import { expect } from '@playwright/test';
 import { FormBuilderPage } from '../pages';
 
-test('create a conditional logic', async ({ page }) => {
+test('check the toggle functionality', async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
 
   await test.step('When I visit the form builder', async () => {
