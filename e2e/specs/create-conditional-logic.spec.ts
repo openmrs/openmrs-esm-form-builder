@@ -173,3 +173,68 @@ test('create hiding logic', async ({ page }) => {
     await expect(formBuilderPage.page.getByLabel(/What symptoms did you/i)).toBeVisible();
   });
 });
+
+test('create a calculation logic', async ({ page }) => {
+  const formBuilderPage = new FormBuilderPage(page);
+
+  await test.step('When I visit the form builder', async () => {
+    await formBuilderPage.gotoFormBuilder();
+  });
+
+  await test.step('And I enable the validation rule builder feature in implementor tools', async () => {
+    await formBuilderPage.formBuilderSetupForRuleBuilder();
+  });
+
+  await test.step('And I navigate to the interactive builder', async () => {
+    await formBuilderPage.page.getByRole('tab', { name: /Interactive Builder/i }).click();
+  });
+
+  await test.step('And I expand the `Vitals and Biomterics` section, and create conditional logic', async () => {
+    await formBuilderPage.page.getByRole('button', { name: /Vitals and Biomterics/i }).click();
+    await formBuilderPage.page.getByRole('button', { name: 'Add conditional logic' }).nth(2).click();
+  });
+
+  await test.step('And I create the calculcation logic for the `BSA` field', async () => {
+    await formBuilderPage.page
+      .getByLabel('Target field')
+      .getByRole('combobox', { name: /Select a field/i })
+      .click();
+    await formBuilderPage.page
+      .getByLabel('Target field')
+      .getByText(/Height/i)
+      .click();
+    await formBuilderPage.page.getByRole('combobox', { name: /Select condition/i }).click();
+    await formBuilderPage.page.getByText(/Not Empty/i).click();
+    await formBuilderPage.page.getByTestId('condition-options-menu').click();
+    await formBuilderPage.page.getByLabel('Add condition', { exact: true }).click();
+    await formBuilderPage.page
+      .getByLabel('Target field')
+      .getByRole('combobox', { name: /Select a field/i })
+      .click();
+    await formBuilderPage.page
+      .getByRole('option', { name: /Weight/i })
+      .locator('div')
+      .click();
+    await formBuilderPage.page.getByRole('combobox', { name: /Select condition/i }).click();
+    await formBuilderPage.page
+      .getByRole('option', { name: /Not Empty/i })
+      .locator('div')
+      .click();
+    await formBuilderPage.page.getByRole('combobox', { name: /Select an action/i }).click();
+    await formBuilderPage.page.getByText('Calculate', { exact: true }).click();
+    await formBuilderPage.page.getByRole('combobox', { name: /Select Calculate Expression/i }).click();
+    await formBuilderPage.page.getByRole('option', { name: /BSA/i }).locator('div').click();
+  });
+
+  await test.step('And I navigate to the form preview tab', async () => {
+    await formBuilderPage.page.waitForTimeout(4000); // Adds delay to render the form
+    await formBuilderPage.page.getByRole('tab', { name: 'Preview' }).click();
+  });
+
+  await test.step('And I see enter value for `Height` and `Weight` field, then `BSA` calculated automiatically', async () => {
+    await formBuilderPage.page.getByLabel(/Height/i).fill('40');
+    await formBuilderPage.page.getByLabel(/Weight/i).fill('40');
+    await formBuilderPage.page.getByLabel('Preview', { exact: true }).getByText(/BSA/i).click();
+    await expect(formBuilderPage.page.getByLabel(/BSA/i)).toHaveValue('0.67');
+  });
+});
