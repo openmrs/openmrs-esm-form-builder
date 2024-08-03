@@ -267,8 +267,8 @@ test('create a calculation logic', async ({ page }) => {
   await test.step('And I see enter value for `Height` and `Weight` field, then `BSA` calculated automiatically', async () => {
     await formBuilderPage.page.getByLabel(/Height/i).fill('40');
     await formBuilderPage.page.getByLabel(/Weight/i).fill('40');
-    await formBuilderPage.page.getByLabel('Preview', { exact: true }).getByText(/BSA/i).click();
-    await expect(formBuilderPage.page.getByLabel(/BSA/i)).toHaveValue('0.67');
+    await formBuilderPage.page.getByLabel('Preview', { exact: true }).getByText('BSA').click();
+    await expect(formBuilderPage.page.getByLabel('BSA')).toHaveValue('0.67');
   });
 });
 
@@ -320,8 +320,9 @@ test('create calculation logic for `Expected delivery date`', async ({ page }) =
   });
 
   await test.step('When I select a date in `LMP` field, Then I see the `EDD` has been calculated', async () => {
-    await formBuilderPage.page.getByRole('button', { name: /Calendar Last Mensuration/i }).click();
-    await formBuilderPage.page.getByLabel('Thursday, August 1,').click();
+    await formBuilderPage.page.getByRole('spinbutton', { name: 'month, Last Mensuration' }).fill('08');
+    await formBuilderPage.page.getByRole('spinbutton', { name: 'day, Last Mensuration' }).fill('01');
+    await formBuilderPage.page.getByRole('spinbutton', { name: 'year, Last Mensuration' }).fill('2024');
     await expect(formBuilderPage.page.getByText('5/8/2025')).toBeVisible();
   });
 });

@@ -222,7 +222,7 @@
               {
                 "label": "Last Mensuration Period",
                 "type": "obs",
-                "required": true,
+                "required": false,
                 "id": "LMP",
                 "questionOptions": {
                   "rendering": "date",
