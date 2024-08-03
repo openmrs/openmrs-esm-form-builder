@@ -329,7 +329,7 @@
               {
                 "label": "Appointment Date",
                 "type": "obs",
-                "required": true,
+                "required": false,
                 "id": "appointment",
                 "questionOptions": {
                   "rendering": "date",

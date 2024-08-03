@@ -366,3 +366,84 @@ test('calculate viral load status', async ({ page }) => {
     ).toBeChecked();
   });
 });
+
+test('create a validation logic for date field', async ({ page }) => {
+  const currentDate = new Date();
+
+  const monthName = currentDate.toLocaleString('default', { month: 'long' });
+  const day = currentDate.getDate();
+  const formBuilderPage = new FormBuilderPage(page);
+
+  await test.step('When I visit the form builder', async () => {
+    await formBuilderPage.gotoFormBuilder();
+  });
+
+  await test.step('And I enable the validation rule builder feature in implementor tools', async () => {
+    await formBuilderPage.formBuilderSetupForRuleBuilder();
+  });
+
+  await test.step('And I navigate to the interactive builder', async () => {
+    await formBuilderPage.page.getByRole('tab', { name: 'Interactive Builder' }).click();
+  });
+
+  await test.step('And I expand the `Schedule an appointment` section', async () => {
+    await formBuilderPage.page.getByRole('button', { name: /Schedule an appointment/i }).click();
+    await formBuilderPage.page.getByRole('button', { name: /Add conditional logic/i }).click();
+  });
+
+  await test.step('And I create a `failsWhenExpression` logic', async () => {
+    await formBuilderPage.page
+      .getByLabel('Target field')
+      .getByRole('combobox', { name: /Select a field/i })
+      .click();
+    await formBuilderPage.page
+      .getByLabel('Target field')
+      .getByText(/Appointment Date/i)
+      .click();
+    await formBuilderPage.page.getByRole('combobox', { name: /Select condition/i }).click();
+    await formBuilderPage.page.getByText(/Is Date Before/i).click();
+    await formBuilderPage.page.getByPlaceholder('dd/mm/yyyy').click();
+    await formBuilderPage.page.getByPlaceholder('dd/mm/yyyy').fill('01/08/2024');
+    await formBuilderPage.page.getByPlaceholder('dd/mm/yyyy').press('Tab');
+    await formBuilderPage.page.getByRole('combobox', { name: /Select an action/i }).click();
+    await formBuilderPage.page.getByText(/Fail/i).click();
+    await formBuilderPage.page.getByRole('combobox', { name: /Select a field/i }).click();
+    await formBuilderPage.page
+      .getByRole('option', { name: /Appointment Date/i })
+      .locator('div')
+      .click();
+    await formBuilderPage.page
+      .getByPlaceholder('Enter error message to be')
+      .fill('Cannot schedule an appointment in the past. Please select a future date.');
+  });
+
+  await test.step('And I navigate to form preview tab', async () => {
+    await formBuilderPage.page.getByRole('tab', { name: /Preview/i }).click();
+    await formBuilderPage.page.waitForTimeout(4000);
+  });
+
+  await test.step('And I select a past date in `Appointment Date` field', async () => {
+    await formBuilderPage.page.locator('#appointment').getByText('mm/dd/yyyy').click();
+    await formBuilderPage.page.getByLabel('Decrease').click();
+    await formBuilderPage.page.getByRole('gridcell', { name: `${monthName} ${day},` }).click();
+  });
+
+  await test.step('And I see a warning message', async () => {
+    await expect(
+      formBuilderPage.page
+        .getByLabel('Preview', { exact: true })
+        .getByText('Cannot schedule an appointment in the past. Please select a future date.'),
+    ).toBeVisible();
+  });
+
+  await test.step('When I change the `Appointment Date` to future, Then I see the warning message is vanished', async () => {
+    await formBuilderPage.page.getByRole('button', { name: 'Calendar Appointment Date' }).click();
+    await formBuilderPage.page.getByLabel('Increase').click();
+    await formBuilderPage.page.getByRole('gridcell', { name: `${monthName} ${day},` }).click();
+    await expect(
+      formBuilderPage.page
+        .getByLabel('Preview', { exact: true })
+        .getByText('Cannot schedule an appointment in the past. Please select a future date.'),
+    ).toBeHidden();
+  });
+});
