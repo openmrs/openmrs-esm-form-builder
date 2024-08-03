@@ -6,6 +6,9 @@ import { FormBuilderPage } from '../pages';
 
 test('check the toggle functionality', async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
+  const currentDate = new Date();
+  const monthName = currentDate.toLocaleString('default', { month: 'long' });
+  const day = currentDate.getDate();
 
   await test.step('When I visit the form builder', async () => {
     await formBuilderPage.gotoFormBuilder();
@@ -16,15 +19,18 @@ test('check the toggle functionality', async ({ page }) => {
   });
 
   await test.step('And I navigate to the interactive builder', async () => {
-    await formBuilderPage.page.getByRole('tab', { name: 'Interactive Builder' }).click();
+    await formBuilderPage.page.getByRole('tab', { name: /Interactive Builder/i }).click();
   });
 
   await test.step('And I expand the `Demographics` section', async () => {
-    await formBuilderPage.page.getByRole('button', { name: 'Demographics' }).click();
+    await formBuilderPage.page.getByRole('button', { name: /Demographics/i }).click();
   });
 
   await test.step('And I make the `name` field as require', async () => {
-    await formBuilderPage.page.getByRole('button', { name: 'Add conditional logic' }).first().click();
+    await formBuilderPage.page
+      .getByRole('button', { name: /Add conditional logic/i })
+      .first()
+      .click();
     await formBuilderPage.page
       .locator('div')
       .filter({ hasText: /^Required$/ })
@@ -32,21 +38,33 @@ test('check the toggle functionality', async ({ page }) => {
       .click();
   });
 
-  await test.step('And I check the validation in preview', async () => {
-    await formBuilderPage.page.getByRole('tab', { name: 'Preview' }).click();
+  await test.step('And I navigate to form preview tab', async () => {
+    await formBuilderPage.page.getByRole('tab', { name: /Preview/i }).click();
     await formBuilderPage.page.waitForTimeout(4000); // Adds delay to render the form
+  });
+
+  await test.step('When I skip the `name` field, the warning message appears', async () => {
     await formBuilderPage.page.locator('input[name="name"]').click();
     await formBuilderPage.page.getByLabel('Preview', { exact: true }).getByText('Name').click();
-    await expect(formBuilderPage.page.getByText('Field is mandatory')).toBeVisible();
+    await expect(formBuilderPage.page.getByText(/Field is mandatory/i)).toBeVisible();
+  });
+
+  await test.step('And I enter the `OpenMRS` in `name` field, Then the warning message is disappears', async () => {
     await formBuilderPage.page.locator('input[name="name"]').click();
     await formBuilderPage.page.locator('input[name="name"]').fill('OpenMRS');
-    await formBuilderPage.page.getByLabel('Preview', { exact: true }).getByText('Name').click();
-    await expect(formBuilderPage.page.getByText('Field is mandatory')).toBeHidden();
+    await formBuilderPage.page
+      .getByLabel(/Preview/i, { exact: true })
+      .getByText('Name')
+      .click();
+    await expect(formBuilderPage.page.getByText(/Field is mandatory/i)).toBeHidden();
   });
 
   await test.step('And I disallow future dates for `Date of birth` field', async () => {
-    await formBuilderPage.page.getByRole('tab', { name: 'Interactive Builder' }).click();
-    await formBuilderPage.page.getByRole('button', { name: 'Add conditional logic' }).nth(1).click();
+    await formBuilderPage.page.getByRole('tab', { name: /Interactive Builder/i }).click();
+    await formBuilderPage.page
+      .getByRole('button', { name: /Add conditional logic/i })
+      .nth(1)
+      .click();
     await formBuilderPage.page
       .locator('div')
       .filter({ hasText: /^Allow Future Dates$/ })
@@ -59,22 +77,31 @@ test('check the toggle functionality', async ({ page }) => {
       .click({ force: true });
   });
 
-  await test.step('And I see the `date of birth` field is not accepting any future dates', async () => {
+  await test.step('And I navigate to form preview tab', async () => {
     await formBuilderPage.page.waitForTimeout(4000); // Adds delay to render the form
-    await formBuilderPage.page.getByRole('tab', { name: 'Preview' }).click();
-    await formBuilderPage.page.getByRole('button', { name: 'Calendar Date of Birth' }).click();
+    await formBuilderPage.page.getByRole('tab', { name: /Preview/i }).click();
+  });
+
+  await test.step('When I select a future date, the warning message appears', async () => {
+    await formBuilderPage.page.getByRole('button', { name: /Calendar Date of Birth/i }).click();
     await formBuilderPage.page.getByLabel('Increase').click();
-    await formBuilderPage.page.getByLabel('Saturday, August 2,').click({ force: true });
-    await expect(formBuilderPage.page.getByText('Future dates not allowed')).toBeVisible();
-    await formBuilderPage.page.getByRole('button', { name: 'Calendar Date of Birth' }).click();
-    await formBuilderPage.page.getByLabel('Decrease').click();
-    await formBuilderPage.page.getByLabel('Thursday, August 1,').click();
-    await expect(formBuilderPage.page.getByText('Future dates not allowed')).toBeHidden();
+    await formBuilderPage.page.getByLabel(`${monthName} ${day},`).click({ force: true });
+    await expect(formBuilderPage.page.getByText(/Future dates not allowed/i)).toBeVisible();
+  });
+
+  await test.step('When I select a past date, the warning message disappears', async () => {
+    await formBuilderPage.page.getByRole('button', { name: /Calendar Date of Birth/i }).click();
+    await formBuilderPage.page.getByLabel(/Decrease/i).click();
+    await formBuilderPage.page.getByLabel(`${monthName} ${day},`).click();
+    await expect(formBuilderPage.page.getByText(/Future dates not allowed/i)).toBeHidden();
   });
 
   await test.step('And I disallow decimal values for `age` field', async () => {
-    await formBuilderPage.page.getByRole('tab', { name: 'Interactive Builder' }).click();
-    await formBuilderPage.page.getByRole('button', { name: 'Add conditional logic' }).nth(2).click();
+    await formBuilderPage.page.getByRole('tab', { name: /Interactive Builder/i }).click();
+    await formBuilderPage.page
+      .getByRole('button', { name: /Add conditional logic/i })
+      .nth(2)
+      .click();
     await formBuilderPage.page
       .locator('div')
       .filter({ hasText: /^Disallow Decimal Value$/ })
@@ -82,17 +109,23 @@ test('check the toggle functionality', async ({ page }) => {
       .click();
   });
 
-  await test.step('And I see the `age` field is not accepting any decimal value', async () => {
+  await test.step('And I navigate to form preview tab', async () => {
     await formBuilderPage.page.waitForTimeout(4000); // Adds delay to render the form
-    await formBuilderPage.page.getByRole('tab', { name: 'Preview' }).click();
+    await formBuilderPage.page.getByRole('tab', { name: /Preview/i }).click();
+  });
+
+  await test.step('When I enter decimal value in the `age` field, the warning message appears', async () => {
     await formBuilderPage.page.getByLabel('Age', { exact: true }).click();
     await formBuilderPage.page.getByLabel('Age', { exact: true }).fill('20.8');
     await formBuilderPage.page.getByLabel('Preview', { exact: true }).getByText('Age', { exact: true }).click();
-    await expect(formBuilderPage.page.getByText('Decimal values are not allowed for this field')).toBeVisible();
+    await expect(formBuilderPage.page.getByText(/Decimal values are not allowed for this field/i)).toBeVisible();
+  });
+
+  await test.step('Then I change the `age` value as `20`, the warning message disappears', async () => {
     await formBuilderPage.page.getByLabel('Age', { exact: true }).click();
     await formBuilderPage.page.getByLabel('Age', { exact: true }).fill('20');
     await formBuilderPage.page.getByLabel('Preview', { exact: true }).getByText('Age', { exact: true }).click();
-    await expect(formBuilderPage.page.getByText('Decimal values are not allowed for this field')).toBeHidden();
+    await expect(formBuilderPage.page.getByText(/Decimal values are not allowed for this field/i)).toBeHidden();
   });
 });
 
@@ -151,7 +184,7 @@ test('create hiding logic', async ({ page }) => {
 
   await test.step('And I see the `What symptoms did you experience` field presents in the form', async () => {
     await expect(
-      formBuilderPage.page.getByLabel('Preview', { exact: true }).getByText(/What symptoms did you/i),
+      formBuilderPage.page.getByLabel('Preview', { exact: true }).getByText(/What symptoms did you experience/i),
     ).toBeVisible();
   });
 
@@ -160,8 +193,8 @@ test('create hiding logic', async ({ page }) => {
     await formBuilderPage.page.getByText('Yes').click();
   });
 
-  await test.step('And I see the `What symptoms did you experience` field is vanished successfully', async () => {
-    await expect(formBuilderPage.page.getByLabel(/What symptoms did you/i)).toBeHidden();
+  await test.step('And I see the `What symptoms did you experience` field disappears', async () => {
+    await expect(formBuilderPage.page.getByLabel(/What symptoms did you experience/i)).toBeHidden();
   });
 
   await test.step('And If I change the value of `are you affected by COVID` field to `no`', async () => {
@@ -169,7 +202,7 @@ test('create hiding logic', async ({ page }) => {
     await formBuilderPage.page.getByText('No', { exact: true }).click();
   });
 
-  await test.step('Then I see the `What symptoms did you experience` is visible again', async () => {
+  await test.step('Then I see the `What symptoms did you experience` field appears again', async () => {
     await expect(formBuilderPage.page.getByLabel(/What symptoms did you/i)).toBeVisible();
   });
 });
