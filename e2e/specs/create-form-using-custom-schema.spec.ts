@@ -29,7 +29,7 @@ test('Create a form using a custom JSON schema', async ({ page }) => {
   await test.step('And I should get a success message and be redirected to the edit page for the new form', async () => {
     // Checks whether the user has been redirected to the edit page
     const editFormPageURLRegex = new RegExp('/edit/');
-    await expect(page.getByText('Form created')).toBeVisible();
+    await expect(formBuilderPage.page.getByText('Form created')).toBeVisible();
     await page.waitForURL(editFormPageURLRegex);
     const editFormPageURL = page.url();
     formUuid = editFormPageURL.split('/').slice(-1)[0];

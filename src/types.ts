@@ -2,6 +2,62 @@ import type { OpenmrsResource } from '@openmrs/esm-framework';
 import type { ProgramState, ReferencedForm, RenderType, RequiredFieldProps } from '@openmrs/openmrs-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
 
+export enum ActionType {
+  LOGICAL_OPERATOR = 'logicalOperator',
+  ACTION_CONDITION = 'actionCondition',
+  ACTION_FIELD = 'actionField',
+  CALCULATE_FIELD = 'calculateField',
+  ERROR_MESSAGE = 'errorMessage',
+}
+
+export enum ConditionType {
+  TARGET_FIELD = 'targetField',
+  TARGET_CONDITION = 'targetCondition',
+  TARGET_VALUE = 'targetValue',
+  LOGICAL_OPERATOR = 'logicalOperator',
+  TARGET_VALUES = 'targetValues',
+}
+
+export enum LogicalOperatorType {
+  AND = 'and',
+  OR = 'or',
+}
+
+export enum RenderingType {
+  DATE = 'date',
+  NUMBER = 'number',
+}
+
+export enum RuleElementType {
+  CONDITIONS = 'conditions',
+  ACTIONS = 'actions',
+}
+
+export enum TriggerType {
+  HIDE = 'Hide',
+  FAIL = 'Fail',
+  DISABLE = 'Disable',
+  CALCULATE = 'Calculate',
+  HISTORY = 'Enable History of',
+}
+
+export interface ComparisonOperators {
+  key: string;
+  defaultLabel: string;
+  type: string;
+}
+
+export interface CalculationFunctions {
+  key: string;
+  defaultLabel: string;
+  type: string;
+}
+
+export interface DisableProps {
+  disableWhenExpression?: string;
+  isDisabled?: boolean;
+}
+
 export interface Form {
   uuid: string;
   name: string;
@@ -51,6 +107,10 @@ export type QuestionType =
   | 'testOrder'
   | 'programState';
 
+export interface HideProps {
+  hideWhenExpression: string;
+}
+
 export type DatePickerType = 'both' | 'calendar' | 'timer';
 
 export interface Schema {
@@ -73,10 +133,19 @@ export interface Schema {
           max?: string;
           min?: string;
           conceptMappings?: Array<Record<string, string>>;
+          disallowDecimals?: boolean;
+          calculate?: {
+            calculateExpression: string;
+          };
         };
         validators?: Array<Record<string, string>>;
+        disable?: DisableProps;
+        hide?: HideProps;
+        historicalExpression?: string;
       }>;
+      hide?: HideProps;
     }>;
+    hide?: HideProps;
   }>;
   processor: string;
   uuid: string;
@@ -105,12 +174,14 @@ export interface SchemaContextType {
 export interface Page {
   label: string;
   sections: Array<Section>;
+  hide?: HideProps;
 }
 
 export interface Section {
   label: string;
   questions: Array<Question>;
   isExpanded: string | boolean;
+  hide?: HideProps;
 }
 
 export interface Question {
@@ -122,6 +193,8 @@ export interface Question {
   questions?: Array<Question>;
   required?: string | boolean | RequiredFieldProps;
   validators?: Array<Record<string, string>>;
+  disable?: DisableProps;
+  historicalExpression?: string;
 }
 
 export interface QuestionOptions {
@@ -135,6 +208,7 @@ export interface QuestionOptions {
   calculate?: {
     calculateExpression: string;
   };
+  disallowDecimals?: boolean;
   rows?: string;
   orderSettingUuid?: string;
   orderType?: string;
