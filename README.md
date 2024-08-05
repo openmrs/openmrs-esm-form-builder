@@ -95,7 +95,7 @@ Then, in a separate terminal, run:
 yarn test-e2e --headed
 ```
 
-Read the [e2e testing guide](/e2e/README.md) to learn more about End-to-End tests in this project.
+Read the [E2E testing guide](https://o3-docs.openmrs.org/docs/frontend-modules/end-to-end-testing) to learn more about End-to-End tests in this project.
 
 #### Troubleshooting
 
