@@ -11,7 +11,8 @@
       "es2015.promise",
       "es2016.array.include",
       "es2018",
-      "es2020"
+      "es2020",
+      "esnext"
     ],
     "module": "esnext",
     "moduleResolution": "node",
@@ -19,7 +20,7 @@
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "target": "esnext"
+    "target": "es2015"
   },
   "types": ["@testing-library/jest-dom", "lodash"],
 }

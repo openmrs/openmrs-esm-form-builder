@@ -1,5 +1,5 @@
 import type { OpenmrsResource } from '@openmrs/esm-framework';
-import type { ProgramState, ReferencedForm, RenderType, RequiredFieldProps } from '@openmrs/openmrs-form-engine-lib';
+import type { ProgramState, ReferencedForm, RenderType, RequiredFieldProps } from '@openmrs/esm-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
 
 export interface Form {

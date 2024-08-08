@@ -6,7 +6,7 @@ import { Accordion, AccordionItem, Button, IconButton, InlineLoading } from '@ca
 import { Add, TrashCan } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { showModal, showSnackbar } from '@openmrs/esm-framework';
-import type { FormSchema } from '@openmrs/openmrs-form-engine-lib';
+import type { FormSchema } from '@openmrs/esm-form-engine-lib';
 import type { Schema, Question } from '../../types';
 import DraggableQuestion from './draggable-question.component';
 import Droppable from './droppable-container.component';
