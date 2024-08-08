@@ -3737,7 +3737,7 @@ __metadata:
     "@dnd-kit/sortable": "npm:^7.0.2"
     "@dnd-kit/utilities": "npm:^3.2.2"
     "@openmrs/esm-form-engine-lib": "npm:next"
-    "@openmrs/esm-framework": "npm:^5.7.3-pre.2169"
+    "@openmrs/esm-framework": "npm:next"
     "@openmrs/esm-patient-common-lib": "npm:next"
     "@openmrs/esm-styleguide": "npm:next"
     "@playwright/test": "npm:1.45.3"
@@ -3773,7 +3773,7 @@ __metadata:
     jest-environment-jsdom: "npm:^29.7.0"
     lint-staged: "npm:^14.0.1"
     lodash-es: "npm:^4.17.21"
-    openmrs: "npm:^5.7.3-pre.2169"
+    openmrs: "npm:next"
     prettier: "npm:^3.2.5"
     react: "npm:^18.3.1"
     react-ace: "npm:^11.0.1"
@@ -3820,7 +3820,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openmrs/esm-framework@npm:5.7.3-pre.2169, @openmrs/esm-framework@npm:^5.7.3-pre.2169":
+"@openmrs/esm-framework@npm:5.7.3-pre.2169, @openmrs/esm-framework@npm:next":
   version: 5.7.3-pre.2169
   resolution: "@openmrs/esm-framework@npm:5.7.3-pre.2169"
   dependencies:
@@ -15986,7 +15986,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openmrs@npm:^5.7.3-pre.2169":
+"openmrs@npm:next":
   version: 5.7.3-pre.2169
   resolution: "openmrs@npm:5.7.3-pre.2169"
   dependencies:
