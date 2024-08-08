@@ -1,5 +1,6 @@
 import useSWR from 'swr';
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { isEmpty } from '@openmrs/openmrs-form-engine-lib';
 
 export function useConceptName(conceptId: string | undefined) {
   const customRepresentation = 'custom:(name:(display))';
@@ -10,6 +11,6 @@ export function useConceptName(conceptId: string | undefined) {
   return {
     conceptName: data?.data?.name?.display ?? null,
     conceptNameLookupError: error,
-    isLoadingConceptName: (!data && !error) || false,
+    isLoadingConceptName: !conceptId || isEmpty(conceptId) ? false : (!data && !error) || false,
   };
 }
