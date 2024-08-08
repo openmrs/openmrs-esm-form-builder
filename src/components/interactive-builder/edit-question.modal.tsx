@@ -27,7 +27,7 @@ import {
 } from '@carbon/react';
 import { ArrowUpRight } from '@carbon/react/icons';
 import { showSnackbar, useConfig } from '@openmrs/esm-framework';
-import type { ProgramState, RenderType } from '@openmrs/openmrs-form-engine-lib';
+import type { ProgramState, RenderType } from '@openmrs/esm-form-engine-lib';
 
 import type { ConfigObject } from '../../config-schema';
 import type {

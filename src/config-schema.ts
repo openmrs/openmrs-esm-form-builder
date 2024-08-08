@@ -1,5 +1,5 @@
 import { Type } from '@openmrs/esm-framework';
-import { type RenderType } from '@openmrs/openmrs-form-engine-lib';
+import { type RenderType } from '@openmrs/esm-form-engine-lib';
 import { type QuestionType } from './types';
 
 export const configSchema = {
