@@ -10,6 +10,6 @@ export function useConceptName(conceptId: string | undefined) {
   return {
     conceptName: data?.data?.name?.display ?? null,
     conceptNameLookupError: error,
-    isLoadingConceptName: (!data && !error) || false,
+    isLoadingConceptName: (conceptId && !data && !error) || false,
   };
 }

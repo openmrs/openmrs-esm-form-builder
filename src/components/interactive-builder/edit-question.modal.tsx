@@ -144,7 +144,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   );
   const [programWorkflows, setProgramWorkflows] = useState<Array<ProgramWorkflow>>([]);
 
-  const hasConceptChanged = selectedConcept && questionToEdit?.questionOptions?.concept !== selectedConcept?.uuid;
+  const hasConceptChanged =
+    selectedConcept &&
+    questionToEdit?.questionOptions.concept &&
+    questionToEdit?.questionOptions?.concept !== selectedConcept?.uuid;
   const [addInlineDate, setAddInlineDate] = useState(false);
 
   // Maps the data type of a concept to a date picker type.
@@ -276,8 +279,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           rendering: fieldType ? fieldType : questionToEdit.questionOptions.rendering,
           ...((selectedConcept || questionToEdit.questionOptions.concept) && {
             concept: selectedConcept ? selectedConcept.uuid : questionToEdit.questionOptions.concept,
+            conceptMappings: conceptMappings?.length ? conceptMappings : questionToEdit.questionOptions.conceptMappings,
           }),
-          conceptMappings: conceptMappings?.length ? conceptMappings : questionToEdit.questionOptions.conceptMappings,
           answers: mappedAnswers,
           ...(questionType === 'patientIdentifier' && {
             identifierType: selectedPatientIdentifierType
