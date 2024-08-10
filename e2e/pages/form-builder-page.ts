@@ -57,7 +57,13 @@ export class FormBuilderPage {
 
   readonly implementorTools = () => this.page.getByTestId('globalImplementerToolsButton').getByRole('button');
   readonly featureFlags = () => this.page.getByRole('tab', { name: 'Feature flags' });
-  readonly validationRuleBuilder = () => this.page.locator('.cds--toggle__switch');
+  readonly validationRuleBuilder = () =>
+    this.page
+      .getByRole('row', { name: 'Validation Rule Builder' })
+      .getByRole('cell')
+      .nth(2)
+      .locator('.cds--toggle > .cds--toggle__label > .cds--toggle__appearance > .cds--toggle__switch');
+  // this.page.getByRole('button', { name: 'feature-flag-validation-rule-builder-toggle', exact: true });
   readonly closeImplementorTools = () => this.page.getByRole('button', { name: 'Close', exact: true });
 
   async gotoFormBuilder() {
