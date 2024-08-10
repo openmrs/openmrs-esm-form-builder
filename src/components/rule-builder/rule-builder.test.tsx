@@ -1,8 +1,9 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import RuleBuilder from './rule-builder.component';
 import { schema, numberRenderingQuestion, useFormMockValues } from '../../../__mocks__/rule-builder.mock';
 import userEvent from '@testing-library/user-event';
+import { renderWithSwr } from '../../test-helpers';
 
 const handleAddLogic = jest.fn();
 const onSchemaChange = jest.fn();
@@ -156,7 +157,7 @@ describe('RuleBuilder', () => {
 });
 
 function renderRuleBuilder() {
-  render(
+  renderWithSwr(
     <RuleBuilder
       key="name"
       ruleId={ruleId}
