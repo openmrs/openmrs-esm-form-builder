@@ -43,6 +43,8 @@ export enum RuleElementType {
 
 export enum TriggerType {
   HIDE = 'Hide',
+  HIDE_PAGE = 'Hide (page)',
+  HIDE_SECTION = 'Hide (section)',
   FAIL = 'Fail',
   DISABLE = 'Disable',
   CALCULATE = 'Calculate',
