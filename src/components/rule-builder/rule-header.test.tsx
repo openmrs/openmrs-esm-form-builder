@@ -1,8 +1,9 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { numberRenderingQuestion, dateRenderingQuestion } from '../../../__mocks__/rule-builder.mock';
 import userEvent from '@testing-library/user-event';
 import { RuleHeader } from './rule-builder.component';
+import { renderWithSwr } from '../../test-helpers';
 
 const handleRequiredChange = jest.fn();
 const handleAllowFutureDateChange = jest.fn();
@@ -108,7 +109,7 @@ function renderRuleHeader(
   isDisallowDecimals?: boolean,
   isHistoryEnable?: boolean,
 ) {
-  render(
+  renderWithSwr(
     <RuleHeader
       ruleId={ruleId}
       question={isDate ? dateRenderingQuestion : numberRenderingQuestion}
