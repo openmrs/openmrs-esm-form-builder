@@ -361,6 +361,7 @@ const RuleBuilder = React.memo(
           return ['parityTerm', 'parityAbortion'];
       }
     }, []);
+
     const getLogicalOperator = (logicalOperator: string) => {
       switch (logicalOperator) {
         case 'and':
@@ -885,28 +886,25 @@ const RuleBuilder = React.memo(
     useEffect(() => {
       const newSchema = { ...schema };
       const rule = currentRule;
+      if (!ruleHasActions(rule)) return;
+      const conditionSchema = buildConditionSchema(rule);
+      ruleHasActionField(rule)
+        ? processActionFields(rule, newSchema, conditionSchema)
+        : ruleHasCalculateField(rule)
+          ? processCalculateFields(rule, newSchema, conditionSchema)
+          : null;
+      onSchemaChange(newSchema);
 
-      if (ruleHasActions(rule)) {
-        const conditionSchema = buildConditionSchema(rule);
-        if (ruleHasActionField(rule)) {
-          processActionFields(rule, newSchema, conditionSchema);
-        } else if (ruleHasCalculateField(rule)) {
-          processCalculateFields(rule, newSchema, conditionSchema);
-        }
-
-        onSchemaChange(newSchema);
-      }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [buildConditionSchema, currentRule, onSchemaChange, processActionFields]);
 
     useEffect(() => {
-      if (rules) {
-        const existingRule = rules.find((item) => item.id === ruleId);
-        if (existingRule) {
-          setCurrentRule(existingRule);
-          setConditions(existingRule.conditions || []);
-          setActions(existingRule.actions || []);
-        }
+      if (!rules) return;
+      const existingRule = rules.find((rule) => rule.id === ruleId);
+      if (existingRule) {
+        setCurrentRule(existingRule);
+        setConditions(existingRule.conditions || []);
+        setActions(existingRule.actions || []);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [question?.id]);
