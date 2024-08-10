@@ -434,38 +434,6 @@ const RuleBuilder = React.memo(
       return conditionSchema;
     }, []);
 
-    // Deletes the previous action if the user mistakenly chose the wrong action.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const deletePreviousAction = useCallback(
-      (newSchema: Schema) => {
-        if (prevPageIndex.current !== -1 && prevSectionIndex.current !== -1 && prevQuestionIndex.current !== -1) {
-          const previousQuestion =
-            newSchema?.pages[prevPageIndex.current]?.sections[prevSectionIndex.current]?.questions[
-              prevQuestionIndex.current
-            ];
-          switch (true) {
-            case !!previousQuestion?.hide:
-              delete previousQuestion?.hide;
-              break;
-
-            case !!previousQuestion?.historicalExpression:
-              delete previousQuestion?.historicalExpression;
-              break;
-
-            case previousQuestion?.validators?.length > 0:
-              previousQuestion?.validators?.splice(validatorIndex - 1, 1);
-              break;
-
-            default:
-              break;
-          }
-        } else if (prevPageIndex?.current !== -1 && prevSectionIndex?.current !== -1)
-          delete newSchema?.pages[prevPageIndex?.current]?.sections[prevSectionIndex?.current]?.hide;
-        else if (prevPageIndex?.current !== -1) delete newSchema?.pages[prevPageIndex?.current]?.hide;
-      },
-      [validatorIndex],
-    );
-
     /*
      * Update the schema with "historicalExpression" for form field.
      *
@@ -689,7 +657,6 @@ const RuleBuilder = React.memo(
             };
             updateSchemaForDisableActionType(newSchema, pageIndex, sectionIndex, questionIndex, disableSchema);
           } else {
-            // deletePreviousAction(newSchema); // donot remove this function
             updateSchemaBasedOnActionType(
               newSchema,
               actionFieldType,
