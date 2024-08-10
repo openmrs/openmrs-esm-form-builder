@@ -1156,20 +1156,17 @@ export const RuleCondition = React.memo(
     };
 
     const handleValueChange = (selectedItem: string | Array<{ concept: string; label: string }>) => {
-      const isString = typeof selectedItem === 'string';
-      const conditionType = isString ? ConditionType.TARGET_VALUE : ConditionType.TARGET_VALUES;
-
+      const isSelectedValueString = typeof selectedItem === 'string';
+      const conditionType = isSelectedValueString ? ConditionType.TARGET_VALUE : ConditionType.TARGET_VALUES;
       handleConditionChange(fieldId, conditionType, selectedItem, index);
-
-      if (isString) {
-        setInputValue(selectedItem);
-      }
+      isSelectedValueString ? setInputValue(selectedItem) : null;
     };
 
     const handleDateChange = (value: string) => {
       if (dayjs().format('YYYY-MM-DD') === value) value = 'today()';
       handleConditionChange(fieldId, ConditionType.TARGET_VALUE, value, index);
     };
+
     return (
       <div className={styles.ruleSetContainer}>
         <div className={styles.sectionContainer}>
@@ -1362,8 +1359,8 @@ export const RuleAction = React.memo(
     };
 
     const handleSelectAction = (selectedAction: string) => {
-      setAction(selectedAction);
       const actionKey = Object.keys(actionFieldMap).find((key) => selectedAction?.includes(key));
+      setAction(selectedAction);
       setActionField(actionKey ? actionFieldMap[actionKey] : questions);
     };
 
@@ -1373,21 +1370,18 @@ export const RuleAction = React.memo(
     }, [debouncedErrorMessage, fieldId, index]);
 
     useEffect(() => {
-      if (
+      const isFailType =
         actions[index]?.[ActionType.ERROR_MESSAGE] ||
-        actions?.[index]?.actionCondition === (TriggerType.FAIL as string)
-      ) {
-        setAction(TriggerType.FAIL);
-      }
-      if (
+        actions?.[index]?.actionCondition === (TriggerType.FAIL as string);
+      isFailType ? setAction(TriggerType.FAIL) : null;
+
+      const isCalculateType =
         action === (TriggerType.CALCULATE as string) ||
-        actions[index]?.[ActionType.ACTION_CONDITION] === (TriggerType.CALCULATE as string)
-      ) {
-        setIsCalculate(true);
-      } else if (action !== (TriggerType.CALCULATE as string)) {
-        setIsCalculate(false);
-      }
+        actions[index]?.[ActionType.ACTION_CONDITION] === (TriggerType.CALCULATE as string);
+      const isNotCalculateType = action !== (TriggerType.CALCULATE as string);
+      isCalculateType ? setIsCalculate(true) : isNotCalculateType ? setIsCalculate(false) : null;
     }, [actions, index, setIsCalculate, action]);
+
     return (
       <div>
         <div className={styles.ruleSetContainer}>
