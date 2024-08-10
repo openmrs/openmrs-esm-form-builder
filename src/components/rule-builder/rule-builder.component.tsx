@@ -99,19 +99,11 @@ const RuleBuilder = React.memo(
     const sections: Array<Section> = pages.flatMap((page) => page.sections || []);
     const questions: Array<Question> = sections.flatMap((section) => section.questions || []);
     const answers: Array<Record<string, string>> = questions.flatMap((question) => question.questionOptions.answers);
+    const isTablet = useLayoutType() === 'tablet';
+    const responsiveSize = isTablet ? 'lg' : 'sm';
 
     const { rules, setRules } = useFormRule();
-    const [isRequired, setIsRequired] = useState<boolean>(question?.required ? true : false);
-    const [isAllowFutureDate, setIsAllowFutureDate] = useState<boolean>(
-      question?.validators?.some((validator) =>
-        validator.type === (RenderingType.DATE as string) && validator?.allowFutureDates === 'true' ? true : false,
-      ),
-    );
 
-    const [isHistoryEnable, setIsHistoryEnable] = useState<boolean>(
-      question?.historicalExpression?.length > 0 || false,
-    );
-    const [isDisallowDecimals, setIsDisallowDecimals] = useState<boolean>(question?.questionOptions?.disallowDecimals);
     const [conditions, setConditions] = useState<Array<Condition>>([{ id: uuidv4(), isNew: false }]);
     const [actions, setActions] = useState<Array<Action>>([{ id: uuidv4(), isNew: false }]);
     const [currentRule, setCurrentRule] = useState<FormRule>({
@@ -121,15 +113,26 @@ const RuleBuilder = React.memo(
       conditions: conditions,
       isNewRule: false,
     });
+    const [isRequired, setIsRequired] = useState<boolean>(question?.required ? true : false);
+    const [isDisallowDecimals, setIsDisallowDecimals] = useState<boolean>(question?.questionOptions?.disallowDecimals);
+    const [isHistoryEnable, setIsHistoryEnable] = useState<boolean>(
+      question?.historicalExpression?.length > 0 || false,
+    );
+    const [isAllowFutureDate, setIsAllowFutureDate] = useState<boolean>(
+      question?.validators?.some((validator) =>
+        validator.type === (RenderingType.DATE as string) && validator?.allowFutureDates === 'true' ? true : false,
+      ),
+    );
+    const [validatorIndex, setvalidatorIndex] = useState<number>();
 
     const prevPageIndex = useRef(-1);
     const prevSectionIndex = useRef(-1);
     const prevQuestionIndex = useRef(-1);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [isToggleVisible, setIsToggleVisible] = useState<boolean>(isNewRule);
-    const isTablet = useLayoutType() === 'tablet';
-    const responsiveSize = isTablet ? 'lg' : 'sm';
+    /**
+     * Handle the "Required" property for a form field.
+     * Updates the schema to reflect the change and toggles the internal state.
+     */
     const handleRequiredChange = useCallback(() => {
       if (question) {
         const newSchema = { ...schema };
@@ -139,6 +142,11 @@ const RuleBuilder = React.memo(
       }
     }, [pageIndex, sectionIndex, questionIndex, onSchemaChange, question, schema]);
 
+    /**
+     * Handle the "Allow/Disallow Future Dates" for form field
+     * 1. Checks if the "Date Validator" exists for the target form field.
+     * 2. Handler function the "Allow Future Dates" option and update the schema.
+     */
     const checkIfDateValidatorExists = useCallback(() => {
       return schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators.some(
         (item) => item['type'] === (RenderingType.DATE as string),
@@ -165,6 +173,11 @@ const RuleBuilder = React.memo(
       }
     }, [checkIfDateValidatorExists, isAllowFutureDate, onSchemaChange, pageIndex, questionIndex, schema, sectionIndex]);
 
+    /**
+     * Handle the "Disallow Decimal Values" for a target form field.
+     * 1. Checks if the "Disallow Decimals" option exists for the question.
+     * 2. Hanlder function to "Disallow Decimals" option and updates the schema.
+     */
     const checkIfDecimalValidatorExists = useCallback(() => {
       return !!schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions.disallowDecimals;
     }, [pageIndex, questionIndex, schema.pages, sectionIndex]);
@@ -179,6 +192,11 @@ const RuleBuilder = React.memo(
       onSchemaChange(updatedSchema);
     }, [checkIfDecimalValidatorExists, onSchemaChange, pageIndex, questionIndex, schema, sectionIndex]);
 
+    /**
+     * Handle the "Historical Expression" property for a target form field.
+     * 1. Checks if the "Historical Expression" property exists for the question.
+     * 2. Handler function to enable/disable "Historical Expression" property within the schema.
+     */
     const checkIfHistoricalExpressionExists = useCallback(() => {
       return !!schema?.pages[pageIndex]?.sections[sectionIndex].questions[questionIndex]?.historicalExpression;
     }, [pageIndex, questionIndex, schema?.pages, sectionIndex]);
@@ -205,25 +223,10 @@ const RuleBuilder = React.memo(
       sectionIndex,
     ]);
 
-    const shouldDeleteForHideAction = (action: Action) => {
-      return action.calculateField?.length || action.errorMessage?.length || action.actionField?.length;
-    };
-
-    const shouldDeleteForFailAction = (action: Action) => {
-      return action.calculateField?.length || action.actionField?.length;
-    };
-
-    const shouldDeleteForCalculateAction = (action: Action) => {
-      return action.actionField?.length || action.errorMessage?.length;
-    };
-
-    const deleteProperties = (element: Action | Condition, properties: Array<string>) => {
-      properties.forEach((property) => {
-        delete element[property];
-      });
-    };
-
-    const [validatorIndex, setvalidatorIndex] = useState<number>();
+    /**
+     * Build the schema for a "target" condition.
+     * Generates the condition expression based on the provided parameters.
+     */
     const getSchemaCondition = (
       condition: string,
       targetField?: string,
@@ -272,6 +275,10 @@ const RuleBuilder = React.memo(
       }
     };
 
+    /**
+     * Build the schema for a "calculate" expression.
+     * Constructs the appropriate expression for a given calculation type based on provided conditions.
+     */
     const getCalculateExpression = (expression: string, conditions?: Array<Condition>) => {
       const arguements = conditions?.map((condition: Condition) => condition.targetField);
       const arguementsSchema = `'${arguements.join("', '")}'`;
@@ -312,6 +319,10 @@ const RuleBuilder = React.memo(
       }
     };
 
+    /**
+     * Build the schema for a "historical" expression.
+     * Constructs the appropriate expression for a historical condition based on the provided parameters.
+     */
     const getHistoricalExpressionSchema = useCallback(
       (
         condition: string,
@@ -335,6 +346,10 @@ const RuleBuilder = React.memo(
       [],
     );
 
+    /**
+     * Retrieve the arguments required for calculation functions.
+     * Identifies and returns the necessary parameters based on the type of calculation.
+     */
     const getArguments = useCallback((expression: string) => {
       switch (expression) {
         case 'BMI':
@@ -362,6 +377,10 @@ const RuleBuilder = React.memo(
       }
     }, []);
 
+    /**
+     * Get the logical operator for adding new conditions.
+     * Maps logical operators like 'and' or 'or' to their respective symbols.
+     */
     const getLogicalOperator = (logicalOperator: string) => {
       switch (logicalOperator) {
         case 'and':
@@ -369,6 +388,24 @@ const RuleBuilder = React.memo(
         case 'or':
           return ' || ';
       }
+    };
+
+    const shouldDeleteForHideAction = (action: Action) => {
+      return action.calculateField?.length || action.errorMessage?.length || action.actionField?.length;
+    };
+
+    const shouldDeleteForFailAction = (action: Action) => {
+      return action.calculateField?.length || action.actionField?.length;
+    };
+
+    const shouldDeleteForCalculateAction = (action: Action) => {
+      return action.actionField?.length || action.errorMessage?.length;
+    };
+
+    const deleteProperties = (element: Action | Condition, properties: Array<string>) => {
+      properties.forEach((property) => {
+        delete element[property];
+      });
     };
 
     const ruleHasActions = (rule: FormRule) => {
@@ -429,7 +466,13 @@ const RuleBuilder = React.memo(
       [validatorIndex],
     );
 
-    // Injecting historicalExpression into the schema
+    /*
+     * Update the schema with "historicalExpression" for form field.
+     *
+     * Identifies the concept associated with the question being updated and the concept
+     * of the target field. It then generates a historical expression schema using the provided condition
+     * and updates the schema accordingly.
+     */
     const addHistoricalExpression = useCallback(
       (newSchema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number, condition: Condition) => {
         const actionConcept = question?.questionOptions?.concept;
@@ -453,7 +496,12 @@ const RuleBuilder = React.memo(
       [getHistoricalExpressionSchema, question?.questionOptions?.concept],
     );
 
-    // Injecting hideWhenExpression into the schema
+    /*
+     * Update the schema with the "hideWhenExpression" property for a specific form field.
+     *
+     * Adding the hide property for a question within the schema to a condition that
+     * determines when the field should be hidden.
+     */
     const addHidingLogic = useCallback(
       (newSchema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number, conditionSchema: string) => {
         newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].hide = {
@@ -463,7 +511,12 @@ const RuleBuilder = React.memo(
       [],
     );
 
-    // Injecting validator logic into the schema
+    /*
+     * Update the schema with the "validator" property for a specific form field.
+     *
+     * Either updates an existing validator or adds a new validator property to a form field's schema
+     * with the provided condition and error message.
+     */
     const addOrUpdateValidator = useCallback(
       (
         schema: Schema,
@@ -493,18 +546,24 @@ const RuleBuilder = React.memo(
       [validatorIndex],
     );
 
+    /*
+     * Handle actions for a specific form field based on the provided action type.
+     *
+     * Managing different types of actions (e.g., hiding, validation, historical expression)
+     * for a form field by delegating the responsibility to appropriate functions based on the action type.
+     */
     const handleFieldAction = useCallback(
       (
         newSchema: Schema,
         pageIndex: number,
         sectionIndex: number,
         questionIndex: number,
-        actionCondition: string,
+        actionType: string,
         conditionSchema: string,
         errorMessage: string,
         condition: Condition,
       ) => {
-        switch (actionCondition) {
+        switch (actionType) {
           case TriggerType.HIDE as string:
             addHidingLogic(newSchema, pageIndex, sectionIndex, questionIndex, conditionSchema);
             break;
@@ -518,6 +577,12 @@ const RuleBuilder = React.memo(
       [addHidingLogic, addHistoricalExpression, addOrUpdateValidator],
     );
 
+    /*
+     * Update the schema based on the action type for target pages, sections, or fields.
+     *
+     * Determines the level at which the schema should be updated (page, section, or field)
+     * and applies the necessary modifications based on the action type and provided schemas.
+     */
     const updateSchemaBasedOnActionType = useCallback(
       (
         newSchema: Schema,
@@ -525,7 +590,7 @@ const RuleBuilder = React.memo(
         pageIndex: number,
         sectionIndex: number,
         questionIndex: number,
-        actionCondition: string,
+        actionType: string,
         conditionSchema: string,
         errorMessage: string,
         hidingSchema: HideProps,
@@ -549,7 +614,7 @@ const RuleBuilder = React.memo(
                 pageIndex,
                 sectionIndex,
                 questionIndex,
-                actionCondition,
+                actionType,
                 conditionSchema,
                 errorMessage,
                 condition,
@@ -561,7 +626,12 @@ const RuleBuilder = React.memo(
       [handleFieldAction],
     );
 
-    // Injecting disableWhenExpression into the schema
+    /*
+     * Update the schema with the "disableWhenExpression" property for a specific form field.
+     *
+     * Adding the disable property of a question within the schema to a condition that
+     * determines when the field should be disabled.
+     */
     const updateSchemaForDisableActionType = (
       newSchema: Schema,
       pageIndex: number,
@@ -574,6 +644,12 @@ const RuleBuilder = React.memo(
       }
     };
 
+    /*
+     * Update the schema with the "historicalExpression" property for a specific form field.
+     *
+     * Adding the historical expression schema to a question in the form schema,
+     * allowing the field to be populated based on historical data.
+     */
     const updateSchemaWithHistoricalExpression = (
       newSchema: Schema,
       pageIndex: number,
@@ -586,6 +662,11 @@ const RuleBuilder = React.memo(
           historicalExpressionSchema;
       }
     };
+
+    /*
+     * Process actions (e.g., hide, fail, disable) for a form field
+     * and update the schema accordingly.
+     */
     const processActionFields = useCallback(
       (rule: FormRule, newSchema: Schema, conditionSchema: string) => {
         rule?.actions?.forEach((action: Action, index: number) => {
@@ -631,6 +712,10 @@ const RuleBuilder = React.memo(
       [updateSchemaBasedOnActionType],
     );
 
+    /*
+     * Check if the "target condition" meets the expected condition schema,
+     * allowing the calculation logic to be performed for a form field.
+     */
     const isValidForCalculation = useCallback(
       (conditions: Array<Condition>, conditionSchema: string, actionField: string, calculateField: string) => {
         const expectedConditionSchema = conditions
@@ -643,6 +728,9 @@ const RuleBuilder = React.memo(
       [getArguments],
     );
 
+    /*
+     * Add or update the "calculateExpression" property for the specified form field in the schema.
+     */
     const updateSchemaWithCalculateExpression = useCallback(
       (newSchema: Schema, calculateExpression: string) => {
         if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
@@ -654,6 +742,9 @@ const RuleBuilder = React.memo(
       [pageIndex, questionIndex, sectionIndex],
     );
 
+    /*
+     * Delete the "calculateExpression" property for the specified form field in the schema.
+     */
     const deleteSchemaForCalculateExpression = useCallback(
       (newSchema: Schema) => {
         if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
@@ -663,12 +754,19 @@ const RuleBuilder = React.memo(
       [pageIndex, questionIndex, sectionIndex],
     );
 
+    /*
+     * Update the previous indices to keep track of the last modified field in the schema.
+     */
     const updatePreviousIndices = useCallback(() => {
       prevPageIndex.current = pageIndex;
       prevQuestionIndex.current = questionIndex;
       prevSectionIndex.current = sectionIndex;
     }, [pageIndex, questionIndex, sectionIndex]);
 
+    /*
+     * Process calculation functions (e.g., BMI, BSA) for a target form field
+     * based on the provided conditions and update the schema.
+     */
     const processCalculateFields = useCallback(
       (rule: FormRule, newSchema: Schema, conditionSchema: string) => {
         rule?.actions?.forEach((action: Action) => {
@@ -788,6 +886,9 @@ const RuleBuilder = React.memo(
       [handleElementChange, conditions],
     );
 
+    /*
+     * Adds a new condition or action to the existing conditional logic.
+     */
     const addElement = useCallback(
       (
         elements: Array<Condition | Action>,
@@ -812,6 +913,9 @@ const RuleBuilder = React.memo(
       [],
     );
 
+    /*
+     * Adds a new set of conditional logic for the existing form field.
+     */
     const addNewConditionalLogic = useCallback(() => {
       const newRule: FormRule = {
         id: uuidv4(),
@@ -826,6 +930,11 @@ const RuleBuilder = React.memo(
       });
     }, [setRules, question.id]);
 
+    /*
+     * Modal to delete the conditional logic of an existing form field.
+     * - Opens a confirmation modal to delete the entire set of conditional logic for the form field.
+     * - Allows for selecting whether to delete all associated logic.
+     */
     const launchDeleteConditionalLogicModal = useCallback(
       (deleteAll: boolean) => {
         const dispose = showModal('delete-conditional-logic-modal', {
@@ -861,6 +970,11 @@ const RuleBuilder = React.memo(
       ],
     );
 
+    /*
+     * Modal to delete a specific condition or action from existing conditional logic.
+     * - Opens a confirmation modal to delete a specific condition or action.
+     * - Provides options to confirm the deletion of the selected element.
+     */
     const launchDeleteConditionsOrActions = useCallback(
       (
         elementId: string,
@@ -883,6 +997,12 @@ const RuleBuilder = React.memo(
       [question?.label],
     );
 
+    /*
+     * Side effects:
+     * 1. To update the conditional logic into the schema for a form field.
+     * 2. To update the current state of the rules, conditions, and actions.
+     * 3. To update the global state of the rules based on the current state rules.
+     */
     useEffect(() => {
       const newSchema = { ...schema };
       const rule = currentRule;
@@ -925,6 +1045,9 @@ const RuleBuilder = React.memo(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [setRules, currentRule]);
 
+    /*
+     * Add or Delete a condition / action of a form field's conditional logic
+     */
     const addCondition = useCallback(
       () => addElement(conditions, setConditions, RuleElementType.CONDITIONS, handleConditionChange),
       [conditions, addElement, handleConditionChange],
@@ -945,7 +1068,7 @@ const RuleBuilder = React.memo(
     return (
       <div className={styles.container}>
         <div className={styles.ruleHeaderContainer}>
-          {!isToggleVisible && (
+          {!isNewRule && (
             <RuleHeader
               isRequired={isRequired}
               isAllowFutureDate={isAllowFutureDate}
