@@ -465,18 +465,38 @@ const RuleBuilder = React.memo(
     );
 
     /*
-     * Update the schema with the "hideWhenExpression" property for a specific form field.
+     * Update the schema with the "hideWhenExpression" property for a target pages, sections, or fields.
      *
      * Adding the hide property for a question within the schema to a condition that
      * determines when the field should be hidden.
      */
     const addHidingLogic = useCallback(
-      (newSchema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number, conditionSchema: string) => {
-        newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].hide = {
-          hideWhenExpression: conditionSchema,
-        };
+      (
+        schema: Schema,
+        pageIndex: number,
+        sectionIndex: number,
+        questionIndex: number,
+        conditionSchema: string,
+        formType?: string,
+      ) => {
+        const hideWhenExpressionSchema: HideProps = { hideWhenExpression: conditionSchema };
+        const newSchema = { ...schema };
+        let targetElement;
+        switch (formType) {
+          case 'page':
+            targetElement = newSchema.pages[pageIndex];
+            break;
+          case 'section':
+            targetElement = newSchema.pages[pageIndex].sections[sectionIndex];
+            break;
+          case 'field':
+            targetElement = newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex];
+            break;
+        }
+        targetElement.hide = hideWhenExpressionSchema;
+        onSchemaChange(newSchema);
       },
-      [],
+      [onSchemaChange],
     );
 
     /*
@@ -516,82 +536,43 @@ const RuleBuilder = React.memo(
 
     /*
      * Handle actions for a specific form field based on the provided action type.
-     *
-     * Managing different types of actions (e.g., hiding, validation, historical expression)
+     * Managing different types of actions (e.g., hiding, validation, historical expression, disable expression)
      * for a form field by delegating the responsibility to appropriate functions based on the action type.
-     */
-    const handleFieldAction = useCallback(
-      (
-        newSchema: Schema,
-        pageIndex: number,
-        sectionIndex: number,
-        questionIndex: number,
-        actionType: string,
-        conditionSchema: string,
-        errorMessage: string,
-        condition: Condition,
-      ) => {
-        switch (actionType) {
-          case TriggerType.HIDE as string:
-            addHidingLogic(newSchema, pageIndex, sectionIndex, questionIndex, conditionSchema);
-            break;
-          case TriggerType.FAIL as string:
-            addOrUpdateValidator(newSchema, pageIndex, sectionIndex, questionIndex, conditionSchema, errorMessage);
-            break;
-          case TriggerType.HISTORY as string:
-            addHistoricalExpression(newSchema, pageIndex, sectionIndex, questionIndex, condition);
-        }
-      },
-      [addHidingLogic, addHistoricalExpression, addOrUpdateValidator],
-    );
-
-    /*
-     * Update the schema based on the action type for target pages, sections, or fields.
      *
+     * Update the schema based on the action type for target pages, sections, or fields.
      * Determines the level at which the schema should be updated (page, section, or field)
      * and applies the necessary modifications based on the action type and provided schemas.
      */
     const updateSchemaBasedOnActionType = useCallback(
       (
-        newSchema: Schema,
-        actionFieldType: string,
+        schema: Schema,
         pageIndex: number,
         sectionIndex: number,
         questionIndex: number,
         actionType: string,
         conditionSchema: string,
         errorMessage: string,
-        hidingSchema: HideProps,
         condition: Condition,
+        formType: string,
       ) => {
-        if (pageIndex === -1) return;
-
-        switch (actionFieldType) {
-          case 'page':
-            newSchema.pages[pageIndex].hide = hidingSchema;
+        switch (actionType) {
+          case TriggerType.HIDE as string:
+          case TriggerType.HIDE_PAGE as string:
+          case TriggerType.HIDE_SECTION as string:
+            addHidingLogic(schema, pageIndex, sectionIndex, questionIndex, conditionSchema, formType);
             break;
-          case 'section':
-            if (sectionIndex !== -1) {
-              newSchema.pages[pageIndex].sections[sectionIndex].hide = hidingSchema;
-            }
+          case TriggerType.FAIL as string:
+            addOrUpdateValidator(schema, pageIndex, sectionIndex, questionIndex, conditionSchema, errorMessage);
             break;
-          case 'field':
-            if (sectionIndex !== -1 && questionIndex !== -1) {
-              handleFieldAction(
-                newSchema,
-                pageIndex,
-                sectionIndex,
-                questionIndex,
-                actionType,
-                conditionSchema,
-                errorMessage,
-                condition,
-              );
-            }
+          case TriggerType.HISTORY as string:
+            addHistoricalExpression(schema, pageIndex, sectionIndex, questionIndex, condition);
+            break;
+          case TriggerType.DISABLE as string:
+            updateSchemaForDisableActionType(schema, pageIndex, sectionIndex, questionIndex, conditionSchema);
             break;
         }
       },
-      [handleFieldAction],
+      [addHidingLogic, addHistoricalExpression, addOrUpdateValidator],
     );
 
     /*
@@ -605,8 +586,9 @@ const RuleBuilder = React.memo(
       pageIndex: number,
       sectionIndex: number,
       questionIndex: number,
-      disableSchema: DisableProps,
+      conditionSchema: string,
     ) => {
+      const disableSchema: DisableProps = { disableWhenExpression: conditionSchema };
       if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
         newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].disable = disableSchema;
       }
@@ -636,44 +618,32 @@ const RuleBuilder = React.memo(
      * and update the schema accordingly.
      */
     const processActionFields = useCallback(
-      (rule: FormRule, newSchema: Schema, conditionSchema: string) => {
+      (rule: FormRule, schema: Schema, conditionSchema: string) => {
         rule?.actions?.forEach((action: Action, index: number) => {
           const condition = rule?.conditions[index];
           const { actionField, actionCondition, errorMessage } = action;
-          const hidingLogic = { hideWhenExpression: conditionSchema };
-          const actionFieldType = actionCondition?.includes('page')
+          const formType = actionCondition?.includes('page')
             ? 'page'
             : actionCondition?.includes('section')
               ? 'section'
               : 'field';
-          const { pageIndex, sectionIndex, questionIndex } = findQuestionIndices(
-            newSchema,
-            actionField,
-            actionFieldType,
-          );
-          if (actionCondition === (TriggerType.DISABLE as string)) {
-            const disableSchema = {
-              disableWhenExpression: conditionSchema,
-            };
-            updateSchemaForDisableActionType(newSchema, pageIndex, sectionIndex, questionIndex, disableSchema);
-          } else {
-            updateSchemaBasedOnActionType(
-              newSchema,
-              actionFieldType,
-              pageIndex,
-              sectionIndex,
-              questionIndex,
-              actionCondition,
-              conditionSchema,
-              errorMessage,
-              hidingLogic,
-              condition,
-            );
+          const { pageIndex, sectionIndex, questionIndex } = findQuestionIndices(schema, actionField, formType);
 
-            prevPageIndex.current = pageIndex;
-            prevQuestionIndex.current = questionIndex;
-            prevSectionIndex.current = sectionIndex;
-          }
+          updateSchemaBasedOnActionType(
+            schema,
+            pageIndex,
+            sectionIndex,
+            questionIndex,
+            actionCondition,
+            conditionSchema,
+            errorMessage,
+            condition,
+            formType,
+          );
+
+          prevPageIndex.current = pageIndex;
+          prevQuestionIndex.current = questionIndex;
+          prevSectionIndex.current = sectionIndex;
         });
       },
       [updateSchemaBasedOnActionType],
