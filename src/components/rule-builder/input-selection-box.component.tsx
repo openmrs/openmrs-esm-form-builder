@@ -31,6 +31,7 @@ const InputSelectionBox = React.memo(
     const selectedSearchValue = useDebounce(searchTermValue, 500);
     const { t } = useTranslation();
     const dropdownRef = useRef<HTMLUListElement>(null);
+
     useEffect(() => {
       if (searchTermValue.length) onChange(conditionalValue);
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -40,6 +41,7 @@ const InputSelectionBox = React.memo(
       () => items.filter((item) => item.label.toLowerCase().includes(selectedSearchValue.toLowerCase())),
       [items, selectedSearchValue],
     );
+
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
       setInputValue(value);
