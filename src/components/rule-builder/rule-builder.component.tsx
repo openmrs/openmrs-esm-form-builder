@@ -435,33 +435,27 @@ const RuleBuilder = React.memo(
     }, []);
 
     /*
-     * Update the schema with "historicalExpression" for form field.
+     * Update the schema with the "historicalExpression" property for a specific form field.
      *
-     * Identifies the concept associated with the question being updated and the concept
-     * of the target field. It then generates a historical expression schema using the provided condition
-     * and updates the schema accordingly.
+     * Adding the historical expression schema to a question in the form schema,
+     * allowing the field to be populated based on historical data.
      */
-    const addHistoricalExpression = useCallback(
-      (newSchema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number, condition: Condition) => {
-        const actionConcept = question?.questionOptions?.concept;
-        const { targetCondition, targetValues, targetField } = condition;
-        const {
-          pageIndex: targetPageIndex,
-          questionIndex: targetQuestionIndex,
-          sectionIndex: targetSectionIndex,
-        } = findQuestionIndices(newSchema, targetField);
-        const targetConcept =
-          newSchema?.pages[targetPageIndex]?.sections[targetSectionIndex]?.questions[targetQuestionIndex]
-            .questionOptions.concept;
-        const historicalSchema = getHistoricalExpressionSchema(
-          targetCondition,
-          actionConcept,
-          targetValues,
-          targetConcept,
-        );
-        updateSchemaWithHistoricalExpression(newSchema, pageIndex, sectionIndex, questionIndex, historicalSchema);
+    const updateSchemaWithHistoricalExpression = useCallback(
+      (
+        schema: Schema,
+        pageIndex: number,
+        sectionIndex: number,
+        questionIndex: number,
+        historicalExpressionSchema: string,
+      ) => {
+        const newSchema = { ...schema };
+        if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
+          newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].historicalExpression =
+            historicalExpressionSchema;
+        }
+        onSchemaChange(schema);
       },
-      [getHistoricalExpressionSchema, question?.questionOptions?.concept],
+      [onSchemaChange],
     );
 
     /*
@@ -514,10 +508,13 @@ const RuleBuilder = React.memo(
         conditionSchema: string,
         errorMessage: string,
       ) => {
-        const validators = schema?.pages[pageIndex]?.sections[sectionIndex]?.questions[questionIndex]?.validators;
+        const newSchema = { ...schema };
+        const validators = newSchema?.pages[pageIndex]?.sections[sectionIndex]?.questions[questionIndex]?.validators;
         const existingValidator =
           validatorIndex >= 1
-            ? schema?.pages[pageIndex]?.sections[sectionIndex]?.questions[questionIndex]?.validators[validatorIndex - 1]
+            ? newSchema?.pages[pageIndex]?.sections[sectionIndex]?.questions[questionIndex]?.validators[
+                validatorIndex - 1
+              ]
             : undefined;
         if (existingValidator) {
           existingValidator.failsWhenExpression = conditionSchema;
@@ -530,8 +527,57 @@ const RuleBuilder = React.memo(
           });
           setvalidatorIndex(validators.length);
         }
+        onSchemaChange(newSchema);
       },
-      [validatorIndex],
+      [onSchemaChange, validatorIndex],
+    );
+
+    /*
+     * Update the schema with "historicalExpression" for form field.
+     *
+     * Identifies the concept associated with the question being updated and the concept
+     * of the target field. It then generates a historical expression schema using the provided condition
+     * and updates the schema accordingly.
+     */
+    const addHistoricalExpression = useCallback(
+      (schema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number, condition: Condition) => {
+        const actionConcept = question?.questionOptions?.concept;
+        const { targetCondition, targetValues, targetField } = condition;
+        const {
+          pageIndex: targetPageIndex,
+          questionIndex: targetQuestionIndex,
+          sectionIndex: targetSectionIndex,
+        } = findQuestionIndices(schema, targetField);
+        const targetConcept =
+          schema?.pages[targetPageIndex]?.sections[targetSectionIndex]?.questions[targetQuestionIndex].questionOptions
+            .concept;
+        const historicalSchema = getHistoricalExpressionSchema(
+          targetCondition,
+          actionConcept,
+          targetValues,
+          targetConcept,
+        );
+        updateSchemaWithHistoricalExpression(schema, pageIndex, sectionIndex, questionIndex, historicalSchema);
+      },
+      [getHistoricalExpressionSchema, question?.questionOptions?.concept, updateSchemaWithHistoricalExpression],
+    );
+
+    /*
+     * Update the schema with the "disableWhenExpression" property for a specific form field.
+     *
+     * Adding the disable property of a question within the schema to a condition that
+     * determines when the field should be disabled.
+     */
+    const addDisableExpression = useCallback(
+      (schema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number, conditionSchema: string) => {
+        const disableSchema: DisableProps = { disableWhenExpression: conditionSchema };
+        const newSchema = { ...schema };
+        if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
+          newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].disable = disableSchema;
+        }
+        onSchemaChange(newSchema);
+      },
+      [onSchemaChange],
     );
 
     /*
@@ -568,50 +614,12 @@ const RuleBuilder = React.memo(
             addHistoricalExpression(schema, pageIndex, sectionIndex, questionIndex, condition);
             break;
           case TriggerType.DISABLE as string:
-            updateSchemaForDisableActionType(schema, pageIndex, sectionIndex, questionIndex, conditionSchema);
+            addDisableExpression(schema, pageIndex, sectionIndex, questionIndex, conditionSchema);
             break;
         }
       },
-      [addHidingLogic, addHistoricalExpression, addOrUpdateValidator],
+      [addDisableExpression, addHidingLogic, addHistoricalExpression, addOrUpdateValidator],
     );
-
-    /*
-     * Update the schema with the "disableWhenExpression" property for a specific form field.
-     *
-     * Adding the disable property of a question within the schema to a condition that
-     * determines when the field should be disabled.
-     */
-    const updateSchemaForDisableActionType = (
-      newSchema: Schema,
-      pageIndex: number,
-      sectionIndex: number,
-      questionIndex: number,
-      conditionSchema: string,
-    ) => {
-      const disableSchema: DisableProps = { disableWhenExpression: conditionSchema };
-      if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
-        newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].disable = disableSchema;
-      }
-    };
-
-    /*
-     * Update the schema with the "historicalExpression" property for a specific form field.
-     *
-     * Adding the historical expression schema to a question in the form schema,
-     * allowing the field to be populated based on historical data.
-     */
-    const updateSchemaWithHistoricalExpression = (
-      newSchema: Schema,
-      pageIndex: number,
-      sectionIndex: number,
-      questionIndex: number,
-      historicalExpressionSchema: string,
-    ) => {
-      if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
-        newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].historicalExpression =
-          historicalExpressionSchema;
-      }
-    };
 
     /*
      * Process actions (e.g., hide, fail, disable) for a form field
@@ -669,26 +677,30 @@ const RuleBuilder = React.memo(
      * Add or update the "calculateExpression" property for the specified form field in the schema.
      */
     const updateSchemaWithCalculateExpression = useCallback(
-      (newSchema: Schema, calculateExpression: string) => {
+      (schema: Schema, calculateExpression: string) => {
+        const newSchema = { ...schema };
         if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
           newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions.calculate = {
             calculateExpression,
           };
         }
+        onSchemaChange(newSchema);
       },
-      [pageIndex, questionIndex, sectionIndex],
+      [onSchemaChange, pageIndex, questionIndex, sectionIndex],
     );
 
     /*
      * Delete the "calculateExpression" property for the specified form field in the schema.
      */
     const deleteSchemaForCalculateExpression = useCallback(
-      (newSchema: Schema) => {
+      (schema: Schema) => {
+        const newSchema = { ...schema };
         if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
           delete newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions.calculate;
         }
+        onSchemaChange(newSchema);
       },
-      [pageIndex, questionIndex, sectionIndex],
+      [pageIndex, questionIndex, sectionIndex, onSchemaChange],
     );
 
     /*
@@ -705,23 +717,21 @@ const RuleBuilder = React.memo(
      * based on the provided conditions and update the schema.
      */
     const processCalculateFields = useCallback(
-      (rule: FormRule, newSchema: Schema, conditionSchema: string) => {
+      (rule: FormRule, schema: Schema, conditionSchema: string) => {
         rule?.actions?.forEach((action: Action) => {
           const { calculateField } = action;
           const calculateExpression = getCalculateExpression(calculateField, rule.conditions);
 
           isValidForCalculation(rule?.conditions, conditionSchema, '', calculateField)
-            ? updateSchemaWithCalculateExpression(newSchema, calculateExpression)
-            : deleteSchemaForCalculateExpression(newSchema);
+            ? updateSchemaWithCalculateExpression(schema, calculateExpression)
+            : deleteSchemaForCalculateExpression(schema);
         });
 
-        onSchemaChange(newSchema);
         updatePreviousIndices();
       },
       [
         deleteSchemaForCalculateExpression,
         isValidForCalculation,
-        onSchemaChange,
         updatePreviousIndices,
         updateSchemaWithCalculateExpression,
       ],
@@ -941,17 +951,14 @@ const RuleBuilder = React.memo(
      * 3. To update the global state of the rules based on the current state rules.
      */
     useEffect(() => {
-      const newSchema = { ...schema };
       const rule = currentRule;
       if (!ruleHasActions(rule)) return;
       const conditionSchema = buildConditionSchema(rule);
       ruleHasActionField(rule)
-        ? processActionFields(rule, newSchema, conditionSchema)
+        ? processActionFields(rule, schema, conditionSchema)
         : ruleHasCalculateField(rule)
-          ? processCalculateFields(rule, newSchema, conditionSchema)
+          ? processCalculateFields(rule, schema, conditionSchema)
           : null;
-      onSchemaChange(newSchema);
-
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [buildConditionSchema, currentRule, onSchemaChange, processActionFields]);
 
