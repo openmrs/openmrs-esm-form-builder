@@ -116,5 +116,9 @@
     "*.{ts,tsx}": "eslint --cache --fix --max-warnings 0",
     "*.{css,scss,ts,tsx}": "prettier --write --list-different"
   },
-  "packageManager": "yarn@4.3.1"
+  "packageManager": "yarn@4.3.1",
+  "resolutions": {
+    "@openmrs/openmrs-form-engine-lib": "portal:/Users/denniskigen/Code/openmrs/openmrs-form-engine-lib",
+    "@carbon/react": ">1.47.0 <1.50.0"
+  }
 }

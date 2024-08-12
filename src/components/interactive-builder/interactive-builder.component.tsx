@@ -380,8 +380,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                   </div>
                   <IconButton
                     enterDelayMs={300}
-                    label={t('deletePage', 'Delete page')}
                     kind="ghost"
+                    label={t('deletePage', 'Delete page')}
                     onClick={() => launchDeletePageModal(pageIndex)}
                     size="md"
                   >
