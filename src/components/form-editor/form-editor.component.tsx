@@ -20,7 +20,7 @@ import { useParams } from 'react-router-dom';
 import { type TFunction, useTranslation } from 'react-i18next';
 import { ConfigurableLink, showModal, useConfig } from '@openmrs/esm-framework';
 import type { IMarker } from 'react-ace';
-import type { FormSchema } from '@openmrs/openmrs-form-engine-lib';
+import type { FormSchema } from '@openmrs/esm-form-engine-lib';
 import type { Schema } from '../../types';
 import { useClobdata } from '../../hooks/useClobdata';
 import { useForm } from '../../hooks/useForm';

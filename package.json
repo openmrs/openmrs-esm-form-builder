@@ -20,7 +20,7 @@
     "coverage": "yarn test --coverage --passWithNoTests",
     "postinstall": "husky install",
     "extract-translations": "i18next 'src/**/*.component.tsx' 'src/**/*.modal.tsx' --config ./i18next-parser.config.js",
-    "ci:bump-form-engine-lib": "yarn up @openmrs/openmrs-form-engine-lib@next"
+    "ci:bump-form-engine-lib": "yarn up @openmrs/esm-form-engine-lib@next"
   },
   "files": [
     "dist",
@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "@carbon/react": "^1.47.0",
-    "@openmrs/openmrs-form-engine-lib": "next",
+    "@openmrs/esm-form-engine-lib": "next",
     "ajv": "^8.13.0",
     "dotenv": "^16.4.5",
     "file-loader": "^6.2.0",
@@ -116,5 +116,9 @@
     "*.{ts,tsx}": "eslint --cache --fix --max-warnings 0",
     "*.{css,scss,ts,tsx}": "prettier --write --list-different"
   },
-  "packageManager": "yarn@4.3.1"
+  "packageManager": "yarn@4.3.1",
+  "resolutions": {
+    "@openmrs/openmrs-form-engine-lib": "portal:/Users/denniskigen/Code/openmrs/openmrs-form-engine-lib",
+    "@carbon/react": ">1.47.0 <1.50.0"
+  }
 }
