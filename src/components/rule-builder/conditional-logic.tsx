@@ -24,11 +24,11 @@ const ConditionalLogic: React.FC<ConditionalLogicProps> = ({
   onSchemaChange,
   handleAddLogic,
 }) => {
-  const rulesForQuestionIndex = rules?.findIndex((rule: FormRule) => rule.question === question.id);
+  const rulesForQuestionIndex = rules?.findIndex((rule: FormRule) => rule?.question === question?.id);
   const rulesForQuestion =
     rulesForQuestionIndex !== -1 && rulesForQuestionIndex !== undefined
-      ? rules?.filter((rule: FormRule) => rule.question === question.id)
-      : [{ id: uuidv4(), isNewRule: false, question: question.id }];
+      ? rules?.filter((rule: FormRule) => rule?.question === question?.id)
+      : [{ id: uuidv4(), isNewRule: false, question: question?.id }];
   return (
     <>
       {rulesForQuestion.map((rule: FormRule) => (
