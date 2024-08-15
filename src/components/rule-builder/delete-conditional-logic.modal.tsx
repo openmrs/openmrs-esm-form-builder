@@ -113,10 +113,21 @@ const DeleteConditionalLogicModal: React.FC<DeleteConditionalLogicModalProps> = 
           );
           break;
       }
-
+      if (!rule.isNewRule) {
+        setRules((prevRules) => {
+          const updatedRules = prevRules.map((rule, index) => {
+            const updatedRule = { ...rule };
+            if (index === 0) {
+              updatedRule.isNewRule = false;
+            }
+            return updatedRule;
+          });
+          return updatedRules;
+        });
+      }
       return updatedSchema;
     },
-    [deleteQuestionHideProperty, deleteValidatorProperty],
+    [deleteQuestionHideProperty, deleteValidatorProperty, setRules],
   );
 
   const deleteAllConditionalLogic = useCallback(() => {
