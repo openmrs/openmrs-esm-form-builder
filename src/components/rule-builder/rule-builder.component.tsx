@@ -120,7 +120,7 @@ const RuleBuilder = React.memo(
     );
     const [isAllowFutureDate, setIsAllowFutureDate] = useState<boolean>(
       question?.validators?.some((validator) =>
-        validator.type === (RenderingType.DATE as string) && validator?.allowFutureDates === 'true' ? true : false,
+        validator.type === RenderingType.DATE && validator?.allowFutureDates === 'true' ? true : false,
       ),
     );
     const [validatorIndex, setvalidatorIndex] = useState<number>();
@@ -149,7 +149,7 @@ const RuleBuilder = React.memo(
      */
     const checkIfDateValidatorExists = useCallback(() => {
       return schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators.some(
-        (item) => item['type'] === (RenderingType.DATE as string),
+        (item) => item['type'] === RenderingType.DATE,
       );
     }, [pageIndex, questionIndex, schema.pages, sectionIndex]);
 
@@ -164,7 +164,7 @@ const RuleBuilder = React.memo(
         setIsAllowFutureDate(true);
       } else {
         validators?.map((validator) =>
-          validator?.type === (RenderingType.DATE as string)
+          validator?.type === RenderingType.DATE
             ? (validator['allowFutureDates'] = isAllowFutureDate ? 'false' : 'true')
             : null,
         );
@@ -602,18 +602,18 @@ const RuleBuilder = React.memo(
         formType: string,
       ) => {
         switch (actionType) {
-          case TriggerType.HIDE as string:
-          case TriggerType.HIDE_PAGE as string:
-          case TriggerType.HIDE_SECTION as string:
+          case TriggerType.HIDE:
+          case TriggerType.HIDE_PAGE:
+          case TriggerType.HIDE_SECTION:
             addHidingLogic(schema, pageIndex, sectionIndex, questionIndex, conditionSchema, formType);
             break;
-          case TriggerType.FAIL as string:
+          case TriggerType.FAIL:
             addOrUpdateValidator(schema, pageIndex, sectionIndex, questionIndex, conditionSchema, errorMessage);
             break;
-          case TriggerType.HISTORY as string:
+          case TriggerType.HISTORY:
             addHistoricalExpression(schema, pageIndex, sectionIndex, questionIndex, condition);
             break;
-          case TriggerType.DISABLE as string:
+          case TriggerType.DISABLE:
             addDisableExpression(schema, pageIndex, sectionIndex, questionIndex, conditionSchema);
             break;
         }
@@ -751,12 +751,9 @@ const RuleBuilder = React.memo(
           const newElement: Array<Condition | Action> = [...prevElement];
           newElement[index] = { ...newElement[index], [field]: value };
 
-          if (elementKey === (RuleElementType.ACTIONS as string) && field === (ActionType.ACTION_CONDITION as string)) {
+          if (elementKey === RuleElementType.ACTIONS && field === ActionType.ACTION_CONDITION) {
             updateActionsBasedOnTriggerType(newElement, index, value as string);
-          } else if (
-            elementKey === (RuleElementType.CONDITIONS as string) &&
-            field === (ConditionType.TARGET_CONDITION as string)
-          ) {
+          } else if (elementKey === RuleElementType.CONDITIONS && field === ConditionType.TARGET_CONDITION) {
             updateConditionsBasedOnTargetCondition(newElement, index, value as string);
           }
 
@@ -774,14 +771,14 @@ const RuleBuilder = React.memo(
 
         const getPropertiesToDeleteForAction = (triggerType: string, action: Action): Array<string> => {
           switch (triggerType) {
-            case TriggerType.HIDE as string:
-            case TriggerType.HISTORY as string:
+            case TriggerType.HIDE:
+            case TriggerType.HISTORY:
               return shouldDeleteForHideAction(action)
                 ? [ActionType.CALCULATE_FIELD, ActionType.ACTION_FIELD, ActionType.ERROR_MESSAGE]
                 : [];
-            case TriggerType.FAIL as string:
+            case TriggerType.FAIL:
               return shouldDeleteForFailAction(action) ? [ActionType.CALCULATE_FIELD, ActionType.ACTION_FIELD] : [];
-            case TriggerType.CALCULATE as string:
+            case TriggerType.CALCULATE:
               return shouldDeleteForCalculateAction(action) ? [ActionType.ACTION_FIELD, ActionType.ERROR_MESSAGE] : [];
             default:
               return [];
@@ -802,7 +799,7 @@ const RuleBuilder = React.memo(
           index: number,
           elementKey: string,
         ) => {
-          if (elementKey === (RuleElementType.CONDITIONS as string)) {
+          if (elementKey === RuleElementType.CONDITIONS) {
             const condition = elements[index] as Condition;
             if (emptyStates?.includes(condition?.targetCondition) && condition?.targetValue) {
               delete condition.targetValue;
@@ -1419,7 +1416,7 @@ export const RuleAction = React.memo(
     const [actionField, setActionField] = useState([]);
     const [isCalculate, setIsCalculate] = useState(false);
     const debouncedErrorMessage = useDebounce(errorMessage, 500);
-    const showErrorMessageBox = action === (TriggerType.FAIL as string);
+    const showErrorMessageBox = action === TriggerType.FAIL;
     const actionFieldMap: { [key: string]: Array<Page | Section> } = {
       section: sections,
       page: pages,
@@ -1438,14 +1435,12 @@ export const RuleAction = React.memo(
 
     useEffect(() => {
       const isFailType =
-        actions[index]?.[ActionType.ERROR_MESSAGE] ||
-        actions?.[index]?.actionCondition === (TriggerType.FAIL as string);
+        actions[index]?.[ActionType.ERROR_MESSAGE] || actions?.[index]?.actionCondition === TriggerType.FAIL;
       isFailType ? setAction(TriggerType.FAIL) : null;
 
       const isCalculateType =
-        action === (TriggerType.CALCULATE as string) ||
-        actions[index]?.[ActionType.ACTION_CONDITION] === (TriggerType.CALCULATE as string);
-      const isNotCalculateType = action !== (TriggerType.CALCULATE as string);
+        action === TriggerType.CALCULATE || actions[index]?.[ActionType.ACTION_CONDITION] === TriggerType.CALCULATE;
+      const isNotCalculateType = action !== TriggerType.CALCULATE;
       isCalculateType ? setIsCalculate(true) : isNotCalculateType ? setIsCalculate(false) : null;
     }, [actions, index, setIsCalculate, action]);
 
