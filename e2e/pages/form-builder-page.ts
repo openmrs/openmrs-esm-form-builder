@@ -74,7 +74,6 @@ export class FormBuilderPage {
       .getByRole('cell')
       .nth(2)
       .locator('.cds--toggle > .cds--toggle__label > .cds--toggle__appearance > .cds--toggle__switch');
-  // this.page.getByRole('button', { name: 'feature-flag-validation-rule-builder-toggle', exact: true });
   readonly closeImplementorTools = () => this.page.getByRole('button', { name: 'Close', exact: true });
 
   async gotoFormBuilder() {

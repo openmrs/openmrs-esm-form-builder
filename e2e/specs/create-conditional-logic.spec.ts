@@ -26,7 +26,7 @@ test('check the toggle functionality', async ({ page }) => {
     await formBuilderPage.page.getByRole('button', { name: /Demographics/i }).click();
   });
 
-  await test.step('And I make the `name` field as require', async () => {
+  await test.step('And I make the `name` field as required', async () => {
     await formBuilderPage.page
       .getByRole('button', { name: /Add conditional logic/i })
       .first()
@@ -129,7 +129,7 @@ test('check the toggle functionality', async ({ page }) => {
   });
 });
 
-test('create hiding logic', async ({ page }) => {
+test('create `hideWhenExpression` logic', async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
 
   await test.step('When I visit the form builder', async () => {
@@ -140,7 +140,7 @@ test('create hiding logic', async ({ page }) => {
     await formBuilderPage.formBuilderSetupForRuleBuilder();
   });
 
-  await test.step('And I navigate to the interactive builder', async () => {
+  await test.step('And I navigate to the interactive builder tab', async () => {
     await formBuilderPage.page.getByRole('tab', { name: /Interactive Builder/i }).click();
   });
 
@@ -148,14 +148,14 @@ test('create hiding logic', async ({ page }) => {
     await formBuilderPage.page.getByRole('button', { name: /Covid Experience/i }).click();
   });
 
-  await test.step('And I create conditional logic of `hideWhenExpression`', async () => {
+  await test.step('And I expand the validation rule builder for `Covid Experience` section', async () => {
     await formBuilderPage.page
       .getByRole('button', { name: /Add conditional logic/i })
       .first()
       .click();
   });
 
-  await test.step('And I create the hiding logic', async () => {
+  await test.step('And I create conditional logic of `hideWhenExpression', async () => {
     await formBuilderPage.page
       .getByLabel('Target field')
       .getByRole('combobox', { name: /Select a field/i })
@@ -207,7 +207,7 @@ test('create hiding logic', async ({ page }) => {
   });
 });
 
-test('create a calculation logic', async ({ page }) => {
+test('create calculation logic', async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
 
   await test.step('When I visit the form builder', async () => {
@@ -218,7 +218,7 @@ test('create a calculation logic', async ({ page }) => {
     await formBuilderPage.formBuilderSetupForRuleBuilder();
   });
 
-  await test.step('And I navigate to the interactive builder', async () => {
+  await test.step('And I navigate to the interactive builder tab', async () => {
     await formBuilderPage.page.getByRole('tab', { name: /Interactive Builder/i }).click();
   });
 
@@ -227,7 +227,7 @@ test('create a calculation logic', async ({ page }) => {
     await formBuilderPage.page.getByRole('button', { name: 'Add conditional logic' }).nth(2).click();
   });
 
-  await test.step('And I create the calculcation logic for the `BSA` field', async () => {
+  await test.step('And I create the calculation logic for the `BSA` field', async () => {
     await formBuilderPage.page
       .getByLabel('Target field')
       .getByRole('combobox', { name: /Select a field/i })
@@ -264,7 +264,7 @@ test('create a calculation logic', async ({ page }) => {
     await formBuilderPage.page.getByRole('tab', { name: 'Preview' }).click();
   });
 
-  await test.step('And I see enter value for `Height` and `Weight` field, then `BSA` calculated automiatically', async () => {
+  await test.step('And I fill value for `Height` as 40 and `Weight` as 40, then `BSA` has been calculated automatically', async () => {
     await formBuilderPage.page.getByLabel(/Height/i).fill('40');
     await formBuilderPage.page.getByLabel(/Weight/i).fill('40');
     await formBuilderPage.page.getByLabel('Preview', { exact: true }).getByText('BSA').click();
@@ -283,11 +283,11 @@ test('create calculation logic for `Expected delivery date`', async ({ page }) =
     await formBuilderPage.formBuilderSetupForRuleBuilder();
   });
 
-  await test.step('And I navigate to the interactive builder', async () => {
+  await test.step('And I navigate to the interactive builder tab', async () => {
     await formBuilderPage.page.getByRole('tab', { name: /Interactive Builder/i }).click();
   });
 
-  await test.step('And I expand the `Delivery Dates` section, and create conditional logic', async () => {
+  await test.step('And I expand the `Delivery Dates` section, and expand conditional logic', async () => {
     await formBuilderPage.page.getByRole('button', { name: /Delivery Date/i }).click();
     await formBuilderPage.page
       .getByRole('button', { name: /Add conditional logic/i })
@@ -314,7 +314,7 @@ test('create calculation logic for `Expected delivery date`', async ({ page }) =
       .locator('div')
       .click();
   });
-  await test.step('And I navigate tot form preview tab', async () => {
+  await test.step('And I navigate to form preview tab', async () => {
     await formBuilderPage.page.waitForTimeout(4000); // Adds delay to render the form
     await formBuilderPage.page.getByRole('tab', { name: /Preview/i }).click();
   });
@@ -338,7 +338,7 @@ test('calculate viral load status', async ({ page }) => {
     await formBuilderPage.formBuilderSetupForRuleBuilder();
   });
 
-  await test.step('And I navigate to the interactive builder', async () => {
+  await test.step('And I navigate to the interactive builder tab', async () => {
     await formBuilderPage.page.getByRole('tab', { name: 'Interactive Builder' }).click();
   });
 
@@ -375,7 +375,7 @@ test('calculate viral load status', async ({ page }) => {
     await formBuilderPage.page.getByRole('tab', { name: /Preview/i }).click();
   });
 
-  await test.step('And I enter value for the `Viral Load Count`', async () => {
+  await test.step('And I fill value for the `Viral Load Count` as `35`', async () => {
     await formBuilderPage.page.getByLabel('Viral Load Count').fill('35');
     await page.getByLabel('Preview', { exact: true }).getByText('Viral Load Status', { exact: true }).click();
   });
@@ -401,7 +401,7 @@ test('calculate viral load status', async ({ page }) => {
   });
 });
 
-test('create a validation logic for date field', async ({ page }) => {
+test('create validation logic for date field', async ({ page }) => {
   const currentDate = new Date();
 
   const monthName = currentDate.toLocaleString('default', { month: 'long' });
@@ -416,7 +416,7 @@ test('create a validation logic for date field', async ({ page }) => {
     await formBuilderPage.formBuilderSetupForRuleBuilder();
   });
 
-  await test.step('And I navigate to the interactive builder', async () => {
+  await test.step('And I navigate to the interactive builder tab', async () => {
     await formBuilderPage.page.getByRole('tab', { name: 'Interactive Builder' }).click();
   });
 
@@ -470,7 +470,7 @@ test('create a validation logic for date field', async ({ page }) => {
     ).toBeVisible();
   });
 
-  await test.step('When I change the `Appointment Date` to future, Then I see the warning message is vanished', async () => {
+  await test.step('When I change the date from past to future in `Appointment Date` field, Then I see the warning message disappears', async () => {
     await formBuilderPage.page.getByRole('button', { name: 'Calendar Appointment Date' }).click();
     await formBuilderPage.page.getByLabel('Increase').click();
     await formBuilderPage.page.getByRole('gridcell', { name: `${monthName} ${day},` }).click();

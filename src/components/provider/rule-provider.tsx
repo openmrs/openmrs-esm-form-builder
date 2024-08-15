@@ -5,6 +5,7 @@ import { type FormRule } from '../rule-builder/rule-builder.component';
 interface RuleProviderProps {
   children: React.ReactNode;
 }
+
 export const RuleProvider: React.FC<RuleProviderProps> = ({ children }) => {
   const [rules, setRules] = useState<Array<FormRule>>();
   const cachedRules = useMemo(() => rules, [rules]);

@@ -7,6 +7,7 @@ import { type Action, type Condition, type FormRule } from './rule-builder.compo
 import { type Schema } from '../../types';
 import { findQuestionIndices } from '../utils';
 import styles from '../modals.scss';
+
 interface DeleteConditionalLogicModalProps {
   closeModal: () => void;
   questionId?: string;
@@ -48,7 +49,7 @@ const DeleteConditionalLogicModal: React.FC<DeleteConditionalLogicModalProps> = 
   const deleteQuestionHideProperty = useCallback(
     (schema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number) => {
       const updatedSchema = { ...schema };
-      delete schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].hide;
+      delete updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].hide;
       onSchemaChange(updatedSchema);
       return updatedSchema;
     },
