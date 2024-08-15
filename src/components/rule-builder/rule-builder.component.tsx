@@ -68,6 +68,7 @@ export interface FormRule {
   conditions?: Array<Condition>;
   actions?: Array<Action>;
   isNewRule?: boolean;
+  validatorIndex?: number;
 }
 
 interface RuleBuilderProps {
@@ -510,10 +511,11 @@ const RuleBuilder = React.memo(
       ) => {
         const newSchema = { ...schema };
         const validators = newSchema?.pages[pageIndex]?.sections[sectionIndex]?.questions[questionIndex]?.validators;
+        const existingValidatorIndex = currentRule?.validatorIndex;
         const existingValidator =
-          validatorIndex >= 1
+          existingValidatorIndex >= 0
             ? newSchema?.pages[pageIndex]?.sections[sectionIndex]?.questions[questionIndex]?.validators[
-                validatorIndex - 1
+                existingValidatorIndex - 1
               ]
             : undefined;
         if (existingValidator) {
@@ -525,11 +527,17 @@ const RuleBuilder = React.memo(
             failsWhenExpression: conditionSchema,
             message: errorMessage,
           });
-          setvalidatorIndex(validators.length);
+
+          setCurrentRule((prevRule) => {
+            const updatedRule = { ...prevRule };
+            updatedRule.validatorIndex = validators.length;
+            return updatedRule;
+          });
         }
+
         onSchemaChange(newSchema);
       },
-      [onSchemaChange, validatorIndex],
+      [currentRule?.validatorIndex, onSchemaChange],
     );
 
     /*
