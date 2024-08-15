@@ -10,46 +10,53 @@ import type {
 import type { AuditInfo } from './components/audit-details/audit-details.component';
 import type { questionTypes } from '@constants';
 
-export enum ActionType {
-  LOGICAL_OPERATOR = 'logicalOperator',
-  ACTION_CONDITION = 'actionCondition',
-  ACTION_FIELD = 'actionField',
-  CALCULATE_FIELD = 'calculateField',
-  ERROR_MESSAGE = 'errorMessage',
-}
+export const ActionType = {
+  LOGICAL_OPERATOR: 'logicalOperator',
+  ACTION_CONDITION: 'actionCondition',
+  ACTION_FIELD: 'actionField',
+  CALCULATE_FIELD: 'calculateField',
+  ERROR_MESSAGE: 'errorMessage',
+} as const;
 
-export enum ConditionType {
-  TARGET_FIELD = 'targetField',
-  TARGET_CONDITION = 'targetCondition',
-  TARGET_VALUE = 'targetValue',
-  LOGICAL_OPERATOR = 'logicalOperator',
-  TARGET_VALUES = 'targetValues',
-}
+export const ConditionType = {
+  TARGET_FIELD: 'targetField',
+  TARGET_CONDITION: 'targetCondition',
+  TARGET_VALUE: 'targetValue',
+  LOGICAL_OPERATOR: 'logicalOperator',
+  TARGET_VALUES: 'targetValues',
+} as const;
 
-export enum LogicalOperatorType {
-  AND = 'and',
-  OR = 'or',
-}
+export const LogicalOperatorType = {
+  AND: 'and',
+  OR: 'or',
+} as const;
 
-export enum RenderingType {
-  DATE = 'date',
-  NUMBER = 'number',
-}
+export const RenderingType = {
+  DATE: 'date',
+  NUMBER: 'number',
+} as const;
 
-export enum RuleElementType {
-  CONDITIONS = 'conditions',
-  ACTIONS = 'actions',
-}
+export const RuleElementType = {
+  CONDITIONS: 'conditions',
+  ACTIONS: 'actions',
+} as const;
 
-export enum TriggerType {
-  HIDE = 'Hide',
-  HIDE_PAGE = 'Hide (page)',
-  HIDE_SECTION = 'Hide (section)',
-  FAIL = 'Fail',
-  DISABLE = 'Disable',
-  CALCULATE = 'Calculate',
-  HISTORY = 'Enable History of',
-}
+export const TriggerType = {
+  HIDE: 'Hide',
+  HIDE_PAGE: 'Hide (page)',
+  HIDE_SECTION: 'Hide (section)',
+  FAIL: 'Fail',
+  DISABLE: 'Disable',
+  CALCULATE: 'Calculate',
+  HISTORY: 'Enable History of',
+} as const;
+
+type ActionType = (typeof ActionType)[keyof typeof ActionType];
+type ConditionType = (typeof ConditionType)[keyof typeof ConditionType];
+type LogicalOperatorType = (typeof LogicalOperatorType)[keyof typeof LogicalOperatorType];
+type RenderingType = (typeof RenderingType)[keyof typeof RenderingType];
+type RuleElementType = (typeof RuleElementType)[keyof typeof RuleElementType];
+type TriggerType = (typeof TriggerType)[keyof typeof TriggerType];
 
 export interface ComparisonOperators {
   key: string;
