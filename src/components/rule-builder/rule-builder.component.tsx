@@ -124,7 +124,7 @@ const RuleBuilder = React.memo(
         validator.type === RenderingType.DATE && validator?.allowFutureDates === 'true' ? true : false,
       ),
     );
-    const [validatorIndex, setvalidatorIndex] = useState<number>();
+    const [ruleDeleted, setRuleDeleted] = useState<boolean>(false);
 
     const prevPageIndex = useRef(-1);
     const prevSectionIndex = useRef(-1);
@@ -898,14 +898,14 @@ const RuleBuilder = React.memo(
           ruleId,
           rules,
           currentRule,
-          validatorIndex,
           handleAddLogic,
-          setvalidatorIndex,
           setConditions,
           setActions,
           setCurrentRule,
           setRules,
           deleteAll: deleteAll ? true : false,
+          ruleDeleted,
+          setRuleDeleted,
         });
       },
       [
@@ -916,9 +916,10 @@ const RuleBuilder = React.memo(
         ruleId,
         rules,
         currentRule,
-        validatorIndex,
         handleAddLogic,
         setRules,
+        ruleDeleted,
+        setRuleDeleted,
       ],
     );
 
@@ -976,7 +977,7 @@ const RuleBuilder = React.memo(
         setActions(existingRule.actions || []);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [question?.id]);
+    }, [question?.id, ruleDeleted]);
 
     useEffect(() => {
       if (!currentRule) return;

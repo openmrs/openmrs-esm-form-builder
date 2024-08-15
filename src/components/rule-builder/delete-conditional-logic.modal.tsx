@@ -15,26 +15,23 @@ interface DeleteConditionalLogicModalProps {
   ruleId?: string;
   currentRule: FormRule;
   rules?: Array<FormRule>;
-  validatorIndex: number;
   schema: Schema;
   onSchemaChange: (schema: Schema) => void;
   handleAddLogic?: (fieldId: string) => void;
-  setvalidatorIndex: React.Dispatch<React.SetStateAction<number>>;
   setConditions?: React.Dispatch<React.SetStateAction<Array<Condition>>>;
   setActions?: React.Dispatch<React.SetStateAction<Array<Action>>>;
   setCurrentRule?: React.Dispatch<React.SetStateAction<FormRule>>;
   setRules: React.Dispatch<React.SetStateAction<Array<FormRule>>>;
   deleteAll?: boolean; // Flag to determine if all conditional logic should be deleted
+  setRuleDeleted: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const DeleteConditionalLogicModal: React.FC<DeleteConditionalLogicModalProps> = ({
   closeModal,
   questionId,
   questionLabel,
-  ruleId,
   currentRule,
   schema,
-  validatorIndex,
   onSchemaChange,
   handleAddLogic,
   setConditions,
@@ -43,6 +40,7 @@ const DeleteConditionalLogicModal: React.FC<DeleteConditionalLogicModalProps> = 
   setRules,
   rules,
   deleteAll = false,
+  setRuleDeleted,
 }) => {
   const { t } = useTranslation();
 
@@ -60,7 +58,10 @@ const DeleteConditionalLogicModal: React.FC<DeleteConditionalLogicModalProps> = 
     (schema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number, errorMessage: string) => {
       if (!errorMessage) return;
       const updatedSchema = { ...schema };
-      const validators = updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators;
+      const validatorIndex = currentRule?.validatorIndex;
+      const question = updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex];
+      const validators = question.validators;
+      const questionId = question.id;
       const existingValidator =
         validatorIndex >= 1
           ? updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators[
@@ -71,10 +72,20 @@ const DeleteConditionalLogicModal: React.FC<DeleteConditionalLogicModalProps> = 
       if (existingValidatorIndex !== -1) {
         validators?.splice(existingValidatorIndex, 1);
       }
+      setRules((prevRules) => {
+        const updatedRules = prevRules.map((rule) => {
+          const updatedRule = { ...rule };
+          if (updatedRule.actions[0]?.actionField === questionId && validatorIndex < updatedRule.validatorIndex) {
+            updatedRule.validatorIndex -= 1;
+          }
+          return updatedRule;
+        });
+        return updatedRules;
+      });
       onSchemaChange(updatedSchema);
       return updatedSchema;
     },
-    [onSchemaChange, validatorIndex],
+    [currentRule?.validatorIndex, onSchemaChange, setRules],
   );
 
   const deleteRuleFromSchema = useCallback(
@@ -140,15 +151,16 @@ const DeleteConditionalLogicModal: React.FC<DeleteConditionalLogicModalProps> = 
     try {
       setRules((prevRule: Array<FormRule>) => {
         const newRule = [...prevRule];
-        const elementIndex = rules?.findIndex((e) => e.id === ruleId);
+        const elementIndex = rules?.findIndex((e) => e.id === currentRule?.id);
         if (elementIndex !== -1) {
           newRule.splice(elementIndex, 1);
         }
         return newRule;
       });
+
       const updatedSchema = deleteRuleFromSchema(schema, currentRule);
       onSchemaChange(updatedSchema);
-      setCurrentRule({ id: uuid(), question: questionId });
+      setRuleDeleted(true);
       showSnackbar({
         title: t(
           'targetedConditionalLogicDeletedMessage',
@@ -173,12 +185,10 @@ const DeleteConditionalLogicModal: React.FC<DeleteConditionalLogicModalProps> = 
     schema,
     currentRule,
     onSchemaChange,
-    setCurrentRule,
-    questionId,
+    setRuleDeleted,
     t,
     questionLabel,
     rules,
-    ruleId,
     closeModal,
   ]);
 
