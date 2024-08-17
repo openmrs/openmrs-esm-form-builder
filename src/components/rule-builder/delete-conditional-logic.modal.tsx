@@ -137,6 +137,12 @@ const DeleteConditionalLogicModal: React.FC<DeleteConditionalLogicModalProps> = 
       if (setActions) setActions([]);
       if (setCurrentRule) setCurrentRule({ id: uuid(), question: questionId });
       setRules((prevRule: Array<FormRule>) => prevRule.filter((rule) => rule.question !== questionId));
+      rules.map((rule) => {
+        if (rule.question === questionId) {
+          const updatedSchema = deleteRuleFromSchema(schema, rule);
+          onSchemaChange(updatedSchema);
+        }
+      });
 
       showSnackbar({
         title: t(
@@ -156,7 +162,21 @@ const DeleteConditionalLogicModal: React.FC<DeleteConditionalLogicModalProps> = 
     } finally {
       closeModal();
     }
-  }, [closeModal, questionLabel, handleAddLogic, questionId, setActions, setConditions, setCurrentRule, setRules, t]);
+  }, [
+    handleAddLogic,
+    questionId,
+    setConditions,
+    setActions,
+    setCurrentRule,
+    setRules,
+    rules,
+    t,
+    questionLabel,
+    onSchemaChange,
+    deleteRuleFromSchema,
+    schema,
+    closeModal,
+  ]);
 
   const deleteSpecificConditionalLogic = useCallback(() => {
     try {
