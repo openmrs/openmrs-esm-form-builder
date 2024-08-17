@@ -391,24 +391,6 @@ const RuleBuilder = React.memo(
       }
     };
 
-    const shouldDeleteForHideAction = (action: Action) => {
-      return action.calculateField?.length || action.errorMessage?.length || action.actionField?.length;
-    };
-
-    const shouldDeleteForFailAction = (action: Action) => {
-      return action.calculateField?.length || action.actionField?.length;
-    };
-
-    const shouldDeleteForCalculateAction = (action: Action) => {
-      return action.actionField?.length || action.errorMessage?.length;
-    };
-
-    const deleteProperties = (element: Action | Condition, properties: Array<string>) => {
-      properties.forEach((property) => {
-        delete element[property];
-      });
-    };
-
     const ruleHasActions = (rule: FormRule) => {
       return rule?.actions?.some(
         (action: Action) => action?.actionField !== undefined || action?.calculateField !== undefined,
@@ -650,6 +632,17 @@ const RuleBuilder = React.memo(
       [],
     );
 
+    const deleteFailLogic = useCallback(
+      (schema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number) => {
+        const updatedSchema = { ...schema };
+        if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
+          delete updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex]?.validators;
+        }
+        return updatedSchema;
+      },
+      [],
+    );
+
     const deleteCalculateLogic = useCallback(
       (schema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number) => {
         const updatedSchema = { ...schema };
@@ -839,6 +832,65 @@ const RuleBuilder = React.memo(
     );
 
     /*
+     * Helper functions of getPropertiesToDeleteForAction() to delete the properties
+     * from the form field based on action type
+     */
+    const shouldDeleteForHideAction = useCallback(
+      (action: Action) => {
+        if (action.calculateField?.length || action.errorMessage?.length || action.actionField?.length) {
+          let updatedSchema: Schema;
+          const questionId = action?.actionField;
+          const { pageIndex, sectionIndex, questionIndex } = findQuestionIndices(schema, questionId);
+          updatedSchema = deleteCalculateLogic(schema, pageIndex, sectionIndex, questionIndex);
+          updatedSchema = deleteFailLogic(schema, pageIndex, sectionIndex, questionIndex);
+          onSchemaChange(updatedSchema);
+
+          return true;
+        }
+        return false;
+      },
+      [deleteCalculateLogic, deleteFailLogic, onSchemaChange, schema],
+    );
+
+    const shouldDeleteForFailAction = useCallback(
+      (action: Action) => {
+        if (action.calculateField?.length || action.actionField?.length) {
+          let updatedSchema: Schema;
+          const questionId = action?.actionField;
+          const { pageIndex, sectionIndex, questionIndex } = findQuestionIndices(schema, questionId);
+          updatedSchema = deleteCalculateLogic(schema, pageIndex, sectionIndex, questionIndex);
+          updatedSchema = deleteHideLogic(schema, pageIndex, sectionIndex, questionIndex, 'field');
+          onSchemaChange(updatedSchema);
+          return true;
+        }
+        return false;
+      },
+      [deleteCalculateLogic, deleteHideLogic, onSchemaChange, schema],
+    );
+
+    const shouldDeleteForCalculateAction = useCallback(
+      (action: Action) => {
+        if (action.actionField?.length || action.errorMessage?.length) {
+          let updatedSchema: Schema;
+          const questionId = action?.actionField;
+          const { pageIndex, sectionIndex, questionIndex } = findQuestionIndices(schema, questionId);
+          updatedSchema = deleteFailLogic(schema, pageIndex, sectionIndex, questionIndex);
+          updatedSchema = deleteHideLogic(schema, pageIndex, sectionIndex, questionIndex, 'field');
+          onSchemaChange(updatedSchema);
+          return true;
+        }
+        return false;
+      },
+      [deleteFailLogic, deleteHideLogic, onSchemaChange, schema],
+    );
+
+    const deleteProperties = (element: Action | Condition, properties: Array<string>) => {
+      properties.forEach((property) => {
+        delete element[property];
+      });
+    };
+
+    /*
      * Manages and updates to rule elements (conditions or actions) based on user interactions.
      * It updates the element's specific field with the new value and ensures the state reflects these changes accurately.
      */
@@ -853,7 +905,7 @@ const RuleBuilder = React.memo(
         elementKey: string,
       ) => {
         /*
-         * - Deletes the mistakely chosen properties by the user in the current state
+         * - Deletes the mistakenly chosen type in the current state rule
          */
         const getPropertiesToDeleteForAction = (triggerType: string, action: Action): Array<string> => {
           switch (triggerType) {
@@ -895,9 +947,9 @@ const RuleBuilder = React.memo(
         /*
          * - Updates the action type, action field, and calculate field into current state
          */
-        const updateActionsBasedOnTriggerType = (actions: Array<Action>, index: number, value: string) => {
+        const updateActionsBasedOnActionType = (actions: Array<Action>, index: number, triggerType: string) => {
           const action = actions[index];
-          const propertiesToDelete = getPropertiesToDeleteForAction(value, action);
+          const propertiesToDelete = getPropertiesToDeleteForAction(triggerType, action);
           deleteProperties(action, propertiesToDelete);
           setActions(actions);
         };
@@ -905,7 +957,7 @@ const RuleBuilder = React.memo(
         /*
          * - Updates the target condition, target field, and target values into current state
          */
-        const updateConditionsBasedOnTargetCondition = (conditions: Array<Condition>, index: number, value: string) => {
+        const updateConditionsBasedOnTargetType = (conditions: Array<Condition>, index: number, value: string) => {
           const condition = conditions[index];
           const propertiesToDelete = arrContains?.includes(value)
             ? [ConditionType.TARGET_VALUE]
@@ -918,14 +970,16 @@ const RuleBuilder = React.memo(
          * - Updates the user-selected inputs from the rule-builder into the current state
          *   and global state based on condition and action
          */
-        const updateElement = (prevElement: Array<Condition | Action>) => {
+        const updateElementBasedOnType = (prevElement: Array<Condition | Action>) => {
           const updatedElement: Array<Condition | Action> = [...prevElement];
           updatedElement[index] = { ...updatedElement[index], [field]: value };
 
           if (elementKey === RuleElementType.ACTIONS && field === ActionType.ACTION_CONDITION) {
-            updateActionsBasedOnTriggerType(updatedElement, index, value as string);
+            const actionType: string = value as string;
+            updateActionsBasedOnActionType(updatedElement, index, actionType);
           } else if (elementKey === RuleElementType.CONDITIONS && field === ConditionType.TARGET_CONDITION) {
-            updateConditionsBasedOnTargetCondition(updatedElement, index, value as string);
+            const targetType: string = value as string;
+            updateConditionsBasedOnTargetType(updatedElement, index, targetType);
           }
 
           clearTargetValueIfEmptyState(updatedElement, index, elementKey);
@@ -933,15 +987,15 @@ const RuleBuilder = React.memo(
           return updatedElement;
         };
 
-        setElement(updateElement); // setCondition or setAction
+        setElement(updateElementBasedOnType); // setCondition or setAction
         setCurrentRule((prevRule) => {
           const newRule = { ...prevRule };
           const element: Array<Condition | Action> = newRule[elementKey];
-          newRule[elementKey] = updateElement(element);
+          newRule[elementKey] = updateElementBasedOnType(element);
           return newRule;
         });
       },
-      [],
+      [shouldDeleteForCalculateAction, shouldDeleteForFailAction, shouldDeleteForHideAction],
     );
 
     const handleActionChange = useCallback(
