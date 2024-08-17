@@ -513,8 +513,8 @@ const RuleBuilder = React.memo(
         const validators = newSchema?.pages[pageIndex]?.sections[sectionIndex]?.questions[questionIndex]?.validators;
         const existingValidatorIndex = currentRule?.validatorIndex;
         const existingValidator =
-          existingValidatorIndex >= 0
-            ? newSchema?.pages[pageIndex]?.sections[sectionIndex]?.questions[questionIndex]?.validators[
+          existingValidatorIndex >= 1
+            ? newSchema?.pages[pageIndex]?.sections[sectionIndex]?.questions[questionIndex]?.validators?.[
                 existingValidatorIndex - 1
               ]
             : undefined;
@@ -522,7 +522,7 @@ const RuleBuilder = React.memo(
           existingValidator.failsWhenExpression = conditionSchema;
           existingValidator.message = errorMessage;
         } else {
-          validators.push({
+          validators?.push({
             type: 'js_expression',
             failsWhenExpression: conditionSchema,
             message: errorMessage,
@@ -530,7 +530,7 @@ const RuleBuilder = React.memo(
 
           setCurrentRule((prevRule) => {
             const updatedRule = { ...prevRule };
-            updatedRule.validatorIndex = validators.length;
+            updatedRule.validatorIndex = validators?.length;
             return updatedRule;
           });
         }
@@ -629,7 +629,7 @@ const RuleBuilder = React.memo(
       [addDisableExpression, addHidingLogic, addHistoricalExpression, addOrUpdateValidator],
     );
 
-    const deletePreviousAction = useCallback(
+    const deleteHideLogic = useCallback(
       (schema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number, formType: string) => {
         const updatedSchema = { ...schema };
         switch (formType) {
@@ -645,9 +645,74 @@ const RuleBuilder = React.memo(
               delete updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].hide;
             break;
         }
+        return updatedSchema;
+      },
+      [],
+    );
+
+    const deleteCalculateLogic = useCallback(
+      (schema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number) => {
+        const updatedSchema = { ...schema };
+        if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
+          delete updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions
+            .calculate;
+        }
+        return updatedSchema;
+      },
+      [],
+    );
+
+    const deleteDisableLogic = useCallback(
+      (schema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number) => {
+        const updatedSchema = { ...schema };
+        if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
+          delete updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].disable;
+        }
+        return updatedSchema;
+      },
+      [],
+    );
+
+    const deleteHistoryLogic = useCallback(
+      (schema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number) => {
+        const updatedSchema = { ...schema };
+        if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
+          delete updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].historicalExpression;
+        }
+        return updatedSchema;
+      },
+      [],
+    );
+
+    const deletePreviousAction = useCallback(
+      (
+        schema: Schema,
+        actionType: string,
+        pageIndex: number,
+        sectionIndex: number,
+        questionIndex: number,
+        formType: string,
+      ) => {
+        let updatedSchema: Schema;
+        switch (actionType) {
+          case 'Hide':
+          case 'Hide (section)':
+          case 'Hide (page)':
+            updatedSchema = deleteHideLogic(schema, pageIndex, sectionIndex, questionIndex, formType);
+            break;
+          case 'Calculate':
+            updatedSchema = deleteCalculateLogic(schema, pageIndex, sectionIndex, questionIndex);
+            break;
+          case 'Disable':
+            updatedSchema = deleteDisableLogic(schema, pageIndex, sectionIndex, questionIndex);
+            break;
+          case 'Enable History of':
+            updatedSchema = deleteHistoryLogic(schema, pageIndex, sectionIndex, questionIndex);
+            break;
+        }
         onSchemaChange(updatedSchema);
       },
-      [onSchemaChange],
+      [deleteCalculateLogic, deleteDisableLogic, deleteHideLogic, deleteHistoryLogic, onSchemaChange],
     );
 
     /*
@@ -667,6 +732,7 @@ const RuleBuilder = React.memo(
           const { pageIndex, sectionIndex, questionIndex } = findQuestionIndices(schema, actionField, formType);
           deletePreviousAction(
             schema,
+            actionCondition,
             prevPageIndex.current,
             prevSectionIndex.current,
             prevQuestionIndex.current,
@@ -713,13 +779,13 @@ const RuleBuilder = React.memo(
      */
     const updateSchemaWithCalculateExpression = useCallback(
       (schema: Schema, calculateExpression: string) => {
-        const newSchema = { ...schema };
+        const updatedSchema = { ...schema };
         if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
-          newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions.calculate = {
+          updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions.calculate = {
             calculateExpression,
           };
         }
-        onSchemaChange(newSchema);
+        onSchemaChange(updatedSchema);
       },
       [onSchemaChange, pageIndex, questionIndex, sectionIndex],
     );
@@ -729,13 +795,14 @@ const RuleBuilder = React.memo(
      */
     const deleteSchemaForCalculateExpression = useCallback(
       (schema: Schema) => {
-        const newSchema = { ...schema };
+        const updatedSchema = { ...schema };
         if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
-          delete newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions.calculate;
+          delete updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questionOptions
+            .calculate;
         }
-        onSchemaChange(newSchema);
+        onSchemaChange(updatedSchema);
       },
-      [pageIndex, questionIndex, sectionIndex, onSchemaChange],
+      [onSchemaChange, pageIndex, questionIndex, sectionIndex],
     );
 
     /*
@@ -756,7 +823,6 @@ const RuleBuilder = React.memo(
         rule?.actions?.forEach((action: Action) => {
           const { calculateField } = action;
           const calculateExpression = getCalculateExpression(calculateField, rule.conditions);
-
           isValidForCalculation(rule?.conditions, conditionSchema, '', calculateField)
             ? updateSchemaWithCalculateExpression(schema, calculateExpression)
             : deleteSchemaForCalculateExpression(schema);
