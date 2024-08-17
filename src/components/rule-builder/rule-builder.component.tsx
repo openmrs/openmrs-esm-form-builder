@@ -629,6 +629,27 @@ const RuleBuilder = React.memo(
       [addDisableExpression, addHidingLogic, addHistoricalExpression, addOrUpdateValidator],
     );
 
+    const deletePreviousAction = useCallback(
+      (schema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number, formType: string) => {
+        const updatedSchema = { ...schema };
+        switch (formType) {
+          case 'page':
+            if (pageIndex !== -1) delete updatedSchema.pages[pageIndex].hide;
+            break;
+          case 'section':
+            if (pageIndex !== -1 && sectionIndex !== -1)
+              delete updatedSchema.pages[pageIndex].sections[sectionIndex].hide;
+            break;
+          case 'field':
+            if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1)
+              delete updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].hide;
+            break;
+        }
+        onSchemaChange(updatedSchema);
+      },
+      [onSchemaChange],
+    );
+
     /*
      * Process actions (e.g., hide, fail, disable) for a form field
      * and update the schema accordingly.
@@ -644,7 +665,13 @@ const RuleBuilder = React.memo(
               ? 'section'
               : 'field';
           const { pageIndex, sectionIndex, questionIndex } = findQuestionIndices(schema, actionField, formType);
-
+          deletePreviousAction(
+            schema,
+            prevPageIndex.current,
+            prevSectionIndex.current,
+            prevQuestionIndex.current,
+            formType,
+          );
           updateSchemaBasedOnActionType(
             schema,
             pageIndex,
@@ -662,7 +689,7 @@ const RuleBuilder = React.memo(
           prevSectionIndex.current = sectionIndex;
         });
       },
-      [updateSchemaBasedOnActionType],
+      [deletePreviousAction, updateSchemaBasedOnActionType],
     );
 
     /*
