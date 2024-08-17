@@ -836,11 +836,10 @@ const RuleBuilder = React.memo(
      * from the form field based on action type
      */
     const shouldDeleteForHideAction = useCallback(
-      (action: Action) => {
+      (action: Action, pageIndex: number, sectionIndex: number, questionIndex: number) => {
         if (action.calculateField?.length || action.errorMessage?.length || action.actionField?.length) {
           let updatedSchema: Schema;
-          const questionId = action?.actionField;
-          const { pageIndex, sectionIndex, questionIndex } = findQuestionIndices(schema, questionId);
+
           updatedSchema = deleteCalculateLogic(schema, pageIndex, sectionIndex, questionIndex);
           updatedSchema = deleteFailLogic(schema, pageIndex, sectionIndex, questionIndex);
           onSchemaChange(updatedSchema);
@@ -853,11 +852,9 @@ const RuleBuilder = React.memo(
     );
 
     const shouldDeleteForFailAction = useCallback(
-      (action: Action) => {
+      (action: Action, pageIndex: number, sectionIndex: number, questionIndex: number) => {
         if (action.calculateField?.length || action.actionField?.length) {
           let updatedSchema: Schema;
-          const questionId = action?.actionField;
-          const { pageIndex, sectionIndex, questionIndex } = findQuestionIndices(schema, questionId);
           updatedSchema = deleteCalculateLogic(schema, pageIndex, sectionIndex, questionIndex);
           updatedSchema = deleteHideLogic(schema, pageIndex, sectionIndex, questionIndex, 'field');
           onSchemaChange(updatedSchema);
@@ -869,11 +866,9 @@ const RuleBuilder = React.memo(
     );
 
     const shouldDeleteForCalculateAction = useCallback(
-      (action: Action) => {
+      (action: Action, pageIndex: number, sectionIndex: number, questionIndex: number) => {
         if (action.actionField?.length || action.errorMessage?.length) {
           let updatedSchema: Schema;
-          const questionId = action?.actionField;
-          const { pageIndex, sectionIndex, questionIndex } = findQuestionIndices(schema, questionId);
           updatedSchema = deleteFailLogic(schema, pageIndex, sectionIndex, questionIndex);
           updatedSchema = deleteHideLogic(schema, pageIndex, sectionIndex, questionIndex, 'field');
           onSchemaChange(updatedSchema);
@@ -908,16 +903,22 @@ const RuleBuilder = React.memo(
          * - Deletes the mistakenly chosen type in the current state rule
          */
         const getPropertiesToDeleteForAction = (triggerType: string, action: Action): Array<string> => {
+          const questionId = action?.actionField;
+          const { pageIndex, sectionIndex, questionIndex } = findQuestionIndices(schema, questionId);
           switch (triggerType) {
             case TriggerType.HIDE:
             case TriggerType.HISTORY:
-              return shouldDeleteForHideAction(action)
+              return shouldDeleteForHideAction(action, pageIndex, sectionIndex, questionIndex)
                 ? [ActionType.CALCULATE_FIELD, ActionType.ACTION_FIELD, ActionType.ERROR_MESSAGE]
                 : [];
             case TriggerType.FAIL:
-              return shouldDeleteForFailAction(action) ? [ActionType.CALCULATE_FIELD, ActionType.ACTION_FIELD] : [];
+              return shouldDeleteForFailAction(action, pageIndex, sectionIndex, questionIndex)
+                ? [ActionType.CALCULATE_FIELD, ActionType.ACTION_FIELD]
+                : [];
             case TriggerType.CALCULATE:
-              return shouldDeleteForCalculateAction(action) ? [ActionType.ACTION_FIELD, ActionType.ERROR_MESSAGE] : [];
+              return shouldDeleteForCalculateAction(action, pageIndex, sectionIndex, questionIndex)
+                ? [ActionType.ACTION_FIELD, ActionType.ERROR_MESSAGE]
+                : [];
             default:
               return [];
           }
@@ -995,7 +996,7 @@ const RuleBuilder = React.memo(
           return newRule;
         });
       },
-      [shouldDeleteForCalculateAction, shouldDeleteForFailAction, shouldDeleteForHideAction],
+      [schema, shouldDeleteForCalculateAction, shouldDeleteForFailAction, shouldDeleteForHideAction],
     );
 
     const handleActionChange = useCallback(
