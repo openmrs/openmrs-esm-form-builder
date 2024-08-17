@@ -838,6 +838,10 @@ const RuleBuilder = React.memo(
       ],
     );
 
+    /*
+     * Manages and updates to rule elements (conditions or actions) based on user interactions.
+     * It updates the element's specific field with the new value and ensures the state reflects these changes accurately.
+     */
     const handleElementChange = useCallback(
       (
         id: string,
@@ -848,28 +852,9 @@ const RuleBuilder = React.memo(
         setElement: React.Dispatch<React.SetStateAction<Array<Condition | Action>>>,
         elementKey: string,
       ) => {
-        const updateElement = (prevElement: Array<Condition | Action>) => {
-          const newElement: Array<Condition | Action> = [...prevElement];
-          newElement[index] = { ...newElement[index], [field]: value };
-
-          if (elementKey === RuleElementType.ACTIONS && field === ActionType.ACTION_CONDITION) {
-            updateActionsBasedOnTriggerType(newElement, index, value as string);
-          } else if (elementKey === RuleElementType.CONDITIONS && field === ConditionType.TARGET_CONDITION) {
-            updateConditionsBasedOnTargetCondition(newElement, index, value as string);
-          }
-
-          clearTargetValueIfEmptyState(newElement, index, elementKey);
-
-          return newElement;
-        };
-
-        const updateActionsBasedOnTriggerType = (actions: Array<Action>, index: number, value: string) => {
-          const action = actions[index];
-          const propertiesToDelete = getPropertiesToDeleteForAction(value, action);
-          deleteProperties(action, propertiesToDelete);
-          setActions(actions);
-        };
-
+        /*
+         * - Deletes the mistakely chosen properties by the user in the current state
+         */
         const getPropertiesToDeleteForAction = (triggerType: string, action: Action): Array<string> => {
           switch (triggerType) {
             case TriggerType.HIDE:
@@ -886,6 +871,40 @@ const RuleBuilder = React.memo(
           }
         };
 
+        /*
+         * - Delete the target values from the state, when the target condition is either isEmpty or notEmpty conditions
+         * - Those conditions are not expected to have target values
+         */
+        const clearTargetValueIfEmptyState = (
+          elements: Array<Condition | Action>,
+          index: number,
+          elementKey: string,
+        ) => {
+          if (elementKey === RuleElementType.CONDITIONS) {
+            const condition = elements[index] as Condition;
+            if (
+              emptyStates?.includes(condition?.targetCondition) &&
+              (condition?.targetValue || condition?.targetValues)
+            ) {
+              if (condition?.targetValue) delete condition?.targetValue;
+              if (condition?.targetValues) delete condition?.targetValues;
+            }
+          }
+        };
+
+        /*
+         * - Updates the action type, action field, and calculate field into current state
+         */
+        const updateActionsBasedOnTriggerType = (actions: Array<Action>, index: number, value: string) => {
+          const action = actions[index];
+          const propertiesToDelete = getPropertiesToDeleteForAction(value, action);
+          deleteProperties(action, propertiesToDelete);
+          setActions(actions);
+        };
+
+        /*
+         * - Updates the target condition, target field, and target values into current state
+         */
         const updateConditionsBasedOnTargetCondition = (conditions: Array<Condition>, index: number, value: string) => {
           const condition = conditions[index];
           const propertiesToDelete = arrContains?.includes(value)
@@ -895,23 +914,30 @@ const RuleBuilder = React.memo(
           setConditions(conditions);
         };
 
-        const clearTargetValueIfEmptyState = (
-          elements: Array<Condition | Action>,
-          index: number,
-          elementKey: string,
-        ) => {
-          if (elementKey === RuleElementType.CONDITIONS) {
-            const condition = elements[index] as Condition;
-            if (emptyStates?.includes(condition?.targetCondition) && condition?.targetValue) {
-              delete condition.targetValue;
-            }
+        /*
+         * - Updates the user-selected inputs from the rule-builder into the current state
+         *   and global state based on condition and action
+         */
+        const updateElement = (prevElement: Array<Condition | Action>) => {
+          const updatedElement: Array<Condition | Action> = [...prevElement];
+          updatedElement[index] = { ...updatedElement[index], [field]: value };
+
+          if (elementKey === RuleElementType.ACTIONS && field === ActionType.ACTION_CONDITION) {
+            updateActionsBasedOnTriggerType(updatedElement, index, value as string);
+          } else if (elementKey === RuleElementType.CONDITIONS && field === ConditionType.TARGET_CONDITION) {
+            updateConditionsBasedOnTargetCondition(updatedElement, index, value as string);
           }
+
+          clearTargetValueIfEmptyState(updatedElement, index, elementKey);
+
+          return updatedElement;
         };
 
-        setElement(updateElement);
+        setElement(updateElement); // setCondition or setAction
         setCurrentRule((prevRule) => {
           const newRule = { ...prevRule };
-          newRule[elementKey] = updateElement(newRule[elementKey] as Array<Condition | Action>);
+          const element: Array<Condition | Action> = newRule[elementKey];
+          newRule[elementKey] = updateElement(element);
           return newRule;
         });
       },
