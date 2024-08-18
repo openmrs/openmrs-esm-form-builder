@@ -636,7 +636,7 @@ const RuleBuilder = React.memo(
       (schema: Schema, pageIndex: number, sectionIndex: number, questionIndex: number) => {
         const updatedSchema = { ...schema };
         if (pageIndex !== -1 && sectionIndex !== -1 && questionIndex !== -1) {
-          delete updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex]?.validators;
+          updatedSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].validators = [];
         }
         return updatedSchema;
       },
