@@ -178,6 +178,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     setCurrentIndex(0);
     onSchemaChange(newValue);
     debouncedValidateSchema(newValue, schema);
+    setErrors([]);
   };
 
   // Schema Validation Errors

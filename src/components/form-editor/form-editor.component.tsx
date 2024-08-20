@@ -361,6 +361,15 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
               <ErrorNotification error={clobdataError} title={t('schemaLoadError', 'Error loading schema')} />
             ) : null}
             <div className={styles.editorContainer}>
+              {invalidJsonErrorMessage ? (
+                <InlineNotification
+                  kind="error"
+                  lowContrast
+                  title={t('errorParsingJsonSchema', 'Error parsing JSON schema')}
+                  subtitle={invalidJsonErrorMessage}
+                  className={styles.jsonSchemaError}
+                />
+              ) : null}
               <SchemaEditor
                 errors={errors}
                 isLoading={isLoadingFormOrSchema}
