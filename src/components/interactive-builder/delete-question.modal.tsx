@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import type { Question, Schema } from '../../types';
+import styles from '../modals.scss';
 
 interface DeleteQuestionModal {
   closeModal: () => void;
@@ -68,6 +69,7 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
   return (
     <div>
       <ModalHeader
+        className={styles.modalHeader}
         closeModal={closeModal}
         title={t('deleteQuestionConfirmation', 'Are you sure you want to delete this question? ')}
       />

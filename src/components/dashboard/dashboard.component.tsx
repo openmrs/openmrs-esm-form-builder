@@ -5,6 +5,7 @@ import {
   DataTable,
   DataTableSkeleton,
   Dropdown,
+  IconButton,
   InlineLoading,
   InlineNotification,
   Table,
@@ -21,6 +22,7 @@ import {
   Tile,
 } from '@carbon/react';
 import { Add, DocumentImport, Download, Edit, TrashCan } from '@carbon/react/icons';
+import { type KeyedMutator, preload } from 'swr';
 import {
   ConfigurableLink,
   navigate,
@@ -31,9 +33,7 @@ import {
   useConfig,
   useLayoutType,
   usePagination,
-  type FetchResponse,
 } from '@openmrs/esm-framework';
-import { type KeyedMutator, preload } from 'swr';
 import type { ConfigObject } from '../../config-schema';
 import type { Form as TypedForm } from '../../types';
 import { deleteForm } from '../../forms.resource';
@@ -84,6 +84,7 @@ function CustomTag({ condition }: { condition?: boolean }) {
 }
 
 function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) {
+  const defaultEnterDelayInMs = 300;
   const { clobdata } = useClobdata(form);
   const formResources = form?.resources;
   const [isDeletingForm, setIsDeletingForm] = useState(false);
@@ -97,28 +98,31 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
   );
 
   const handleDeleteForm = useCallback(
-    (formUuid: string) => {
-      deleteForm(formUuid)
-        .then(async (res: FetchResponse) => {
-          if (res.status === 204) {
-            showSnackbar({
-              title: t('formDeleted', 'Form deleted'),
-              kind: 'success',
-              isLowContrast: true,
-              subtitle: `${form.name} ` + t('formDeletedSuccessfully', 'deleted successfully'),
-            });
-
-            await mutate();
-          }
-        })
-        .catch((e: Error) =>
+    async (formUuid: string) => {
+      try {
+        const res = await deleteForm(formUuid);
+        if (res.status === 204) {
+          showSnackbar({
+            title: t('formDeleted', 'Form deleted'),
+            kind: 'success',
+            isLowContrast: true,
+            subtitle: t('formDeletedMessage', 'The form "{{- formName}}" has been deleted successfully', {
+              formName: form.name,
+            }),
+          });
+          await mutate();
+        }
+      } catch (e: unknown) {
+        if (e instanceof Error) {
           showSnackbar({
             title: t('errorDeletingForm', 'Error deleting form'),
             kind: 'error',
             subtitle: e?.message,
-          }),
-        )
-        .finally(() => setIsDeletingForm(false));
+          });
+        }
+      } finally {
+        setIsDeletingForm(false);
+      }
     },
     [form.name, mutate, t],
   );
@@ -133,64 +137,63 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
 
   const ImportButton = () => {
     return (
-      <Button
-        renderIcon={DocumentImport}
+      <IconButton
+        align="center"
+        enterDelayMs={defaultEnterDelayInMs}
+        label={t('import', 'Import')}
+        kind="ghost"
         onClick={() => navigate({ to: `${window.spaBase}/form-builder/edit/${form.uuid}` })}
-        kind={'ghost'}
-        iconDescription={t('import', 'Import')}
-        hasIconOnly
         size={responsiveSize}
-      />
+      >
+        <DocumentImport />
+      </IconButton>
     );
   };
 
   const EditButton = () => {
     return (
-      <Button
-        enterDelayMs={300}
-        renderIcon={Edit}
+      <IconButton
+        enterDelayMs={defaultEnterDelayInMs}
+        kind="ghost"
+        label={t('editSchema', 'Edit schema')}
         onClick={() =>
           navigate({
             to: `${window.spaBase}/form-builder/edit/${form.uuid}`,
           })
         }
-        kind={'ghost'}
-        iconDescription={t('editSchema', 'Edit schema')}
-        hasIconOnly
         size={responsiveSize}
-        tooltipAlignment="center"
-      />
+      >
+        <Edit />
+      </IconButton>
     );
   };
 
   const DownloadSchemaButton = () => {
     return (
       <a download={`${form?.name}.json`} href={window.URL.createObjectURL(downloadableSchema)}>
-        <Button
-          enterDelayMs={300}
-          renderIcon={Download}
-          kind={'ghost'}
-          iconDescription={t('downloadSchema', 'Download schema')}
-          hasIconOnly
+        <IconButton
+          enterDelayMs={defaultEnterDelayInMs}
+          kind="ghost"
+          label={t('downloadSchema', 'Download schema')}
           size={responsiveSize}
-          tooltipAlignment="center"
-        />
+        >
+          <Download />
+        </IconButton>
       </a>
     );
   };
 
   const DeleteButton = () => {
     return (
-      <Button
-        enterDelayMs={300}
-        renderIcon={TrashCan}
+      <IconButton
+        enterDelayMs={defaultEnterDelayInMs}
+        kind="ghost"
+        label={t('deleteSchema', 'Delete schema')}
         onClick={launchDeleteFormModal}
-        kind={'ghost'}
-        iconDescription={t('deleteSchema', 'Delete schema')}
-        hasIconOnly
         size={responsiveSize}
-        tooltipAlignment="center"
-      />
+      >
+        <TrashCan />
+      </IconButton>
     );
   };
 

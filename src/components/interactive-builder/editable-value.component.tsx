@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@carbon/react';
+import { IconButton } from '@carbon/react';
 import { Edit } from '@carbon/react/icons';
 import ValueEditor from './value-editor.component';
 import styles from './editable-value.scss';
@@ -37,17 +37,17 @@ const EditableValue: React.FC<EditableValueProps> = ({ elementType, id, value, o
   return (
     <>
       <h1 className={styles[`${elementType}` + 'Label']}>{value}</h1>
-      <Button
-        kind="ghost"
-        size="sm"
+      <IconButton
         enterDelayMs={300}
-        iconDescription={t('editButton', 'Edit {{elementType}}', {
+        kind="ghost"
+        label={t('editButton', 'Edit {{elementType}}', {
           elementType: elementType,
         })}
         onClick={() => setEditing(true)}
-        renderIcon={(props) => <Edit size={16} {...props} />}
-        hasIconOnly
-      />
+        size="md"
+      >
+        <Edit />
+      </IconButton>
     </>
   );
 };

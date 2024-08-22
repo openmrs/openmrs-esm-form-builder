@@ -123,7 +123,7 @@ describe('Dashboard', () => {
     expect(screen.getByRole('button', { name: /edit schema/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /download schema/i })).toBeInTheDocument();
     expect(screen.getByRole('searchbox', { name: /filter table/i })).toBeInTheDocument();
-    expect(screen.queryByRole('table')).toBeInTheDocument();
+    expect(screen.getByRole('table')).toBeInTheDocument();
     expect(screen.getByText(formsResponse[0].name)).toBeInTheDocument();
   });
 

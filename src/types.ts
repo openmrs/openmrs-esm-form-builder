@@ -1,5 +1,5 @@
 import type { OpenmrsResource } from '@openmrs/esm-framework';
-import type { ProgramState, ReferencedForm, RenderType, RequiredFieldProps } from '@openmrs/openmrs-form-engine-lib';
+import type { ProgramState, ReferencedForm, RenderType, RequiredFieldProps } from '@openmrs/esm-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
 
 export interface Form {
@@ -50,6 +50,8 @@ export type QuestionType =
   | 'personAttribute'
   | 'testOrder'
   | 'programState';
+
+export type DatePickerType = 'both' | 'calendar' | 'timer';
 
 export interface Schema {
   name: string;
@@ -116,7 +118,7 @@ export interface Question {
   label: string;
   type: string;
   questionOptions: QuestionOptions;
-  datePickerFormat?: string;
+  datePickerFormat?: DatePickerType;
   questions?: Array<Question>;
   required?: string | boolean | RequiredFieldProps;
   validators?: Array<Record<string, string>>;
@@ -156,6 +158,7 @@ export interface Concept {
   uuid: string;
   display: string;
   mappings: Array<Mapping>;
+  datatype: OpenmrsResource;
   answers: Array<ConceptAnswer>;
   allowDecimal?: boolean;
 }
@@ -252,4 +255,10 @@ export interface ProgramWorkflow {
     display: string;
     uuid: string;
   };
+}
+
+export interface DatePickerTypeOption {
+  value: DatePickerType;
+  label: string;
+  defaultChecked: boolean;
 }
