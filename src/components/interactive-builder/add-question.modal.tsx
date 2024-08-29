@@ -219,6 +219,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           datePickerType && { datePickerFormat: datePickerType }),
         questionOptions: {
           rendering: renderingType,
+          ...(min && { min }),
+          ...(max && { max }),
           ...(selectedConcept && { concept: selectedConcept?.uuid }),
           ...(conceptMappings.length && { conceptMappings }),
           ...(selectedAnswers.length && {
@@ -484,6 +486,12 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                         id="min"
                         labelText="Min"
                         value={min || ''}
+                        invalid={parseInt(min) > parseInt(max)}
+                        invalidText={
+                          parseInt(min) > parseInt(max)
+                            ? t('invalidMinMax', 'Min value cannot be greater than max')
+                            : ''
+                        }
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => setMin(event.target.value)}
                         required
                       />
@@ -491,6 +499,12 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                         id="max"
                         labelText="Max"
                         value={max || ''}
+                        invalid={parseInt(min) > parseInt(max)}
+                        invalidText={
+                          parseInt(min) > parseInt(max)
+                            ? t('invalidMinMax', 'Min value cannot be greater than max')
+                            : ''
+                        }
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => setMax(event.target.value)}
                         required
                       />

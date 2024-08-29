@@ -111,6 +111,7 @@
   "inputDummySchema": "Input dummy schema",
   "interactiveBuilder": "Interactive Builder",
   "interactiveBuilderHelperText": "The Interactive Builder lets you build your form schema without writing JSON code. The Preview tab automatically updates as you build your form. When done, click Save Form to save your form.",
+  "invalidMinMax": "Min value cannot be greater than max",
   "invalidVersionWarning": "Version can only start with with a number",
   "isQuestionRequiredOrOptional": "Is this question a required or optional field? Required fields must be answered before the form can be submitted.",
   "labelTrue": "Label true",
