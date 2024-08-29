@@ -1,6 +1,6 @@
 {
   "name": "@openmrs/esm-form-builder-app",
-  "version": "2.6.0",
+  "version": "2.7.0",
   "license": "MPL-2.0",
   "description": "Form Builder for O3",
   "browser": "dist/openmrs-esm-form-builder-app.js",
@@ -20,7 +20,7 @@
     "coverage": "yarn test --coverage --passWithNoTests",
     "postinstall": "husky install",
     "extract-translations": "i18next 'src/**/*.component.tsx' 'src/**/*.modal.tsx' --config ./i18next-parser.config.js",
-    "ci:bump-form-engine-lib": "yarn up @openmrs/openmrs-form-engine-lib@next"
+    "ci:bump-form-engine-lib": "yarn up @openmrs/esm-form-engine-lib@next"
   },
   "files": [
     "dist",
@@ -47,8 +47,8 @@
   },
   "dependencies": {
     "@carbon/react": "^1.47.0",
-    "@openmrs/openmrs-form-engine-lib": "next",
-    "ajv": "^8.13.0",
+    "@openmrs/esm-form-engine-lib": "next",
+    "ajv": "^8.17.1",
     "dotenv": "^16.4.5",
     "file-loader": "^6.2.0",
     "fuzzy": "^0.1.3",
@@ -76,7 +76,7 @@
     "@swc/core": "^1.5.7",
     "@swc/jest": "^0.2.36",
     "@testing-library/dom": "^9.3.4",
-    "@testing-library/jest-dom": "^6.4.5",
+    "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^14.3.1",
     "@testing-library/user-event": "^14.5.2",
     "@types/jest": "^29.5.12",
@@ -117,5 +117,5 @@
     "*.{ts,tsx}": "eslint --cache --fix --max-warnings 0",
     "*.{css,scss,ts,tsx}": "prettier --write --list-different"
   },
-  "packageManager": "yarn@4.3.1"
+  "packageManager": "yarn@4.4.0"
 }

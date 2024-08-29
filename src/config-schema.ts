@@ -1,5 +1,5 @@
 import { Type } from '@openmrs/esm-framework';
-import { type RenderType } from '@openmrs/openmrs-form-engine-lib';
+import { type RenderType } from '@openmrs/esm-form-engine-lib';
 import { type QuestionType } from './types';
 
 export const configSchema = {
@@ -51,12 +51,28 @@ export const configSchema = {
     _type: Type.Object,
     _default: {
       Numeric: ['number', 'fixed-value'],
-      Coded: ['select', 'checkbox', 'radio', 'toggle', 'content-switcher', 'fixed-value'],
+      Coded: [
+        'select',
+        'checkbox',
+        'radio',
+        'content-switcher',
+        'fixed-value',
+        'markdown',
+        'ui-select-extended',
+        'drug',
+        'problem',
+        'encounter-provider',
+        'encounter-location',
+        'select-concept-answers',
+        'encounter-role',
+      ],
       Text: ['text', 'textarea', 'fixed-value'],
       Date: ['date', 'fixed-value'],
       Datetime: ['datetime', 'fixed-value'],
       Boolean: ['toggle', 'select', 'radio', 'content-switcher', 'fixed-value'],
       Rule: ['repeating', 'group'],
+      'N/A': [],
+      Complex: ['file'],
     },
   },
   enableFormValidation: {

@@ -140,7 +140,7 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
       <IconButton
         align="center"
         enterDelayMs={defaultEnterDelayInMs}
-        iconDescription={t('import', 'Import')}
+        label={t('import', 'Import')}
         kind="ghost"
         onClick={() => navigate({ to: `${window.spaBase}/form-builder/edit/${form.uuid}` })}
         size={responsiveSize}
