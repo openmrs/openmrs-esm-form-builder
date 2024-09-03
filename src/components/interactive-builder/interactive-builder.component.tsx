@@ -253,13 +253,20 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
       // Get the destination information
       const destination = over.id.toString().split('-');
+      const destinationPageIndex = parseInt(destination[2]);
+      const destinationSectionIndex = parseInt(destination[3]);
       const destinationQuestionIndex = parseInt(destination[4]);
 
-      // Move the question within the same section
-      const questions = schema.pages[sourcePageIndex].sections[sourceSectionIndex].questions;
-      const questionToMove = questions[sourceQuestionIndex];
-      questions.splice(sourceQuestionIndex, 1);
-      questions.splice(destinationQuestionIndex, 0, questionToMove);
+      // Move the question within or across sections
+      const sourceQuestions = schema.pages[sourcePageIndex].sections[sourceSectionIndex].questions;
+      const destinationQuestions =
+        sourcePageIndex === destinationPageIndex && sourceSectionIndex === destinationSectionIndex
+          ? sourceQuestions
+          : schema.pages[destinationPageIndex].sections[destinationSectionIndex].questions;
+
+      const questionToMove = sourceQuestions[sourceQuestionIndex];
+      sourceQuestions.splice(sourceQuestionIndex, 1);
+      destinationQuestions.splice(destinationQuestionIndex, 0, questionToMove);
 
       const updatedSchema = {
         ...schema,
@@ -271,7 +278,12 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                 if (sectionIndex === sourceSectionIndex) {
                   return {
                     ...section,
-                    questions: [...questions],
+                    questions: [...sourceQuestions],
+                  };
+                } else if (sectionIndex === destinationSectionIndex) {
+                  return {
+                    ...section,
+                    questions: [...destinationQuestions],
                   };
                 }
                 return section;
