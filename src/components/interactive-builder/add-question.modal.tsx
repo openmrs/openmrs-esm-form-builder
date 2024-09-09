@@ -132,6 +132,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     programWorkflow?.uuid,
   );
   const [programWorkflows, setProgramWorkflows] = useState<Array<ProgramWorkflow>>([]);
+  const [questionInfo, setQuestionInfo] = useState('');
 
   const renderTypeOptions = {
     control: ['text'],
@@ -215,6 +216,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         id: questionId ?? computedQuestionId,
         ...((renderingType === 'date' || renderingType === 'datetime') &&
           datePickerType && { datePickerFormat: datePickerType }),
+        ...(questionInfo && { questionInfo }),
         questionOptions: {
           rendering: renderingType,
           ...(selectedConcept && { concept: selectedConcept?.uuid }),
@@ -348,6 +350,16 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   'questionIdPlaceholder',
                   'Enter a unique ID e.g. "anaesthesiaType" for a question asking about the type of anaesthesia.',
                 )}
+                required
+              />
+
+              <TextInput
+                id="questionInfo"
+                labelText="Question Info"
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setQuestionInfo(event.target.value);
+                }}
+                placeholder="Provide tooltip information here for additional information"
                 required
               />
 

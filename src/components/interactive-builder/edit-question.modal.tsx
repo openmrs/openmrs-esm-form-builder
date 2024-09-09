@@ -104,6 +104,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const [max, setMax] = useState('');
   const [min, setMin] = useState('');
   const [questionId, setQuestionId] = useState('');
+  const [questionInfo, setQuestionInfo] = useState(questionToEdit.questionInfo ?? '');
   const [questionLabel, setQuestionLabel] = useState('');
   const [questionType, setQuestionType] = useState<QuestionType | null>(null);
   const [datePickerType, setDatePickerType] = useState<DatePickerType | null>(
@@ -275,6 +276,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           questionToEdit.questionOptions.rendering === 'datetime') && {
           datePickerFormat: datePickerType,
         }),
+        ...(questionInfo && { questionInfo }),
         questionOptions: {
           rendering: fieldType ? fieldType : questionToEdit.questionOptions.rendering,
           ...((selectedConcept || questionToEdit.questionOptions.concept) && {
@@ -387,6 +389,18 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               )}
               required
             />
+
+            <TextInput
+              id="questionInfo"
+              labelText="Question Info"
+              value={questionInfo}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                setQuestionInfo(event.target.value);
+              }}
+              placeholder="Provide tooltip information here for additional information"
+              required
+            />
+
             <RadioButtonGroup
               defaultSelected={/true/.test(questionToEdit?.required?.toString()) ? 'required' : 'optional'}
               name="isQuestionRequired"

@@ -117,6 +117,7 @@ export interface Question {
   id: string;
   label: string;
   type: string;
+  questionInfo?: string;
   questionOptions: QuestionOptions;
   datePickerFormat?: DatePickerType;
   questions?: Array<Question>;
