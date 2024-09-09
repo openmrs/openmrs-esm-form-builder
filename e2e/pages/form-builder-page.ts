@@ -5,6 +5,7 @@ import { expect } from '@playwright/test';
 export class FormBuilderPage {
   constructor(readonly page: Page) {}
 
+  readonly schemaEditorContent = () => this.page.locator('#schemaEditor div .ace_content');
   readonly createNewFormButton = () => this.page.getByRole('button', { name: /create a new form/i });
   readonly schemaInput = () => this.page.locator('.ace_text-input');
   readonly renderChangesButton = () => this.page.getByRole('button', { name: /render changes/i });
