@@ -62,8 +62,8 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           server-token: ${{ env.TURBO_TOKEN }}
 
-      - name: Build apps
-        run: yarn turbo run build --color --concurrency=5
+      - name: Build app
+        run: yarn turbo run build --color 
 
       - name: Run dev server
         run: bash e2e/support/github/run-e2e-docker-env.sh
@@ -72,15 +72,15 @@ jobs:
         run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:8080/openmrs/login.htm)" != "200" ]]; do sleep 10; done
 
       - name: Run E2E tests
-        run: yarn test-e2e
+        run: yarn playwright test
 
       - name: Stop dev server
         if: '!cancelled()'
         run: docker stop $(docker ps -a -q)
 
-      - name: Upload report
+      - name: Upload Report
         uses: actions/upload-artifact@v4
-        if: '!cancelled()'
+        if: always()
         with:
           name: playwright-report
           path: playwright-report/
