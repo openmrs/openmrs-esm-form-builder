@@ -132,6 +132,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     programWorkflow?.uuid,
   );
   const [programWorkflows, setProgramWorkflows] = useState<Array<ProgramWorkflow>>([]);
+  const [toggleLabelTrue, setToggleLabelTrue] = useState('');
+  const [toggleLabelFalse, setToggleLabelFalse] = useState('');
 
   const renderTypeOptions = {
     control: ['text'],
@@ -243,6 +245,12 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             })),
             programUuid: selectedProgram.uuid,
             workflowUuid: programWorkflow.uuid,
+          }),
+          ...(renderingType === 'toggle' && {
+            toggleOptions: {
+              labelTrue: toggleLabelTrue,
+              labelFalse: toggleLabelFalse,
+            },
           }),
         },
         validators: [],
@@ -495,6 +503,29 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                       onChange={(event: React.ChangeEvent<HTMLInputElement>) => setRows(event.target.value)}
                       required
                     />
+                  ) : renderingType === 'toggle' ? (
+                    <div>
+                      <TextInput
+                        id="lableTrue"
+                        labelText={t('Label true', 'Label true')}
+                        value={t(toggleLabelTrue || '')}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                          setToggleLabelTrue(event.target.value)
+                        }
+                        placeholder={t('On')}
+                        required
+                      />
+                      <TextInput
+                        id="lableFalse"
+                        labelText={t('Label false', 'Lable false')}
+                        value={t(toggleLabelFalse || '')}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                          setToggleLabelFalse(event.target.value)
+                        }
+                        placeholder={t('Off')}
+                        required
+                      />
+                    </div>
                   ) : null}
 
                   {renderingType !== 'ui-select-extended' && (
