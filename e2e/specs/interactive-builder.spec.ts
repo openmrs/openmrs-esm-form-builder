@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { FormBuilderPage } from '../pages';
 
-test('Create a form using the interactive builder', async ({ page }) => {
+test('Create a form using the interactive builder', async ({ page, context }) => {
   const formBuilderPage = new FormBuilderPage(page);
   const formDetails = {
     name: 'Covid-19 Screening',
@@ -17,7 +17,7 @@ test('Create a form using the interactive builder', async ({ page }) => {
                 label: 'Have you been ever been tested for COVID-19?',
                 type: 'obs',
                 required: true,
-                id: 'everTestedForCovid19?',
+                id: 'everTestedForCovid19',
                 questionOptions: {
                   rendering: 'radio',
                   concept: '89c5bc03-8ce2-40d8-a77d-20b5a62a1ca1',
@@ -146,7 +146,11 @@ test('Create a form using the interactive builder', async ({ page }) => {
   });
 
   await test.step('And then I set the question type to required', async () => {
-    await formBuilderPage.questionIdInput().fill(formDetails.pages[0].sections[0].questions[0].required.toString());
+    await formBuilderPage.page
+      .getByRole('group', { name: /Is this question a required/i })
+      .locator('span')
+      .nth(2)
+      .click();
   });
 
   await test.step('And then I set the question type to obs', async () => {
@@ -172,8 +176,10 @@ test('Create a form using the interactive builder', async ({ page }) => {
   await test.step('And then I click on `Save`', async () => {
     await formBuilderPage.saveQuestionButton().click();
     await expect(formBuilderPage.page.getByText(/new question created/i)).toBeVisible();
-    const jsonGotten = await formBuilderPage.schemaEditorContent().textContent();
-    console.log('json received ====', jsonGotten);
-    expect(JSON.parse(jsonGotten)).toEqual(formDetails);
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await formBuilderPage.page.getByRole('button', { name: /Copy schema/i }).click();
+    const handle = await page.evaluateHandle(() => navigator.clipboard.readText());
+    const clipboardContent = await handle.jsonValue();
+    expect(JSON.parse(clipboardContent)).toEqual(formDetails);
   });
 });
