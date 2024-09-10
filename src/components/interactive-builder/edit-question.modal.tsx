@@ -54,6 +54,7 @@ import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { usePrograms, useProgramWorkStates } from '../../hooks/useProgramStates';
 import { getDatePickerType } from './add-question.modal';
 import styles from './question-modal.scss';
+import { QUESTION_PROPS } from '../../const';
 
 interface EditQuestionModalProps {
   closeModal: () => void;
@@ -157,6 +158,13 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     date: [{ value: 'calendar', label: t('calendarOnly', 'Calendar only'), defaultChecked: false }],
     time: [{ value: 'timer', label: t('timerOnly', 'Timer only'), defaultChecked: false }],
   };
+
+  const [questionProps, setSelectedQuestionProps] = useState<
+    Array<{
+      id: string;
+      text: string;
+    }>
+  >([...(questionInfo && [{ id: 'questionInfo', text: 'Question Info' }])]);
 
   const debouncedSearch = useMemo(() => {
     return debounce((searchTerm: string) => setConceptToLookup(searchTerm), 500) as (searchTerm: string) => void;
@@ -387,17 +395,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                 'questionIdPlaceholder',
                 'Enter a unique ID e.g. "anaesthesiaType" for a question asking about the type of anaesthesia.',
               )}
-              required
-            />
-
-            <TextInput
-              id="questionInfo"
-              labelText="Question Info"
-              value={questionInfo}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                setQuestionInfo(event.target.value);
-              }}
-              placeholder={t('questionInfoPlaceholder', 'Provide tooltip information here for additional information')}
               required
             />
 
@@ -875,6 +872,51 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                       ))}
               </RadioButtonGroup>
             ) : null}
+
+            <MultiSelect
+              className={styles.multiSelect}
+              direction="top"
+              id="questionProps"
+              itemToString={(item: Item) => item.text}
+              items={QUESTION_PROPS}
+              selectedItems={questionProps}
+              onChange={({
+                selectedItems,
+              }: {
+                selectedItems: Array<{
+                  id: string;
+                  text: string;
+                }>;
+              }) => {
+                setSelectedQuestionProps(selectedItems.sort());
+                // Clear Props data that have been deselected here
+                QUESTION_PROPS.forEach((question) => {
+                  if (!selectedItems.some((selected) => selected.id === question.id)) {
+                    switch (question.id) {
+                      case 'questionInfo':
+                        setQuestionInfo('');
+                        break;
+                    }
+                  }
+                });
+              }}
+              size="md"
+              titleText={t('addQuestionProps', 'Add additional question props')}
+            />
+            {questionProps.some((question) => question.id === 'questionInfo') && (
+              <TextInput
+                id="questionInfo"
+                labelText="Question Info"
+                value={questionInfo}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  setQuestionInfo(event.target.value);
+                }}
+                placeholder={t(
+                  'questionInfoPlaceholder',
+                  'Provide tooltip information here for additional information',
+                )}
+              />
+            )}
           </Stack>
         </ModalBody>
         <ModalFooter>

@@ -48,6 +48,7 @@ import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { useProgramWorkStates, usePrograms } from '../../hooks/useProgramStates';
 import styles from './question-modal.scss';
+import { QUESTION_PROPS } from '../../const';
 
 interface AddQuestionModalProps {
   closeModal: () => void;
@@ -110,6 +111,12 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [questionLabel, setQuestionLabel] = useState('');
   const [questionType, setQuestionType] = useState<QuestionType | null>(null);
   const [rows, setRows] = useState('');
+  const [questionProps, setSelectedQuestionProps] = useState<
+    Array<{
+      id: string;
+      text: string;
+    }>
+  >([]);
   const [selectedAnswers, setSelectedAnswers] = useState<
     Array<{
       id: string;
@@ -314,26 +321,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         <ModalBody hasScrollingContent>
           <FormGroup legendText={''}>
             <Stack gap={5}>
-            <MultiSelect
-                className={styles.multiSelect}
-                direction="top"
-                id="addProps"
-                itemToString={(item: Item) => item.text}
-                items={answers.map((answer) => ({
-                  id: answer.concept,
-                  text: answer.label,
-                }))}
-                onChange={({
-                  selectedItems,
-                }: {
-                  selectedItems: Array<{
-                    id: string;
-                    text: string;
-                  }>;
-                }) => setSelectedAnswers(selectedItems.sort())}
-                size="md"
-                titleText={t('selectAnswersToDisplay', 'Select answers to display')}
-              />
               <TextInput
                 id="questionLabel"
                 labelText={<RequiredLabel isRequired={isQuestionRequired} text={t('questionLabel', 'Label')} t={t} />}
@@ -369,19 +356,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 placeholder={t(
                   'questionIdPlaceholder',
                   'Enter a unique ID e.g. "anaesthesiaType" for a question asking about the type of anaesthesia.',
-                )}
-                required
-              />
-
-              <TextInput
-                id="questionInfo"
-                labelText="Question Info"
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                  setQuestionInfo(event.target.value);
-                }}
-                placeholder={t(
-                  'questionInfoPlaceholder',
-                  'Provide tooltip information here for additional information',
                 )}
                 required
               />
@@ -839,6 +813,37 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                     </div>
                   )}
                 </Stack>
+              )}
+
+              <MultiSelect
+                className={styles.multiSelect}
+                direction="top"
+                id="questionProps"
+                itemToString={(item: Item) => item.text}
+                items={QUESTION_PROPS}
+                onChange={({
+                  selectedItems,
+                }: {
+                  selectedItems: Array<{
+                    id: string;
+                    text: string;
+                  }>;
+                }) => setSelectedQuestionProps(selectedItems.sort())}
+                size="md"
+                titleText={t('addQuestionProps', 'Add additional question props')}
+              />
+              {questionProps.some((question) => question.id === 'questionInfo') && (
+                <TextInput
+                  id="questionInfo"
+                  labelText="Question Info"
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    setQuestionInfo(event.target.value);
+                  }}
+                  placeholder={t(
+                    'questionInfoPlaceholder',
+                    'Provide tooltip information here for additional information',
+                  )}
+                />
               )}
             </Stack>
           </FormGroup>
