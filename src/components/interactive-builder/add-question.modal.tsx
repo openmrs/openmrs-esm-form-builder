@@ -314,6 +314,26 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         <ModalBody hasScrollingContent>
           <FormGroup legendText={''}>
             <Stack gap={5}>
+            <MultiSelect
+                className={styles.multiSelect}
+                direction="top"
+                id="addProps"
+                itemToString={(item: Item) => item.text}
+                items={answers.map((answer) => ({
+                  id: answer.concept,
+                  text: answer.label,
+                }))}
+                onChange={({
+                  selectedItems,
+                }: {
+                  selectedItems: Array<{
+                    id: string;
+                    text: string;
+                  }>;
+                }) => setSelectedAnswers(selectedItems.sort())}
+                size="md"
+                titleText={t('selectAnswersToDisplay', 'Select answers to display')}
+              />
               <TextInput
                 id="questionLabel"
                 labelText={<RequiredLabel isRequired={isQuestionRequired} text={t('questionLabel', 'Label')} t={t} />}
@@ -359,7 +379,10 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                   setQuestionInfo(event.target.value);
                 }}
-                placeholder="Provide tooltip information here for additional information"
+                placeholder={t(
+                  'questionInfoPlaceholder',
+                  'Provide tooltip information here for additional information',
+                )}
                 required
               />
 

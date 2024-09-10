@@ -397,7 +397,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 setQuestionInfo(event.target.value);
               }}
-              placeholder="Provide tooltip information here for additional information"
+              placeholder={t('questionInfoPlaceholder', 'Provide tooltip information here for additional information')}
               required
             />
 
