@@ -149,6 +149,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     questionToEdit?.questionOptions.concept &&
     questionToEdit?.questionOptions?.concept !== selectedConcept?.uuid;
   const [addInlineDate, setAddInlineDate] = useState(false);
+  const [toggleLabelTrue, setToggleLabelTrue] = useState('');
+  const [toggleLabelFalse, setToggleLabelFalse] = useState('');
 
   // Maps the data type of a concept to a date picker type.
   const datePickerTypeOptions: Record<string, Array<DatePickerTypeOption>> = {
@@ -300,6 +302,12 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
             : questionToEdit.questionOptions.attributeType,
           ...(selectedProgram && { programUuid: selectedProgram.uuid }),
           ...(programWorkflow && { workflowUuid: programWorkflow.uuid }),
+          ...(fieldType === 'toggle' && {
+            toggleOptions: {
+              labelTrue: toggleLabelTrue,
+              labelFalse: toggleLabelFalse,
+            },
+          }),
         },
       };
 
@@ -463,6 +471,25 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => setRows(event.target.value)}
                 required
               />
+            ) : fieldType === 'toggle' ? (
+              <div>
+                <TextInput
+                  id="lableTrue"
+                  labelText={t('Label true', 'Label true')}
+                  value={t(toggleLabelTrue || '')}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setToggleLabelTrue(event.target.value)}
+                  placeholder={t('On')}
+                  required
+                />
+                <TextInput
+                  id="lableFalse"
+                  labelText={t('Label false', 'Lable false')}
+                  value={t(toggleLabelFalse || '')}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setToggleLabelFalse(event.target.value)}
+                  placeholder={t('Off')}
+                  required
+                />
+              </div>
             ) : null}
 
             {questionToEdit.type === 'patientIdentifier' && (
