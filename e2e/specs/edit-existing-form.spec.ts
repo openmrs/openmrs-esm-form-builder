@@ -23,7 +23,7 @@ test('Editing an existing form', async ({ page }) => {
   });
 
   await test.step('And I click the `Edit` button on the form I need to edit', async () => {
-    await page.getByRole('row', { name: form.name }).getByLabel('Edit Schema').click();
+    await formBuilderPage.page.getByRole('row', { name: form.name }).getByLabel('Edit Schema').click();
   });
 
   await test.step('Then I click the `Save Form` button then the `Update existing version` button, and finally the `Save` button', async () => {
@@ -33,7 +33,7 @@ test('Editing an existing form', async ({ page }) => {
   });
 
   await test.step('Then I should see a success message', async () => {
-    await expect(page.getByText('Success!')).toBeVisible();
+    await expect(formBuilderPage.page.getByText('Success!')).toBeVisible();
   });
 });
 
