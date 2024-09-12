@@ -475,18 +475,18 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               <div>
                 <TextInput
                   id="lableTrue"
-                  labelText={t('Label true', 'Label true')}
+                  labelText={t('labelTrue', 'Label true')}
                   value={t(toggleLabelTrue || '')}
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) => setToggleLabelTrue(event.target.value)}
-                  placeholder={t('On')}
+                  placeholder={t('on', 'On')}
                   required
                 />
                 <TextInput
                   id="lableFalse"
-                  labelText={t('Label false', 'Lable false')}
+                  labelText={t('labelFalse', 'Label false')}
                   value={t(toggleLabelFalse || '')}
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) => setToggleLabelFalse(event.target.value)}
-                  placeholder={t('Off')}
+                  placeholder={t('off', 'Off')}
                   required
                 />
               </div>
