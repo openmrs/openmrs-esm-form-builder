@@ -149,8 +149,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     questionToEdit?.questionOptions.concept &&
     questionToEdit?.questionOptions?.concept !== selectedConcept?.uuid;
   const [addInlineDate, setAddInlineDate] = useState(false);
-  const [toggleLabelTrue, setToggleLabelTrue] = useState('');
-  const [toggleLabelFalse, setToggleLabelFalse] = useState('');
+  const [toggleLabelTrue, setToggleLabelTrue] = useState(questionToEdit?.questionOptions?.toggleOptions?.labelTrue);
+  const [toggleLabelFalse, setToggleLabelFalse] = useState(questionToEdit?.questionOptions?.toggleOptions?.labelFalse);
 
   // Maps the data type of a concept to a date picker type.
   const datePickerTypeOptions: Record<string, Array<DatePickerTypeOption>> = {
