@@ -48,6 +48,7 @@ import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { useProgramWorkStates, usePrograms } from '../../hooks/useProgramStates';
 import styles from './question-modal.scss';
+import { QUESTION_PROPS } from '../../const';
 
 interface AddQuestionModalProps {
   closeModal: () => void;
@@ -110,6 +111,12 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [questionLabel, setQuestionLabel] = useState('');
   const [questionType, setQuestionType] = useState<QuestionType | null>(null);
   const [rows, setRows] = useState('');
+  const [questionProps, setSelectedQuestionProps] = useState<
+    Array<{
+      id: string;
+      text: string;
+    }>
+  >([]);
   const [selectedAnswers, setSelectedAnswers] = useState<
     Array<{
       id: string;
@@ -132,6 +139,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     programWorkflow?.uuid,
   );
   const [programWorkflows, setProgramWorkflows] = useState<Array<ProgramWorkflow>>([]);
+  const [questionInfo, setQuestionInfo] = useState('');
 
   const renderTypeOptions = {
     control: ['text'],
@@ -215,6 +223,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         id: questionId ?? computedQuestionId,
         ...((renderingType === 'date' || renderingType === 'datetime') &&
           datePickerType && { datePickerFormat: datePickerType }),
+        ...(questionInfo && { questionInfo }),
         questionOptions: {
           rendering: renderingType,
           ...(selectedConcept && { concept: selectedConcept?.uuid }),
@@ -804,6 +813,37 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                     </div>
                   )}
                 </Stack>
+              )}
+
+              <MultiSelect
+                className={styles.multiSelect}
+                direction="top"
+                id="questionProps"
+                itemToString={(item: Item) => item.text}
+                items={QUESTION_PROPS}
+                onChange={({
+                  selectedItems,
+                }: {
+                  selectedItems: Array<{
+                    id: string;
+                    text: string;
+                  }>;
+                }) => setSelectedQuestionProps(selectedItems.sort())}
+                size="md"
+                titleText={t('addQuestionProps', 'Add additional question props')}
+              />
+              {questionProps.some((question) => question.id === 'questionInfo') && (
+                <TextInput
+                  id="questionInfo"
+                  labelText="Question Info"
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    setQuestionInfo(event.target.value);
+                  }}
+                  placeholder={t(
+                    'questionInfoPlaceholder',
+                    'Provide tooltip information here for additional information',
+                  )}
+                />
               )}
             </Stack>
           </FormGroup>
