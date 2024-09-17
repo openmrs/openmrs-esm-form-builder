@@ -29,28 +29,22 @@ jobs:
         with:
           node-version: 18
 
-<<<<<<< Updated upstream
-      - name: Cache dependencies
-        id: cache-dependencies
-=======
       - name: 💾 Cache dependencies
-        id: cache
->>>>>>> Stashed changes
+        id: cache-dependencies
         uses: actions/cache@v4
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
 
-<<<<<<< Updated upstream
-      - name: Install dependencies
+      - name: 📦 Install dependencies
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: yarn install --immutable
 
-      - name: Get installed Playwright version
+      - name: 🔍 Get installed Playwright version
         id: playwright-version
         run: echo "PLAYWRIGHT_VERSION=$(grep '@playwright/test@' yarn.lock | sed -n 's/.*npm:\([^":]*\).*/\1/p' | head -n 1)" >> $GITHUB_ENV
 
-      - name: Cache Playwright binaries
+      - name: 💾 Cache Playwright binaries
         id: playwright-cache
         uses: actions/cache@v4
         with:
@@ -58,14 +52,7 @@ jobs:
             ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
 
-      - name: Install Playwright Browsers
-=======
-      - name: 📦 Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: yarn install --immutable
-
       - name: 🎭 Install Playwright Browsers
->>>>>>> Stashed changes
         run: npx playwright install chromium --with-deps
         if: steps.playwright-cache.outputs.cache-hit != 'true'
 
@@ -100,13 +87,13 @@ jobs:
           retention-days: 30
           overwrite: true
 
-      - name: Capture Server Logs
+      - name: 📝 Capture Server Logs
         if: always()
         uses: jwalton/gh-docker-logs@v2
         with:
           dest: './logs'
 
-      - name: Upload Logs as Artifact
+      - name: 📦 Upload Logs as Artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:
