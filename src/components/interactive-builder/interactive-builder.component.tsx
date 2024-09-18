@@ -253,13 +253,20 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
       // Get the destination information
       const destination = over.id.toString().split('-');
+      const destinationPageIndex = parseInt(destination[2]);
+      const destinationSectionIndex = parseInt(destination[3]);
       const destinationQuestionIndex = parseInt(destination[4]);
 
-      // Move the question within the same section
-      const questions = schema.pages[sourcePageIndex].sections[sourceSectionIndex].questions;
-      const questionToMove = questions[sourceQuestionIndex];
-      questions.splice(sourceQuestionIndex, 1);
-      questions.splice(destinationQuestionIndex, 0, questionToMove);
+      // Move the question within or across sections
+      const sourceQuestions = schema.pages[sourcePageIndex].sections[sourceSectionIndex].questions;
+      const destinationQuestions =
+        sourcePageIndex === destinationPageIndex && sourceSectionIndex === destinationSectionIndex
+          ? sourceQuestions
+          : schema.pages[destinationPageIndex].sections[destinationSectionIndex].questions;
+
+      const questionToMove = sourceQuestions[sourceQuestionIndex];
+      sourceQuestions.splice(sourceQuestionIndex, 1);
+      destinationQuestions.splice(destinationQuestionIndex, 0, questionToMove);
 
       const updatedSchema = {
         ...schema,
@@ -271,7 +278,12 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                 if (sectionIndex === sourceSectionIndex) {
                   return {
                     ...section,
-                    questions: [...questions],
+                    questions: [...sourceQuestions],
+                  };
+                } else if (sectionIndex === destinationSectionIndex) {
+                  return {
+                    ...section,
+                    questions: [...destinationQuestions],
                   };
                 }
                 return section;
@@ -368,7 +380,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       >
         {schema?.pages?.length
           ? schema.pages.map((page, pageIndex) => (
-              <div className={styles.editableFieldsContainer}>
+              <div className={styles.editableFieldsContainer} key={pageIndex}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <div className={styles.editorContainer}>
                     <EditableValue
@@ -399,7 +411,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                   ) : null}
                   {page?.sections?.length ? (
                     page.sections?.map((section, sectionIndex) => (
-                      <Accordion>
+                      <Accordion key={sectionIndex}>
                         <AccordionItem title={section.label}>
                           <>
                             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -425,7 +437,10 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                               {section.questions?.length ? (
                                 section.questions.map((question, questionIndex) => {
                                   return (
-                                    <Droppable id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}>
+                                    <Droppable
+                                      id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
+                                      key={questionIndex}
+                                    >
                                       <DraggableQuestion
                                         handleDuplicateQuestion={duplicateQuestion}
                                         key={question.id}
@@ -445,9 +460,10 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                       {getAnswerErrors(question.questionOptions.answers)?.length ? (
                                         <div className={styles.answerErrors}>
                                           <div>Answer Errors</div>
-                                          {getAnswerErrors(question.questionOptions.answers)?.map((error) => (
+                                          {getAnswerErrors(question.questionOptions.answers)?.map((error, index) => (
                                             <div
                                               className={styles.validationErrorMessage}
+                                              key={index}
                                             >{`${error.field.label}: ${error.errorMessage}`}</div>
                                           ))}
                                         </div>
