@@ -380,7 +380,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       >
         {schema?.pages?.length
           ? schema.pages.map((page, pageIndex) => (
-              <div className={styles.editableFieldsContainer}>
+              <div className={styles.editableFieldsContainer} key={pageIndex}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <div className={styles.editorContainer}>
                     <EditableValue
@@ -411,7 +411,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                   ) : null}
                   {page?.sections?.length ? (
                     page.sections?.map((section, sectionIndex) => (
-                      <Accordion>
+                      <Accordion key={sectionIndex}>
                         <AccordionItem title={section.label}>
                           <>
                             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -437,7 +437,10 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                               {section.questions?.length ? (
                                 section.questions.map((question, questionIndex) => {
                                   return (
-                                    <Droppable id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}>
+                                    <Droppable
+                                      id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
+                                      key={questionIndex}
+                                    >
                                       <DraggableQuestion
                                         handleDuplicateQuestion={duplicateQuestion}
                                         key={question.id}
@@ -457,9 +460,10 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                       {getAnswerErrors(question.questionOptions.answers)?.length ? (
                                         <div className={styles.answerErrors}>
                                           <div>Answer Errors</div>
-                                          {getAnswerErrors(question.questionOptions.answers)?.map((error) => (
+                                          {getAnswerErrors(question.questionOptions.answers)?.map((error, index) => (
                                             <div
                                               className={styles.validationErrorMessage}
+                                              key={index}
                                             >{`${error.field.label}: ${error.errorMessage}`}</div>
                                           ))}
                                         </div>
