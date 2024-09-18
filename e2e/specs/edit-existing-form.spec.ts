@@ -26,9 +26,15 @@ test('Editing an existing form', async ({ page }) => {
     await formBuilderPage.page.getByRole('row', { name: form.name }).getByLabel('Edit Schema').click();
   });
 
-  await test.step('Then I click the `Save Form` button then the `Update existing version` button, and finally the `Save` button', async () => {
+  await test.step('Then I click the `Save Form` button', async () => {
     await formBuilderPage.saveFormButton().click();
+  });
+
+  await test.step('And then I click on the `Update existing version button`', async () => {
     await formBuilderPage.updateExistingFormButton().click();
+  });
+
+  await test.step('And then I click on the `Save` button', async () => {
     await formBuilderPage.formSaveButton().click();
   });
 

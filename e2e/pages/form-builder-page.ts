@@ -59,19 +59,6 @@ export class FormBuilderPage {
     await this.page.goto('form-builder');
   }
 
-  async saveForm() {
-    const formName = `A sample test form ${Math.floor(Math.random() * 10000)}`;
-
-    await this.saveFormButton().click();
-    await this.formNameInput().click();
-    await this.formNameInput().fill(formName);
-    await this.formVersionInput().click();
-    await this.formVersionInput().fill('1.0');
-    await this.formDescriptionInput().fill('This is a test form');
-    await this.formEncounterType().selectOption('Admission');
-    await this.formSaveButton().click();
-  }
-
   async searchForForm(formName: string) {
     await this.page.getByRole('searchbox').fill(formName);
   }

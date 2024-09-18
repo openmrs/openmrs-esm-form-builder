@@ -23,7 +23,29 @@ test('Create a form using a custom JSON schema', async ({ page }) => {
   });
 
   await test.step('Then I click the `Save Form` button', async () => {
-    await formBuilderPage.saveForm();
+    await formBuilderPage.saveFormButton().click();
+  });
+
+  await test.step('And then I fill in the form name', async () => {
+    await formBuilderPage.formNameInput().click();
+    await formBuilderPage.formNameInput().fill('A sample form');
+  });
+
+  await test.step('And then I fill in the version number', async () => {
+    await formBuilderPage.formVersionInput().click();
+    await formBuilderPage.formVersionInput().fill('1.0');
+  });
+
+  await test.step('And then I fill in the form description', async () => {
+    await formBuilderPage.formDescriptionInput().fill('This is a test form');
+  });
+
+  await test.step('And then I select the encounter type', async () => {
+    await formBuilderPage.formEncounterType().selectOption('Admission');
+  });
+
+  await test.step("And then I click on the 'Save' button", async () => {
+    await formBuilderPage.formSaveButton().click();
   });
 
   await test.step('And I should get a success message and be redirected to the edit page for the new form', async () => {

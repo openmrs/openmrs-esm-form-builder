@@ -1,5 +1,9 @@
-import { test, expect } from '@playwright/test';
+import { test } from '../core';
+import { expect } from '@playwright/test';
+import { deleteForm } from '../commands/form-operations';
 import { FormBuilderPage } from '../pages';
+
+let formUuid = '';
 
 test('Create a form using the interactive builder', async ({ page, context }) => {
   const formBuilderPage = new FormBuilderPage(page);
@@ -176,10 +180,54 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
   await test.step('And then I click on `Save`', async () => {
     await formBuilderPage.saveQuestionButton().click();
     await expect(formBuilderPage.page.getByText(/new question created/i)).toBeVisible();
+  });
+
+  await test.step('Then the JSON schema should have the question object', async () => {
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
     await formBuilderPage.page.getByRole('button', { name: /Copy schema/i }).click();
     const handle = await page.evaluateHandle(() => navigator.clipboard.readText());
     const clipboardContent = await handle.jsonValue();
     expect(JSON.parse(clipboardContent)).toEqual(formDetails);
   });
+
+  await test.step('Then I click the `Save Form` button', async () => {
+    await formBuilderPage.saveFormButton().click();
+  });
+
+  await test.step('And then I fill in the form name', async () => {
+    await formBuilderPage.formNameInput().click();
+    await formBuilderPage.formNameInput().fill('A sample form');
+  });
+
+  await test.step('And then I fill in the version number', async () => {
+    await formBuilderPage.formVersionInput().click();
+    await formBuilderPage.formVersionInput().fill('1.0');
+  });
+
+  await test.step('And then I fill in the form description', async () => {
+    await formBuilderPage.formDescriptionInput().fill('This is a test form');
+  });
+
+  await test.step('And then I select the encounter type', async () => {
+    await formBuilderPage.formEncounterType().selectOption('Admission');
+  });
+
+  await test.step("And then I click on the 'Save' button", async () => {
+    await formBuilderPage.formSaveButton().click();
+  });
+
+  await test.step('And I should get a success message and be redirected to the edit page for the new form', async () => {
+    // Checks whether the user has been redirected to the edit page
+    const editFormPageURLRegex = new RegExp('/edit/');
+    await expect(formBuilderPage.page.getByText('Form created')).toBeVisible();
+    await page.waitForURL(editFormPageURLRegex);
+    const editFormPageURL = page.url();
+    formUuid = editFormPageURL.split('/').slice(-1)[0];
+  });
+});
+
+test.afterEach(async ({ api }) => {
+  if (formUuid) {
+    await deleteForm(api, formUuid);
+  }
 });
