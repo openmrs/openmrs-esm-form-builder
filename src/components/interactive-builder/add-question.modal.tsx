@@ -506,7 +506,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   ) : renderingType === 'toggle' ? (
                     <div>
                       <TextInput
-                        id="lableTrue"
+                        id="labelTrue"
                         labelText={t('Label true', 'Label true')}
                         value={t(toggleLabelTrue || '')}
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
