@@ -516,7 +516,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                         required
                       />
                       <TextInput
-                        id="lableFalse"
+                        id="labelFalse"
                         labelText={t('labelFalse', 'Label false')}
                         value={t(toggleLabelFalse || '')}
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
