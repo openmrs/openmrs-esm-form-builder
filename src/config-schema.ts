@@ -39,6 +39,7 @@ export const configSchema = {
       'text',
       'textarea',
       'ui-select-extended',
+      'toggle',
     ],
   },
   showSchemaSaveWarning: {
