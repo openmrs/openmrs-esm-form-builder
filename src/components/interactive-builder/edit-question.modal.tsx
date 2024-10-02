@@ -9,6 +9,7 @@ import {
   FormLabel,
   InlineLoading,
   InlineNotification,
+  IconButton,
   Layer,
   ModalBody,
   ModalFooter,
@@ -25,13 +26,12 @@ import {
   TextInput,
   Tile,
 } from '@carbon/react';
-import { ArrowUpRight } from '@carbon/react/icons';
+import { ArrowUpRight, Add, TrashCan } from '@carbon/react/icons';
 import { showSnackbar, useConfig } from '@openmrs/esm-framework';
 import type { ProgramState, RenderType } from '@openmrs/esm-form-engine-lib';
 
 import type { ConfigObject } from '../../config-schema';
 import type {
-  DatePickerType,
   Concept,
   ConceptMapping,
   PatientIdentifierType,
@@ -41,7 +41,6 @@ import type {
   Question,
   QuestionType,
   Schema,
-  DatePickerTypeOption,
 } from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { useConceptName } from '../../hooks/useConceptName';
@@ -52,7 +51,6 @@ import { usePersonAttributeLookup } from '../../hooks/usePersonAttributeLookup';
 import { usePersonAttributeName } from '../../hooks/usePersonAttributeName';
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { usePrograms, useProgramWorkStates } from '../../hooks/useProgramStates';
-import { getDatePickerType } from './add-question.modal';
 import styles from './question-modal.scss';
 
 interface EditQuestionModalProps {
@@ -74,6 +72,14 @@ interface ProgramStateData {
   selectedItems: Array<ProgramState>;
 }
 
+const DatePickerType = {
+  both: 'both',
+  calendar: 'calendar',
+  timer: 'timer',
+} as const;
+
+type DatePickerTypeValue = (typeof DatePickerType)[keyof typeof DatePickerType];
+
 const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   closeModal,
   onSchemaChange,
@@ -85,8 +91,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { fieldTypes, questionTypes } = useConfig<ConfigObject>();
-
-  const [answersChanged, setAnswersChanged] = useState(false);
   const [answersFromConcept, setAnswersFromConcept] = useState<
     Array<{
       concept: string;
@@ -97,30 +101,45 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     questionToEdit.questionOptions.conceptMappings,
   );
   const [conceptToLookup, setConceptToLookup] = useState('');
+  const [conceptAnsToLookup, setConceptAnsToLookup] = useState('');
+  // const debouncedAnsConceptToLookup = useDebounce(conceptAnsToLookup);
   const [personAttributeTypeToLookup, setPersonAttributeTypeToLookup] = useState('');
   const [patientIdentifierTypeToLookup, setPatientIdentifierTypeToLookup] = useState('');
-  const [fieldType, setFieldType] = useState<RenderType | null>(questionToEdit.questionOptions.rendering);
+  const [fieldType, setFieldType] = useState<RenderType | null>(null);
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
-  const [max, setMax] = useState(questionToEdit.questionOptions.max ?? '');
-  const [min, setMin] = useState(questionToEdit.questionOptions.min ?? '');
+  const [max, setMax] = useState('');
+  const [min, setMin] = useState('');
+  const [addAnswer, setAnswer] = useState(false);
   const [questionId, setQuestionId] = useState('');
   const [questionLabel, setQuestionLabel] = useState('');
   const [questionType, setQuestionType] = useState<QuestionType | null>(null);
-  const [datePickerType, setDatePickerType] = useState<DatePickerType | null>(
-    questionToEdit.datePickerFormat ?? 'both',
-  );
   const [rows, setRows] = useState('');
+  const [selectedAnsConcept, setSelectedAnsConcept] = useState<Concept | null>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<
     Array<{
       id: string;
       text: string;
     }>
   >([]);
+  const [addedAnswers, setaddedAnswers] = useState<
+    Array<{
+      id: string;
+      text: string;
+    }>
+  >([]);
+  const {
+    concepts: ansConcepts,
+    conceptLookupError: conceptAnsLookupError,
+    isLoadingConcepts: isLoadingAnsConcepts,
+  } = useConceptLookup(conceptAnsToLookup);
   const [selectedConcept, setSelectedConcept] = useState<Concept | null>(null);
 
   const { concepts, isLoadingConcepts } = useConceptLookup(conceptToLookup);
   const { conceptName, conceptNameLookupError, isLoadingConceptName } = useConceptName(
     questionToEdit.questionOptions.concept,
+  );
+  const [datePickerFormat, setDatePickerFormat] = useState<(typeof DatePickerType)[DatePickerTypeValue]>(
+    DatePickerType.both,
   );
   const { patientIdentifierTypes } = usePatientIdentifierTypes();
   const { personAttributeTypes } = usePersonAttributeTypes();
@@ -144,20 +163,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   );
   const [programWorkflows, setProgramWorkflows] = useState<Array<ProgramWorkflow>>([]);
 
-  const hasConceptChanged =
-    selectedConcept &&
-    questionToEdit?.questionOptions.concept &&
-    questionToEdit?.questionOptions?.concept !== selectedConcept?.uuid;
+  const hasConceptChanged = selectedConcept && questionToEdit?.questionOptions?.concept !== selectedConcept?.uuid;
   const [addInlineDate, setAddInlineDate] = useState(false);
   const [toggleLabelTrue, setToggleLabelTrue] = useState(questionToEdit?.questionOptions?.toggleOptions?.labelTrue);
   const [toggleLabelFalse, setToggleLabelFalse] = useState(questionToEdit?.questionOptions?.toggleOptions?.labelFalse);
-
-  // Maps the data type of a concept to a date picker type.
-  const datePickerTypeOptions: Record<string, Array<DatePickerTypeOption>> = {
-    datetime: [{ value: 'both', label: t('calendarAndTimer', 'Calendar and timer'), defaultChecked: true }],
-    date: [{ value: 'calendar', label: t('calendarOnly', 'Calendar only'), defaultChecked: false }],
-    time: [{ value: 'timer', label: t('timerOnly', 'Timer only'), defaultChecked: false }],
-  };
 
   const debouncedSearch = useMemo(() => {
     return debounce((searchTerm: string) => setConceptToLookup(searchTerm), 500) as (searchTerm: string) => void;
@@ -168,6 +177,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       debouncedSearch(searchTerm);
     }
   };
+  const handleAnsConceptChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setConceptAnsToLookup(event.target.value);
 
   const handleIdentifierTypeSelect = (identifierType: PatientIdentifierType) => {
     setPatientIdentifierTypeToLookup('');
@@ -180,10 +191,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   };
 
   const handleConceptSelect = (concept: Concept) => {
-    const datePickerType = getDatePickerType(concept);
-    if (datePickerType) {
-      setDatePickerType(datePickerType);
-    }
     setConceptToLookup('');
     setSelectedAnswers([]);
     setSelectedConcept(concept);
@@ -204,7 +211,27 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       })) ?? [],
     );
   };
+  const clearAnsConcept = () => {
+    setaddedAnswers([]);
+  };
+  const handleSaveClick = () => {
+    setSelectedAnswers((prevAnswers) => [...prevAnswers, ...addedAnswers]);
+    setaddedAnswers([]);
+  };
 
+  const handleConceptAnsSelect = (concept: Concept) => {
+    setConceptAnsToLookup('');
+    setSelectedAnsConcept(concept);
+    const newAnswer = { id: concept.uuid, text: concept.display };
+    setaddedAnswers((prevAnswers) => [...prevAnswers, newAnswer]);
+  };
+  const showAddQuestion = () => {
+    if (!addAnswer) {
+      setAnswer(true);
+      return;
+    }
+    setAnswer(false);
+  };
   const questionIdExists = (idToTest: string) => {
     if (questionToEdit?.id === idToTest) {
       return false;
@@ -258,7 +285,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     } else {
       if (questionToEdit.type === 'programState') {
         mappedAnswers = selectedProgramState.map((answer) => ({
-          value: answer.uuid,
+          value: answer.concept.uuid,
           label: answer.concept.display,
         }));
       } else {
@@ -272,10 +299,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
         type: questionType ? questionType : questionToEdit.type,
         required: isQuestionRequired ? isQuestionRequired : /true/.test(questionToEdit?.required?.toString()),
         id: questionId ? questionId : questionToEdit.id,
-        ...(((fieldType && (fieldType === 'date' || fieldType === 'datetime')) ||
-          questionToEdit.questionOptions.rendering === 'date' ||
-          questionToEdit.questionOptions.rendering === 'datetime') && {
-          datePickerFormat: datePickerType,
+        ...(datePickerFormat && {
+          datePickerFormat: datePickerFormat,
         }),
         questionOptions: {
           rendering: fieldType ? fieldType : questionToEdit.questionOptions.rendering,
@@ -363,14 +388,23 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 
   useEffect(() => {
     const previousStates = programWorkflow?.states.filter((state) =>
-      questionToEdit.questionOptions.answers.some((answer) => answer.value === state.uuid),
+      questionToEdit.questionOptions.answers.some((answer) => answer.value === state.concept.uuid),
     );
     setSelectedProgramState(previousStates);
   }, [programWorkflow, questionToEdit.questionOptions.answers]);
 
+  useEffect(() => {
+    if (questionToEdit?.questionOptions?.answers) {
+      const initialAnswers = questionToEdit.questionOptions.answers.map((answer) => ({
+        id: answer.concept,
+        text: answer.label,
+      }));
+      setSelectedAnswers(initialAnswers);
+    }
+  }, [questionToEdit]);
   return (
     <>
-      <ModalHeader className={styles.modalHeader} closeModal={closeModal} title={t('editQuestion', 'Edit question')} />
+      <ModalHeader closeModal={closeModal} title={t('editQuestion', 'Edit question')} />
       <Form className={styles.form} onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody hasScrollingContent>
           <Stack gap={5}>
@@ -500,6 +534,33 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                   required
                 />
               </div>
+            ) : null}
+
+            {questionToEdit.type === 'encounterDatetime' ? (
+              <RadioButtonGroup
+                defaultSelected={questionToEdit?.datePickerFormat}
+                name="datePickerFormat"
+                legendText={t('datePickerType', 'The type of date picker to show ')}
+              >
+                <RadioButton
+                  id="both"
+                  labelText={t('calendarAndTimer', 'Calendar and timer')}
+                  onClick={() => setDatePickerFormat(DatePickerType.both)}
+                  value="both"
+                />
+                <RadioButton
+                  id="calendar"
+                  labelText={t('calendarOnly', 'Calendar only')}
+                  onClick={() => setDatePickerFormat(DatePickerType.calendar)}
+                  value="calendar"
+                />
+                <RadioButton
+                  id="timer"
+                  labelText={t('timerOnly', 'Timer only')}
+                  onClick={() => setDatePickerFormat(DatePickerType.timer)}
+                  value="timer"
+                />
+              </RadioButtonGroup>
             ) : null}
 
             {questionToEdit.type === 'patientIdentifier' && (
@@ -674,10 +735,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                         <Search
                           defaultValue={conceptName}
                           id="conceptLookup"
-                          onClear={() => {
-                            setSelectedConcept(null);
-                            setDatePickerType('both');
-                          }}
+                          onClear={() => setSelectedConcept(null)}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             handleConceptChange(e.target.value?.trim())
                           }
@@ -768,21 +826,18 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                             text: string;
                           }>;
                         }) => {
-                          setAnswersChanged(true);
-                          setSelectedAnswers(selectedItems.sort());
+                          setSelectedAnswers(selectedItems);
+                          // (selectedItems.sort());
                         }}
                         size="md"
                         titleText={t('selectAnswersToDisplay', 'Select answers to display')}
                       />
                     ) : null}
-                    {!hasConceptChanged &&
-                    questionToEdit?.questionOptions?.answers?.length &&
-                    !answersChanged &&
-                    questionToEdit.type !== 'programState' ? (
+                    {selectedAnswers.length && questionToEdit.type !== 'programState' ? (
                       <div>
-                        {questionToEdit?.questionOptions?.answers?.map((answer) => (
-                          <Tag className={styles.tag} key={answer?.concept} type={'blue'}>
-                            {answer?.label}
+                        {selectedAnswers?.map((answer) => (
+                          <Tag className={styles.tag} key={answer?.id} type={'blue'}>
+                            {answer?.text}
                           </Tag>
                         ))}
                       </div>
@@ -809,15 +864,128 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                         titleText={t('selectAnswersToDisplay', 'Select answers to display')}
                       />
                     ) : null}
-                    {(hasConceptChanged ?? answersChanged) && (
+
+                    {/* start of mee */}
+
+                    {(selectedConcept || questionToEdit) && questionToEdit?.questionOptions.answers?.length ? (
                       <div>
-                        {selectedAnswers.map((selectedAnswer) => (
-                          <Tag className={styles.tag} key={selectedAnswer.id} type={'blue'}>
-                            {selectedAnswer.text}
-                          </Tag>
-                        ))}
+                        <Button kind="tertiary" onClick={showAddQuestion} iconDescription="Add" size="sm">
+                          More Answers
+                        </Button>
                       </div>
-                    )}
+                    ) : null}
+
+                    {addAnswer ? (
+                      <div className={styles.conceptAnswer}>
+                        <div>
+                          <FormLabel className={styles.label}>
+                            {t('searchForAnswerConcept', 'Search for an answer Concept to Add')}
+                          </FormLabel>
+                          {conceptAnsLookupError ? (
+                            <InlineNotification
+                              kind="error"
+                              lowContrast
+                              className={styles.error}
+                              title={t('errorFetchingConcepts', 'Error fetching concepts')}
+                              subtitle={t('pleaseTryAgain', 'Please try again.')}
+                            />
+                          ) : null}
+                          <Search
+                            id="conceptAnsLookup"
+                            onClear={() => {
+                              setSelectedAnsConcept(null);
+                            }}
+                            onChange={handleAnsConceptChange}
+                            placeholder={t('searchConcept', 'Search using a concept name or UUID')}
+                            required
+                            size="md"
+                            value={(() => {
+                              if (conceptAnsToLookup) {
+                                return conceptAnsToLookup;
+                              }
+                              if (selectedAnsConcept) {
+                                return selectedAnsConcept.display;
+                              }
+                              return '';
+                            })()}
+                          />
+                          {addedAnswers.length > 0 ? (
+                            <div>
+                              {addedAnswers.map((answer) => (
+                                <Tag className={styles.tag} key={answer.id} type={'blue'}>
+                                  {answer.text}
+                                </Tag>
+                              ))}
+                            </div>
+                          ) : null}
+
+                          {(() => {
+                            if (!conceptAnsToLookup) return null;
+                            if (isLoadingAnsConcepts)
+                              return (
+                                <InlineLoading
+                                  className={styles.loader}
+                                  description={t('searching', 'Searching') + '...'}
+                                />
+                              );
+                            if (ansConcepts?.length && !isLoadingAnsConcepts) {
+                              return (
+                                <ul className={styles.conceptList}>
+                                  {ansConcepts?.map((concept, index) => (
+                                    <li
+                                      role="menuitem"
+                                      className={styles.concept}
+                                      key={index}
+                                      onClick={() => handleConceptAnsSelect(concept)}
+                                    >
+                                      {concept.display}
+                                    </li>
+                                  ))}
+                                </ul>
+                              );
+                            }
+
+                            return (
+                              <Layer>
+                                <Tile className={styles.emptyResults}>
+                                  <span>
+                                    {t('noMatchingConcepts', 'No concepts were found that match')}{' '}
+                                    <strong>"{conceptAnsToLookup}".</strong>
+                                  </span>
+                                </Tile>
+
+                                <div className={styles.oclLauncherBanner}>
+                                  {
+                                    <p className={styles.bodyShort01}>
+                                      {t('conceptSearchHelpText', "Can't find a concept?")}
+                                    </p>
+                                  }
+                                  <a
+                                    className={styles.oclLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    href={'https://app.openconceptlab.org/'}
+                                  >
+                                    {t('searchInOCL', 'Search in OCL')}
+                                    <ArrowUpRight size={16} />
+                                  </a>
+                                </div>
+                              </Layer>
+                            );
+                          })()}
+                        </div>
+                        <div>
+                          <IconButton kind="primary" label="Add" size="sm" onClick={handleSaveClick}>
+                            <Add />
+                          </IconButton>
+                        </div>
+                        <div>
+                          <IconButton kind="danger--tertiary" label="Clear" size="sm" onClick={clearAnsConcept}>
+                            <TrashCan />
+                          </IconButton>
+                        </div>
+                      </div>
+                    ) : null}
                     <RadioButtonGroup
                       defaultSelected={
                         /true/.test(questionToEdit?.questionOptions?.showComment?.toString()) ? 'yes' : 'no'
@@ -866,38 +1034,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                   </Stack>
                 </>
               )}
-
-            {fieldType === 'date' || fieldType === 'datetime' ? (
-              <RadioButtonGroup
-                name="datePickerType"
-                legendText={t('datePickerType', 'The type of date picker to show')}
-              >
-                {/** Filters out the date picker types based on the selected concept's data type.
-                     If no concept is selected, all date picker types are shown.
-                */}
-                {selectedConcept && selectedConcept.datatype
-                  ? datePickerTypeOptions[selectedConcept.datatype.name.toLowerCase()].map((type) => (
-                      <RadioButton
-                        id={type.value}
-                        labelText={type.label}
-                        onClick={() => setDatePickerType(type.value)}
-                        checked={datePickerType === type.value}
-                        value={type.value}
-                      />
-                    ))
-                  : Object.values(datePickerTypeOptions)
-                      .flat()
-                      .map((type) => (
-                        <RadioButton
-                          id={type.value}
-                          checked={datePickerType === type.value}
-                          labelText={type.label}
-                          onClick={() => setDatePickerType(type.value)}
-                          value={type.value}
-                        />
-                      ))}
-              </RadioButtonGroup>
-            ) : null}
           </Stack>
         </ModalBody>
         <ModalFooter>

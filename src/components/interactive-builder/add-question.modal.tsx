@@ -9,6 +9,7 @@ import {
   FormLabel,
   InlineLoading,
   InlineNotification,
+  IconButton,
   Layer,
   ModalBody,
   ModalFooter,
@@ -25,7 +26,7 @@ import {
   TextInput,
   Tile,
 } from '@carbon/react';
-import { ArrowUpRight } from '@carbon/react/icons';
+import { ArrowUpRight, Add, TrashCan } from '@carbon/react/icons';
 import { showSnackbar, useConfig, useDebounce } from '@openmrs/esm-framework';
 import type { ProgramState, RenderType } from '@openmrs/esm-form-engine-lib';
 
@@ -100,12 +101,15 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [answers, setAnswers] = useState<Array<Answer>>([]);
   const [conceptMappings, setConceptMappings] = useState<Array<ConceptMapping>>([]);
   const [conceptToLookup, setConceptToLookup] = useState('');
+  const [conceptAnsToLookup, setConceptAnsToLookup] = useState('');
+  const debouncedAnsConceptToLookup = useDebounce(conceptAnsToLookup);
   const debouncedConceptToLookup = useDebounce(conceptToLookup);
   const [datePickerType, setDatePickerType] = useState<DatePickerType>('both');
   const [renderingType, setRenderingType] = useState<RenderType | null>(null);
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
   const [max, setMax] = useState('');
   const [min, setMin] = useState('');
+  const [addAnswer, setAnswer] = useState(false);
   const [questionId, setQuestionId] = useState('');
   const [questionLabel, setQuestionLabel] = useState('');
   const [questionType, setQuestionType] = useState<QuestionType | null>(null);
@@ -116,9 +120,18 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       text: string;
     }>
   >([]);
+  const [addedAnswers, setaddedAnswers] = useState<
+    Array<{
+      id: string;
+      text: string;
+    }>
+  >([]);
   const [selectedConcept, setSelectedConcept] = useState<Concept | null>(null);
+  const [selectedAnsConcept, setSelectedAnsConcept] = useState<Concept | null>(null);
   const [selectedPersonAttributeType, setSelectedPersonAttributeType] = useState<PersonAttributeType | null>(null);
   const { concepts, conceptLookupError, isLoadingConcepts } = useConceptLookup(debouncedConceptToLookup);
+  const { concepts: ansConcepts, conceptLookupError: conceptAnsLookupError, isLoadingConcepts: isLoadingAnsConcepts,
+  } = useConceptLookup(debouncedAnsConceptToLookup);
   const { personAttributeTypes, personAttributeTypeLookupError } = usePersonAttributeTypes();
   const [selectedPatientIdetifierType, setSelectedPatientIdetifierType] = useState<PatientIdentifierType>(null);
   const { patientIdentifierTypes, patientIdentifierTypeLookupError } = usePatientIdentifierTypes();
@@ -156,6 +169,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   };
 
   const handleConceptChange = (event: React.ChangeEvent<HTMLInputElement>) => setConceptToLookup(event.target.value);
+  const handleAnsConceptChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setConceptAnsToLookup(event.target.value);
 
   const handleConceptSelect = (concept: Concept) => {
     const updatedDatePickerType = getDatePickerType(concept);
@@ -179,7 +194,19 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       }),
     );
   };
-
+  const clearAnsConcept = () => {
+    setaddedAnswers([]);
+  };
+  const handleSaveClick = () => {
+    setSelectedAnswers((prevAnswers) => [...prevAnswers, ...addedAnswers]);
+    setaddedAnswers([]);
+  };
+  const handleConceptAnsSelect = (concept: Concept) => {
+    setConceptAnsToLookup('');
+    setSelectedAnsConcept(concept);
+    const newAnswer = { id: concept.uuid, text: concept.display };
+    setaddedAnswers((prevAnswers) => [...prevAnswers, newAnswer]);
+  };
   const handlePersonAttributeTypeChange = ({ selectedItem }: { selectedItem: PersonAttributeType }) => {
     setSelectedPersonAttributeType(selectedItem);
   };
@@ -301,6 +328,14 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     setQuestionId(camelCasedLabel);
   };
 
+  const showAddQuestion = () => {
+    if (!addAnswer) {
+      setAnswer(true);
+      return;
+    }
+    setAnswer(false);
+  };
+
   const handleProgramWorkflowChange = (selectedItem: ProgramWorkflow) => {
     setProgramWorkflow(selectedItem);
     void mutateProgramStates();
@@ -415,8 +450,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
                 {questionTypes.filter((questionType) => questionType !== 'obs').includes(questionType)
                   ? renderTypeOptions[questionType].map((type, key) => (
-                      <SelectItem key={`${questionType}-${key}`} text={type} value={type} />
-                    ))
+                    <SelectItem key={`${questionType}-${key}`} text={type} value={type} />
+                  ))
                   : fieldTypes.map((type, key) => <SelectItem key={key} text={type} value={type} />)}
               </Select>
 
@@ -698,6 +733,124 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                       ))}
                     </div>
                   ) : null}
+                  {selectedConcept && answers?.length ? (
+                    <div>
+                      <Button kind="tertiary" onClick={showAddQuestion} iconDescription="Add" size="sm">
+                        More Answers
+                      </Button>
+                    </div>
+                  ) : null}
+                  {addAnswer ? (
+                    <div className={styles.conceptAnswer}>
+                      <div>
+                        <FormLabel className={styles.label}>
+                          {t('searchForAnswerConcept', 'Search for an answer Concept to Add')}
+                        </FormLabel>
+                        {conceptAnsLookupError ? (
+                          <InlineNotification
+                            kind="error"
+                            lowContrast
+                            className={styles.error}
+                            title={t('errorFetchingConcepts', 'Error fetching concepts')}
+                            subtitle={t('pleaseTryAgain', 'Please try again.')}
+                          />
+                        ) : null}
+                        <Search
+                          id="conceptAnsLookup"
+                          onClear={() => {
+                            setSelectedAnsConcept(null);
+                          }}
+                          onChange={handleAnsConceptChange}
+                          placeholder={t('searchConcept', 'Search using a concept name or UUID')}
+                          required
+                          size="md"
+                          value={(() => {
+                            if (conceptAnsToLookup) {
+                              return conceptAnsToLookup;
+                            }
+                            if (selectedAnsConcept) {
+                              return selectedAnsConcept.display;
+                            }
+                            return '';
+                          })()}
+                        />
+                        {addedAnswers.length > 0 ? (
+                          <div>
+                            {addedAnswers.map((answer) => (
+                              <Tag className={styles.tag} key={answer.id} type={'blue'}>
+                                {answer.text}
+                              </Tag>
+                            ))}
+                          </div>
+                        ) : null}
+
+                        {(() => {
+                          if (!conceptAnsToLookup) return null;
+                          if (isLoadingAnsConcepts)
+                            return (
+                              <InlineLoading
+                                className={styles.loader}
+                                description={t('searching', 'Searching') + '...'}
+                              />
+                            );
+                          if (ansConcepts?.length && !isLoadingAnsConcepts) {
+                            return (
+                              <ul className={styles.conceptList}>
+                                {ansConcepts?.map((concept, index) => (
+                                  <li
+                                    role="menuitem"
+                                    className={styles.concept}
+                                    key={index}
+                                    onClick={() => handleConceptAnsSelect(concept)}
+                                  >
+                                    {concept.display}
+                                  </li>
+                                ))}
+                              </ul>
+                            );
+                          }
+
+                          return (
+                            <Layer>
+                              <Tile className={styles.emptyResults}>
+                                <span>
+                                  {t('noMatchingConcepts', 'No concepts were found that match')}{' '}
+                                  <strong>"{debouncedAnsConceptToLookup}".</strong>
+                                </span>
+                              </Tile>
+
+                              <div className={styles.oclLauncherBanner}>
+                                {
+                                  <p className={styles.bodyShort01}>
+                                    {t('conceptSearchHelpText', "Can't find a concept?")}
+                                  </p>
+                                }
+                                <a
+                                  className={styles.oclLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  href={'https://app.openconceptlab.org/'}
+                                >
+                                  {t('searchInOCL', 'Search in OCL')}
+                                  <ArrowUpRight size={16} />
+                                </a>
+                              </div>
+                            </Layer>
+                          );
+                        })()}
+                      </div>
+                      <div>
+                        <IconButton kind="primary" label="Add" size="sm" onClick={handleSaveClick}>
+                          <Add />
+                        </IconButton>
+                      </div>
+                      <div>
+                        <IconButton kind="danger--tertiary" label="Clear" size="sm" onClick={clearAnsConcept}>
+                          <TrashCan />
+                        </IconButton>
+                      </div>
+                    </div>
+                  ) : null}
 
                   <Stack gap={5}>
                     <RadioButtonGroup
@@ -755,25 +908,25 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   */}
                   {selectedConcept && selectedConcept.datatype
                     ? datePickerTypeOptions[selectedConcept.datatype.name.toLowerCase()].map((type) => (
+                      <RadioButton
+                        id={type.value}
+                        labelText={type.label}
+                        onClick={() => setDatePickerType(type.value)}
+                        checked={datePickerType === type.value}
+                        value={type.value}
+                      />
+                    ))
+                    : Object.values(datePickerTypeOptions)
+                      .flat()
+                      .map((type) => (
                         <RadioButton
                           id={type.value}
+                          checked={datePickerType === type.value}
                           labelText={type.label}
                           onClick={() => setDatePickerType(type.value)}
-                          checked={datePickerType === type.value}
                           value={type.value}
                         />
-                      ))
-                    : Object.values(datePickerTypeOptions)
-                        .flat()
-                        .map((type) => (
-                          <RadioButton
-                            id={type.value}
-                            checked={datePickerType === type.value}
-                            labelText={type.label}
-                            onClick={() => setDatePickerType(type.value)}
-                            value={type.value}
-                          />
-                        ))}
+                      ))}
                 </RadioButtonGroup>
               ) : null}
 
