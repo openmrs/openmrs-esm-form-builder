@@ -30,7 +30,8 @@ export const configSchema = {
       'field-set',
       'file',
       'group',
-      'multiCheckbox',
+      'checkbox',
+      'checkbox-searchable',
       'number',
       'problem',
       'radio',
@@ -55,6 +56,7 @@ export const configSchema = {
       Coded: [
         'select',
         'checkbox',
+        'checkbox-searchable',
         'radio',
         'content-switcher',
         'fixed-value',
