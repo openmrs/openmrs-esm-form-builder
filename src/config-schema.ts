@@ -40,6 +40,7 @@ export const configSchema = {
       'textarea',
       'ui-select-extended',
       'toggle',
+      'markdown',
     ],
   },
   showSchemaSaveWarning: {
