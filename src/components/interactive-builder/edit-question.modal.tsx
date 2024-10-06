@@ -151,6 +151,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const [addInlineDate, setAddInlineDate] = useState(false);
   const [toggleLabelTrue, setToggleLabelTrue] = useState('');
   const [toggleLabelFalse, setToggleLabelFalse] = useState('');
+  const [formMarkdown, setFormMarkdown] = useState([]);
 
   // Maps the data type of a concept to a date picker type.
   const datePickerTypeOptions: Record<string, Array<DatePickerTypeOption>> = {
@@ -309,6 +310,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
             },
           }),
         },
+        ...(fieldType === 'markdown' && {
+          value: formMarkdown,
+        }),
       };
 
       schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] = data;
@@ -633,6 +637,18 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                 )}
               </Stack>
             )}
+
+            {fieldType == 'markdown' ? (
+              <TextInput
+                id="questionMarkdown"
+                labelText={t('questionMarkdown', 'Markdown')}
+                placeholder={t('questionMarkdownPlaceholder', 'Enter the Markdown for your form...')}
+                value={formMarkdown}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                  setFormMarkdown(event.target.value.split(',').map((item) => item.trim()))
+                }
+              />
+            ) : null}
 
             {fieldType !== 'ui-select-extended' &&
               questionToEdit.type !== 'encounterDatetime' &&
