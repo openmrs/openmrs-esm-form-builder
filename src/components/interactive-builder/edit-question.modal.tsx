@@ -53,6 +53,7 @@ import { usePersonAttributeName } from '../../hooks/usePersonAttributeName';
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { usePrograms, useProgramWorkStates } from '../../hooks/useProgramStates';
 import { getDatePickerType } from './add-question.modal';
+import FormatableLabel from './formatable-label.component';
 import styles from './question-modal.scss';
 
 interface EditQuestionModalProps {
@@ -372,13 +373,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       <Form className={styles.form} onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody hasScrollingContent>
           <Stack gap={5}>
-            <TextInput
-              defaultValue={questionToEdit.label}
-              id={questionToEdit.id}
-              labelText={t('questionLabel', 'Label')}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setQuestionLabel(event.target.value)}
-              required
-            />
+            <FormatableLabel defaultValue={questionToEdit.label} handleOnChange={setQuestionLabel}/>
             <TextInput
               defaultValue={questionToEdit.id}
               id="questionId"

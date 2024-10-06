@@ -128,6 +128,17 @@
   margin-left: 0.125rem;
 }
 
+.text {
+  color: colors.$gray-70;
+  display: inline-block;
+  font-size: layout.$spacing-04;
+  font-weight: 400;
+  letter-spacing: 0.32px;
+  line-height: layout.$spacing-05;
+  margin-bottom: layout.$spacing-03;
+  vertical-align: baseline;
+}
+
 .modalHeader {
   :global {
     .cds--modal-close-button {
