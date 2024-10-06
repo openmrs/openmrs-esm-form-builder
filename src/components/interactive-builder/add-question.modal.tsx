@@ -134,6 +134,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [programWorkflows, setProgramWorkflows] = useState<Array<ProgramWorkflow>>([]);
   const [toggleLabelTrue, setToggleLabelTrue] = useState('');
   const [toggleLabelFalse, setToggleLabelFalse] = useState('');
+  const [formMarkdown, setFormMarkdown] = useState([]);
 
   const renderTypeOptions = {
     control: ['text'],
@@ -253,6 +254,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             },
           }),
         },
+        ...(renderingType === 'markdown' && {
+          value: formMarkdown,
+        }),
         validators: [],
       };
 
@@ -729,6 +733,19 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                     </RadioButtonGroup>
                   </Stack>
                 </>
+              ) : null}
+
+
+              {renderingType == 'markdown' ? (
+                <TextInput
+                  id="questionMarkdown"
+                  labelText={t('questionMarkdown', 'Markdown')}
+                  placeholder={t('questionMarkdownPlaceholder', 'Enter the Markdown for your form...')}
+                  value={formMarkdown}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                    setFormMarkdown(event.target.value.split(',').map((item) => item.trim()))
+                  }
+                />
               ) : null}
 
               {renderingType === 'date' || renderingType === 'datetime' ? (
