@@ -14,6 +14,7 @@ module.exports = {
     'lodash-es': 'lodash',
     '^dexie$': '<rootDir>/node_modules/dexie',
     '^react-i18next$': '<rootDir>/__mocks__/react-i18next.js',
+    '^uuid$': '<rootDir>/node_modules/uuid',
   },
   setupFilesAfterEnv: ['<rootDir>/src/setup-tests.ts'],
   testEnvironment: 'jsdom',

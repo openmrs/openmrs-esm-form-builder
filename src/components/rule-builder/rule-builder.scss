@@ -1,0 +1,155 @@
+@use '@carbon/colors';
+@use '@carbon/type';
+
+@keyframes fadeInDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.actionCondition {
+  width: 150px;
+}
+
+.actionField {
+  width: 270px;
+}
+.calculateField {
+  width: 270px;
+}
+
+.actionsContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}
+
+.conditionsContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-items: start;
+  align-items: stretch;
+  min-height: 0;
+  margin-left: 1rem;
+  border-left: 0.25rem solid  colors.$gray-20;
+  padding-left: 1rem;
+  margin-bottom: 30px;
+  animation: fadeInDown 0.25s ease-in-out;
+}
+
+.ruleHeaderContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.helpLink {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon{
+  width: 12px;
+  height: 12px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.layer {
+  height: 100%;
+
+  :global(.cds--overflow-menu) {
+    min-height: unset;
+  }
+}
+
+.logicalLabel {
+  margin: 0px 24px;
+}
+
+.logicalOperator {
+  width: 100px;
+}
+
+.menuItem {
+  max-width: none;
+}
+
+.overflowMenu {
+  &:hover {
+    background-color: hsla(0,0%,55%,.12) !important;
+  }
+}
+
+.ruleBuilder {
+  display: flex;
+  align-items: flex-start;
+}
+
+.ruleBuilderContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}
+
+.ruleDescriptor {
+  width: 100px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.ruleSetContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  column-gap: 0.5rem;
+}
+
+.sectionContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: space-between;
+  & > *:not(:last-child){
+    margin-right: 0.5rem;
+  }
+}
+
+.targetCondition {
+  width: 150px;
+}
+
+.targetField {
+  width: 150px;
+}
+
+.targetValue {
+  width: 100px;
+}
+
+.toggleContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+  margin-left: 1rem;
+  margin-bottom: 1rem;
+}

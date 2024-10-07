@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
-
+import customSchema from '../support/validation-custom-schema.json';
 export class FormBuilderPage {
   constructor(readonly page: Page) {}
 
@@ -55,6 +55,16 @@ export class FormBuilderPage {
   readonly questionCreatedMessage = () => this.page.getByText(/new question created/i);
   readonly saveQuestionButton = () => this.page.getByRole('button', { name: /^save$/i, exact: true });
 
+  readonly implementorTools = () => this.page.getByTestId('globalImplementerToolsButton').getByRole('button');
+  readonly featureFlags = () => this.page.getByRole('tab', { name: 'Feature flags' });
+  readonly validationRuleBuilder = () =>
+    this.page
+      .getByRole('row', { name: 'Validation Rule Builder' })
+      .getByRole('cell')
+      .nth(2)
+      .locator('.cds--toggle > .cds--toggle__label > .cds--toggle__appearance > .cds--toggle__switch');
+  readonly closeImplementorTools = () => this.page.getByRole('button', { name: 'Close', exact: true });
+
   async gotoFormBuilder() {
     await this.page.goto('form-builder');
   }
@@ -105,6 +115,15 @@ export class FormBuilderPage {
     await this.formSaveButton().click();
   }
 
+  async formBuilderSetupForRuleBuilder() {
+    await this.createNewFormButton().click();
+    await this.implementorTools().click();
+    await this.featureFlags().click();
+    await this.validationRuleBuilder().click();
+    await this.closeImplementorTools().click();
+    await this.schemaInput().fill(JSON.stringify(customSchema, null, 2));
+    await this.renderChangesButton().click();
+  }
   async searchForForm(formName: string) {
     await this.page.getByRole('searchbox').fill(formName);
   }

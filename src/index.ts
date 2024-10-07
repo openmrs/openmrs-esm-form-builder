@@ -1,4 +1,4 @@
-import { defineConfigSchema, getAsyncLifecycle } from '@openmrs/esm-framework';
+import { defineConfigSchema, getAsyncLifecycle, registerFeatureFlag } from '@openmrs/esm-framework';
 import { configSchema } from './config-schema';
 
 const moduleName = '@openmrs/esm-form-builder-app';
@@ -51,6 +51,16 @@ export const editQuestionModal = getAsyncLifecycle(
   options,
 );
 
+export const deleteConditionalLogicModal = getAsyncLifecycle(
+  () => import('./components/rule-builder/delete-conditional-logic.modal'),
+  options,
+);
+
+export const deleteConditionsOrActionsModal = getAsyncLifecycle(
+  () => import('./components/rule-builder/delete-conditions-or-actions.modal'),
+  options,
+);
+
 export const restoreDraftSchemaModal = getAsyncLifecycle(
   () => import('./components/form-editor/restore-draft-schema.modal'),
   options,
@@ -65,4 +75,10 @@ export const deleteFormModal = getAsyncLifecycle(() => import('./components/dash
 
 export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
+
+  registerFeatureFlag(
+    'validation-rule-builder',
+    'Validation Rule Builder',
+    'Adds a UI for dynamically adding custom form logic to form schemas in the O3 Form Builder without writing JSON code',
+  );
 }

@@ -2,6 +2,71 @@ import type { OpenmrsResource } from '@openmrs/esm-framework';
 import type { ProgramState, ReferencedForm, RenderType, RequiredFieldProps } from '@openmrs/esm-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
 
+export const ActionType = {
+  LOGICAL_OPERATOR: 'logicalOperator',
+  ACTION_CONDITION: 'actionCondition',
+  ACTION_FIELD: 'actionField',
+  CALCULATE_FIELD: 'calculateField',
+  ERROR_MESSAGE: 'errorMessage',
+} as const;
+
+export const ConditionType = {
+  TARGET_FIELD: 'targetField',
+  TARGET_CONDITION: 'targetCondition',
+  TARGET_VALUE: 'targetValue',
+  LOGICAL_OPERATOR: 'logicalOperator',
+  TARGET_VALUES: 'targetValues',
+} as const;
+
+export const LogicalOperatorType = {
+  AND: 'and',
+  OR: 'or',
+} as const;
+
+export const RenderingType = {
+  DATE: 'date',
+  NUMBER: 'number',
+} as const;
+
+export const RuleElementType = {
+  CONDITIONS: 'conditions',
+  ACTIONS: 'actions',
+} as const;
+
+export const TriggerType = {
+  HIDE: 'Hide',
+  HIDE_PAGE: 'Hide (page)',
+  HIDE_SECTION: 'Hide (section)',
+  FAIL: 'Fail',
+  DISABLE: 'Disable',
+  CALCULATE: 'Calculate',
+  HISTORY: 'Enable History of',
+} as const;
+
+type ActionType = (typeof ActionType)[keyof typeof ActionType];
+type ConditionType = (typeof ConditionType)[keyof typeof ConditionType];
+type LogicalOperatorType = (typeof LogicalOperatorType)[keyof typeof LogicalOperatorType];
+type RenderingType = (typeof RenderingType)[keyof typeof RenderingType];
+type RuleElementType = (typeof RuleElementType)[keyof typeof RuleElementType];
+type TriggerType = (typeof TriggerType)[keyof typeof TriggerType];
+
+export interface ComparisonOperators {
+  key: string;
+  defaultLabel: string;
+  type: string;
+}
+
+export interface CalculationFunctions {
+  key: string;
+  defaultLabel: string;
+  type: string;
+}
+
+export interface DisableProps {
+  disableWhenExpression?: string;
+  isDisabled?: boolean;
+}
+
 export interface Form {
   uuid: string;
   name: string;
@@ -51,6 +116,10 @@ export type QuestionType =
   | 'testOrder'
   | 'programState';
 
+export interface HideProps {
+  hideWhenExpression: string;
+}
+
 export type DatePickerType = 'both' | 'calendar' | 'timer';
 
 export interface Schema {
@@ -73,10 +142,19 @@ export interface Schema {
           max?: string;
           min?: string;
           conceptMappings?: Array<Record<string, string>>;
+          disallowDecimals?: boolean;
+          calculate?: {
+            calculateExpression: string;
+          };
         };
         validators?: Array<Record<string, string>>;
+        disable?: DisableProps;
+        hide?: HideProps;
+        historicalExpression?: string;
       }>;
+      hide?: HideProps;
     }>;
+    hide?: HideProps;
   }>;
   processor: string;
   uuid: string;
@@ -105,12 +183,14 @@ export interface SchemaContextType {
 export interface Page {
   label: string;
   sections: Array<Section>;
+  hide?: HideProps;
 }
 
 export interface Section {
   label: string;
   questions: Array<Question>;
   isExpanded: string | boolean;
+  hide?: HideProps;
 }
 
 export interface Question {
@@ -122,6 +202,8 @@ export interface Question {
   questions?: Array<Question>;
   required?: string | boolean | RequiredFieldProps;
   validators?: Array<Record<string, string>>;
+  disable?: DisableProps;
+  historicalExpression?: string;
 }
 
 export interface QuestionOptions {
@@ -135,6 +217,7 @@ export interface QuestionOptions {
   calculate?: {
     calculateExpression: string;
   };
+  disallowDecimals?: boolean;
   rows?: string;
   orderSettingUuid?: string;
   orderType?: string;
