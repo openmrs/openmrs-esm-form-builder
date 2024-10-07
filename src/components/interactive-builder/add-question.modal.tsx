@@ -291,7 +291,13 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   };
 
   const convertLabelToCamelCase = () => {
-    const camelCasedLabel = questionLabel
+    const extractTextFromHtml = (html: string) => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      return doc.body.textContent || "";
+    };
+
+    const camelCasedLabel = extractTextFromHtml(questionLabel)
       ?.toLowerCase()
       ?.replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
         return index === 0 ? word.toLowerCase() : word.toUpperCase();
