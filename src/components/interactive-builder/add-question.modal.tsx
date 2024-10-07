@@ -135,6 +135,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [toggleLabelTrue, setToggleLabelTrue] = useState('');
   const [toggleLabelFalse, setToggleLabelFalse] = useState('');
   const [formMarkdown, setFormMarkdown] = useState([]);
+  const [buttonLabel, setButtonLabel] = useState('');
+  const [workspaceName, setWorkspaceName] = useState('');
 
   const renderTypeOptions = {
     control: ['text'],
@@ -260,6 +262,10 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 concept: answer.uuid, // Assuming "uuid" holds the concept identifier
               })),
             }),
+          ...(renderingType === 'workspace-launcher' && {
+            buttonLabel: buttonLabel,
+            workSpaceName: workspaceName,
+          }),
         },
         ...(renderingType === 'markdown' && {
           value: formMarkdown,
@@ -752,6 +758,25 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                     setFormMarkdown(event.target.value.split(',').map((item) => item.trim()))
                   }
                 />
+              ) : null}
+
+              {renderingType == 'workspace-launcher' ? (
+                <div>
+                  <TextInput
+                    id="buttonLabel"
+                    labelText={t('buttonLabel', 'Button Label')}
+                    placeholder={t('buttonLabelPlaceholder', 'Enter the button label')}
+                    value={buttonLabel}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => setButtonLabel(event.target.value)}
+                  />
+                  <TextInput
+                    id="workspaceName"
+                    labelText={t('workspaceName', 'Workspace Label')}
+                    placeholder={t('workspaceNamePlaceholder', 'Enter the workspace label')}
+                    value={workspaceName}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => setWorkspaceName(event.target.value)}
+                  />
+                </div>
               ) : null}
 
               {renderingType === 'date' || renderingType === 'datetime' ? (

@@ -42,6 +42,7 @@ export const configSchema = {
       'toggle',
       'markdown',
       'content-switcher',
+      'workspace-launcher',
     ],
   },
   showSchemaSaveWarning: {
