@@ -309,7 +309,15 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               labelFalse: toggleLabelFalse,
             },
           }),
+          ...(fieldType === 'content-switcher' &&
+            selectedConcept && {
+              answers: selectedConcept.answers.map((answer) => ({
+                label: answer.display, // Assuming "display" holds the label text
+                concept: answer.uuid, // Assuming "uuid" holds the concept identifier
+              })),
+            }),
         },
+
         ...(fieldType === 'markdown' && {
           value: formMarkdown,
         }),

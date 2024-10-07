@@ -41,6 +41,7 @@ export const configSchema = {
       'ui-select-extended',
       'toggle',
       'markdown',
+      'content-switcher',
     ],
   },
   showSchemaSaveWarning: {

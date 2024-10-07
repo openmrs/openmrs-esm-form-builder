@@ -253,6 +253,13 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
               labelFalse: toggleLabelFalse,
             },
           }),
+          ...(renderingType === 'content-switcher' &&
+            selectedConcept && {
+              answers: selectedConcept.answers.map((answer) => ({
+                label: answer.display, // Assuming "display" holds the label text
+                concept: answer.uuid, // Assuming "uuid" holds the concept identifier
+              })),
+            }),
         },
         ...(renderingType === 'markdown' && {
           value: formMarkdown,
@@ -735,7 +742,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 </>
               ) : null}
 
-
               {renderingType == 'markdown' ? (
                 <TextInput
                   id="questionMarkdown"
@@ -754,8 +760,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   legendText={t('datePickerType', 'The type of date picker to show ')}
                 >
                   {/** Filters out the date picker types based on the selected concept's data type.
-                       If no concept is selected, all date picker types are shown.
-                  */}
+                   If no concept is selected, all date picker types are shown.
+                   */}
                   {selectedConcept && selectedConcept.datatype
                     ? datePickerTypeOptions[selectedConcept.datatype.name.toLowerCase()].map((type) => (
                         <RadioButton
