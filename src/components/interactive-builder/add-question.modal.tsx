@@ -61,6 +61,7 @@ interface AddQuestionModalProps {
 }
 
 interface Item {
+  id: string;
   text: string;
 }
 
@@ -130,7 +131,10 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [selectedAnsConcept, setSelectedAnsConcept] = useState<Concept | null>(null);
   const [selectedPersonAttributeType, setSelectedPersonAttributeType] = useState<PersonAttributeType | null>(null);
   const { concepts, conceptLookupError, isLoadingConcepts } = useConceptLookup(debouncedConceptToLookup);
-  const { concepts: ansConcepts, conceptLookupError: conceptAnsLookupError, isLoadingConcepts: isLoadingAnsConcepts,
+  const {
+    concepts: ansConcepts,
+    conceptLookupError: conceptAnsLookupError,
+    isLoadingConcepts: isLoadingAnsConcepts,
   } = useConceptLookup(debouncedAnsConceptToLookup);
   const { personAttributeTypes, personAttributeTypeLookupError } = usePersonAttributeTypes();
   const [selectedPatientIdetifierType, setSelectedPatientIdetifierType] = useState<PatientIdentifierType>(null);
@@ -175,6 +179,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const handleConceptSelect = (concept: Concept) => {
     const updatedDatePickerType = getDatePickerType(concept);
     if (updatedDatePickerType) setDatePickerType(updatedDatePickerType);
+    setAnswer(false);
     setConceptToLookup('');
     setSelectedConcept(concept);
     setAnswers(
@@ -198,9 +203,26 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     setaddedAnswers([]);
   };
   const handleSaveClick = () => {
-    setSelectedAnswers((prevAnswers) => [...prevAnswers, ...addedAnswers]);
+    setSelectedAnswers((prevAnswers) => {
+      const newAnswers = addedAnswers.filter(
+        (newAnswer) => !prevAnswers.some((prevAnswer) => prevAnswer.id === newAnswer.id),
+      );
+      const updatedAnswers = [...prevAnswers, ...newAnswers];
+
+      setAnswers((prevAnswers) => [
+        ...prevAnswers,
+        ...newAnswers.map((answer) => ({
+          concept: answer.id,
+          label: answer.text,
+        })),
+      ]);
+
+      return updatedAnswers;
+    });
+
     setaddedAnswers([]);
   };
+
   const handleConceptAnsSelect = (concept: Concept) => {
     setConceptAnsToLookup('');
     setSelectedAnsConcept(concept);
@@ -450,8 +472,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
                 {questionTypes.filter((questionType) => questionType !== 'obs').includes(questionType)
                   ? renderTypeOptions[questionType].map((type, key) => (
-                    <SelectItem key={`${questionType}-${key}`} text={type} value={type} />
-                  ))
+                      <SelectItem key={`${questionType}-${key}`} text={type} value={type} />
+                    ))
                   : fieldTypes.map((type, key) => <SelectItem key={key} text={type} value={type} />)}
               </Select>
 
@@ -711,14 +733,13 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                         id: answer.concept,
                         text: answer.label,
                       }))}
-                      onChange={({
-                        selectedItems,
-                      }: {
-                        selectedItems: Array<{
-                          id: string;
-                          text: string;
-                        }>;
-                      }) => setSelectedAnswers(selectedItems.sort())}
+                      selectedItems={selectedAnswers.map((answer) => ({
+                        id: answer.id,
+                        text: answer.text,
+                      }))}
+                      onChange={({ selectedItems }: { selectedItems: Array<{ id: string; text: string }> }) => {
+                        setSelectedAnswers(selectedItems);
+                      }}
                       size="md"
                       titleText={t('selectAnswersToDisplay', 'Select answers to display')}
                     />
@@ -908,25 +929,25 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   */}
                   {selectedConcept && selectedConcept.datatype
                     ? datePickerTypeOptions[selectedConcept.datatype.name.toLowerCase()].map((type) => (
-                      <RadioButton
-                        id={type.value}
-                        labelText={type.label}
-                        onClick={() => setDatePickerType(type.value)}
-                        checked={datePickerType === type.value}
-                        value={type.value}
-                      />
-                    ))
-                    : Object.values(datePickerTypeOptions)
-                      .flat()
-                      .map((type) => (
                         <RadioButton
                           id={type.value}
-                          checked={datePickerType === type.value}
                           labelText={type.label}
                           onClick={() => setDatePickerType(type.value)}
+                          checked={datePickerType === type.value}
                           value={type.value}
                         />
-                      ))}
+                      ))
+                    : Object.values(datePickerTypeOptions)
+                        .flat()
+                        .map((type) => (
+                          <RadioButton
+                            id={type.value}
+                            checked={datePickerType === type.value}
+                            labelText={type.label}
+                            onClick={() => setDatePickerType(type.value)}
+                            value={type.value}
+                          />
+                        ))}
                 </RadioButtonGroup>
               ) : null}
 

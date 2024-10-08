@@ -200,6 +200,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     if (datePickerType) {
       setDatePickerType(datePickerType);
     }
+    setAnswer(false);
     setConceptToLookup('');
     setSelectedAnswers([]);
     setSelectedConcept(concept);
@@ -223,8 +224,41 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const clearAnsConcept = () => {
     setaddedAnswers([]);
   };
+
   const handleSaveClick = () => {
-    setSelectedAnswers((prevAnswers) => [...prevAnswers, ...addedAnswers]);
+    const existingAnswers = questionToEdit?.questionOptions?.answers || [];
+
+    const updatedAnswers = [
+      ...existingAnswers,
+      ...addedAnswers
+        .filter((newAnswer) => !existingAnswers.some((prevAnswer) => prevAnswer.concept === newAnswer.id))
+        .map((answer) => ({
+          concept: answer.id,
+          label: answer.text,
+        })),
+    ];
+
+    if (questionToEdit?.questionOptions) {
+      questionToEdit.questionOptions.answers = updatedAnswers;
+    }
+    if (hasConceptChanged) {
+      setAnswersFromConcept((prevAnswers) => [
+        ...prevAnswers,
+        ...addedAnswers.map((answer) => ({
+          concept: answer.id,
+          label: answer.text,
+        })),
+      ]);
+    }
+
+    setSelectedAnswers((prevAnswers) => {
+      const combinedAnswers = [
+        ...prevAnswers,
+        ...addedAnswers.filter((newAnswer) => !prevAnswers.some((prevAnswer) => prevAnswer.id === newAnswer.id)),
+      ];
+      return combinedAnswers;
+    });
+
     setaddedAnswers([]);
   };
 
@@ -798,31 +832,23 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                         className={styles.multiSelect}
                         direction="top"
                         id="selectAnswers"
-                        itemToString={(item: Item) => item.text}
-                        initialSelectedItems={questionToEdit?.questionOptions?.answers?.map((answer) => ({
-                          id: answer.concept,
-                          text: answer.label,
+                        itemToString={(item: { id: string; text: string }) => item.text}
+                        selectedItems={selectedAnswers.map((answer) => ({
+                          id: answer.id,
+                          text: answer.text,
                         }))}
                         items={questionToEdit?.questionOptions?.answers?.map((answer) => ({
                           id: answer.concept,
                           text: answer.label ?? '',
                         }))}
-                        onChange={({
-                          selectedItems,
-                        }: {
-                          selectedItems: Array<{
-                            id: string;
-                            text: string;
-                          }>;
-                        }) => {
+                        onChange={({ selectedItems }: { selectedItems: Array<{ id: string; text: string }> }) => {
                           setSelectedAnswers(selectedItems);
-                          // (selectedItems.sort());
                         }}
                         size="md"
                         titleText={t('selectAnswersToDisplay', 'Select answers to display')}
                       />
                     ) : null}
-                    {selectedAnswers.length && questionToEdit.type !== 'programState' ? (
+                    {!hasConceptChanged && selectedAnswers.length && questionToEdit.type !== 'programState' ? (
                       <div>
                         {selectedAnswers?.map((answer) => (
                           <Tag className={styles.tag} key={answer?.id} type={'blue'}>
@@ -841,6 +867,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                           id: answer.concept,
                           text: answer.label,
                         }))}
+                        selectedItems={selectedAnswers.map((answer) => ({
+                          id: answer.id,
+                          text: answer.text,
+                        }))}
                         onChange={({
                           selectedItems,
                         }: {
@@ -852,6 +882,16 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                         size="md"
                         titleText={t('selectAnswersToDisplay', 'Select answers to display')}
                       />
+                    ) : null}
+
+                    {hasConceptChanged && selectedAnswers.length && questionToEdit.type !== 'programState' ? (
+                      <div>
+                        {selectedAnswers?.map((answer) => (
+                          <Tag className={styles.tag} key={answer?.id} type={'blue'}>
+                            {answer?.text}
+                          </Tag>
+                        ))}
+                      </div>
                     ) : null}
 
                     {(selectedConcept || questionToEdit) && questionToEdit?.questionOptions.answers?.length ? (
