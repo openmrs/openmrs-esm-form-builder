@@ -369,6 +369,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                 setValidationOn={setValidationOn}
                 stringifiedSchema={stringifiedSchema}
                 validationOn={validationOn}
+                invalidJsonErrorMessage={invalidJsonErrorMessage}
               />
             </div>
           </div>
