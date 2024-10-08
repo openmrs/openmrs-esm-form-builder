@@ -486,9 +486,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                         id="min"
                         labelText="Min"
                         value={min || ''}
-                        invalid={parseInt(min) > parseInt(max)}
+                        invalid={parseFloat(min) > parseFloat(max)}
                         invalidText={
-                          parseInt(min) > parseInt(max)
+                          parseFloat(min) > parseFloat(max)
                             ? t('invalidMinMax', 'Min value cannot be greater than max')
                             : ''
                         }
@@ -499,9 +499,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                         id="max"
                         labelText="Max"
                         value={max || ''}
-                        invalid={parseInt(min) > parseInt(max)}
+                        invalid={parseFloat(min) > parseFloat(max)}
                         invalidText={
-                          parseInt(min) > parseInt(max)
+                          parseFloat(min) > parseFloat(max)
                             ? t('invalidMinMax', 'Min value cannot be greater than max')
                             : ''
                         }
