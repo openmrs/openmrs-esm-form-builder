@@ -1,0 +1,193 @@
+@use '@carbon/colors';
+@use '@carbon/layout';
+@use '@carbon/type';
+
+.questionLabel {
+    display: flex;
+    flex-direction: column;
+    .label {
+        color: colors.$gray-70;
+        font-size: layout.$spacing-04;
+        font-weight: 400;
+        letter-spacing: 0.32px;
+        line-height: layout.$spacing-05;
+        margin-bottom: layout.$spacing-03;
+    }
+}
+
+.textEditor {
+    display: flex;
+    flex-direction: column;
+    min-width: 272px;
+    height: auto;
+    background-color: colors.$white;
+    border: 1px solid colors.$cool-gray-50;
+    box-sizing: border-box;
+    border-radius: layout.$spacing-01;
+    max-width: inherit;
+    overflow-wrap: break-word;
+    min-height: fit-content;
+}
+
+.editorMenuBar {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid colors.$cyan-10-hover;
+    align-items: center;
+    justify-content: space-between;
+    min-height: fit-content;
+    padding: layout.$spacing-02;
+
+    .editButtons {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        button {
+            flex-direction: row;
+            display: flex;
+            justify-items: flex-start;
+            height: layout.$spacing-07 !important;
+            border: none;
+            margin-right: layout.$spacing-02;
+            background-color: colors.$white;
+            cursor: pointer;
+            border-radius: layout.$spacing-02;
+            transition: background 0.1s ease-out 0s, box-shadow 0.15s cubic-bezier(0.47, 0.03, 0.49, 1.38) 0s;
+        }
+        button:hover {
+            background-color: colors.$warm-gray-20; 
+        }
+    }
+
+    :global(.cds--dropdown__wrapper) {
+        height: 30px;
+        margin-left: layout.$spacing-02;
+        :hover {
+            background-color: none;
+        }
+    
+        :global(.cds--dropdown) {
+            border-bottom: none;
+            width: auto;
+            height: 100%;
+            
+            :global(.cds--list-box__field) {
+                height: 100%;
+                border-radius: layout.$spacing-02;
+            }
+            :global(.cds--list-box__menu) {
+                background-color: colors.$gray-10;
+                color: colors.$black;
+                left: 4.5rem !important;
+                margin-top: layout.$spacing-02;
+                overflow: hidden;
+                max-width: calc(layout.$spacing-13 * 3);
+                min-width: calc(layout.$spacing-12 * 3);
+                min-height: fit-content;
+                max-height: calc(layout.$spacing-11 * 3);
+                > li {
+                    width: auto;
+                }
+            }
+        }
+    }
+}
+
+.dropdown {
+    border: none;
+    :global(.cds--list-box__menu-icon) {
+        border-bottom: colors.$white;
+    }
+    :global(.cds--list-box__field) {
+      width: fit-content;
+      overflow: hidden;
+    }
+}
+
+.dropdownItem {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    margin-left: 10px;
+
+    .shortCut {
+        background-color: colors.$blue-10-hover;
+        border-radius: layout.$spacing-02;
+        padding: layout.$spacing-02;
+        line-height: layout.$spacing-04;
+        font-size: layout.$spacing-04;
+        align-self: flex-end;
+        justify-self: flex-end;
+        margin-right: 0;
+        color: colors.$warm-gray-70;
+    }
+}
+
+.colorInput {
+    cursor: pointer;
+    border-radius: layout.$spacing-02;
+}
+
+.divider {
+    background: colors.$blue-20-hover;
+    width: 1px;
+    height: layout.$spacing-06;
+    display: inline-block;
+    margin: 0 layout.$spacing-03;
+    user-select: none;
+}
+
+:global(.cds--overflow-menu-options) {
+    z-index: 9999 !important;
+    min-width: 280px;
+    :global(.cds--overflow-menu-options__option) {
+        min-width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        white-space: nowrap;
+        :global(.cds--overflow-menu-options__btn) {
+            min-width: 100%;
+        }
+    }
+}
+
+:global(.cds--overflow-menu) {
+    min-height: layout.$spacing-04 !important;
+}
+
+.editorContent {
+    margin-left: 10px;
+    margin-right: 10px;
+    color: colors.$black;
+    :focus {
+        border: none;
+        outline: none;
+    }
+
+    :global(.ProseMirror) {
+        margin: layout.$spacing-03 0px layout.$spacing-03 layout.$spacing-02;
+        font-size: var(--cds-body-compact-01-font-size,.1rem) !important;
+        :global(.is-editor-empty::before) {
+            content: attr(data-placeholder);
+            color: colors.$gray-40;
+            float: left;
+            pointer-events: none;
+            height: 0;
+        }
+    }
+}
+
+p {
+    sup {
+        vertical-align: super;
+        font-size: smaller;
+    }
+    sub {
+        vertical-align: sub;
+        font-size: smaller;
+    }
+}

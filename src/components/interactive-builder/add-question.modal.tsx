@@ -47,6 +47,7 @@ import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { useProgramWorkStates, usePrograms } from '../../hooks/useProgramStates';
+import FormatableLabel from './formatable-label.component';
 import styles from './question-modal.scss';
 
 interface AddQuestionModalProps {
@@ -292,7 +293,13 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   };
 
   const convertLabelToCamelCase = () => {
-    const camelCasedLabel = questionLabel
+    const extractTextFromHtml = (html: string) => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      return doc.body.textContent || "";
+    };
+
+    const camelCasedLabel = extractTextFromHtml(questionLabel)
       ?.toLowerCase()
       ?.replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
         return index === 0 ? word.toLowerCase() : word.toUpperCase();
@@ -322,15 +329,12 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         <ModalBody hasScrollingContent>
           <FormGroup legendText={''}>
             <Stack gap={5}>
-              <TextInput
-                id="questionLabel"
-                labelText={<RequiredLabel isRequired={isQuestionRequired} text={t('questionLabel', 'Label')} t={t} />}
-                placeholder={t('labelPlaceholder', 'e.g. Type of Anaesthesia')}
-                value={questionLabel}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setQuestionLabel(event.target.value)}
-                required
+              <FormatableLabel
+                labelText={<RequiredLabel
+                isRequired={isQuestionRequired} 
+                text={t('questionLabel', 'Label')} t={t} />} 
+                handleOnChange={setQuestionLabel}
               />
-
               <TextInput
                 id="questionId"
                 invalid={questionIdExists(questionId)}
@@ -413,7 +417,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
               >
                 {!renderingType && <SelectItem text={t('chooseRenderingType', 'Choose a rendering type')} value="" />}
 
-                {questionTypes.filter((questionType) => questionType !== 'obs').includes(questionType)
+                {questionTypes.filter((questionType) => questionType !== 'obs').includes(questionType as Exclude<QuestionType, 'obs'>)
                   ? renderTypeOptions[questionType].map((type, key) => (
                       <SelectItem key={`${questionType}-${key}`} text={type} value={type} />
                     ))
@@ -878,7 +882,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 function RequiredLabel({ isRequired, text, t }: RequiredLabelProps) {
   return (
     <>
-      <span>{text}</span>
+      <span className={styles.text}>{text}</span>
       {isRequired && (
         <span title={t('required', 'Required')} className={styles.required}>
           *
