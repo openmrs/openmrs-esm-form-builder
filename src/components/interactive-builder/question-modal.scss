@@ -155,14 +155,10 @@
     }
   }
 }
-.conceptAnswer{
-  display: flex;
-  flex-direction: row;
-  gap: 3%; 
-  justify-content: center;
-  align-items: center;
-}
-.conceptAnswer > *:first-child {
-  margin-right: 0;
-  width:90%
+.conceptAnswerButton {
+  margin-left: 5px;
+  color: black;
+  background: none; 
+  border: none;     
+  padding: 0;      
 }
