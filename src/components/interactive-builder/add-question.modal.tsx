@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation, type TFunction } from 'react-i18next';
 import flattenDeep from 'lodash-es/flattenDeep';
 import {
@@ -9,7 +9,6 @@ import {
   FormLabel,
   InlineLoading,
   InlineNotification,
-  IconButton,
   Layer,
   ModalBody,
   ModalFooter,
@@ -26,7 +25,7 @@ import {
   TextInput,
   Tile,
 } from '@carbon/react';
-import { ArrowUpRight, Add, TrashCan } from '@carbon/react/icons';
+import { ArrowUpRight } from '@carbon/react/icons';
 import { showSnackbar, useConfig, useDebounce } from '@openmrs/esm-framework';
 import type { ProgramState, RenderType } from '@openmrs/esm-form-engine-lib';
 
@@ -61,10 +60,8 @@ interface AddQuestionModalProps {
 }
 
 interface Item {
-  id: string;
   text: string;
 }
-
 interface ProgramStateData {
   selectedItems: Array<ProgramState>;
 }
@@ -143,6 +140,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [addInlineDate, setAddInlineDate] = useState(false);
   const [selectedProgramState, setSelectedProgramState] = useState<Array<ProgramState>>([]);
   const [selectedProgram, setSelectedProgram] = useState<Program>(null);
+  const [isCreatingQuestion, setIsCreatingQuestion] = useState(false);
   const [programWorkflow, setProgramWorkflow] = useState<ProgramWorkflow>(null);
   const { programs, programsLookupError, isLoadingPrograms } = usePrograms();
   const { programStates, programStatesLookupError, isLoadingProgramStates, mutateProgramStates } = useProgramWorkStates(
@@ -199,28 +197,18 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       }),
     );
   };
-  const clearAnsConcept = () => {
-    setaddedAnswers([]);
+  const handleDeleteAnswer = (id) => {
+    setaddedAnswers((prevAnswers) => prevAnswers.filter((answer) => answer.id !== id));
   };
-  const handleSaveClick = () => {
-    setSelectedAnswers((prevAnswers) => {
-      const newAnswers = addedAnswers.filter(
-        (newAnswer) => !prevAnswers.some((prevAnswer) => prevAnswer.id === newAnswer.id),
-      );
-      const updatedAnswers = [...prevAnswers, ...newAnswers];
+  const handleSaveMoreAnswers = () => {
+    const newAnswers = addedAnswers.filter(
+      (newAnswer) => !selectedAnswers.some((prevAnswer) => prevAnswer.id === newAnswer.id),
+    );
 
-      setAnswers((prevAnswers) => [
-        ...prevAnswers,
-        ...newAnswers.map((answer) => ({
-          concept: answer.id,
-          label: answer.text,
-        })),
-      ]);
-
-      return updatedAnswers;
-    });
-
+    const updatedAnswers = [...selectedAnswers, ...newAnswers];
+    setSelectedAnswers(updatedAnswers);
     setaddedAnswers([]);
+    setIsCreatingQuestion(true);
   };
 
   const handleConceptAnsSelect = (concept: Concept) => {
@@ -250,11 +238,11 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   };
 
   const handleCreateQuestion = () => {
-    createQuestion();
+    handleSaveMoreAnswers();
     closeModal();
   };
 
-  const createQuestion = () => {
+  const createQuestion = useCallback(() => {
     try {
       const questionIndex = schema.pages[pageIndex]?.sections?.[sectionIndex]?.questions?.length ?? 0;
       const computedQuestionId = `question${questionIndex + 1}Section${sectionIndex + 1}Page-${pageIndex + 1}`;
@@ -338,7 +326,31 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         });
       }
     }
-  };
+  }, [
+    onSchemaChange,
+    t,
+    selectedProgram?.uuid,
+    schema,
+    pageIndex,
+    sectionIndex,
+    questionLabel,
+    questionType,
+    isQuestionRequired,
+    questionId,
+    renderingType,
+    datePickerType,
+    selectedConcept,
+    conceptMappings,
+    selectedAnswers,
+    addObsComment,
+    addInlineDate,
+    selectedPersonAttributeType,
+    selectedPatientIdetifierType,
+    selectedProgramState,
+    programWorkflow,
+    toggleLabelTrue,
+    toggleLabelFalse,
+  ]);
 
   const convertLabelToCamelCase = () => {
     const camelCasedLabel = questionLabel
@@ -367,6 +379,12 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     setSelectedProgram(selectedItem);
     setProgramWorkflows(selectedItem?.allWorkflows);
   };
+  useEffect(() => {
+    if (isCreatingQuestion) {
+      createQuestion();
+      setIsCreatingQuestion(false);
+    }
+  }, [isCreatingQuestion, createQuestion]);
 
   return (
     <>
@@ -733,18 +751,18 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                         id: answer.concept,
                         text: answer.label,
                       }))}
-                      selectedItems={selectedAnswers.map((answer) => ({
-                        id: answer.id,
-                        text: answer.text,
-                      }))}
-                      onChange={({ selectedItems }: { selectedItems: Array<{ id: string; text: string }> }) => {
-                        setSelectedAnswers(selectedItems);
-                      }}
+                      onChange={({
+                        selectedItems,
+                      }: {
+                        selectedItems: Array<{
+                          id: string;
+                          text: string;
+                        }>;
+                      }) => setSelectedAnswers(selectedItems.sort())}
                       size="md"
                       titleText={t('selectAnswersToDisplay', 'Select answers to display')}
                     />
                   ) : null}
-
                   {selectedAnswers.length ? (
                     <div>
                       {selectedAnswers.map((answer) => (
@@ -762,114 +780,108 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                     </div>
                   ) : null}
                   {addAnswer ? (
-                    <div className={styles.conceptAnswer}>
-                      <div>
-                        <FormLabel className={styles.label}>
-                          {t('searchForAnswerConcept', 'Search for an answer Concept to Add')}
-                        </FormLabel>
-                        {conceptAnsLookupError ? (
-                          <InlineNotification
-                            kind="error"
-                            lowContrast
-                            className={styles.error}
-                            title={t('errorFetchingConcepts', 'Error fetching concepts')}
-                            subtitle={t('pleaseTryAgain', 'Please try again.')}
-                          />
-                        ) : null}
-                        <Search
-                          id="conceptAnsLookup"
-                          onClear={() => {
-                            setSelectedAnsConcept(null);
-                          }}
-                          onChange={handleAnsConceptChange}
-                          placeholder={t('searchConcept', 'Search using a concept name or UUID')}
-                          required
-                          size="md"
-                          value={(() => {
-                            if (conceptAnsToLookup) {
-                              return conceptAnsToLookup;
-                            }
-                            if (selectedAnsConcept) {
-                              return selectedAnsConcept.display;
-                            }
-                            return '';
-                          })()}
+                    <div>
+                      <FormLabel className={styles.label}>
+                        {t('searchForAnswerConcept', 'Search for an answer Concept to Add')}
+                      </FormLabel>
+                      {conceptAnsLookupError ? (
+                        <InlineNotification
+                          kind="error"
+                          lowContrast
+                          className={styles.error}
+                          title={t('errorFetchingConcepts', 'Error fetching concepts')}
+                          subtitle={t('pleaseTryAgain', 'Please try again.')}
                         />
-                        {addedAnswers.length > 0 ? (
-                          <div>
-                            {addedAnswers.map((answer) => (
-                              <Tag className={styles.tag} key={answer.id} type={'blue'}>
-                                {answer.text}
-                              </Tag>
-                            ))}
-                          </div>
-                        ) : null}
-
-                        {(() => {
-                          if (!conceptAnsToLookup) return null;
-                          if (isLoadingAnsConcepts)
-                            return (
-                              <InlineLoading
-                                className={styles.loader}
-                                description={t('searching', 'Searching') + '...'}
-                              />
-                            );
-                          if (ansConcepts?.length && !isLoadingAnsConcepts) {
-                            return (
-                              <ul className={styles.conceptList}>
-                                {ansConcepts?.map((concept, index) => (
-                                  <li
-                                    role="menuitem"
-                                    className={styles.concept}
-                                    key={index}
-                                    onClick={() => handleConceptAnsSelect(concept)}
-                                  >
-                                    {concept.display}
-                                  </li>
-                                ))}
-                              </ul>
-                            );
+                      ) : null}
+                      <Search
+                        id="conceptAnsLookup"
+                        onClear={() => {
+                          setSelectedAnsConcept(null);
+                        }}
+                        onChange={handleAnsConceptChange}
+                        placeholder={t('searchConcept', 'Search using a concept name or UUID')}
+                        required
+                        size="md"
+                        value={(() => {
+                          if (conceptAnsToLookup) {
+                            return conceptAnsToLookup;
                           }
-
-                          return (
-                            <Layer>
-                              <Tile className={styles.emptyResults}>
-                                <span>
-                                  {t('noMatchingConcepts', 'No concepts were found that match')}{' '}
-                                  <strong>"{debouncedAnsConceptToLookup}".</strong>
-                                </span>
-                              </Tile>
-
-                              <div className={styles.oclLauncherBanner}>
-                                {
-                                  <p className={styles.bodyShort01}>
-                                    {t('conceptSearchHelpText', "Can't find a concept?")}
-                                  </p>
-                                }
-                                <a
-                                  className={styles.oclLink}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  href={'https://app.openconceptlab.org/'}
-                                >
-                                  {t('searchInOCL', 'Search in OCL')}
-                                  <ArrowUpRight size={16} />
-                                </a>
-                              </div>
-                            </Layer>
-                          );
+                          if (selectedAnsConcept) {
+                            return selectedAnsConcept.display;
+                          }
+                          return '';
                         })()}
-                      </div>
-                      <div>
-                        <IconButton kind="primary" label="Add" size="sm" onClick={handleSaveClick}>
-                          <Add />
-                        </IconButton>
-                      </div>
-                      <div>
-                        <IconButton kind="danger--tertiary" label="Clear" size="sm" onClick={clearAnsConcept}>
-                          <TrashCan />
-                        </IconButton>
-                      </div>
+                      />
+                      {addedAnswers.length > 0 ? (
+                        <div>
+                          {addedAnswers.map((answer) => (
+                            <Tag className={styles.tag} key={answer.id} type={'blue'}>
+                              {answer.text}
+                              <button
+                                className={styles.conceptAnswerButton}
+                                onClick={() => handleDeleteAnswer(answer.id)}
+                              >
+                                X
+                              </button>
+                            </Tag>
+                          ))}
+                        </div>
+                      ) : null}
+
+                      {(() => {
+                        if (!conceptAnsToLookup) return null;
+                        if (isLoadingAnsConcepts)
+                          return (
+                            <InlineLoading
+                              className={styles.loader}
+                              description={t('searching', 'Searching') + '...'}
+                            />
+                          );
+                        if (ansConcepts?.length && !isLoadingAnsConcepts) {
+                          return (
+                            <ul className={styles.conceptList}>
+                              {ansConcepts?.map((concept, index) => (
+                                <li
+                                  role="menuitem"
+                                  className={styles.concept}
+                                  key={index}
+                                  onClick={() => handleConceptAnsSelect(concept)}
+                                >
+                                  {concept.display}
+                                </li>
+                              ))}
+                            </ul>
+                          );
+                        }
+
+                        return (
+                          <Layer>
+                            <Tile className={styles.emptyResults}>
+                              <span>
+                                {t('noMatchingConcepts', 'No concepts were found that match')}{' '}
+                                <strong>"{debouncedAnsConceptToLookup}".</strong>
+                              </span>
+                            </Tile>
+
+                            <div className={styles.oclLauncherBanner}>
+                              {
+                                <p className={styles.bodyShort01}>
+                                  {t('conceptSearchHelpText', "Can't find a concept?")}
+                                </p>
+                              }
+                              <a
+                                className={styles.oclLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                href={'https://app.openconceptlab.org/'}
+                              >
+                                {t('searchInOCL', 'Search in OCL')}
+                                <ArrowUpRight size={16} />
+                              </a>
+                            </div>
+                          </Layer>
+                        );
+                      })()}
                     </div>
                   ) : null}
 
