@@ -18,7 +18,7 @@
 
 .dragContainer {
   display: flex;
-  height: 3rem;
+  min-height: 3rem;
   justify-content: space-between;
   align-items: center;
   width: 100%;

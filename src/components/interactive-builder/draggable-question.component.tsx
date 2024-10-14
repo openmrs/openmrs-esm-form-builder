@@ -1,4 +1,7 @@
 import React, { useCallback } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 import classNames from 'classnames';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
@@ -69,6 +72,18 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
     }
   }, [handleDuplicateQuestion, isDragging, question, pageIndex, sectionIndex]);
 
+  const MarkdownWrapper: React.FC<{ markdown: string | Array<string> }> = ({ markdown }) => {
+    return (
+      <ReactMarkdown
+        children={Array.isArray(markdown) ? markdown.join('\n') : markdown}
+        unwrapDisallowed={true}
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw]}
+        allowedElements={['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'strong', 'em', 'ul', 'ol', 'li', 'input', 'sup', 'sub', 'del']}
+      />
+    );
+  };
+
   return (
     <div
       className={classNames({
@@ -89,7 +104,9 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
             <Draggable />
           </IconButton>
         </div>
-        <p className={styles.questionLabel}>{question.label}</p>
+        <p className={styles.questionLabel}>
+          <MarkdownWrapper markdown={question.label || question.value} />
+        </p>
       </div>
       <div className={styles.buttonsContainer}>
         <CopyButton
