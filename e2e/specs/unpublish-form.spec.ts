@@ -23,7 +23,7 @@ test('Unpublish a form', async ({ page }) => {
   });
 
   await test.step('And I click on a form I need to unpublish', async () => {
-    await page
+    await formBuilderPage.page
       .getByRole('row', { name: form.name })
       .getByLabel(/edit schema/i)
       .click();
@@ -35,7 +35,7 @@ test('Unpublish a form', async ({ page }) => {
   });
 
   await test.step('Then I should see the form unpublished notification and the publish form button', async () => {
-    await expect(page.getByText('Form unpublished')).toBeVisible();
+    await expect(formBuilderPage.page.getByText('Form unpublished')).toBeVisible();
     await expect(formBuilderPage.publishFormButton()).toBeVisible();
   });
 });
