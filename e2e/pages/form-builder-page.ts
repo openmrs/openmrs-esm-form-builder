@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { Page } from '@playwright/test';
-import { expect } from '@playwright/test';
 
 export class FormBuilderPage {
   constructor(readonly page: Page) {}
 
+  readonly schemaEditorContent = () => this.page.locator('#schemaEditor div .ace_content');
   readonly createNewFormButton = () => this.page.getByRole('button', { name: /create a new form/i });
   readonly schemaInput = () => this.page.locator('.ace_text-input');
   readonly renderChangesButton = () => this.page.getByRole('button', { name: /render changes/i });
@@ -57,52 +57,6 @@ export class FormBuilderPage {
 
   async gotoFormBuilder() {
     await this.page.goto('form-builder');
-  }
-
-  async buildFormInteractively() {
-    await this.interactiveBuilderTab().click();
-    await this.startBuildingButton().click();
-    await this.interactiveFormNameInput().fill('Covid-19 Screening');
-    await this.interactiveFormDescriptionInput().fill('A test form for recording COVID-19 screening information');
-    await this.createFormButton().click();
-    await expect(this.page.getByText(/form created/i)).toBeVisible();
-
-    await this.addPageButton().click();
-    await this.pageNameInput().fill('Screening');
-    await this.savePageButton().click();
-    await expect(this.page.getByText(/new page created/i)).toBeVisible();
-
-    await this.addSectionButton().click();
-    await this.sectionNameInput().fill('Testing history');
-    await this.saveSectionButton().click();
-    await expect(this.page.getByText(/new section created/i)).toBeVisible();
-
-    await this.page.getByRole('button', { name: /^testing history$/i }).click();
-    await this.addQuestionButton().click();
-    await this.questionLabelInput().fill('Have you been ever been tested for COVID-19?');
-    await this.questionIdInput().fill('everTestedForCovid19');
-    await this.questionTypeDropdown().selectOption('obs');
-    await this.renderingTypeDropdown().selectOption('radio');
-    await this.conceptSearchInput().fill('Tested for COVID 19');
-    await this.conceptSearchInput().press('Enter');
-    await this.answer().click();
-    await this.selectAnswersDropdown().click();
-    await this.page.getByRole('option', { name: 'No' }).click();
-    await this.page.getByRole('option', { name: 'Yes' }).click();
-    await this.saveQuestionButton().click();
-  }
-
-  async saveForm() {
-    const formName = `A sample test form ${Math.floor(Math.random() * 10000)}`;
-
-    await this.saveFormButton().click();
-    await this.formNameInput().click();
-    await this.formNameInput().fill(formName);
-    await this.formVersionInput().click();
-    await this.formVersionInput().fill('1.0');
-    await this.formDescriptionInput().fill('This is a test form');
-    await this.formEncounterType().selectOption('Admission');
-    await this.formSaveButton().click();
   }
 
   async searchForForm(formName: string) {

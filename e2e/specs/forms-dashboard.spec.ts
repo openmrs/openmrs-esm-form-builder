@@ -20,20 +20,16 @@ test('Filter forms based on publish status', async ({ page }) => {
 
   // Test the filter functionality
   await test.step('Then I click the filter dropdown', async () => {
-    await page.getByText('Filter by:').click();
+    await formBuilderPage.page.getByRole('combobox', { name: /Filter by:/i }).click();
   });
 
-  await test.step('And I click the Unpublished option', async () => await page.getByText('Unpublished').click());
+  await test.step('And I click the Unpublished option', async () =>
+    await formBuilderPage.page.getByText(/Unpublished/i).click());
 
-  // Expect the publish status to be "No"
-  const tagElements = await page.$$('div[data-testid="no-tag"]');
-  const firstTagElement = tagElements[0];
-
-  // Get the inner text of the tag element
-  const innerText = await firstTagElement.innerText();
-  await test.step('Then the forms list should only show unpublished forms', () => {
-    expect(innerText).toBe('No');
-  });
+  // Expect the list of forms to not have any published forms
+  await expect(
+    formBuilderPage.page.getByRole('table').filter({ has: formBuilderPage.page.getByTestId(/yes-tag/i) }),
+  ).toHaveCount(0);
 });
 
 test('Search forms by name', async ({ page }) => {
@@ -65,7 +61,7 @@ test('Clicking on a form should navigate me to the editor', async ({ page }) => 
   });
 
   await test.step('And I click the `A sample test form` form', async () => {
-    await page.getByText('A sample test form').click();
+    await formBuilderPage.page.getByText('A sample test form').click();
   });
 
   await test.step('Then I should be navigated to the editor page', async () => {
