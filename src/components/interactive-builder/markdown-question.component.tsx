@@ -1,8 +1,6 @@
 import React from 'react';
-import ReactMde, { getDefaultToolbarCommands } from 'react-mde';
+import ReactMde from 'react-mde';
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
 import styles from './markdown-question.scss';
 
 interface MarkdownQuestionProps {
@@ -30,13 +28,13 @@ const MarkdownQuestion: React.FC<MarkdownQuestionProps> = ({ placeholder, onValu
         onChange={handleEditorChange}
         selectedTab={selectedTab}
         onTabChange={handleTabChange}
-        toolbarCommands={getDefaultToolbarCommands()}
+        toolbarCommands={[
+          ["bold", "italic"]
+        ]}
         generateMarkdownPreview={(markdown) =>
           Promise.resolve(
             <ReactMarkdown
               children={Array.isArray(markdown) ? markdown.join('\n') : markdown}
-              remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeRaw]}
             />
           )
         }
