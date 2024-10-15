@@ -6,12 +6,12 @@ import rehypeRaw from 'rehype-raw';
 import styles from './markdown-question.scss';
 
 interface MarkdownQuestionProps {
-  palceHolder?: string;
+  placeholder?: string;
   onValueChange: (value: string) => void;
 }
 
-const MarkdownQuestion: React.FC<MarkdownQuestionProps> = ({ palceHolder, onValueChange }) => {
-  const [value, setValue] = React.useState(palceHolder || "");
+const MarkdownQuestion: React.FC<MarkdownQuestionProps> = ({ placeholder, onValueChange }) => {
+  const [value, setValue] = React.useState(placeholder || "");
   const [selectedTab, setSelectedTab] = React.useState<"write" | "preview">("write");
 
   const handleEditorChange = (newValue: string) => {
@@ -35,8 +35,8 @@ const MarkdownQuestion: React.FC<MarkdownQuestionProps> = ({ palceHolder, onValu
           Promise.resolve(
             <ReactMarkdown
               children={Array.isArray(markdown) ? markdown.join('\n') : markdown}
-              remarkPlugins={[remarkGfm]} // Adds support for GFM features
-              rehypePlugins={[rehypeRaw]} // Allows HTML like <sub> and <sup>
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw]}
             />
           )
         }

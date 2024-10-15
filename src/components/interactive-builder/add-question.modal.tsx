@@ -323,25 +323,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         <ModalBody hasScrollingContent>
           <FormGroup legendText={''}>
             <Stack gap={5}>
-              <Select
-                value={renderingType}
-                onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
-                  setRenderingType(event.target.value as RenderType)
-                }
-                id="renderingType"
-                invalidText={t('validRenderingTypeRequired', 'A valid rendering type value is required')}
-                labelText={t('renderingType', 'Rendering type')}
-                required
-              >
-                {!renderingType && <SelectItem text={t('chooseRenderingType', 'Choose a rendering type')} value="" />}
-
-                {questionTypes.filter((questionType) => questionType !== 'obs').includes(questionType as Exclude<QuestionType, 'obs'>)
-                  ? renderTypeOptions[questionType].map((type, key) => (
-                      <SelectItem key={`${questionType}-${key}`} text={type} value={type} />
-                    ))
-                  : fieldTypes.map((type, key) => <SelectItem key={key} text={type} value={type} />)}
-              </Select>
-
               {renderingType === 'markdown' ? <MarkdownQuestion onValueChange={setQuestionValue}/> : (
                 <TextInput
                 id="questionLabel"
@@ -425,6 +406,25 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   </Select>
                 </>
               )}
+
+              <Select
+                value={renderingType}
+                onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+                  setRenderingType(event.target.value as RenderType)
+                }
+                id="renderingType"
+                invalidText={t('validRenderingTypeRequired', 'A valid rendering type value is required')}
+                labelText={t('renderingType', 'Rendering type')}
+                required
+              >
+                {!renderingType && <SelectItem text={t('chooseRenderingType', 'Choose a rendering type')} value="" />}
+
+                {questionTypes.filter((questionType) => questionType !== 'obs').includes(questionType as Exclude<QuestionType, 'obs'>)
+                  ? renderTypeOptions[questionType].map((type, key) => (
+                      <SelectItem key={`${questionType}-${key}`} text={type} value={type} />
+                    ))
+                  : fieldTypes.map((type, key) => <SelectItem key={key} text={type} value={type} />)}
+              </Select>
 
               {questionType === 'personAttribute' && (
                 <div>
@@ -859,7 +859,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             !renderingType ||
             (questionType === 'patientIdentifier' && !selectedPatientIdetifierType)) &&
             renderingType !== 'markdown') ||
-            !questionId
+            !questionId ||
+            !questionValue
           }
           onClick={handleCreateQuestion}
         >
