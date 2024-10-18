@@ -101,8 +101,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const [patientIdentifierTypeToLookup, setPatientIdentifierTypeToLookup] = useState('');
   const [fieldType, setFieldType] = useState<RenderType | null>(questionToEdit.questionOptions.rendering);
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
-  const [max, setMax] = useState('');
-  const [min, setMin] = useState('');
+  const [max, setMax] = useState(questionToEdit.questionOptions.max ?? '');
+  const [min, setMin] = useState(questionToEdit.questionOptions.min ?? '');
   const [questionId, setQuestionId] = useState('');
   const [questionLabel, setQuestionLabel] = useState('');
   const [questionType, setQuestionType] = useState<QuestionType | null>(null);
@@ -282,6 +282,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
         }),
         questionOptions: {
           rendering: fieldType ? fieldType : questionToEdit.questionOptions.rendering,
+          ...(min && { min }),
+          ...(max && { max }),
           ...((selectedConcept || questionToEdit.questionOptions.concept) && {
             concept: selectedConcept ? selectedConcept.uuid : questionToEdit.questionOptions.concept,
             conceptMappings: conceptMappings?.length ? conceptMappings : questionToEdit.questionOptions.conceptMappings,
@@ -470,6 +472,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                   id="min"
                   labelText="Min"
                   value={min || ''}
+                  invalid={parseFloat(min) > parseFloat(max)}
+                  invalidText={
+                    parseFloat(min) > parseFloat(max) ? t('invalidMinMax', 'Min value cannot be greater than max') : ''
+                  }
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) => setMin(event.target.value)}
                   required
                 />
@@ -477,6 +483,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                   id="max"
                   labelText="Max"
                   value={max || ''}
+                  invalid={parseFloat(min) > parseFloat(max)}
+                  invalidText={
+                    parseFloat(min) > parseFloat(max) ? t('invalidMinMax', 'Min value cannot be greater than max') : ''
+                  }
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) => setMax(event.target.value)}
                   required
                 />
@@ -493,18 +503,18 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               <div>
                 <TextInput
                   id="lableTrue"
-                  labelText={t('Label true', 'Label true')}
+                  labelText={t('labelTrue', 'Label true')}
                   value={t(toggleLabelTrue || '')}
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) => setToggleLabelTrue(event.target.value)}
-                  placeholder={t('On')}
+                  placeholder={t('on', 'On')}
                   required
                 />
                 <TextInput
                   id="lableFalse"
-                  labelText={t('Label false', 'Lable false')}
+                  labelText={t('labelFalse', 'Label false')}
                   value={t(toggleLabelFalse || '')}
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) => setToggleLabelFalse(event.target.value)}
-                  placeholder={t('Off')}
+                  placeholder={t('off', 'Off')}
                   required
                 />
               </div>
