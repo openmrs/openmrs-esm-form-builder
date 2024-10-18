@@ -518,6 +518,25 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                   required
                 />
               </div>
+            ) : fieldType === 'toggle' ? (
+              <div>
+                <TextInput
+                  id="lableTrue"
+                  labelText={t('labelTrue', 'Label true')}
+                  value={t(toggleLabelTrue || '')}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setToggleLabelTrue(event.target.value)}
+                  placeholder={t('on', 'On')}
+                  required
+                />
+                <TextInput
+                  id="lableFalse"
+                  labelText={t('labelFalse', 'Label false')}
+                  value={t(toggleLabelFalse || '')}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setToggleLabelFalse(event.target.value)}
+                  placeholder={t('off', 'Off')}
+                  required
+                />
+              </div>
             ) : null}
 
             {questionToEdit.type === 'patientIdentifier' && (
