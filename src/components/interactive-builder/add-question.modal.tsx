@@ -132,6 +132,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     programWorkflow?.uuid,
   );
   const [programWorkflows, setProgramWorkflows] = useState<Array<ProgramWorkflow>>([]);
+  const [toggleLabelTrue, setToggleLabelTrue] = useState('');
+  const [toggleLabelFalse, setToggleLabelFalse] = useState('');
 
   const renderTypeOptions = {
     control: ['text'],
@@ -217,6 +219,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           datePickerType && { datePickerFormat: datePickerType }),
         questionOptions: {
           rendering: renderingType,
+          ...(min && { min }),
+          ...(max && { max }),
           ...(selectedConcept && { concept: selectedConcept?.uuid }),
           ...(conceptMappings.length && { conceptMappings }),
           ...(selectedAnswers.length && {
@@ -243,6 +247,12 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             })),
             programUuid: selectedProgram.uuid,
             workflowUuid: programWorkflow.uuid,
+          }),
+          ...(renderingType === 'toggle' && {
+            toggleOptions: {
+              labelTrue: toggleLabelTrue,
+              labelFalse: toggleLabelFalse,
+            },
           }),
         },
         validators: [],
@@ -476,6 +486,12 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                         id="min"
                         labelText="Min"
                         value={min || ''}
+                        invalid={parseFloat(min) > parseFloat(max)}
+                        invalidText={
+                          parseFloat(min) > parseFloat(max)
+                            ? t('invalidMinMax', 'Min value cannot be greater than max')
+                            : ''
+                        }
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => setMin(event.target.value)}
                         required
                       />
@@ -483,6 +499,12 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                         id="max"
                         labelText="Max"
                         value={max || ''}
+                        invalid={parseFloat(min) > parseFloat(max)}
+                        invalidText={
+                          parseFloat(min) > parseFloat(max)
+                            ? t('invalidMinMax', 'Min value cannot be greater than max')
+                            : ''
+                        }
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => setMax(event.target.value)}
                         required
                       />
@@ -495,6 +517,29 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                       onChange={(event: React.ChangeEvent<HTMLInputElement>) => setRows(event.target.value)}
                       required
                     />
+                  ) : renderingType === 'toggle' ? (
+                    <div>
+                      <TextInput
+                        id="labelTrue"
+                        labelText={t('labelTrue', 'Label true')}
+                        value={t(toggleLabelTrue || '')}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                          setToggleLabelTrue(event.target.value)
+                        }
+                        placeholder={t('on', 'On')}
+                        required
+                      />
+                      <TextInput
+                        id="labelFalse"
+                        labelText={t('labelFalse', 'Label false')}
+                        value={t(toggleLabelFalse || '')}
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                          setToggleLabelFalse(event.target.value)
+                        }
+                        placeholder={t('off', 'Off')}
+                        required
+                      />
+                    </div>
                   ) : null}
 
                   {renderingType !== 'ui-select-extended' && (

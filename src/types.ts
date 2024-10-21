@@ -145,6 +145,10 @@ export interface QuestionOptions {
   showDate?: string;
   programUuid?: string;
   workflowUuid?: string;
+  toggleOptions?: {
+    labelTrue: string;
+    labelFalse: string;
+  };
 }
 
 export interface Answer {
