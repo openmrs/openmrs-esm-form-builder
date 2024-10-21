@@ -20,8 +20,25 @@
   margin: 1rem 0;
 }
 
+.actionableNotification {
+  display: flex;
+  flex-direction: row;
+  > * {
+    display: flex;
+    flex-direction: row;
+  }
+}
+
+.jsonSchemaError {
+  flex-grow: 1;
+  max-width: unset;
+  padding: '0rem';
+  margin-bottom: 1rem;
+}
+
 .validationErrorsContainer {
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
 
   :global(.cds--actionable-notification) {
@@ -33,10 +50,13 @@
 }
 
 .pagination {
+  align-self: flex-end;
+  width: fit-content;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
+  margin-bottom: 0.5rem;
 
   .paginationIcon {
     fill: colors.$blue-50;
