@@ -47,6 +47,7 @@ import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { useProgramWorkStates, usePrograms } from '../../hooks/useProgramStates';
+import MarkdownQuestion from './markdown-question.component';
 import styles from './question-modal.scss';
 
 interface AddQuestionModalProps {
@@ -108,6 +109,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [min, setMin] = useState('');
   const [questionId, setQuestionId] = useState('');
   const [questionLabel, setQuestionLabel] = useState('');
+  const [questionValue, setQuestionValue] = useState('');
   const [questionType, setQuestionType] = useState<QuestionType | null>(null);
   const [rows, setRows] = useState('');
   const [selectedAnswers, setSelectedAnswers] = useState<
@@ -211,8 +213,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       const computedQuestionId = `question${questionIndex + 1}Section${sectionIndex + 1}Page-${pageIndex + 1}`;
 
       const newQuestion = {
-        label: questionLabel,
-        type: questionType,
+        ...(questionLabel && {label: questionLabel}),
+        ...((renderingType === 'markdown') && {value: questionValue}),
+        ...((renderingType !== 'markdown') && {type: questionType}),
         required: isQuestionRequired,
         id: questionId ?? computedQuestionId,
         ...((renderingType === 'date' || renderingType === 'datetime') &&
@@ -322,7 +325,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         <ModalBody hasScrollingContent>
           <FormGroup legendText={''}>
             <Stack gap={5}>
-              <TextInput
+              {renderingType === 'markdown' ? <MarkdownQuestion onValueChange={setQuestionValue}/> : (
+                <TextInput
                 id="questionLabel"
                 labelText={<RequiredLabel isRequired={isQuestionRequired} text={t('questionLabel', 'Label')} t={t} />}
                 placeholder={t('labelPlaceholder', 'e.g. Type of Anaesthesia')}
@@ -330,6 +334,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => setQuestionLabel(event.target.value)}
                 required
               />
+              )}
 
               <TextInput
                 id="questionId"
@@ -361,45 +366,48 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 required
               />
 
-              <RadioButtonGroup
-                defaultSelected="optional"
-                name="isQuestionRequired"
-                legendText={t(
-                  'isQuestionRequiredOrOptional',
-                  'Is this question a required or optional field? Required fields must be answered before the form can be submitted.',
-                )}
-              >
-                <RadioButton
-                  id="questionIsNotRequired"
-                  defaultChecked={true}
-                  labelText={t('optional', 'Optional')}
-                  onClick={() => setIsQuestionRequired(false)}
-                  value="optional"
-                />
-                <RadioButton
-                  id="questionIsRequired"
-                  defaultChecked={false}
-                  labelText={t('required', 'Required')}
-                  onClick={() => setIsQuestionRequired(true)}
-                  value="required"
-                />
-              </RadioButtonGroup>
-
-              <Select
-                value={questionType}
-                onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
-                  setQuestionType(event.target.value as QuestionType)
-                }
-                id="questionType"
-                invalidText={t('typeRequired', 'Type is required')}
-                labelText={t('questionType', 'Question type')}
-                required
-              >
-                {!questionType && <SelectItem text={t('chooseQuestionType', 'Choose a question type')} value="" />}
-                {questionTypes.map((questionType, key) => (
-                  <SelectItem text={questionType} value={questionType} key={key} />
-                ))}
-              </Select>
+              {renderingType !== 'markdown' && (
+                <>
+                  <RadioButtonGroup
+                    defaultSelected="optional"
+                    name="isQuestionRequired"
+                    legendText={t(
+                      'isQuestionRequiredOrOptional',
+                      'Is this question a required or optional field? Required fields must be answered before the form can be submitted.',
+                    )}
+                  >
+                    <RadioButton
+                      id="questionIsNotRequired"
+                      defaultChecked={true}
+                      labelText={t('optional', 'Optional')}
+                      onClick={() => setIsQuestionRequired(false)}
+                      value="optional"
+                    />
+                    <RadioButton
+                      id="questionIsRequired"
+                      defaultChecked={false}
+                      labelText={t('required', 'Required')}
+                      onClick={() => setIsQuestionRequired(true)}
+                      value="required"
+                    />
+                  </RadioButtonGroup>
+                  <Select
+                    value={questionType}
+                    onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+                      setQuestionType(event.target.value as QuestionType)
+                    }
+                    id="questionType"
+                    invalidText={t('typeRequired', 'Type is required')}
+                    labelText={t('questionType', 'Question type')}
+                    required
+                  >
+                    {!questionType && <SelectItem text={t('chooseQuestionType', 'Choose a question type')} value="" />}
+                    {questionTypes.map((questionType, key) => (
+                      <SelectItem text={questionType} value={questionType} key={key} />
+                    ))}
+                  </Select>
+                </>
+              )}
 
               <Select
                 value={renderingType}
@@ -413,7 +421,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
               >
                 {!renderingType && <SelectItem text={t('chooseRenderingType', 'Choose a rendering type')} value="" />}
 
-                {questionTypes.filter((questionType) => questionType !== 'obs').includes(questionType)
+                {questionTypes.filter((questionType) => questionType !== 'obs').includes(questionType as Exclude<QuestionType, 'obs'>)
                   ? renderTypeOptions[questionType].map((type, key) => (
                       <SelectItem key={`${questionType}-${key}`} text={type} value={type} />
                     ))
@@ -860,11 +868,13 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         </Button>
         <Button
           disabled={
-            !questionLabel ||
-            !questionId ||
+            ((!questionLabel ||
             questionIdExists(questionId) ||
             !renderingType ||
-            (questionType === 'patientIdentifier' && !selectedPatientIdetifierType)
+            (questionType === 'patientIdentifier' && !selectedPatientIdetifierType)) &&
+            renderingType !== 'markdown') ||
+            !questionId ||
+            !questionValue
           }
           onClick={handleCreateQuestion}
         >
