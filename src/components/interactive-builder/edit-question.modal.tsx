@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import debounce from 'lodash-es/debounce';
 import flattenDeep from 'lodash-es/flattenDeep';
@@ -85,8 +85,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { fieldTypes, questionTypes } = useConfig<ConfigObject>();
-
-  const [answersChanged, setAnswersChanged] = useState(false);
   const [answersFromConcept, setAnswersFromConcept] = useState<
     Array<{
       concept: string;
@@ -97,12 +95,14 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     questionToEdit.questionOptions.conceptMappings,
   );
   const [conceptToLookup, setConceptToLookup] = useState('');
+  const [conceptAnsToLookup, setConceptAnsToLookup] = useState('');
   const [personAttributeTypeToLookup, setPersonAttributeTypeToLookup] = useState('');
   const [patientIdentifierTypeToLookup, setPatientIdentifierTypeToLookup] = useState('');
   const [fieldType, setFieldType] = useState<RenderType | null>(questionToEdit.questionOptions.rendering);
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
   const [max, setMax] = useState(questionToEdit.questionOptions.max ?? '');
   const [min, setMin] = useState(questionToEdit.questionOptions.min ?? '');
+  const [addAnswer, setAnswer] = useState(false);
   const [questionId, setQuestionId] = useState('');
   const [questionLabel, setQuestionLabel] = useState('');
   const [questionType, setQuestionType] = useState<QuestionType | null>(null);
@@ -110,12 +110,24 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     questionToEdit.datePickerFormat ?? 'both',
   );
   const [rows, setRows] = useState('');
+  const [selectedAnsConcept, setSelectedAnsConcept] = useState<Concept | null>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<
     Array<{
       id: string;
       text: string;
     }>
   >([]);
+  const [addedAnswers, setaddedAnswers] = useState<
+    Array<{
+      id: string;
+      text: string;
+    }>
+  >([]);
+  const {
+    concepts: ansConcepts,
+    conceptLookupError: conceptAnsLookupError,
+    isLoadingConcepts: isLoadingAnsConcepts,
+  } = useConceptLookup(conceptAnsToLookup);
   const [selectedConcept, setSelectedConcept] = useState<Concept | null>(null);
 
   const { concepts, isLoadingConcepts } = useConceptLookup(conceptToLookup);
@@ -137,6 +149,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const [addObsComment, setAddObsComment] = useState(false);
   const [selectedProgramState, setSelectedProgramState] = useState<Array<ProgramState>>([]);
   const [selectedProgram, setSelectedProgram] = useState<Program>(null);
+  const [isCreatingQuestion, setIsCreatingQuestion] = useState(false);
   const [programWorkflow, setProgramWorkflow] = useState<ProgramWorkflow>(null);
   const { programs, programsLookupError, isLoadingPrograms } = usePrograms();
   const { programStates, programStatesLookupError, isLoadingProgramStates, mutateProgramStates } = useProgramWorkStates(
@@ -169,6 +182,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     }
   };
 
+  const handleAnsConceptChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setConceptAnsToLookup(event.target.value);
+
   const handleIdentifierTypeSelect = (identifierType: PatientIdentifierType) => {
     setPatientIdentifierTypeToLookup('');
     setSelectedPatientIdentifierType(identifierType);
@@ -184,6 +200,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     if (datePickerType) {
       setDatePickerType(datePickerType);
     }
+    setAnswer(false);
     setConceptToLookup('');
     setSelectedAnswers([]);
     setSelectedConcept(concept);
@@ -203,6 +220,33 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
         label: answer?.display,
       })) ?? [],
     );
+  };
+  const handleDeleteAnswer = (id) => {
+    setaddedAnswers((prevAnswers) => prevAnswers.filter((answer) => answer.id !== id));
+  };
+  const handleSaveMoreAnswers = () => {
+    const newAnswers = addedAnswers.filter(
+      (newAnswer) => !selectedAnswers.some((prevAnswer) => prevAnswer.id === newAnswer.id),
+    );
+
+    const updatedAnswers = [...selectedAnswers, ...newAnswers];
+    setSelectedAnswers(updatedAnswers);
+    setaddedAnswers([]);
+    setIsCreatingQuestion(true);
+  };
+
+  const handleConceptAnsSelect = (concept: Concept) => {
+    setConceptAnsToLookup('');
+    setSelectedAnsConcept(concept);
+    const newAnswer = { id: concept.uuid, text: concept.display };
+    setaddedAnswers((prevAnswers) => [...prevAnswers, newAnswer]);
+  };
+  const showAddQuestion = () => {
+    if (!addAnswer) {
+      setAnswer(true);
+      return;
+    }
+    setAnswer(false);
   };
 
   const questionIdExists = (idToTest: string) => {
@@ -224,7 +268,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   };
 
   const handleUpdateQuestion = () => {
-    updateQuestion(questionIndex);
+    handleSaveMoreAnswers();
+    closeModal();
   };
 
   const handleProgramWorkflowChange = (selectedItem: ProgramWorkflow) => {
@@ -237,116 +282,151 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     setProgramWorkflows(selectedItem?.allWorkflows);
   };
 
-  const updateQuestion = (questionIndex: number) => {
-    let mappedAnswers = [];
+  const updateQuestion = useCallback(
+    (questionIndex: number) => {
+      let mappedAnswers = [];
 
-    // update changed concept based on details
-    if (!hasConceptChanged && selectedAnswers?.length) {
-      mappedAnswers = selectedAnswers.map((answer) => ({
-        concept: answer.id,
-        label: answer.text,
-      }));
-    } else if (hasConceptChanged && answersFromConcept.length === 0) {
-      mappedAnswers = [];
-    } else if (hasConceptChanged && answersFromConcept?.length > 0 && selectedAnswers?.length) {
-      mappedAnswers = selectedAnswers?.length
-        ? selectedAnswers.map((answer) => ({
-            concept: answer.id,
-            label: answer.text,
-          }))
-        : questionToEdit.questionOptions.answers;
-    } else {
-      if (questionToEdit.type === 'programState') {
-        mappedAnswers = selectedProgramState.map((answer) => ({
-          value: answer.uuid,
-          label: answer.concept.display,
+      // update changed concept based on details
+      if (!hasConceptChanged && selectedAnswers?.length) {
+        mappedAnswers = selectedAnswers.map((answer) => ({
+          concept: answer.id,
+          label: answer.text,
         }));
+      } else if (hasConceptChanged && answersFromConcept.length === 0) {
+        mappedAnswers = [];
+      } else if (hasConceptChanged && answersFromConcept?.length > 0 && selectedAnswers?.length) {
+        mappedAnswers = selectedAnswers?.length
+          ? selectedAnswers.map((answer) => ({
+              concept: answer.id,
+              label: answer.text,
+            }))
+          : questionToEdit.questionOptions.answers;
       } else {
-        mappedAnswers = questionToEdit.questionOptions.answers;
+        if (questionToEdit.type === 'programState') {
+          mappedAnswers = selectedProgramState.map((answer) => ({
+            value: answer.uuid,
+            label: answer.concept.display,
+          }));
+        } else {
+          mappedAnswers = questionToEdit.questionOptions.answers;
+        }
       }
-    }
 
-    try {
-      const data = {
-        label: questionLabel ? questionLabel : questionToEdit.label,
-        type: questionType ? questionType : questionToEdit.type,
-        required: isQuestionRequired ? isQuestionRequired : /true/.test(questionToEdit?.required?.toString()),
-        id: questionId ? questionId : questionToEdit.id,
-        ...(((fieldType && (fieldType === 'date' || fieldType === 'datetime')) ||
-          questionToEdit.questionOptions.rendering === 'date' ||
-          questionToEdit.questionOptions.rendering === 'datetime') && {
-          datePickerFormat: datePickerType,
-        }),
-        questionOptions: {
-          rendering: fieldType ? fieldType : questionToEdit.questionOptions.rendering,
-          ...(min && { min }),
-          ...(max && { max }),
-          ...((selectedConcept || questionToEdit.questionOptions.concept) && {
-            concept: selectedConcept ? selectedConcept.uuid : questionToEdit.questionOptions.concept,
-            conceptMappings: conceptMappings?.length ? conceptMappings : questionToEdit.questionOptions.conceptMappings,
+      try {
+        const data = {
+          label: questionLabel ? questionLabel : questionToEdit.label,
+          type: questionType ? questionType : questionToEdit.type,
+          required: isQuestionRequired ? isQuestionRequired : /true/.test(questionToEdit?.required?.toString()),
+          id: questionId ? questionId : questionToEdit.id,
+          ...(((fieldType && (fieldType === 'date' || fieldType === 'datetime')) ||
+            questionToEdit.questionOptions.rendering === 'date' ||
+            questionToEdit.questionOptions.rendering === 'datetime') && {
+            datePickerFormat: datePickerType,
           }),
-          answers: mappedAnswers,
-          ...(questionType === 'patientIdentifier' && {
-            identifierType: selectedPatientIdentifierType
-              ? selectedPatientIdentifierType['uuid']
-              : questionToEdit.questionOptions.identifierType,
-          }),
-          ...(addObsComment && {
-            showComment: addObsComment
-              ? addObsComment
-              : /true/.test(questionToEdit.questionOptions.showComment.toString()),
-          }),
-          ...(addInlineDate && {
-            showDate: addInlineDate ? addInlineDate : /true/.test(questionToEdit.questionOptions.showDate.toString()),
-          }),
-          attributeType: selectedPersonAttributeType
-            ? selectedPersonAttributeType['uuid']
-            : questionToEdit.questionOptions.attributeType,
-          ...(selectedProgram && { programUuid: selectedProgram.uuid }),
-          ...(programWorkflow && { workflowUuid: programWorkflow.uuid }),
-          ...(fieldType === 'toggle' && {
-            toggleOptions: {
-              labelTrue: toggleLabelTrue,
-              labelFalse: toggleLabelFalse,
-            },
-          }),
-        },
-      };
+          questionOptions: {
+            rendering: fieldType ? fieldType : questionToEdit.questionOptions.rendering,
+            ...(min && { min }),
+            ...(max && { max }),
+            ...((selectedConcept || questionToEdit.questionOptions.concept) && {
+              concept: selectedConcept ? selectedConcept.uuid : questionToEdit.questionOptions.concept,
+              conceptMappings: conceptMappings?.length
+                ? conceptMappings
+                : questionToEdit.questionOptions.conceptMappings,
+            }),
+            answers: mappedAnswers,
+            ...(questionType === 'patientIdentifier' && {
+              identifierType: selectedPatientIdentifierType
+                ? selectedPatientIdentifierType['uuid']
+                : questionToEdit.questionOptions.identifierType,
+            }),
+            ...(addObsComment && {
+              showComment: addObsComment
+                ? addObsComment
+                : /true/.test(questionToEdit.questionOptions.showComment.toString()),
+            }),
+            ...(addInlineDate && {
+              showDate: addInlineDate ? addInlineDate : /true/.test(questionToEdit.questionOptions.showDate.toString()),
+            }),
+            attributeType: selectedPersonAttributeType
+              ? selectedPersonAttributeType['uuid']
+              : questionToEdit.questionOptions.attributeType,
+            ...(selectedProgram && { programUuid: selectedProgram.uuid }),
+            ...(programWorkflow && { workflowUuid: programWorkflow.uuid }),
+            ...(fieldType === 'toggle' && {
+              toggleOptions: {
+                labelTrue: toggleLabelTrue,
+                labelFalse: toggleLabelFalse,
+              },
+            }),
+          },
+        };
 
-      schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] = data;
+        schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] = data;
 
-      onSchemaChange({ ...schema });
-      setQuestionLabel('');
-      setQuestionId('');
-      setIsQuestionRequired(false);
-      setQuestionType(null);
-      setFieldType(null);
-      setSelectedConcept(null);
-      setConceptMappings([]);
-      setSelectedAnswers([]);
-      setAddObsComment(false);
-      setAddInlineDate(false);
+        onSchemaChange({ ...schema });
+        setQuestionLabel('');
+        setQuestionId('');
+        setIsQuestionRequired(false);
+        setQuestionType(null);
+        setFieldType(null);
+        setSelectedConcept(null);
+        setConceptMappings([]);
+        setSelectedAnswers([]);
+        setAddObsComment(false);
+        setAddInlineDate(false);
 
-      showSnackbar({
-        title: t('questionEdited', 'Question edited'),
-        kind: 'success',
-        isLowContrast: true,
-        subtitle: t('questionEditedMessage', 'The question labelled "{{- questionLabel}}" has been edited.', {
-          questionLabel: questionToEdit.label,
-        }),
-      });
-    } catch (error) {
-      if (error instanceof Error) {
         showSnackbar({
-          title: t('errorUpdatingQuestion', 'Error updating question'),
-          kind: 'error',
-          subtitle: error?.message,
+          title: t('questionEdited', 'Question edited'),
+          kind: 'success',
+          isLowContrast: true,
+          subtitle: t('questionEditedMessage', 'The question labelled "{{- questionLabel}}" has been edited.', {
+            questionLabel: questionToEdit.label,
+          }),
         });
+      } catch (error) {
+        if (error instanceof Error) {
+          showSnackbar({
+            title: t('errorUpdatingQuestion', 'Error updating question'),
+            kind: 'error',
+            subtitle: error?.message,
+          });
+        }
       }
-    }
 
-    closeModal();
-  };
+      closeModal();
+    },
+    [
+      questionLabel,
+      questionType,
+      isQuestionRequired,
+      questionId,
+      fieldType,
+      datePickerType,
+      selectedConcept,
+      conceptMappings,
+      selectedAnswers,
+      hasConceptChanged,
+      answersFromConcept,
+      questionToEdit,
+      selectedProgramState,
+      selectedPatientIdentifierType,
+      addObsComment,
+      addInlineDate,
+      selectedProgram,
+      programWorkflow,
+      toggleLabelTrue,
+      toggleLabelFalse,
+      pageIndex,
+      sectionIndex,
+      closeModal,
+      onSchemaChange,
+      schema,
+      selectedPersonAttributeType,
+      t,
+      max,
+      min,
+    ],
+  );
 
   useEffect(() => {
     const previousPrograms = programs.find((program) => program.uuid === questionToEdit.questionOptions.programUuid);
@@ -367,6 +447,22 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     );
     setSelectedProgramState(previousStates);
   }, [programWorkflow, questionToEdit.questionOptions.answers]);
+
+  useEffect(() => {
+    if (questionToEdit?.questionOptions?.answers) {
+      const initialAnswers = questionToEdit.questionOptions.answers.map((answer) => ({
+        id: answer.concept,
+        text: answer.label,
+      }));
+      setSelectedAnswers(initialAnswers);
+    }
+  }, [questionToEdit]);
+  useEffect(() => {
+    if (isCreatingQuestion) {
+      updateQuestion(questionIndex);
+      setIsCreatingQuestion(false);
+    }
+  }, [isCreatingQuestion, questionIndex, updateQuestion]);
 
   return (
     <>
@@ -768,21 +864,17 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                             text: string;
                           }>;
                         }) => {
-                          setAnswersChanged(true);
-                          setSelectedAnswers(selectedItems.sort());
+                          setSelectedAnswers(selectedItems);
                         }}
                         size="md"
                         titleText={t('selectAnswersToDisplay', 'Select answers to display')}
                       />
                     ) : null}
-                    {!hasConceptChanged &&
-                    questionToEdit?.questionOptions?.answers?.length &&
-                    !answersChanged &&
-                    questionToEdit.type !== 'programState' ? (
+                    {!hasConceptChanged && selectedAnswers.length && questionToEdit.type !== 'programState' ? (
                       <div>
-                        {questionToEdit?.questionOptions?.answers?.map((answer) => (
-                          <Tag className={styles.tag} key={answer?.concept} type={'blue'}>
-                            {answer?.label}
+                        {selectedAnswers?.map((answer) => (
+                          <Tag className={styles.tag} key={answer?.id} type={'blue'}>
+                            {answer?.text}
                           </Tag>
                         ))}
                       </div>
@@ -809,15 +901,131 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                         titleText={t('selectAnswersToDisplay', 'Select answers to display')}
                       />
                     ) : null}
-                    {(hasConceptChanged ?? answersChanged) && (
+
+                    {hasConceptChanged && selectedAnswers.length && questionToEdit.type !== 'programState' ? (
                       <div>
-                        {selectedAnswers.map((selectedAnswer) => (
-                          <Tag className={styles.tag} key={selectedAnswer.id} type={'blue'}>
-                            {selectedAnswer.text}
+                        {selectedAnswers?.map((answer) => (
+                          <Tag className={styles.tag} key={answer?.id} type={'blue'}>
+                            {answer?.text}
                           </Tag>
                         ))}
                       </div>
-                    )}
+                    ) : null}
+
+                    {(selectedConcept || questionToEdit) && questionToEdit?.questionOptions.answers?.length ? (
+                      <div>
+                        <Button kind="tertiary" onClick={showAddQuestion} iconDescription="Add" size="sm">
+                          More Answers
+                        </Button>
+                      </div>
+                    ) : null}
+
+                    {addAnswer ? (
+                      <div>
+                        <FormLabel className={styles.label}>
+                          {t('searchForAnswerConcept', 'Search for an answer Concept to Add')}
+                        </FormLabel>
+                        {conceptAnsLookupError ? (
+                          <InlineNotification
+                            kind="error"
+                            lowContrast
+                            className={styles.error}
+                            title={t('errorFetchingConcepts', 'Error fetching concepts')}
+                            subtitle={t('pleaseTryAgain', 'Please try again.')}
+                          />
+                        ) : null}
+                        <Search
+                          id="conceptAnsLookup"
+                          onClear={() => {
+                            setSelectedAnsConcept(null);
+                          }}
+                          onChange={handleAnsConceptChange}
+                          placeholder={t('searchConcept', 'Search using a concept name or UUID')}
+                          required
+                          size="md"
+                          value={(() => {
+                            if (conceptAnsToLookup) {
+                              return conceptAnsToLookup;
+                            }
+                            if (selectedAnsConcept) {
+                              return selectedAnsConcept.display;
+                            }
+                            return '';
+                          })()}
+                        />
+                        {addedAnswers.length > 0 ? (
+                          <div>
+                            {addedAnswers.map((answer) => (
+                              <Tag className={styles.tag} key={answer.id} type={'blue'}>
+                                {answer.text}
+                                <button
+                                  className={styles.conceptAnswerButton}
+                                  onClick={() => handleDeleteAnswer(answer.id)}
+                                >
+                                  X
+                                </button>
+                              </Tag>
+                            ))}
+                          </div>
+                        ) : null}
+
+                        {(() => {
+                          if (!conceptAnsToLookup) return null;
+                          if (isLoadingAnsConcepts)
+                            return (
+                              <InlineLoading
+                                className={styles.loader}
+                                description={t('searching', 'Searching') + '...'}
+                              />
+                            );
+                          if (ansConcepts?.length && !isLoadingAnsConcepts) {
+                            return (
+                              <ul className={styles.conceptList}>
+                                {ansConcepts?.map((concept, index) => (
+                                  <li
+                                    role="menuitem"
+                                    className={styles.concept}
+                                    key={index}
+                                    onClick={() => handleConceptAnsSelect(concept)}
+                                  >
+                                    {concept.display}
+                                  </li>
+                                ))}
+                              </ul>
+                            );
+                          }
+
+                          return (
+                            <Layer>
+                              <Tile className={styles.emptyResults}>
+                                <span>
+                                  {t('noMatchingConcepts', 'No concepts were found that match')}{' '}
+                                  <strong>'{conceptAnsToLookup}'.</strong>
+                                </span>
+                              </Tile>
+
+                              <div className={styles.oclLauncherBanner}>
+                                {
+                                  <p className={styles.bodyShort01}>
+                                    {t('conceptSearchHelpText', "Can't find a concept?")}
+                                  </p>
+                                }
+                                <a
+                                  className={styles.oclLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  href={'https://app.openconceptlab.org/'}
+                                >
+                                  {t('searchInOCL', 'Search in OCL')}
+                                  <ArrowUpRight size={16} />
+                                </a>
+                              </div>
+                            </Layer>
+                          );
+                        })()}
+                      </div>
+                    ) : null}
+
                     <RadioButtonGroup
                       defaultSelected={
                         /true/.test(questionToEdit?.questionOptions?.showComment?.toString()) ? 'yes' : 'no'
