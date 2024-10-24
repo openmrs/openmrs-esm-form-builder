@@ -6,7 +6,6 @@ import { Accordion, AccordionItem, Button, IconButton, InlineLoading } from '@ca
 import { Add, TrashCan } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { showModal, showSnackbar } from '@openmrs/esm-framework';
-import type { FormSchema } from '@openmrs/esm-form-engine-lib';
 import type { Schema, Question } from '../../types';
 import DraggableQuestion from './draggable-question.component';
 import Droppable from './droppable-container.component';
@@ -45,7 +44,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   const isEditingExistingForm = Boolean(formUuid);
 
   const initializeSchema = useCallback(() => {
-    const dummySchema: FormSchema = {
+    const dummySchema: typeof schema = {
       name: '',
       pages: [],
       processor: 'EncounterFormProcessor',

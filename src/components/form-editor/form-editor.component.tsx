@@ -20,7 +20,6 @@ import { useParams } from 'react-router-dom';
 import { type TFunction, useTranslation } from 'react-i18next';
 import { ConfigurableLink, showModal, useConfig } from '@openmrs/esm-framework';
 import type { IMarker } from 'react-ace';
-import type { FormSchema } from '@openmrs/esm-form-engine-lib';
 import type { Schema } from '../../types';
 import { useClobdata } from '../../hooks/useClobdata';
 import { useForm } from '../../hooks/useForm';
@@ -143,7 +142,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   };
 
   const inputDummySchema = useCallback(() => {
-    const dummySchema: FormSchema = {
+    const dummySchema: typeof schema = {
       encounterType: '',
       name: 'Sample Form',
       processor: 'EncounterFormProcessor',
@@ -183,18 +182,15 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                     answers: [
                       {
                         concept: 'another-system-defined-concept-uuid',
-                        label: 'Choice 1',
-                        conceptMappings: [],
+                        label: 'Choice 1'
                       },
                       {
                         concept: 'yet-another-system-defined-concept-uuid',
-                        label: 'Choice 2',
-                        conceptMappings: [],
+                        label: 'Choice 2'
                       },
                       {
                         concept: 'yet-one-more-system-defined-concept-uuid',
-                        label: 'Choice 3',
-                        conceptMappings: [],
+                        label: 'Choice 3'
                       },
                     ],
                   },
