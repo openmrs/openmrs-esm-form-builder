@@ -62,7 +62,8 @@ export interface Schema {
       isExpanded: string;
       questions: Array<{
         id: string;
-        label: string;
+        label?: string;
+        value?:string;
         type: string;
         required?: string | boolean | RequiredFieldProps;
         questionOptions: {
@@ -115,7 +116,8 @@ export interface Section {
 
 export interface Question {
   id: string;
-  label: string;
+  label?: string;
+  value?:string;
   type: string;
   questionOptions: QuestionOptions;
   datePickerFormat?: DatePickerType;
