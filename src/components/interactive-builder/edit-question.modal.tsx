@@ -239,7 +239,11 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     setConceptAnsToLookup('');
     setSelectedAnsConcept(concept);
     const newAnswer = { id: concept.uuid, text: concept.display };
-    setaddedAnswers((prevAnswers) => [...prevAnswers, newAnswer]);
+    const answerExistsInSelected = selectedAnswers.some((answer) => answer.id === newAnswer.id);
+    const answerExistsInAdded = addedAnswers.some((answer) => answer.id === newAnswer.id);
+    if (!answerExistsInSelected && !answerExistsInAdded) {
+      setaddedAnswers((prevAnswers) => [...prevAnswers, newAnswer]);
+    }
   };
   const showAddQuestion = () => {
     if (!addAnswer) {
