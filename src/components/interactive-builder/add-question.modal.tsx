@@ -118,7 +118,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       text: string;
     }>
   >([]);
-  const [addedAnswers, setaddedAnswers] = useState<
+  const [addedAnswers, setAddedAnswers] = useState<
     Array<{
       id: string;
       text: string;
