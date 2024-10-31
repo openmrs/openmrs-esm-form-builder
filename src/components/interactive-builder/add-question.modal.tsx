@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation, type TFunction } from 'react-i18next';
 import flattenDeep from 'lodash-es/flattenDeep';
 import {
@@ -140,7 +140,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [addInlineDate, setAddInlineDate] = useState(false);
   const [selectedProgramState, setSelectedProgramState] = useState<Array<ProgramState>>([]);
   const [selectedProgram, setSelectedProgram] = useState<Program>(null);
-  const [isCreatingQuestion, setIsCreatingQuestion] = useState(false);
   const [programWorkflow, setProgramWorkflow] = useState<ProgramWorkflow>(null);
   const { programs, programsLookupError, isLoadingPrograms } = usePrograms();
   const { programStates, programStatesLookupError, isLoadingProgramStates, mutateProgramStates } = useProgramWorkStates(
@@ -198,7 +197,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     );
   };
   const handleDeleteAnswer = (id) => {
-    setaddedAnswers((prevAnswers) => prevAnswers.filter((answer) => answer.id !== id));
+    setAddedAnswers((prevAnswers) => prevAnswers.filter((answer) => answer.id !== id));
   };
   const handleSaveMoreAnswers = () => {
     const newAnswers = addedAnswers.filter(
@@ -207,8 +206,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
     const updatedAnswers = [...selectedAnswers, ...newAnswers];
     setSelectedAnswers(updatedAnswers);
-    setaddedAnswers([]);
-    setIsCreatingQuestion(true);
+    setAddedAnswers([]);
+    return updatedAnswers;
   };
 
   const handleConceptAnsSelect = (concept: Concept) => {
@@ -218,7 +217,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     const answerExistsInSelected = selectedAnswers.some((answer) => answer.id === newAnswer.id);
     const answerExistsInAdded = addedAnswers.some((answer) => answer.id === newAnswer.id);
     if (!answerExistsInSelected && !answerExistsInAdded) {
-      setaddedAnswers((prevAnswers) => [...prevAnswers, newAnswer]);
+      setAddedAnswers((prevAnswers) => [...prevAnswers, newAnswer]);
     }
   };
 
@@ -241,13 +240,13 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     const questionIds: Array<string> = flattenDeep(nestedIds);
     return questionIds.includes(idToTest);
   };
-
   const handleCreateQuestion = () => {
-    handleSaveMoreAnswers();
+    const updatedAnswers = handleSaveMoreAnswers();
+    createQuestion(updatedAnswers);
     closeModal();
   };
 
-  const createQuestion = useCallback(() => {
+  const createQuestion = (selectedAnswers) => {
     try {
       const questionIndex = schema.pages[pageIndex]?.sections?.[sectionIndex]?.questions?.length ?? 0;
       const computedQuestionId = `question${questionIndex + 1}Section${sectionIndex + 1}Page-${pageIndex + 1}`;
@@ -331,6 +330,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         });
       }
     }
+<<<<<<< HEAD
   }, [
     onSchemaChange,
     t,
@@ -356,6 +356,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     toggleLabelTrue,
     toggleLabelFalse,
   ]);
+=======
+  };
+>>>>>>> 1b94b7b (removed callback)
 
   const convertLabelToCamelCase = () => {
     const camelCasedLabel = questionLabel
@@ -384,12 +387,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     setSelectedProgram(selectedItem);
     setProgramWorkflows(selectedItem?.allWorkflows);
   };
-  useEffect(() => {
-    if (isCreatingQuestion) {
-      createQuestion();
-      setIsCreatingQuestion(false);
-    }
-  }, [isCreatingQuestion, createQuestion]);
 
   return (
     <>

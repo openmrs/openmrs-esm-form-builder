@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import debounce from 'lodash-es/debounce';
 import flattenDeep from 'lodash-es/flattenDeep';
@@ -117,7 +117,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       text: string;
     }>
   >([]);
-  const [addedAnswers, setaddedAnswers] = useState<
+  const [addedAnswers, setAddedAnswers] = useState<
     Array<{
       id: string;
       text: string;
@@ -149,7 +149,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const [addObsComment, setAddObsComment] = useState(false);
   const [selectedProgramState, setSelectedProgramState] = useState<Array<ProgramState>>([]);
   const [selectedProgram, setSelectedProgram] = useState<Program>(null);
-  const [isCreatingQuestion, setIsCreatingQuestion] = useState(false);
   const [programWorkflow, setProgramWorkflow] = useState<ProgramWorkflow>(null);
   const { programs, programsLookupError, isLoadingPrograms } = usePrograms();
   const { programStates, programStatesLookupError, isLoadingProgramStates, mutateProgramStates } = useProgramWorkStates(
@@ -222,7 +221,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     );
   };
   const handleDeleteAnswer = (id) => {
-    setaddedAnswers((prevAnswers) => prevAnswers.filter((answer) => answer.id !== id));
+    setAddedAnswers((prevAnswers) => prevAnswers.filter((answer) => answer.id !== id));
   };
   const handleSaveMoreAnswers = () => {
     const newAnswers = addedAnswers.filter(
@@ -231,8 +230,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 
     const updatedAnswers = [...selectedAnswers, ...newAnswers];
     setSelectedAnswers(updatedAnswers);
-    setaddedAnswers([]);
-    setIsCreatingQuestion(true);
+    setAddedAnswers([]);
+    return updatedAnswers;
   };
 
   const handleConceptAnsSelect = (concept: Concept) => {
@@ -242,7 +241,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     const answerExistsInSelected = selectedAnswers.some((answer) => answer.id === newAnswer.id);
     const answerExistsInAdded = addedAnswers.some((answer) => answer.id === newAnswer.id);
     if (!answerExistsInSelected && !answerExistsInAdded) {
-      setaddedAnswers((prevAnswers) => [...prevAnswers, newAnswer]);
+      setAddedAnswers((prevAnswers) => [...prevAnswers, newAnswer]);
     }
   };
   const showAddQuestion = () => {
@@ -270,9 +269,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 
     return questionIds.includes(idToTest);
   };
-
   const handleUpdateQuestion = () => {
-    handleSaveMoreAnswers();
+    const updatedAnswers = handleSaveMoreAnswers();
+    updateQuestion(questionIndex, updatedAnswers);
+
     closeModal();
   };
 
@@ -286,117 +286,115 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     setProgramWorkflows(selectedItem?.allWorkflows);
   };
 
-  const updateQuestion = useCallback(
-    (questionIndex: number) => {
-      let mappedAnswers = [];
+  const updateQuestion = (questionIndex: number, selectedAnswers) => {
+    let mappedAnswers = [];
 
-      // update changed concept based on details
-      if (!hasConceptChanged && selectedAnswers?.length) {
-        mappedAnswers = selectedAnswers.map((answer) => ({
-          concept: answer.id,
-          label: answer.text,
+    // update changed concept based on details
+    if (!hasConceptChanged && selectedAnswers?.length) {
+      mappedAnswers = selectedAnswers.map((answer) => ({
+        concept: answer.id,
+        label: answer.text,
+      }));
+    } else if (hasConceptChanged && answersFromConcept.length === 0) {
+      mappedAnswers = [];
+    } else if (hasConceptChanged && answersFromConcept?.length > 0 && selectedAnswers?.length) {
+      mappedAnswers = selectedAnswers?.length
+        ? selectedAnswers.map((answer) => ({
+            concept: answer.id,
+            label: answer.text,
+          }))
+        : questionToEdit.questionOptions.answers;
+    } else {
+      if (questionToEdit.type === 'programState') {
+        mappedAnswers = selectedProgramState.map((answer) => ({
+          value: answer.uuid,
+          label: answer.concept.display,
         }));
-      } else if (hasConceptChanged && answersFromConcept.length === 0) {
-        mappedAnswers = [];
-      } else if (hasConceptChanged && answersFromConcept?.length > 0 && selectedAnswers?.length) {
-        mappedAnswers = selectedAnswers?.length
-          ? selectedAnswers.map((answer) => ({
-              concept: answer.id,
-              label: answer.text,
-            }))
-          : questionToEdit.questionOptions.answers;
       } else {
-        if (questionToEdit.type === 'programState') {
-          mappedAnswers = selectedProgramState.map((answer) => ({
-            value: answer.uuid,
-            label: answer.concept.display,
-          }));
-        } else {
-          mappedAnswers = questionToEdit.questionOptions.answers;
-        }
+        mappedAnswers = questionToEdit.questionOptions.answers;
       }
+    }
 
-      try {
-        const data = {
-          label: questionLabel ? questionLabel : questionToEdit.label,
-          type: questionType ? questionType : questionToEdit.type,
-          required: isQuestionRequired ? isQuestionRequired : /true/.test(questionToEdit?.required?.toString()),
-          id: questionId ? questionId : questionToEdit.id,
-          ...(((fieldType && (fieldType === 'date' || fieldType === 'datetime')) ||
-            questionToEdit.questionOptions.rendering === 'date' ||
-            questionToEdit.questionOptions.rendering === 'datetime') && {
-            datePickerFormat: datePickerType,
+    try {
+      const data = {
+        label: questionLabel ? questionLabel : questionToEdit.label,
+        type: questionType ? questionType : questionToEdit.type,
+        required: isQuestionRequired ? isQuestionRequired : /true/.test(questionToEdit?.required?.toString()),
+        id: questionId ? questionId : questionToEdit.id,
+        ...(((fieldType && (fieldType === 'date' || fieldType === 'datetime')) ||
+          questionToEdit.questionOptions.rendering === 'date' ||
+          questionToEdit.questionOptions.rendering === 'datetime') && {
+          datePickerFormat: datePickerType,
+        }),
+        questionOptions: {
+          rendering: fieldType ? fieldType : questionToEdit.questionOptions.rendering,
+          ...(min && { min }),
+          ...(max && { max }),
+          ...((selectedConcept || questionToEdit.questionOptions.concept) && {
+            concept: selectedConcept ? selectedConcept.uuid : questionToEdit.questionOptions.concept,
+            conceptMappings: conceptMappings?.length ? conceptMappings : questionToEdit.questionOptions.conceptMappings,
           }),
-          questionOptions: {
-            rendering: fieldType ? fieldType : questionToEdit.questionOptions.rendering,
-            ...(min && { min }),
-            ...(max && { max }),
-            ...((selectedConcept || questionToEdit.questionOptions.concept) && {
-              concept: selectedConcept ? selectedConcept.uuid : questionToEdit.questionOptions.concept,
-              conceptMappings: conceptMappings?.length
-                ? conceptMappings
-                : questionToEdit.questionOptions.conceptMappings,
-            }),
-            answers: mappedAnswers,
-            ...(questionType === 'patientIdentifier' && {
-              identifierType: selectedPatientIdentifierType
-                ? selectedPatientIdentifierType['uuid']
-                : questionToEdit.questionOptions.identifierType,
-            }),
-            ...(addObsComment && {
-              showComment: addObsComment
-                ? addObsComment
-                : /true/.test(questionToEdit.questionOptions.showComment.toString()),
-            }),
-            ...(addInlineDate && {
-              showDate: addInlineDate ? addInlineDate : /true/.test(questionToEdit.questionOptions.showDate.toString()),
-            }),
-            attributeType: selectedPersonAttributeType
-              ? selectedPersonAttributeType['uuid']
-              : questionToEdit.questionOptions.attributeType,
-            ...(selectedProgram && { programUuid: selectedProgram.uuid }),
-            ...(programWorkflow && { workflowUuid: programWorkflow.uuid }),
-            ...(fieldType === 'toggle' && {
-              toggleOptions: {
-                labelTrue: toggleLabelTrue,
-                labelFalse: toggleLabelFalse,
-              },
-            }),
-          },
-        };
+          answers: mappedAnswers,
+          ...(questionType === 'patientIdentifier' && {
+            identifierType: selectedPatientIdentifierType
+              ? selectedPatientIdentifierType['uuid']
+              : questionToEdit.questionOptions.identifierType,
+          }),
+          ...(addObsComment && {
+            showComment: addObsComment
+              ? addObsComment
+              : /true/.test(questionToEdit.questionOptions.showComment.toString()),
+          }),
+          ...(addInlineDate && {
+            showDate: addInlineDate ? addInlineDate : /true/.test(questionToEdit.questionOptions.showDate.toString()),
+          }),
+          attributeType: selectedPersonAttributeType
+            ? selectedPersonAttributeType['uuid']
+            : questionToEdit.questionOptions.attributeType,
+          ...(selectedProgram && { programUuid: selectedProgram.uuid }),
+          ...(programWorkflow && { workflowUuid: programWorkflow.uuid }),
+          ...(fieldType === 'toggle' && {
+            toggleOptions: {
+              labelTrue: toggleLabelTrue,
+              labelFalse: toggleLabelFalse,
+            },
+          }),
+        },
+      };
 
-        schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] = data;
+      schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] = data;
 
-        onSchemaChange({ ...schema });
-        setQuestionLabel('');
-        setQuestionId('');
-        setIsQuestionRequired(false);
-        setQuestionType(null);
-        setFieldType(null);
-        setSelectedConcept(null);
-        setConceptMappings([]);
-        setSelectedAnswers([]);
-        setAddObsComment(false);
-        setAddInlineDate(false);
+      onSchemaChange({ ...schema });
+      setQuestionLabel('');
+      setQuestionId('');
+      setIsQuestionRequired(false);
+      setQuestionType(null);
+      setFieldType(null);
+      setSelectedConcept(null);
+      setConceptMappings([]);
+      setSelectedAnswers([]);
+      setAddObsComment(false);
+      setAddInlineDate(false);
 
+      showSnackbar({
+        title: t('questionEdited', 'Question edited'),
+        kind: 'success',
+        isLowContrast: true,
+        subtitle: t('questionEditedMessage', 'The question labelled "{{- questionLabel}}" has been edited.', {
+          questionLabel: questionToEdit.label,
+        }),
+      });
+    } catch (error) {
+      if (error instanceof Error) {
         showSnackbar({
-          title: t('questionEdited', 'Question edited'),
-          kind: 'success',
-          isLowContrast: true,
-          subtitle: t('questionEditedMessage', 'The question labelled "{{- questionLabel}}" has been edited.', {
-            questionLabel: questionToEdit.label,
-          }),
+          title: t('errorUpdatingQuestion', 'Error updating question'),
+          kind: 'error',
+          subtitle: error?.message,
         });
-      } catch (error) {
-        if (error instanceof Error) {
-          showSnackbar({
-            title: t('errorUpdatingQuestion', 'Error updating question'),
-            kind: 'error',
-            subtitle: error?.message,
-          });
-        }
       }
+    }
 
+<<<<<<< HEAD
       closeModal();
     },
     [
@@ -431,6 +429,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       t,
     ],
   );
+=======
+    closeModal();
+  };
+>>>>>>> 1b94b7b (removed callback)
 
   useEffect(() => {
     const previousPrograms = programs.find((program) => program.uuid === questionToEdit.questionOptions.programUuid);
@@ -461,12 +463,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       setSelectedAnswers(initialAnswers);
     }
   }, [questionToEdit]);
-  useEffect(() => {
-    if (isCreatingQuestion) {
-      updateQuestion(questionIndex);
-      setIsCreatingQuestion(false);
-    }
-  }, [isCreatingQuestion, questionIndex, updateQuestion]);
 
   return (
     <>
