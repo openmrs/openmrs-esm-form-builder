@@ -69,7 +69,7 @@ export interface Schema {
       questions: Array<{
         id: string;
         label?: string;
-        value?: any;
+        value?: string;
         type: string;
         required?: string | boolean | RequiredFieldProps;
         questionOptions: {
@@ -123,7 +123,11 @@ export interface Section {
 export interface Question {
   id: string;
   label?: string;
+<<<<<<< HEAD
   value?: any;
+=======
+  value?: string;
+>>>>>>> 487b0f6 ((refactor) Break rendering types)
   type: string;
   questionOptions: QuestionOptions;
   datePickerFormat?: DatePickerType;
@@ -139,6 +143,7 @@ export interface QuestionOptions {
   conceptMappings?: Array<ConceptMapping>;
   max?: string;
   min?: string;
+  isSearchable?: boolean;
   attributeType?: string;
   calculate?: {
     calculateExpression: string;
