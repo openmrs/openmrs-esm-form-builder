@@ -3245,8 +3245,8 @@ __metadata:
   linkType: soft
 
 "@openmrs/esm-form-engine-lib@npm:next":
-  version: 2.1.0-pre.1534
-  resolution: "@openmrs/esm-form-engine-lib@npm:2.1.0-pre.1534"
+  version: 2.1.0-pre.1542
+  resolution: "@openmrs/esm-form-engine-lib@npm:2.1.0-pre.1542"
   dependencies:
     "@carbon/react": "npm:>1.47.0 <1.50.0"
     classnames: "npm:^2.5.1"
@@ -3264,7 +3264,7 @@ __metadata:
     react: 18.x
     react-i18next: 11.x
     swr: 2.x
-  checksum: 10/819bc64035ec41c6fd8c079bfb14aa2ef0cdb7d7960c1daf340d1417ca4fcfaa7830d9a38ea320aa76df31a98ce1da2ccc9881fa8ae128fac0ebfad31e983e0c
+  checksum: 10/484951db5138015f00451cc9d5126570684b5277c90f925155b20239b1ccb38c0c784b0c0e23a42eabdc36121a0df490dede33059b25370b7cfc52a33ed0cdd9
   languageName: node
   linkType: hard
 
@@ -12128,7 +12128,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"i18next@npm:^23.11.4, i18next@npm:^23.5.1":
+"i18next@npm:^23.11.4":
+  version: 23.16.4
+  resolution: "i18next@npm:23.16.4"
+  dependencies:
+    "@babel/runtime": "npm:^7.23.2"
+  checksum: 10/a3aa6189aa4bf3022c372a03c88a2216d420b70f01369bd1017f7e51d0ed012dcda8b5f6476021835ab9574ee0ac5d056049fe4b720b5458b42bcc6ae66bd38d
+  languageName: node
+  linkType: hard
+
+"i18next@npm:^23.5.1":
   version: 23.16.3
   resolution: "i18next@npm:23.16.3"
   dependencies:
