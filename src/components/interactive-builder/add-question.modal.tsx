@@ -42,6 +42,7 @@ import type {
   ProgramWorkflow,
   DatePickerType,
   DatePickerTypeOption,
+  Question,
 } from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
@@ -49,6 +50,10 @@ import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { useProgramWorkStates, usePrograms } from '../../hooks/useProgramStates';
 import MarkdownQuestion from './markdown-question.component';
 import styles from './question-modal.scss';
+import TextArea from './components/rendering-type-inputs/text-area/textarea.component';
+import Number from './components/rendering-type-inputs/number/number.component';
+import Toggle from './components/rendering-type-inputs/toggle/toggle.component';
+import UiSelectExtended from './components/rendering-type-inputs/ui-select-extended/ui-select-extended.component';
 
 interface AddQuestionModalProps {
   closeModal: () => void;
@@ -97,6 +102,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { fieldTypes, questionTypes } = useConfig<ConfigObject>();
+  const [question, setQuestion] = useState<Question>(null);
   const [answers, setAnswers] = useState<Array<Answer>>([]);
   const [conceptMappings, setConceptMappings] = useState<Array<ConceptMapping>>([]);
   const [conceptToLookup, setConceptToLookup] = useState('');
@@ -107,12 +113,10 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [renderingType, setRenderingType] = useState<RenderType | null>(null);
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
   const [max, setMax] = useState('');
-  const [min, setMin] = useState('');
   const [questionId, setQuestionId] = useState('');
   const [questionLabel, setQuestionLabel] = useState('');
   const [questionValue, setQuestionValue] = useState('');
   const [questionType, setQuestionType] = useState<QuestionType | null>(null);
-  const [rows, setRows] = useState('');
   const [selectedAnswers, setSelectedAnswers] = useState<
     Array<{
       id: string;
@@ -245,7 +249,12 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     closeModal();
   };
 
+<<<<<<< HEAD
   const createQuestion = (updatedAnswers) => {
+=======
+  const createQuestion = () => {
+    console.log(question, 'question state object');
+>>>>>>> 487b0f6 ((refactor) Break rendering types)
     try {
       const questionIndex = schema.pages[pageIndex]?.sections?.[sectionIndex]?.questions?.length ?? 0;
       const computedQuestionId = `question${questionIndex + 1}Section${sectionIndex + 1}Page-${pageIndex + 1}`;
@@ -260,8 +269,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           datePickerType && { datePickerFormat: datePickerType }),
         questionOptions: {
           rendering: renderingType,
-          ...(min && { min }),
+          ...(question.questionOptions.min && { min: question.questionOptions.min }),
           ...(max && { max }),
+          ...(question.questionOptions.rows && { rows: question.questionOptions.rows }),
           ...(selectedConcept && { concept: selectedConcept?.uuid }),
           ...(conceptMappings.length && { conceptMappings }),
           ...(updatedAnswers.length && {
@@ -527,65 +537,11 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
               {questionType === 'obs' ? (
                 <>
                   {renderingType === 'number' ? (
-                    <>
-                      <TextInput
-                        id="min"
-                        labelText="Min"
-                        value={min || ''}
-                        invalid={parseFloat(min) > parseFloat(max)}
-                        invalidText={
-                          parseFloat(min) > parseFloat(max)
-                            ? t('invalidMinMax', 'Min value cannot be greater than max')
-                            : ''
-                        }
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setMin(event.target.value)}
-                        required
-                      />
-                      <TextInput
-                        id="max"
-                        labelText="Max"
-                        value={max || ''}
-                        invalid={parseFloat(min) > parseFloat(max)}
-                        invalidText={
-                          parseFloat(min) > parseFloat(max)
-                            ? t('invalidMinMax', 'Min value cannot be greater than max')
-                            : ''
-                        }
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setMax(event.target.value)}
-                        required
-                      />
-                    </>
+                    <Number question={question} updateQuestion={setQuestion} />
                   ) : renderingType === 'textarea' ? (
-                    <TextInput
-                      id="textAreaRows"
-                      labelText={t('rows', 'Rows')}
-                      value={rows || ''}
-                      onChange={(event: React.ChangeEvent<HTMLInputElement>) => setRows(event.target.value)}
-                      required
-                    />
+                    <TextArea question={question} updateQuestion={setQuestion} />
                   ) : renderingType === 'toggle' ? (
-                    <div>
-                      <TextInput
-                        id="labelTrue"
-                        labelText={t('labelTrue', 'Label true')}
-                        value={t(toggleLabelTrue || '')}
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                          setToggleLabelTrue(event.target.value)
-                        }
-                        placeholder={t('on', 'On')}
-                        required
-                      />
-                      <TextInput
-                        id="labelFalse"
-                        labelText={t('labelFalse', 'Label false')}
-                        value={t(toggleLabelFalse || '')}
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                          setToggleLabelFalse(event.target.value)
-                        }
-                        placeholder={t('off', 'Off')}
-                        required
-                      />
-                    </div>
+                    <Toggle question={question} updateQuestion={setQuestion} />
                   ) : null}
 
                   {renderingType !== 'ui-select-extended' && (
@@ -894,6 +850,10 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   </Stack>
                 </>
               ) : null}
+
+              {renderingType === 'ui-select-extended' && (
+                <UiSelectExtended question={question} updateQuestion={setQuestion} />
+              )}
 
               {renderingType === 'date' || renderingType === 'datetime' ? (
                 <RadioButtonGroup
