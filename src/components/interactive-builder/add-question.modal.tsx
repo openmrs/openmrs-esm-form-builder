@@ -246,7 +246,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     closeModal();
   };
 
-  const createQuestion = (selectedAnswers) => {
+  const createQuestion = (updatedAnswers) => {
     try {
       const questionIndex = schema.pages[pageIndex]?.sections?.[sectionIndex]?.questions?.length ?? 0;
       const computedQuestionId = `question${questionIndex + 1}Section${sectionIndex + 1}Page-${pageIndex + 1}`;
@@ -264,8 +264,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           ...(max && { max }),
           ...(selectedConcept && { concept: selectedConcept?.uuid }),
           ...(conceptMappings.length && { conceptMappings }),
-          ...(selectedAnswers.length && {
-            answers: selectedAnswers.map((answer) => ({
+          ...(updatedAnswers.length && {
+            answers: updatedAnswers.map((answer) => ({
               concept: answer.id,
               label: answer.text,
             })),

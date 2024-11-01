@@ -286,20 +286,20 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     setProgramWorkflows(selectedItem?.allWorkflows);
   };
 
-  const updateQuestion = (questionIndex: number, selectedAnswers) => {
+  const updateQuestion = (questionIndex: number, updatedAnswers) => {
     let mappedAnswers = [];
 
     // update changed concept based on details
-    if (!hasConceptChanged && selectedAnswers?.length) {
-      mappedAnswers = selectedAnswers.map((answer) => ({
+    if (!hasConceptChanged && updatedAnswers?.length) {
+      mappedAnswers = updatedAnswers.map((answer) => ({
         concept: answer.id,
         label: answer.text,
       }));
     } else if (hasConceptChanged && answersFromConcept.length === 0) {
       mappedAnswers = [];
-    } else if (hasConceptChanged && answersFromConcept?.length > 0 && selectedAnswers?.length) {
-      mappedAnswers = selectedAnswers?.length
-        ? selectedAnswers.map((answer) => ({
+    } else if (hasConceptChanged && answersFromConcept?.length > 0 && updatedAnswers?.length) {
+      mappedAnswers = updatedAnswers?.length
+        ? updatedAnswers.map((answer) => ({
             concept: answer.id,
             label: answer.text,
           }))
