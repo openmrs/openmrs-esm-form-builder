@@ -15,9 +15,10 @@
     "project": true,
     "tsconfigRootDir": "__dirname"
   },
-  "plugins": ["@typescript-eslint", "jest-dom", "react-hooks", "testing-library"],
+  "plugins": ["@typescript-eslint", "import", "react-hooks", "testing-library"],
   "root": true,
   "rules": {
+    "import/no-duplicates": "error",
     "react-hooks/exhaustive-deps": "warn",
     "react-hooks/rules-of-hooks": "error",
     // not hugely concerned about accidental implicit type coercions for now https://typescript-eslint.io/rules/no-base-to-string

@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AceEditor from 'react-ace';
 import 'ace-builds/webpack-resolver';
-import 'ace-builds/src-noconflict/ext-language_tools';
-import type { IMarker } from 'react-ace';
 import { addCompleter } from 'ace-builds/src-noconflict/ext-language_tools';
+import type { IMarker } from 'react-ace';
 import { useTranslation } from 'react-i18next';
 import { useStandardFormSchema } from '../../hooks/useStandardFormSchema';
 import Ajv from 'ajv';

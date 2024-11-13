@@ -26,8 +26,7 @@ import {
   updateForm,
   uploadSchema,
 } from '../../forms.resource';
-import type { EncounterType } from '../../types';
-import type { Resource, Schema } from '../../types';
+import type { EncounterType, Resource, Schema } from '../../types';
 import { useEncounterTypes } from '../../hooks/useEncounterTypes';
 import { useForm } from '../../hooks/useForm';
 import styles from './save-form-modal.scss';
