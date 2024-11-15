@@ -44,6 +44,7 @@ import type {
   DatePickerTypeOption,
 } from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
+import { useConceptInfo } from '../../hooks/useConceptInfo';
 import { useConceptName } from '../../hooks/useConceptName';
 import { usePatientIdentifierLookup } from '../../hooks/usePatientIdentifierLookup';
 import { usePatientIdentifierName } from '../../hooks/usePatientIdentifierName';
@@ -129,7 +130,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     isLoadingConcepts: isLoadingAnsConcepts,
   } = useConceptLookup(conceptAnsToLookup);
   const [selectedConcept, setSelectedConcept] = useState<Concept | null>(null);
-
+  const { concept: editConceptInfo } = useConceptInfo(questionToEdit.questionOptions.concept);
   const { concepts, isLoadingConcepts } = useConceptLookup(conceptToLookup);
   const { conceptName, conceptNameLookupError, isLoadingConceptName } = useConceptName(
     questionToEdit.questionOptions.concept,
@@ -170,7 +171,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     date: [{ value: 'calendar', label: t('calendarOnly', 'Calendar only'), defaultChecked: false }],
     time: [{ value: 'timer', label: t('timerOnly', 'Timer only'), defaultChecked: false }],
   };
-
   const debouncedSearch = useMemo(() => {
     return debounce((searchTerm: string) => setConceptToLookup(searchTerm), 500) as (searchTerm: string) => void;
   }, []);
@@ -202,6 +202,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     setAnswer(false);
     setConceptToLookup('');
     setSelectedAnswers([]);
+    setAddedAnswers([]);
     setSelectedConcept(concept);
     setConceptMappings(
       concept?.mappings?.map((conceptMapping) => {
@@ -912,7 +913,14 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                       </div>
                     ) : null}
 
-                    {(selectedConcept || questionToEdit) && questionToEdit?.questionOptions.answers?.length ? (
+                    {!hasConceptChanged && editConceptInfo?.datatype?.uuid == '8d4a48b6-c2cc-11de-8d13-0010c6dffd0f' ? (
+                      <div>
+                        <Button kind="tertiary" onClick={showAddQuestion} iconDescription="Add" size="sm">
+                          More Answers
+                        </Button>
+                      </div>
+                    ) : null}
+                    {hasConceptChanged && answersFromConcept.length ? (
                       <div>
                         <Button kind="tertiary" onClick={showAddQuestion} iconDescription="Add" size="sm">
                           More Answers
