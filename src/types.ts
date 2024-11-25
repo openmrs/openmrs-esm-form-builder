@@ -1,6 +1,17 @@
 import type { OpenmrsResource } from '@openmrs/esm-framework';
-import type { ProgramState, ReferencedForm, RenderType, RequiredFieldProps } from '@openmrs/esm-form-engine-lib';
+import type {
+  FormField,
+  ProgramState,
+  ReferencedForm,
+  RenderType,
+  RequiredFieldProps,
+} from '@openmrs/esm-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
+
+export interface ComponentProps {
+  formField: FormField;
+  setFormField: (formField: FormField) => void;
+}
 
 export interface Form {
   uuid: string;

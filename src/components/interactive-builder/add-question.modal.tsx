@@ -49,10 +49,6 @@ import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { useProgramWorkStates, usePrograms } from '../../hooks/useProgramStates';
 import styles from './question-modal.scss';
-import TextArea from './components/rendering-type-inputs/text-area/textarea.component';
-import Number from './components/rendering-type-inputs/number/number.component';
-import Toggle from './components/rendering-type-inputs/toggle/toggle.component';
-import UiSelectExtended from './components/rendering-type-inputs/ui-select-extended/ui-select-extended.component';
 
 interface AddQuestionModalProps {
   closeModal: () => void;
@@ -486,14 +482,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
               {questionType === 'obs' ? (
                 <>
-                  {renderingType === 'number' ? (
-                    <Number question={question} updateQuestion={setQuestion} />
-                  ) : renderingType === 'textarea' ? (
-                    <TextArea question={question} updateQuestion={setQuestion} />
-                  ) : renderingType === 'toggle' ? (
-                    <Toggle question={question} updateQuestion={setQuestion} />
-                  ) : null}
-
                   {renderingType !== 'ui-select-extended' && (
                     <div>
                       <FormLabel className={styles.label}>
@@ -696,10 +684,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   </Stack>
                 </>
               ) : null}
-
-              {renderingType === 'ui-select-extended' && (
-                <UiSelectExtended question={question} updateQuestion={setQuestion} />
-              )}
 
               {renderingType === 'date' || renderingType === 'datetime' ? (
                 <RadioButtonGroup
