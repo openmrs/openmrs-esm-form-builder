@@ -16,7 +16,7 @@ module.exports = {
     '^react-i18next$': '<rootDir>/__mocks__/react-i18next.js',
     'react-markdown': '<rootDir>/__mocks__/react-markdown.tsx',
   },
-  setupFilesAfterEnv: ['<rootDir>/src/setup-tests.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/tools/setup-tests.ts'],
   testEnvironment: 'jsdom',
   testPathIgnorePatterns: ['<rootDir>/e2e'],
 };
