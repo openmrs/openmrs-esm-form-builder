@@ -37,7 +37,7 @@ export const deleteSectionModal = getAsyncLifecycle(
 );
 
 export const addQuestionModal = getAsyncLifecycle(
-  () => import('./components/interactive-builder/add-question.modal'),
+  () => import('./components/interactive-builder/question-form/question.modal'),
   options,
 );
 
