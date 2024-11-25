@@ -1,17 +1,13 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TextInput } from '@carbon/react';
-import type { Question } from '../../../../../types';
+import type { FormField } from '@openmrs/esm-form-engine-lib';
+import type { ComponentProps } from '../../../../../../types';
 
-interface NumberProps {
-  question: Question;
-  updateQuestion: (question: Question) => void;
-}
-
-const Number: React.FC<NumberProps> = ({ question, updateQuestion }) => {
+const Number: React.FC<ComponentProps> = ({ formField, setFormField }) => {
   const { t } = useTranslation();
-  const [min, setMin] = useState(question.questionOptions?.min ?? '');
-  const [max, setMax] = useState(question.questionOptions?.min ?? '');
+  const [min, setMin] = useState('');
+  const [max, setMax] = useState('');
   return (
     <>
       <TextInput
@@ -24,11 +20,11 @@ const Number: React.FC<NumberProps> = ({ question, updateQuestion }) => {
         }
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           setMin(event.target.value);
-          const updatedQuestion: Question = {
-            ...question,
-            questionOptions: { ...question.questionOptions, min: event.target.value },
+          const updatedQuestion: FormField = {
+            ...formField,
+            questionOptions: { ...formField.questionOptions, min: event.target.value },
           };
-          updateQuestion(updatedQuestion);
+          setFormField(updatedQuestion);
         }}
       />
       <TextInput
@@ -41,11 +37,11 @@ const Number: React.FC<NumberProps> = ({ question, updateQuestion }) => {
         }
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           setMax(event.target.value);
-          const updatedQuestion: Question = {
-            ...question,
-            questionOptions: { ...question.questionOptions, min: event.target.value },
+          const updatedQuestion: FormField = {
+            ...formField,
+            questionOptions: { ...formField.questionOptions, max: event.target.value },
           };
-          updateQuestion(updatedQuestion);
+          setFormField(updatedQuestion);
         }}
       />
     </>
