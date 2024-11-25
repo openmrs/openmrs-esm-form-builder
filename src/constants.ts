@@ -43,7 +43,7 @@ export const renderingTypes: Array<RenderType> = [
 
 export const renderTypeOptions: Record<string, Array<RenderType>> = {
   control: ['text', 'markdown'],
-  encounterDatetime: ['date'],
+  encounterDatetime: ['date', 'datetime'],
   encounterLocation: ['ui-select-extended'],
   encounterProvider: ['ui-select-extended'],
   encounterRole: ['ui-select-extended'],

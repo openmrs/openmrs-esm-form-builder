@@ -36,18 +36,13 @@ export const deleteSectionModal = getAsyncLifecycle(
   options,
 );
 
-export const addQuestionModal = getAsyncLifecycle(
+export const questionModal = getAsyncLifecycle(
   () => import('./components/interactive-builder/question-form/question.modal'),
   options,
 );
 
 export const deleteQuestionModal = getAsyncLifecycle(
   () => import('./components/interactive-builder/delete-question.modal'),
-  options,
-);
-
-export const editQuestionModal = getAsyncLifecycle(
-  () => import('./components/interactive-builder/edit-question.modal'),
   options,
 );
 
