@@ -1,12 +1,18 @@
 import type { OpenmrsResource } from '@openmrs/esm-framework';
 import type {
   OpenmrsFormResource,
+  FormField,
   ProgramState,
   ReferencedForm,
   RenderType,
   RequiredFieldProps,
 } from '@openmrs/esm-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
+
+export interface ComponentProps {
+  formField: FormField;
+  setFormField: (formField: FormField) => void;
+}
 
 export interface Form {
   uuid: string;
@@ -123,11 +129,7 @@ export interface Section {
 export interface Question {
   id: string;
   label?: string;
-<<<<<<< HEAD
   value?: any;
-=======
-  value?: string;
->>>>>>> 487b0f6 ((refactor) Break rendering types)
   type: string;
   questionOptions: QuestionOptions;
   datePickerFormat?: DatePickerType;
