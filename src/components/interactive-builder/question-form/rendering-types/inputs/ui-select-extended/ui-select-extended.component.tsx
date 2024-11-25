@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
-import { RadioButtonGroup, RadioButton } from '@carbon/react';
-import type { Question } from '../../../../../types';
 import { useTranslation } from 'react-i18next';
+import { RadioButtonGroup, RadioButton } from '@carbon/react';
+import type { FormField } from '@openmrs/esm-form-engine-lib';
+import type { ComponentProps } from '../../../../../../types';
 
-interface UiSelectExtendedProps {
-  question: Question;
-  updateQuestion: (question: Question) => void;
-}
-
-const UiSelectExtended: React.FC<UiSelectExtendedProps> = ({ question, updateQuestion }) => {
+const UiSelectExtended: React.FC<ComponentProps> = ({ formField, setFormField }) => {
   const { t } = useTranslation();
-  const [searchable, setSearchable] = useState(question.questionOptions?.isSearchable ?? false);
+  const [searchable, setSearchable] = useState(formField.questionOptions?.isSearchable ?? false);
   return (
     <>
       <RadioButtonGroup
@@ -24,11 +20,11 @@ const UiSelectExtended: React.FC<UiSelectExtendedProps> = ({ question, updateQue
           labelText={t('notSearchable', 'Not Searchable')}
           onClick={() => {
             setSearchable(false);
-            const updatedQuestion: Question = {
-              ...question,
-              questionOptions: { ...question.questionOptions, isSearchable: false },
+            const updatedQuestion: FormField = {
+              ...formField,
+              questionOptions: { ...formField.questionOptions, isSearchable: false },
             };
-            updateQuestion(updatedQuestion);
+            setFormField(updatedQuestion);
           }}
           value="optional"
         />
@@ -38,11 +34,11 @@ const UiSelectExtended: React.FC<UiSelectExtendedProps> = ({ question, updateQue
           labelText={t('searchable', 'Searchable')}
           onClick={() => {
             setSearchable(true);
-            const updatedQuestion: Question = {
-              ...question,
-              questionOptions: { ...question.questionOptions, isSearchable: true },
+            const updatedQuestion: FormField = {
+              ...formField,
+              questionOptions: { ...formField.questionOptions, isSearchable: true },
             };
-            updateQuestion(updatedQuestion);
+            setFormField(updatedQuestion);
           }}
           value="required"
         />
