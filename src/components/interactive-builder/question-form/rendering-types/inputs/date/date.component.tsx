@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { RadioButtonGroup, RadioButton } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import type { DatePickerTypeOption, ComponentProps } from '../../../../../../types';
@@ -12,10 +12,12 @@ const Date: React.FC<ComponentProps> = ({ formField, setFormField }) => {
     time: [{ value: 'timer', label: t('timerOnly', 'Timer only'), defaultChecked: false }],
   };
 
-  const selectDatePickerType = (type: DatePickerTypeOption) => {
-    setFormField({ ...formField, datePickerFormat: type.value });
-  };
-
+  const handleDatePickerTypeChange = useCallback(
+    (type: DatePickerTypeOption) => {
+      setFormField({ ...formField, datePickerFormat: type.value });
+    },
+    [formField, setFormField],
+  );
   return (
     <RadioButtonGroup name="datePickerType" legendText={t('datePickerType', 'The type of date picker to show ')}>
       {Object.values(datePickerTypeOptions)
@@ -25,7 +27,7 @@ const Date: React.FC<ComponentProps> = ({ formField, setFormField }) => {
             id={type.value}
             checked={formField.datePickerFormat && formField.datePickerFormat === type.value}
             labelText={type.label}
-            onClick={selectDatePickerType}
+            onClick={handleDatePickerTypeChange.bind(null, type)}
             value={type.value}
           />
         ))}

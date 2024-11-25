@@ -24,6 +24,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   schema,
   pageIndex,
   sectionIndex,
+  questionIndex,
   onSchemaChange,
 }) => {
   const { t } = useTranslation();
@@ -31,17 +32,19 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
     formFieldProp ?? { type: '', questionOptions: undefined, id: '' },
   );
 
-  const checkIfQuestionIdExists = (idToTest: string) => {
-    const nestedIds = schema?.pages?.map((page) => {
-      return page?.sections?.map((section) => {
-        return section?.questions?.map((question) => {
-          return question.id;
+  const checkIfQuestionIdExists = (idToTest: string): boolean => {
+    if (formFieldProp) return false;
+    else {
+      const nestedIds = schema?.pages?.map((page) => {
+        return page?.sections?.map((section) => {
+          return section?.questions?.map((question) => {
+            return question.id;
+          });
         });
       });
-    });
-
-    const questionIds: Array<string> = flattenDeep(nestedIds);
-    return questionIds.includes(idToTest);
+      const questionIds: Array<string> = flattenDeep(nestedIds);
+      return questionIds.includes(idToTest);
+    }
   };
 
   const addObsGroupQuestion = () => {
@@ -57,9 +60,13 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
     setFormField(newFormField);
   };
 
-  const createQuestion = () => {
+  const saveQuestion = () => {
     try {
-      schema.pages[pageIndex]?.sections?.[sectionIndex]?.questions?.push(formField);
+      if (formFieldProp) {
+        schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] = formField;
+      } else {
+        schema.pages[pageIndex]?.sections?.[sectionIndex]?.questions?.push(formField);
+      }
 
       onSchemaChange({ ...schema });
 
@@ -67,12 +74,14 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
         title: t('success', 'Success!'),
         kind: 'success',
         isLowContrast: true,
-        subtitle: t('questionCreated', 'New question created'),
+        subtitle: formFieldProp
+          ? t('questionUpdated', 'Question updated')
+          : t('questionCreated', 'New question created'),
       });
     } catch (error) {
       if (error instanceof Error) {
         showSnackbar({
-          title: t('errorCreatingQuestion', 'Error creating question'),
+          title: t('errorSavingQuestion', 'Error saving question'),
           kind: 'error',
           subtitle: error?.message,
         });
@@ -99,10 +108,18 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
         <ModalBody hasScrollingContent>
           <FormGroup>
             <Stack gap={5}>
-              <Question formField={formField} setFormField={updateFormField} schema={schema} />
+              <Question
+                formField={formField}
+                setFormField={updateFormField}
+                checkIfQuestionIdExists={checkIfQuestionIdExists}
+              />
               {formField.questions?.length > 1 &&
                 formField.questions.map((question) => (
-                  <Question formField={question} setFormField={updateFormField} schema={schema} />
+                  <Question
+                    formField={question}
+                    setFormField={updateFormField}
+                    checkIfQuestionIdExists={checkIfQuestionIdExists}
+                  />
                 ))}
               {formField.type === 'obsGroup' && (
                 <Button onClick={addObsGroupQuestion}>
@@ -123,7 +140,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
               checkIfQuestionIdExists(formField.id) ||
               !formField.questionOptions?.rendering
             }
-            onClick={createQuestion}
+            onClick={saveQuestion}
           >
             <span>{t('save', 'Save')}</span>
           </Button>

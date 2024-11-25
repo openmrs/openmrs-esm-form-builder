@@ -15,7 +15,7 @@ module.exports = {
     '^dexie$': '<rootDir>/node_modules/dexie',
     '^react-i18next$': '<rootDir>/__mocks__/react-i18next.js',
   },
-  setupFilesAfterEnv: ['<rootDir>/src/setup-tests.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/tools/setup-tests.ts'],
   testEnvironment: 'jsdom',
   testPathIgnorePatterns: ['<rootDir>/e2e'],
 };
