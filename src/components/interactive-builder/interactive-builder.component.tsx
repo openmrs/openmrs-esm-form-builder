@@ -117,7 +117,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
   const launchAddQuestionModal = useCallback(
     (pageIndex: number, sectionIndex: number) => {
-      const dispose = showModal('add-question-modal', {
+      const dispose = showModal('question-modal', {
         closeModal: () => dispose(),
         onSchemaChange,
         schema,

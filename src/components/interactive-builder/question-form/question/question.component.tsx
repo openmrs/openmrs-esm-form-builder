@@ -1,20 +1,19 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { TextInput, Button, Select, SelectItem, RadioButtonGroup, RadioButton } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import flattenDeep from 'lodash-es/flattenDeep';
 import RenderTypeComponent from '../rendering-types/rendering-type.component';
 import QuestionTypeComponent from '../question-types/question-type.component';
 import RequiredLabel from '../required-label/required-label.component';
-import type { FormField, FormSchema, RenderType } from '@openmrs/esm-form-engine-lib';
+import type { FormField, RenderType } from '@openmrs/esm-form-engine-lib';
 import type { ComponentProps } from '../../../../types';
 import { questionTypes, renderTypeOptions, renderingTypes } from '../../../../constants';
 import styles from './question.scss';
 
 interface QuestionProps extends ComponentProps {
-  schema: FormSchema;
+  checkIfQuestionIdExists: (idToTest: string) => boolean;
 }
 
-const Question: React.FC<QuestionProps> = ({ formField, setFormField, schema }) => {
+const Question: React.FC<QuestionProps> = ({ formField, setFormField, checkIfQuestionIdExists }) => {
   const { t } = useTranslation();
 
   const convertLabelToCamelCase = () => {
@@ -27,24 +26,15 @@ const Question: React.FC<QuestionProps> = ({ formField, setFormField, schema }) 
     setFormField({ ...formField, id: camelCasedLabel });
   };
 
-  const questionIdExists = (idToTest: string) => {
-    const nestedIds = schema?.pages?.map((page) => {
-      return page?.sections?.map((section) => {
-        return section?.questions?.map((question) => {
-          return question.id;
-        });
-      });
-    });
-
-    const questionIds: Array<string> = flattenDeep(nestedIds);
-    return questionIds.includes(idToTest);
-  };
+  const isQuestionIdValid = useCallback(() => {
+    return checkIfQuestionIdExists(formField.id);
+  }, [formField.id, checkIfQuestionIdExists]);
 
   return (
     <>
       <TextInput
         id="questionId"
-        invalid={formField?.id ? questionIdExists(formField.id) : false}
+        invalid={formField?.id ? isQuestionIdValid() : false}
         invalidText={t('questionIdExists', 'This question ID already exists in your schema')}
         labelText={
           <div className={styles.questionIdLabel}>
@@ -106,7 +96,7 @@ const Question: React.FC<QuestionProps> = ({ formField, setFormField, schema }) 
         {!formField.questionOptions?.rendering && (
           <SelectItem text={t('chooseRenderingType', 'Choose a rendering type')} value="" />
         )}
-        {formField.type && formField.type !== 'obs'
+        {formField.type && formField.type !== 'obs' && questionTypes.includes(formField.type)
           ? renderTypeOptions[formField?.type].map((type, key) => (
               <SelectItem key={`${type}-${key}`} text={type} value={type} />
             ))
@@ -131,7 +121,7 @@ const Question: React.FC<QuestionProps> = ({ formField, setFormField, schema }) 
             required
           />
           <RadioButtonGroup
-            defaultSelected="optional"
+            defaultSelected={formField.required ? 'required' : 'optional'}
             name="isQuestionRequired"
             legendText={t(
               'isQuestionRequiredOrOptional',
@@ -140,14 +130,14 @@ const Question: React.FC<QuestionProps> = ({ formField, setFormField, schema }) 
           >
             <RadioButton
               id="questionIsNotRequired"
-              defaultChecked={true}
+              defaultChecked={formField.required ? !formField.required : true}
               labelText={t('optional', 'Optional')}
               onClick={() => setFormField({ ...formField, required: false })}
               value="optional"
             />
             <RadioButton
               id="questionIsRequired"
-              defaultChecked={false}
+              defaultChecked={formField.required ? formField.required : false}
               labelText={t('required', 'Required')}
               onClick={() => setFormField({ ...formField, required: true })}
               value="required"

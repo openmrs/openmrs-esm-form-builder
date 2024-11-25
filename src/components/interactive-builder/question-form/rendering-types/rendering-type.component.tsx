@@ -27,7 +27,7 @@ const RenderTypeComponent: React.FC<ComponentProps> = ({ formField, setFormField
   if (!Component) {
     if (formField.questionOptions?.rendering) {
       console.error(
-        `No component found for type: ${formField.questionOptions.rendering} or rendering type not allowed for ${formField.type}`,
+        `No component found for rendering type: ${formField.questionOptions.rendering} or a rendering type is not available for ${formField.type}`,
       );
     }
     return null;

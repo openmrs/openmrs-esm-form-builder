@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SelectSkeleton, Stack, ComboBox, InlineNotification, MultiSelect, Tag } from '@carbon/react';
 import { usePrograms, useProgramWorkStates } from '../../../../../../hooks/useProgramStates';
@@ -12,7 +12,7 @@ interface ProgramStateData {
 
 const ProgramStateTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) => {
   const { t } = useTranslation();
-  const [selectedProgramState, setSelectedProgramState] = useState<Array<ProgramState>>([]);
+  const [selectedProgramState, setSelectedProgramState] = useState<Array<ProgramState>>();
   const [selectedProgram, setSelectedProgram] = useState<Program>(null);
   const [programWorkflow, setProgramWorkflow] = useState<ProgramWorkflow>(null);
   const { programs, programsLookupError, isLoadingPrograms } = usePrograms();
@@ -63,10 +63,18 @@ const ProgramStateTypeQuestion: React.FC<ComponentProps> = ({ formField, setForm
     return item.concept.display;
   }, []);
 
+  useEffect(() => {
+    setSelectedProgramState(
+      programStates.filter((programState) =>
+        formField.questionOptions?.answers?.some((answer) => answer.value === programState.uuid),
+      ),
+    );
+  }, [formField.questionOptions?.answers, programStates]);
+
   return (
     <Stack gap={5}>
       {isLoadingPrograms && <SelectSkeleton />}
-      {programsLookupError ? (
+      {programsLookupError && (
         <InlineNotification
           kind="error"
           lowContrast
@@ -74,7 +82,7 @@ const ProgramStateTypeQuestion: React.FC<ComponentProps> = ({ formField, setForm
           title={t('errorFetchingPrograms', 'Error fetching programs')}
           subtitle={t('pleaseTryAgain', 'Please try again.')}
         />
-      ) : null}
+      )}
       {programs && (
         <ComboBox
           id="programLookup"
@@ -86,6 +94,7 @@ const ProgramStateTypeQuestion: React.FC<ComponentProps> = ({ formField, setForm
           placeholder={t('addProgram', 'Add program')}
           selectedItem={selectedProgram}
           titleText={t('program', 'Program')}
+          initialSelectedItem={programs.find((program) => program?.uuid === formField.questionOptions?.programUuid)}
         />
       )}
 
@@ -98,6 +107,9 @@ const ProgramStateTypeQuestion: React.FC<ComponentProps> = ({ formField, setForm
           placeholder={t('addProgramWorkflow', 'Add program workflow')}
           selectedItem={programWorkflow}
           titleText={t('programWorkflow', 'Program workflow')}
+          initialSelectedItem={programWorkflows.find(
+            (programWorkflow) => programWorkflow?.uuid === formField.questionOptions?.workflowUuid,
+          )}
         />
       )}
       {programWorkflow && (

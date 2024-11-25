@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { TextInput } from '@carbon/react';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
@@ -6,16 +6,13 @@ import type { ComponentProps } from '../../../../../../types';
 
 const Toggle: React.FC<ComponentProps> = ({ formField, setFormField }) => {
   const { t } = useTranslation();
-  const [toggleLabelTrue, setToggleLabelTrue] = useState(formField.questionOptions?.toggleOptions?.labelTrue ?? '');
-  const [toggleLabelFalse, setToggleLabelFalse] = useState(formField.questionOptions?.toggleOptions?.labelFalse ?? '');
   return (
     <>
       <TextInput
         id="labelTrue"
         labelText={t('labelTrue', 'Label true')}
-        value={t(toggleLabelTrue || '')}
+        value={formField.questionOptions?.toggleOptions?.labelTrue ?? ''}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          setToggleLabelTrue(event.target.value);
           const updatedQuestion: FormField = {
             ...formField,
             questionOptions: {
@@ -30,9 +27,8 @@ const Toggle: React.FC<ComponentProps> = ({ formField, setFormField }) => {
       <TextInput
         id="labelFalse"
         labelText={t('labelFalse', 'Label false')}
-        value={t(toggleLabelFalse || '')}
+        value={formField.questionOptions?.toggleOptions?.labelFalse ?? ''}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          setToggleLabelFalse(event.target.value);
           const updatedQuestion: FormField = {
             ...formField,
             questionOptions: {

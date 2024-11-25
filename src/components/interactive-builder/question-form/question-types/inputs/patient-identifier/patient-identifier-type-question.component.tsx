@@ -8,11 +8,17 @@ import styles from './patient-identifier-type-question.scss';
 
 const PatientIdentifierTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) => {
   const { t } = useTranslation();
-  const [selectedPatientIdetifierType, setSelectedPatientIdetifierType] = useState<PatientIdentifierType>(null);
+  const { patientIdentifierTypes, patientIdentifierTypeLookupError } = usePatientIdentifierTypes();
   const { patientIdentifierNameLookupError, isLoadingPatientidentifierName } = usePatientIdentifierName(
     formField.questionOptions?.identifierType ?? '',
   );
-  const { patientIdentifierTypes, patientIdentifierTypeLookupError } = usePatientIdentifierTypes();
+  const [selectedPatientIdetifierType, setSelectedPatientIdetifierType] = useState<PatientIdentifierType>(
+    formField.questionOptions?.identifierType
+      ? patientIdentifierTypes.find(
+          (patientIdentifierType) => patientIdentifierType.uuid === formField.questionOptions.identifierType,
+        )
+      : null,
+  );
 
   const handlePatientIdentifierTypeChange = ({ selectedItem }: { selectedItem: PatientIdentifierType }) => {
     setSelectedPatientIdetifierType(selectedItem);

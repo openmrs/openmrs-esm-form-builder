@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { RadioButtonGroup, RadioButton } from '@carbon/react';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
@@ -6,7 +6,6 @@ import type { ComponentProps } from '../../../../../../types';
 
 const UiSelectExtended: React.FC<ComponentProps> = ({ formField, setFormField }) => {
   const { t } = useTranslation();
-  const [searchable, setSearchable] = useState(formField.questionOptions?.isSearchable ?? false);
   return (
     <>
       <RadioButtonGroup
@@ -16,10 +15,9 @@ const UiSelectExtended: React.FC<ComponentProps> = ({ formField, setFormField })
       >
         <RadioButton
           id="uiSelectNotSearchable"
-          defaultChecked={!searchable}
+          defaultChecked={!formField.questionOptions?.isSearchable}
           labelText={t('notSearchable', 'Not Searchable')}
           onClick={() => {
-            setSearchable(false);
             const updatedQuestion: FormField = {
               ...formField,
               questionOptions: { ...formField.questionOptions, isSearchable: false },
@@ -30,10 +28,9 @@ const UiSelectExtended: React.FC<ComponentProps> = ({ formField, setFormField })
         />
         <RadioButton
           id="uiSelectSearchable"
-          defaultChecked={searchable}
+          defaultChecked={formField.questionOptions?.isSearchable}
           labelText={t('searchable', 'Searchable')}
           onClick={() => {
-            setSearchable(true);
             const updatedQuestion: FormField = {
               ...formField,
               questionOptions: { ...formField.questionOptions, isSearchable: true },

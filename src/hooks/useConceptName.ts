@@ -1,15 +1,23 @@
 import useSWR from 'swr';
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import type { Concept } from '../types';
 
-export function useConceptName(conceptId: string | undefined) {
-  const customRepresentation = 'custom:(name:(display))';
-  const url = `${restBaseUrl}/concept/${conceptId}?v=${customRepresentation}`;
+interface UseConceptNameReturnType {
+  concept: Concept | null;
+  conceptName: string | null;
+  conceptNameLookupError: Error | null;
+  isLoadingConcept: boolean;
+}
 
-  const { data, error } = useSWR<{ data: { name: { display: string } } }, Error>(conceptId ? url : null, openmrsFetch);
+export function useConceptId(conceptId: string | undefined): UseConceptNameReturnType {
+  const url = `${restBaseUrl}/concept/${conceptId}?v=full`;
+
+  const { data, error } = useSWR<{ data: Concept }, Error>(conceptId ? url : null, openmrsFetch);
 
   return {
-    conceptName: data?.data?.name?.display ?? null,
+    concept: data?.data ?? null,
+    conceptName: data?.data?.display ?? null,
     conceptNameLookupError: error,
-    isLoadingConceptName: (conceptId && !data && !error) || false,
+    isLoadingConcept: (conceptId && !data && !error) || false,
   };
 }

@@ -36,14 +36,14 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   const draggableId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
 
   const launchEditQuestionModal = useCallback(() => {
-    const dispose = showModal('edit-question-modal', {
+    const dispose = showModal('question-modal', {
+      formField: question,
       closeModal: () => dispose(),
-      questionToEdit: question,
-      pageIndex,
-      sectionIndex,
-      questionIndex,
       onSchemaChange,
       schema,
+      questionIndex,
+      pageIndex,
+      sectionIndex,
     });
   }, [onSchemaChange, pageIndex, question, questionIndex, schema, sectionIndex]);
 

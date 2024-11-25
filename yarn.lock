@@ -1271,7 +1271,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.14.5, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.8.4":
+"@babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.14.5, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.8.4":
   version: 7.25.9
   resolution: "@babel/runtime@npm:7.25.9"
   dependencies:
@@ -1298,7 +1298,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.24.5, @babel/runtime@npm:^7.24.7":
+"@babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.24.5, @babel/runtime@npm:^7.24.7":
   version: 7.26.0
   resolution: "@babel/runtime@npm:7.26.0"
   dependencies:
@@ -3656,7 +3656,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openmrs/esm-styleguide@npm:5.8.2-pre.2527, @openmrs/esm-styleguide@npm:next":
+"@openmrs/esm-styleguide@npm:5.8.2-pre.2527":
   version: 5.8.2-pre.2527
   resolution: "@openmrs/esm-styleguide@npm:5.8.2-pre.2527"
   dependencies:
@@ -3683,6 +3683,36 @@ __metadata:
     react-i18next: 11.x
     rxjs: 6.x
   checksum: 10/6a45bad4ccfe7f9c9180d2540c3aeb4cca06f0f6dd8c2f9779b70d125d9c4a2f3f81e88c8c02f32abdb1663b3726bd7ea6cbe443507bbc21fb4170473815562f
+  languageName: node
+  linkType: hard
+
+"@openmrs/esm-styleguide@npm:next":
+  version: 5.8.2-pre.2417
+  resolution: "@openmrs/esm-styleguide@npm:5.8.2-pre.2417"
+  dependencies:
+    "@carbon/charts": "npm:^1.12.0"
+    "@carbon/react": "npm:~1.37.0"
+    "@internationalized/date": "npm:^3.5.5"
+    core-js-pure: "npm:^3.36.0"
+    d3: "npm:^7.8.0"
+    geopattern: "npm:^1.2.3"
+    lodash-es: "npm:^4.17.21"
+    react-aria-components: "npm:^1.3.3"
+    react-avatar: "npm:^5.0.3"
+  peerDependencies:
+    "@openmrs/esm-error-handling": 5.x
+    "@openmrs/esm-extensions": 5.x
+    "@openmrs/esm-navigation": 5.x
+    "@openmrs/esm-react-utils": 5.x
+    "@openmrs/esm-state": 5.x
+    "@openmrs/esm-translations": 5.x
+    dayjs: 1.x
+    i18next: 21.x
+    react: 18.x
+    react-dom: 18.x
+    react-i18next: 11.x
+    rxjs: 6.x
+  checksum: 10/5cd2909159f5bc8b220afb02e703552670b215123a20702e66646adba1ced98a347a77371b692a94b15a9063c0fdfeda1ac1a95fea30f2a5ce263f55b6bbd4b9
   languageName: node
   linkType: hard
 
