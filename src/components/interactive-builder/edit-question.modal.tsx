@@ -913,7 +913,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                       </div>
                     ) : null}
 
-                    {!hasConceptChanged && editConceptInfo?.datatype?.uuid == '8d4a48b6-c2cc-11de-8d13-0010c6dffd0f' ? (
+                    {!hasConceptChanged && editConceptInfo?.datatype?.display == 'Coded' ? (
                       <div>
                         <Button kind="tertiary" onClick={showAddQuestion} iconDescription="Add" size="sm">
                           More Answers
