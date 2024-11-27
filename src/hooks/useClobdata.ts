@@ -1,6 +1,6 @@
 import useSWRImmutable from 'swr/immutable';
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
-import type { Form, Schema } from '../types';
+import type { Form, Schema } from '@types';
 
 export const useClobdata = (form?: Form) => {
   const valueReferenceUuid = form?.resources?.find(({ name }) => name === 'JSON schema')?.valueReference;
