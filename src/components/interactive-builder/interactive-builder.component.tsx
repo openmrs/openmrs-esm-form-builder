@@ -1,16 +1,16 @@
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { DragEndEvent } from '@dnd-kit/core';
 import { DndContext, KeyboardSensor, MouseSensor, closestCorners, useSensor, useSensors } from '@dnd-kit/core';
 import { Accordion, AccordionItem, Button, IconButton, InlineLoading } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { showModal, showSnackbar } from '@openmrs/esm-framework';
+import DraggableQuestion from './draggable/draggable-question.component';
+import Droppable from './droppable/droppable-container.component';
+import EditableValue from './editable/editable-value.component';
+import type { DragEndEvent } from '@dnd-kit/core';
 import type { FormSchema } from '@openmrs/esm-form-engine-lib';
-import type { Schema, Question } from '../../types';
-import DraggableQuestion from './draggable-question.component';
-import Droppable from './droppable-container.component';
-import EditableValue from './editable-value.component';
+import type { Schema, Question } from '@types';
 import styles from './interactive-builder.scss';
 
 interface ValidationError {

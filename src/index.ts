@@ -17,42 +17,48 @@ export const systemAdministrationFormBuilderCardLink = getAsyncLifecycle(
   options,
 );
 
-export const newFormModal = getAsyncLifecycle(() => import('./components/interactive-builder/new-form.modal'), options);
+export const newFormModal = getAsyncLifecycle(
+  () => import('./components/interactive-builder/modals/new-form/new-form.modal'),
+  options,
+);
 
-export const newPageModal = getAsyncLifecycle(() => import('./components/interactive-builder/page.modal'), options);
+export const newPageModal = getAsyncLifecycle(
+  () => import('./components/interactive-builder/modals/new-page/page.modal'),
+  options,
+);
 
 export const deletePageModal = getAsyncLifecycle(
-  () => import('./components/interactive-builder/delete-page.modal'),
+  () => import('./components/interactive-builder/modals/delete-page/delete-page.modal'),
   options,
 );
 
 export const newSectionModal = getAsyncLifecycle(
-  () => import('./components/interactive-builder/section.modal'),
+  () => import('./components/interactive-builder/modals/new-section/section.modal'),
   options,
 );
 
 export const deleteSectionModal = getAsyncLifecycle(
-  () => import('./components/interactive-builder/delete-section.modal'),
+  () => import('./components/interactive-builder/modals/delete-section/delete-section.modal'),
   options,
 );
 
 export const questionModal = getAsyncLifecycle(
-  () => import('./components/interactive-builder/question-form/question.modal'),
+  () => import('./components/interactive-builder/modals/question/question.modal'),
   options,
 );
 
 export const deleteQuestionModal = getAsyncLifecycle(
-  () => import('./components/interactive-builder/delete-question.modal'),
+  () => import('./components/interactive-builder/modals/delete-question/delete-question.modal'),
   options,
 );
 
 export const restoreDraftSchemaModal = getAsyncLifecycle(
-  () => import('./components/form-editor/restore-draft-schema.modal'),
+  () => import('./components/interactive-builder/modals/restore-draft-schema/restore-draft-schema.modal'),
   options,
 );
 
 export const unpublishFormModal = getAsyncLifecycle(
-  () => import('./components/action-buttons/unpublish-form.modal'),
+  () => import('./components/interactive-builder/modals/unpublish-form/unpublish-form.modal'),
   options,
 );
 
