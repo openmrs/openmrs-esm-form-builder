@@ -1,16 +1,15 @@
 import React, { useCallback, useState } from 'react';
 import { Button, InlineLoading } from '@carbon/react';
 import { useParams } from 'react-router-dom';
+import { showModal, showSnackbar, useConfig } from '@openmrs/esm-framework';
+import SaveFormModal from '../interactive-builder/modals/save-form/save-form.modal';
+import { handleFormValidation } from '@resources/form-validator.resource';
+import { publishForm, unpublishForm } from '@resources/forms.resource';
+import { useForm } from '@hooks/useForm';
 import type { IMarker } from 'react-ace';
 import type { TFunction } from 'react-i18next';
-import { showModal, showSnackbar, useConfig } from '@openmrs/esm-framework';
-
-import { handleFormValidation } from '../../form-validator.resource';
-import { publishForm, unpublishForm } from '../../forms.resource';
-import { useForm } from '../../hooks/useForm';
-import SaveFormModal from '../modals/save-form.modal';
 import type { ConfigObject } from '../../config-schema';
-import type { Schema } from '../../types';
+import type { Schema } from '@types';
 import styles from './action-buttons.scss';
 
 interface ActionButtonsProps {
