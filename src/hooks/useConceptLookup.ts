@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
-import type { Concept } from '../types';
+import type { Concept } from '@types';
 
 export function useConceptLookup(conceptId: string) {
   const url = `${restBaseUrl}/concept?q=${conceptId}&v=full`;
