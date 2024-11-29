@@ -10,7 +10,7 @@ const Number: React.FC<ComponentProps> = ({ formField, setFormField }) => {
     <>
       <TextInput
         id="min"
-        labelText="Min"
+        labelText="Min value that can be entered"
         value={formField.questionOptions?.min ?? ''}
         invalid={parseFloat(formField.questionOptions?.min ?? '') > parseFloat(formField.questionOptions?.max ?? '')}
         invalidText={
@@ -28,7 +28,7 @@ const Number: React.FC<ComponentProps> = ({ formField, setFormField }) => {
       />
       <TextInput
         id="max"
-        labelText="Max"
+        labelText="Max value that can be entered"
         value={formField.questionOptions?.max ?? ''}
         invalid={parseFloat(formField.questionOptions?.min ?? '') > parseFloat(formField.questionOptions?.max ?? '')}
         invalidText={
