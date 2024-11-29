@@ -4,7 +4,6 @@
   },
   "extends": [
     "eslint:recommended",
-    "plugin:playwright/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:jest-dom/recommended",
@@ -17,6 +16,13 @@
   },
   "plugins": ["@typescript-eslint", "import", "react-hooks", "testing-library"],
   "root": true,
+  "overrides": [
+    {
+      "files": ["e2e/**"],
+      "excludedFiles":["src/**"],
+      "extends": ["plugin:playwright/recommended"]
+    }
+  ],
   "rules": {
     "import/no-duplicates": "error",
     "react-hooks/exhaustive-deps": "warn",

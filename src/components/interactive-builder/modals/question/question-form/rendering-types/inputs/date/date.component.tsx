@@ -24,6 +24,7 @@ const Date: React.FC<ComponentProps> = ({ formField, setFormField }) => {
         .flat()
         .map((type) => (
           <RadioButton
+            key={`date-picker-type-${type.value}`}
             id={type.value}
             checked={formField.datePickerFormat && formField.datePickerFormat === type.value}
             labelText={type.label}
