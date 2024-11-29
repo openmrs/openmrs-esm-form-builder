@@ -9,13 +9,13 @@ const UiSelectExtended: React.FC<ComponentProps> = ({ formField, setFormField })
   return (
     <>
       <RadioButtonGroup
-        defaultSelected="optional"
+        defaultSelected="notSearchable"
         name="isUiSelectSearchable"
-        legendText={t('is', 'Is the ui-select-extended rendering searchable')}
+        legendText={t('isUiSelectSearchable', 'Is the ui-select-extended rendering searchable')}
       >
         <RadioButton
           id="uiSelectNotSearchable"
-          defaultChecked={!formField.questionOptions?.isSearchable}
+          checked={!formField.questionOptions?.isSearchable}
           labelText={t('notSearchable', 'Not Searchable')}
           onClick={() => {
             const updatedQuestion: FormField = {
@@ -24,11 +24,11 @@ const UiSelectExtended: React.FC<ComponentProps> = ({ formField, setFormField })
             };
             setFormField(updatedQuestion);
           }}
-          value="optional"
+          value="notSearchable"
         />
         <RadioButton
           id="uiSelectSearchable"
-          defaultChecked={formField.questionOptions?.isSearchable}
+          checked={formField.questionOptions?.isSearchable}
           labelText={t('searchable', 'Searchable')}
           onClick={() => {
             const updatedQuestion: FormField = {
@@ -37,7 +37,7 @@ const UiSelectExtended: React.FC<ComponentProps> = ({ formField, setFormField })
             };
             setFormField(updatedQuestion);
           }}
-          value="required"
+          value="searchable"
         />
       </RadioButtonGroup>
     </>
