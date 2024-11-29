@@ -195,6 +195,7 @@ const ObsTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) 
             id="conceptLookup"
             onClear={clearSelectedConcept}
             onChange={handleConceptChange}
+            labelText={t('searchForBackingConcept', 'Search for a backing concept')}
             placeholder={t('searchConcept', 'Search using a concept name or UUID')}
             required
             size="md"
@@ -299,6 +300,7 @@ const ObsTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) 
             id: answer.concept,
             text: answer.label,
           }))}
+          label={t('selectAnswersToDisplay', 'Select answers to display')}
           titleText={t('selectAnswersToDisplay', 'Select answers to display')}
         />
       )}

@@ -6,6 +6,7 @@ const componentMap: Partial<Record<QuestionType, React.FC<ComponentProps>>> = {
   obs: ObsTypeQuestion,
   programState: ProgramStateTypeQuestion,
   patientIdentifier: PatientIdentifierTypeQuestion,
+  obsGroup: ObsTypeQuestion,
 };
 
 const QuestionTypeComponent: React.FC<ComponentProps> = ({ formField, setFormField }) => {
