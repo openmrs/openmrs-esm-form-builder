@@ -62,7 +62,10 @@ export const unpublishFormModal = getAsyncLifecycle(
   options,
 );
 
-export const deleteFormModal = getAsyncLifecycle(() => import('./components/dashboard/delete-form.modal'), options);
+export const deleteFormModal = getAsyncLifecycle(
+  () => import('./components/interactive-builder/modals/delete-form/delete-form.modal'),
+  options,
+);
 
 export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
