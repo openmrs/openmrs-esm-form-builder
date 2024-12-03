@@ -1,5 +1,11 @@
 import type { OpenmrsResource } from '@openmrs/esm-framework';
-import type { ProgramState, ReferencedForm, RenderType, RequiredFieldProps } from '@openmrs/esm-form-engine-lib';
+import type {
+  OpenmrsFormResource,
+  ProgramState,
+  ReferencedForm,
+  RenderType,
+  RequiredFieldProps,
+} from '@openmrs/esm-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
 
 export interface Form {
@@ -63,7 +69,7 @@ export interface Schema {
       questions: Array<{
         id: string;
         label?: string;
-        value?:string;
+        value?: string;
         type: string;
         required?: string | boolean | RequiredFieldProps;
         questionOptions: {
@@ -117,7 +123,7 @@ export interface Section {
 export interface Question {
   id: string;
   label?: string;
-  value?:string;
+  value?: string;
   type: string;
   questionOptions: QuestionOptions;
   datePickerFormat?: DatePickerType;
@@ -209,11 +215,9 @@ export interface OpenmrsEncounter {
   orders?: Array<OpenmrsResource>;
   voided?: boolean;
   visit?: OpenmrsResource | string;
-  encounterProviders?: Array<Record<string, unknown>>;
-  form?: {
-    uuid: string;
-    [anythingElse: string]: unknown;
-  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  encounterProviders?: Array<Record<string, any>>;
+  form?: OpenmrsFormResource;
 }
 
 export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';
@@ -231,21 +235,22 @@ export interface PostSubmissionAction {
 }
 
 export interface OpenmrsObs extends OpenmrsResource {
-  concept: OpenmrsResource;
-  obsDatetime: string | Date;
-  obsGroup: OpenmrsObs;
-  groupMembers: Array<OpenmrsObs>;
-  comment: string;
-  location: OpenmrsResource;
-  order: OpenmrsResource;
-  encounter: OpenmrsResource;
-  voided: boolean;
-  value: unknown;
-  formFieldPath: string;
-  formFieldNamespace: string;
-  status: string;
-  interpretation: string;
-  [anythingElse: string]: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  concept?: any;
+  obsDatetime?: string | Date;
+  obsGroup?: OpenmrsObs;
+  groupMembers?: Array<OpenmrsObs>;
+  comment?: string;
+  location?: OpenmrsResource;
+  order?: OpenmrsResource;
+  encounter?: OpenmrsResource;
+  voided?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value?: any;
+  formFieldPath?: string;
+  formFieldNamespace?: string;
+  status?: string;
+  interpretation?: string;
 }
 
 export interface Program {
