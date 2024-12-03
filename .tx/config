@@ -2,8 +2,8 @@
 host = https://www.transifex.com
 
 [o:openmrs:p:openmrs3:r:esm-form-builder-app]
-file_filter            = packages/esm-form-builder-app/translations/<lang>.json
-source_file            = packages/esm-form-builder-app/translations/en.json
+file_filter            = translations/<lang>.json
+source_file            = translations/en.json
 source_lang            = en
 type                   = KEYVALUEJSON
 minimum_perc           = 0
