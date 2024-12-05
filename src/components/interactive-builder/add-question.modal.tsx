@@ -736,7 +736,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                       ))}
                     </div>
                   ) : null}
-                  {selectedConcept.datatype?.name === 'Coded' ? (
+                  {selectedConcept && selectedConcept.datatype?.name === 'Coded' ? (
                     <div>
                       <FormLabel className={styles.label}>
                         {t('searchForAnswerConcept', 'Search for a concept to add as an answer')}
