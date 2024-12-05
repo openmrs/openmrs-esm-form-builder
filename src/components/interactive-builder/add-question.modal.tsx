@@ -147,6 +147,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [programWorkflows, setProgramWorkflows] = useState<Array<ProgramWorkflow>>([]);
   const [toggleLabelTrue, setToggleLabelTrue] = useState('');
   const [toggleLabelFalse, setToggleLabelFalse] = useState('');
+  const [formMarkdown, setFormMarkdown] = useState([]);
+  const [buttonLabel, setButtonLabel] = useState('');
+  const [workspaceName, setWorkspaceName] = useState('');
 
   const renderTypeOptions = {
     control: ['text'],
@@ -293,7 +296,21 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
               labelFalse: toggleLabelFalse,
             },
           }),
+          ...(renderingType === 'content-switcher' &&
+            selectedConcept && {
+              answers: selectedConcept.answers.map((answer) => ({
+                label: answer.display, // Assuming "display" holds the label text
+                concept: answer.uuid, // Assuming "uuid" holds the concept identifier
+              })),
+            }),
+          ...(renderingType === 'workspace-launcher' && {
+            buttonLabel: buttonLabel,
+            workSpaceName: workspaceName,
+          }),
         },
+        ...(renderingType === 'markdown' && {
+          value: formMarkdown,
+        }),
         validators: [],
       };
 
@@ -559,23 +576,23 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   ) : renderingType === 'toggle' ? (
                     <div>
                       <TextInput
-                        id="labelTrue"
-                        labelText={t('labelTrue', 'Label true')}
+                        id="lableTrue"
+                        labelText={t('Label true', 'Label true')}
                         value={t(toggleLabelTrue || '')}
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                           setToggleLabelTrue(event.target.value)
                         }
-                        placeholder={t('on', 'On')}
+                        placeholder={t('On')}
                         required
                       />
                       <TextInput
-                        id="labelFalse"
-                        labelText={t('labelFalse', 'Label false')}
+                        id="lableFalse"
+                        labelText={t('Label false', 'Label false')}
                         value={t(toggleLabelFalse || '')}
                         onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                           setToggleLabelFalse(event.target.value)
                         }
-                        placeholder={t('off', 'Off')}
+                        placeholder={t('Off')}
                         required
                       />
                     </div>
@@ -888,14 +905,45 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 </>
               ) : null}
 
+              {renderingType == 'markdown' ? (
+                <TextInput
+                  id="questionMarkdown"
+                  labelText={t('questionMarkdown', 'Markdown')}
+                  placeholder={t('questionMarkdownPlaceholder', 'Enter the Markdown for your form...')}
+                  value={formMarkdown}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                    setFormMarkdown(event.target.value.split(',').map((item) => item.trim()))
+                  }
+                />
+              ) : null}
+
+              {renderingType == 'workspace-launcher' ? (
+                <div>
+                  <TextInput
+                    id="buttonLabel"
+                    labelText={t('buttonLabel', 'Button Label')}
+                    placeholder={t('buttonLabelPlaceholder', 'Enter the button label')}
+                    value={buttonLabel}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => setButtonLabel(event.target.value)}
+                  />
+                  <TextInput
+                    id="workspaceName"
+                    labelText={t('workspaceName', 'Workspace Label')}
+                    placeholder={t('workspaceNamePlaceholder', 'Enter the workspace label')}
+                    value={workspaceName}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => setWorkspaceName(event.target.value)}
+                  />
+                </div>
+              ) : null}
+
               {renderingType === 'date' || renderingType === 'datetime' ? (
                 <RadioButtonGroup
                   name="datePickerType"
                   legendText={t('datePickerType', 'The type of date picker to show ')}
                 >
                   {/** Filters out the date picker types based on the selected concept's data type.
-                       If no concept is selected, all date picker types are shown.
-                  */}
+                   If no concept is selected, all date picker types are shown.
+                   */}
                   {selectedConcept && selectedConcept.datatype
                     ? datePickerTypeOptions[selectedConcept.datatype.name.toLowerCase()].map((type) => (
                         <RadioButton

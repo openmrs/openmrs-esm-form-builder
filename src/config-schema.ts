@@ -41,6 +41,9 @@ export const configSchema = {
       'textarea',
       'ui-select-extended',
       'toggle',
+      'markdown',
+      'content-switcher',
+      'workspace-launcher',
     ],
   },
   showSchemaSaveWarning: {
