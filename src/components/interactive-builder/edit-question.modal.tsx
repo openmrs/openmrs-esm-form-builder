@@ -101,9 +101,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const [patientIdentifierTypeToLookup, setPatientIdentifierTypeToLookup] = useState('');
   const [fieldType, setFieldType] = useState<RenderType | null>(questionToEdit.questionOptions.rendering);
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
-  const [max, setMax] = useState('');
-  const [min, setMin] = useState('');
-  const [addAnswer, setAnswer] = useState(false);
+  const [max, setMax] = useState(questionToEdit.questionOptions.max ?? '');
+  const [min, setMin] = useState(questionToEdit.questionOptions.min ?? '');
   const [questionId, setQuestionId] = useState('');
   const [questionLabel, setQuestionLabel] = useState('');
   const [questionType, setQuestionType] = useState<QuestionType | null>(null);
@@ -171,6 +170,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     date: [{ value: 'calendar', label: t('calendarOnly', 'Calendar only'), defaultChecked: false }],
     time: [{ value: 'timer', label: t('timerOnly', 'Timer only'), defaultChecked: false }],
   };
+
   const debouncedSearch = useMemo(() => {
     return debounce((searchTerm: string) => setConceptToLookup(searchTerm), 500) as (searchTerm: string) => void;
   }, []);
@@ -199,7 +199,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     if (datePickerType) {
       setDatePickerType(datePickerType);
     }
-    setAnswer(false);
     setConceptToLookup('');
     setSelectedAnswers([]);
     setAddedAnswers([]);
@@ -221,9 +220,12 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       })) ?? [],
     );
   };
+
   const handleDeleteAnswer = (id) => {
-    setAddedAnswers((prevAnswers) => prevAnswers.filter((answer) => answer.id !== id));
+    const updatedAnswers = addedAnswers.filter((answer) => answer.id !== id);
+    setAddedAnswers(updatedAnswers);
   };
+
   const handleSaveMoreAnswers = () => {
     const newAnswers = addedAnswers.filter(
       (newAnswer) => !selectedAnswers.some((prevAnswer) => prevAnswer.id === newAnswer.id),
@@ -245,13 +247,6 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       setAddedAnswers((prevAnswers) => [...prevAnswers, newAnswer]);
     }
   };
-  const showAddQuestion = () => {
-    if (!addAnswer) {
-      setAnswer(true);
-      return;
-    }
-    setAnswer(false);
-  };
 
   const questionIdExists = (idToTest: string) => {
     if (questionToEdit?.id === idToTest) {
@@ -270,6 +265,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 
     return questionIds.includes(idToTest);
   };
+
   const handleUpdateQuestion = () => {
     const updatedAnswers = handleSaveMoreAnswers();
     updateQuestion(questionIndex, updatedAnswers);
@@ -395,45 +391,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       }
     }
 
-<<<<<<< HEAD
-      closeModal();
-    },
-    [
-      min,
-      max,
-      questionLabel,
-      questionType,
-      isQuestionRequired,
-      questionId,
-      fieldType,
-      datePickerType,
-      selectedConcept,
-      conceptMappings,
-      selectedAnswers,
-      hasConceptChanged,
-      answersFromConcept,
-      questionToEdit,
-      selectedProgramState,
-      selectedPatientIdentifierType,
-      addObsComment,
-      addInlineDate,
-      selectedProgram,
-      programWorkflow,
-      toggleLabelTrue,
-      toggleLabelFalse,
-      pageIndex,
-      sectionIndex,
-      closeModal,
-      onSchemaChange,
-      schema,
-      selectedPersonAttributeType,
-      t,
-    ],
-  );
-=======
     closeModal();
   };
->>>>>>> 1b94b7b (removed callback)
 
   useEffect(() => {
     const previousPrograms = programs.find((program) => program.uuid === questionToEdit.questionOptions.programUuid);
@@ -464,6 +423,25 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       setSelectedAnswers(initialAnswers);
     }
   }, [questionToEdit]);
+
+  const answerItemsForObs = useMemo(() => {
+    const answersArray: Array<Item> = [];
+    editConceptInfo?.answers?.map((answer) => {
+      answersArray.push({
+        id: answer.uuid,
+        text: answer.display,
+      });
+    });
+    questionToEdit?.questionOptions?.answers?.map((answer) => {
+      if (!answersArray.some((existingAnswer) => existingAnswer.id === answer.concept)) {
+        answersArray.push({
+          id: answer.concept,
+          text: answer.label ?? '',
+        });
+      }
+    });
+    return answersArray;
+  }, [questionToEdit, editConceptInfo]);
 
   return (
     <>
@@ -853,10 +831,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                           id: answer.concept,
                           text: answer.label,
                         }))}
-                        items={questionToEdit?.questionOptions?.answers?.map((answer) => ({
-                          id: answer.concept,
-                          text: answer.label ?? '',
-                        }))}
+                        items={answerItemsForObs}
                         onChange={({
                           selectedItems,
                         }: {
@@ -913,25 +888,11 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                       </div>
                     ) : null}
 
-                    {!hasConceptChanged && editConceptInfo?.datatype?.display == 'Coded' ? (
-                      <div>
-                        <Button kind="tertiary" onClick={showAddQuestion} iconDescription="Add" size="sm">
-                          More Answers
-                        </Button>
-                      </div>
-                    ) : null}
-                    {hasConceptChanged && answersFromConcept.length ? (
-                      <div>
-                        <Button kind="tertiary" onClick={showAddQuestion} iconDescription="Add" size="sm">
-                          More Answers
-                        </Button>
-                      </div>
-                    ) : null}
-
-                    {addAnswer ? (
+                    {(selectedConcept && selectedConcept.datatype?.display == 'Coded') ||
+                    (editConceptInfo && editConceptInfo.datatype?.display == 'Coded') ? (
                       <div>
                         <FormLabel className={styles.label}>
-                          {t('searchForAnswerConcept', 'Search for an answer Concept to Add')}
+                          {t('searchForAnswerConcept', 'Search for a concept to add as an answer')}
                         </FormLabel>
                         {conceptAnsLookupError ? (
                           <InlineNotification

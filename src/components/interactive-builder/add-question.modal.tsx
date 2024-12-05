@@ -107,7 +107,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
   const [max, setMax] = useState('');
   const [min, setMin] = useState('');
-  const [addAnswer, setAnswer] = useState(false);
   const [questionId, setQuestionId] = useState('');
   const [questionLabel, setQuestionLabel] = useState('');
   const [questionType, setQuestionType] = useState<QuestionType | null>(null);
@@ -176,7 +175,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const handleConceptSelect = (concept: Concept) => {
     const updatedDatePickerType = getDatePickerType(concept);
     if (updatedDatePickerType) setDatePickerType(updatedDatePickerType);
-    setAnswer(false);
     setConceptToLookup('');
     setSelectedConcept(concept);
     setAnswers(
@@ -330,35 +328,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         });
       }
     }
-<<<<<<< HEAD
-  }, [
-    onSchemaChange,
-    t,
-    selectedProgram?.uuid,
-    schema,
-    pageIndex,
-    sectionIndex,
-    questionLabel,
-    questionType,
-    isQuestionRequired,
-    questionId,
-    renderingType,
-    datePickerType,
-    selectedConcept,
-    conceptMappings,
-    selectedAnswers,
-    addObsComment,
-    addInlineDate,
-    selectedPersonAttributeType,
-    selectedPatientIdetifierType,
-    selectedProgramState,
-    programWorkflow,
-    toggleLabelTrue,
-    toggleLabelFalse,
-  ]);
-=======
   };
->>>>>>> 1b94b7b (removed callback)
 
   const convertLabelToCamelCase = () => {
     const camelCasedLabel = questionLabel
@@ -368,14 +338,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       })
       .replace(/\s+/g, '');
     setQuestionId(camelCasedLabel);
-  };
-
-  const showAddQuestion = () => {
-    if (!addAnswer) {
-      setAnswer(true);
-      return;
-    }
-    setAnswer(false);
   };
 
   const handleProgramWorkflowChange = (selectedItem: ProgramWorkflow) => {
@@ -774,17 +736,10 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                       ))}
                     </div>
                   ) : null}
-                  {selectedConcept && answers?.length ? (
-                    <div>
-                      <Button kind="tertiary" onClick={showAddQuestion} iconDescription="Add" size="sm">
-                        More Answers
-                      </Button>
-                    </div>
-                  ) : null}
-                  {addAnswer ? (
+                  {selectedConcept.datatype?.name === 'Coded' ? (
                     <div>
                       <FormLabel className={styles.label}>
-                        {t('searchForAnswerConcept', 'Search for an answer Concept to Add')}
+                        {t('searchForAnswerConcept', 'Search for a concept to add as an answer')}
                       </FormLabel>
                       {conceptAnsLookupError ? (
                         <InlineNotification
