@@ -62,7 +62,6 @@ interface AddQuestionModalProps {
 interface Item {
   text: string;
 }
-
 interface ProgramStateData {
   selectedItems: Array<ProgramState>;
 }
@@ -100,6 +99,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [answers, setAnswers] = useState<Array<Answer>>([]);
   const [conceptMappings, setConceptMappings] = useState<Array<ConceptMapping>>([]);
   const [conceptToLookup, setConceptToLookup] = useState('');
+  const [conceptAnsToLookup, setConceptAnsToLookup] = useState('');
+  const debouncedAnsConceptToLookup = useDebounce(conceptAnsToLookup);
   const debouncedConceptToLookup = useDebounce(conceptToLookup);
   const [datePickerType, setDatePickerType] = useState<DatePickerType>('both');
   const [renderingType, setRenderingType] = useState<RenderType | null>(null);
@@ -116,9 +117,21 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       text: string;
     }>
   >([]);
+  const [addedAnswers, setAddedAnswers] = useState<
+    Array<{
+      id: string;
+      text: string;
+    }>
+  >([]);
   const [selectedConcept, setSelectedConcept] = useState<Concept | null>(null);
+  const [selectedAnsConcept, setSelectedAnsConcept] = useState<Concept | null>(null);
   const [selectedPersonAttributeType, setSelectedPersonAttributeType] = useState<PersonAttributeType | null>(null);
   const { concepts, conceptLookupError, isLoadingConcepts } = useConceptLookup(debouncedConceptToLookup);
+  const {
+    concepts: ansConcepts,
+    conceptLookupError: conceptAnsLookupError,
+    isLoadingConcepts: isLoadingAnsConcepts,
+  } = useConceptLookup(debouncedAnsConceptToLookup);
   const { personAttributeTypes, personAttributeTypeLookupError } = usePersonAttributeTypes();
   const [selectedPatientIdetifierType, setSelectedPatientIdetifierType] = useState<PatientIdentifierType>(null);
   const { patientIdentifierTypes, patientIdentifierTypeLookupError } = usePatientIdentifierTypes();
@@ -156,6 +169,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   };
 
   const handleConceptChange = (event: React.ChangeEvent<HTMLInputElement>) => setConceptToLookup(event.target.value);
+  const handleAnsConceptChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setConceptAnsToLookup(event.target.value);
 
   const handleConceptSelect = (concept: Concept) => {
     const updatedDatePickerType = getDatePickerType(concept);
@@ -179,6 +194,30 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       }),
     );
   };
+  const handleDeleteAnswer = (id) => {
+    setAddedAnswers((prevAnswers) => prevAnswers.filter((answer) => answer.id !== id));
+  };
+  const handleSaveMoreAnswers = () => {
+    const newAnswers = addedAnswers.filter(
+      (newAnswer) => !selectedAnswers.some((prevAnswer) => prevAnswer.id === newAnswer.id),
+    );
+
+    const updatedAnswers = [...selectedAnswers, ...newAnswers];
+    setSelectedAnswers(updatedAnswers);
+    setAddedAnswers([]);
+    return updatedAnswers;
+  };
+
+  const handleConceptAnsSelect = (concept: Concept) => {
+    setConceptAnsToLookup('');
+    setSelectedAnsConcept(concept);
+    const newAnswer = { id: concept.uuid, text: concept.display };
+    const answerExistsInSelected = selectedAnswers.some((answer) => answer.id === newAnswer.id);
+    const answerExistsInAdded = addedAnswers.some((answer) => answer.id === newAnswer.id);
+    if (!answerExistsInSelected && !answerExistsInAdded) {
+      setAddedAnswers((prevAnswers) => [...prevAnswers, newAnswer]);
+    }
+  };
 
   const handlePersonAttributeTypeChange = ({ selectedItem }: { selectedItem: PersonAttributeType }) => {
     setSelectedPersonAttributeType(selectedItem);
@@ -199,13 +238,13 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     const questionIds: Array<string> = flattenDeep(nestedIds);
     return questionIds.includes(idToTest);
   };
-
   const handleCreateQuestion = () => {
-    createQuestion();
+    const updatedAnswers = handleSaveMoreAnswers();
+    createQuestion(updatedAnswers);
     closeModal();
   };
 
-  const createQuestion = () => {
+  const createQuestion = (updatedAnswers) => {
     try {
       const questionIndex = schema.pages[pageIndex]?.sections?.[sectionIndex]?.questions?.length ?? 0;
       const computedQuestionId = `question${questionIndex + 1}Section${sectionIndex + 1}Page-${pageIndex + 1}`;
@@ -223,8 +262,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           ...(max && { max }),
           ...(selectedConcept && { concept: selectedConcept?.uuid }),
           ...(conceptMappings.length && { conceptMappings }),
-          ...(selectedAnswers.length && {
-            answers: selectedAnswers.map((answer) => ({
+          ...(updatedAnswers.length && {
+            answers: updatedAnswers.map((answer) => ({
               concept: answer.id,
               label: answer.text,
             })),
@@ -688,7 +727,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                       titleText={t('selectAnswersToDisplay', 'Select answers to display')}
                     />
                   ) : null}
-
                   {selectedAnswers.length ? (
                     <div>
                       {selectedAnswers.map((answer) => (
@@ -696,6 +734,111 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                           {answer.text}
                         </Tag>
                       ))}
+                    </div>
+                  ) : null}
+                  {selectedConcept && selectedConcept.datatype?.name === 'Coded' ? (
+                    <div>
+                      <FormLabel className={styles.label}>
+                        {t('searchForAnswerConcept', 'Search for a concept to add as an answer')}
+                      </FormLabel>
+                      {conceptAnsLookupError ? (
+                        <InlineNotification
+                          kind="error"
+                          lowContrast
+                          className={styles.error}
+                          title={t('errorFetchingConcepts', 'Error fetching concepts')}
+                          subtitle={t('pleaseTryAgain', 'Please try again.')}
+                        />
+                      ) : null}
+                      <Search
+                        id="conceptAnsLookup"
+                        onClear={() => {
+                          setSelectedAnsConcept(null);
+                        }}
+                        onChange={handleAnsConceptChange}
+                        placeholder={t('searchConcept', 'Search using a concept name or UUID')}
+                        required
+                        size="md"
+                        value={(() => {
+                          if (conceptAnsToLookup) {
+                            return conceptAnsToLookup;
+                          }
+                          if (selectedAnsConcept) {
+                            return selectedAnsConcept.display;
+                          }
+                          return '';
+                        })()}
+                      />
+                      {addedAnswers.length > 0 ? (
+                        <div>
+                          {addedAnswers.map((answer) => (
+                            <Tag className={styles.tag} key={answer.id} type={'blue'}>
+                              {answer.text}
+                              <button
+                                className={styles.conceptAnswerButton}
+                                onClick={() => handleDeleteAnswer(answer.id)}
+                              >
+                                X
+                              </button>
+                            </Tag>
+                          ))}
+                        </div>
+                      ) : null}
+
+                      {(() => {
+                        if (!conceptAnsToLookup) return null;
+                        if (isLoadingAnsConcepts)
+                          return (
+                            <InlineLoading
+                              className={styles.loader}
+                              description={t('searching', 'Searching') + '...'}
+                            />
+                          );
+                        if (ansConcepts?.length && !isLoadingAnsConcepts) {
+                          return (
+                            <ul className={styles.conceptList}>
+                              {ansConcepts?.map((concept, index) => (
+                                <li
+                                  role="menuitem"
+                                  className={styles.concept}
+                                  key={index}
+                                  onClick={() => handleConceptAnsSelect(concept)}
+                                >
+                                  {concept.display}
+                                </li>
+                              ))}
+                            </ul>
+                          );
+                        }
+
+                        return (
+                          <Layer>
+                            <Tile className={styles.emptyResults}>
+                              <span>
+                                {t('noMatchingConcepts', 'No concepts were found that match')}{' '}
+                                <strong>"{debouncedAnsConceptToLookup}".</strong>
+                              </span>
+                            </Tile>
+
+                            <div className={styles.oclLauncherBanner}>
+                              {
+                                <p className={styles.bodyShort01}>
+                                  {t('conceptSearchHelpText', "Can't find a concept?")}
+                                </p>
+                              }
+                              <a
+                                className={styles.oclLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                href={'https://app.openconceptlab.org/'}
+                              >
+                                {t('searchInOCL', 'Search in OCL')}
+                                <ArrowUpRight size={16} />
+                              </a>
+                            </div>
+                          </Layer>
+                        );
+                      })()}
                     </div>
                   ) : null}
 
