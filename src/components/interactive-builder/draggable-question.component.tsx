@@ -7,6 +7,7 @@ import { CopyButton, IconButton } from '@carbon/react';
 import { Draggable, Edit, TrashCan } from '@carbon/react/icons';
 import { showModal } from '@openmrs/esm-framework';
 import type { Question, Schema } from '../../types';
+import MarkdownWrapper from './markdown-wrapper';
 import styles from './draggable-question.scss';
 
 interface DraggableQuestionProps {
@@ -89,7 +90,9 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
             <Draggable />
           </IconButton>
         </div>
-        <p className={styles.questionLabel}>{question.label}</p>
+        <p className={styles.questionLabel}>
+          {question.questionOptions.rendering === 'markdown' ? <MarkdownWrapper markdown={question.value} /> : question.label}
+        </p>
       </div>
       <div className={styles.buttonsContainer}>
         <CopyButton
