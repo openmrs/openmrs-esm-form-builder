@@ -3471,6 +3471,8 @@ __metadata:
     react-dom: "npm:^18.3.1"
     react-error-boundary: "npm:^4.0.13"
     react-i18next: "npm:^11.18.6"
+    react-markdown: "npm:^9.0.1"
+    react-mde: "npm:^11.5.0"
     rxjs: "npm:^6.6.7"
     sass: "npm:^1.67.0"
     swc-loader: "npm:^0.2.6"
@@ -17343,6 +17345,16 @@ __metadata:
     "@types/react": ">=18"
     react: ">=18"
   checksum: 10/71ce31f200982f641d363888a26e8fb52a199a589124f20295e9be870fa3aed26fcfa14d1dc766d83df666a15cb82359291bfda207bd55d5728ff376d217e079
+  languageName: node
+  linkType: hard
+
+"react-mde@npm:^11.5.0":
+  version: 11.5.0
+  resolution: "react-mde@npm:11.5.0"
+  peerDependencies:
+    react: ^17.0.0
+    react-dom: ^17.0.0
+  checksum: 10/0ba860835009b6fe90c8b440bb8f469d7cf3cb335a0dc6a6003a358a91dde9dbf4597fb024f831a78fafa6c51065f45238b2075f453f81dd06507ad22d132924
   languageName: node
   linkType: hard
 
