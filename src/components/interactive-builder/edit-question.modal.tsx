@@ -316,8 +316,8 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
 
     try {
       const data = {
-        ...(questionLabel && {label: questionLabel}),
-        ...(questionValue && {value: questionValue}),
+        ...(questionLabel && { label: questionLabel }),
+        ...(questionValue && { value: questionValue }),
         type: questionType ? questionType : questionToEdit.type,
         required: isQuestionRequired ? isQuestionRequired : /true/.test(questionToEdit?.required?.toString()),
         id: questionId ? questionId : questionToEdit.id,
@@ -452,7 +452,9 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       <Form className={styles.form} onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody hasScrollingContent>
           <Stack gap={5}>
-            {questionToEdit.questionOptions.rendering === 'markdown' ? <MarkdownQuestion placeholder={questionToEdit.value} onValueChange={setQuestionValue}/> : (
+            {questionToEdit.questionOptions.rendering === 'markdown' || fieldType === 'markdown' ? (
+              <MarkdownQuestion placeholder={questionToEdit.value} onValueChange={setQuestionValue} />
+            ) : (
               <TextInput
                 defaultValue={questionToEdit.label}
                 id={questionToEdit.id}
@@ -476,7 +478,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               )}
               required
             />
-            {'label' in questionToEdit && (
+            {(questionToEdit.questionOptions.rendering !== 'markdown' || fieldType !== 'markdown') && (
               <>
                 <RadioButtonGroup
                   defaultSelected={/true/.test(questionToEdit?.required?.toString()) ? 'required' : 'optional'}
@@ -518,21 +520,19 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                 </Select>
               </>
             )}
-            {!questionToEdit.value && 
-              <Select
-                  defaultValue={questionToEdit.questionOptions.rendering}
-                  onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setFieldType(event.target.value as RenderType)}
-                  id="renderingType"
-                  invalidText={t('validFieldTypeRequired', 'A valid field type value is required')}
-                  labelText={t('renderingType', 'Rendering type')}
-                  required
-                >
-                  {!fieldType && <SelectItem text={t('chooseRenderingType', 'Choose a rendering type')} value="" />}
-                  {fieldTypes.map((fieldType, key) => (
-                    <SelectItem text={fieldType} value={fieldType} key={key} />
-                  ))}
-              </Select>
-            }
+            <Select
+              defaultValue={questionToEdit.questionOptions.rendering}
+              onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setFieldType(event.target.value as RenderType)}
+              id="renderingType"
+              invalidText={t('validFieldTypeRequired', 'A valid field type value is required')}
+              labelText={t('renderingType', 'Rendering type')}
+              required
+            >
+              {!fieldType && <SelectItem text={t('chooseRenderingType', 'Choose a rendering type')} value="" />}
+              {fieldTypes.map((fieldType, key) => (
+                <SelectItem text={fieldType} value={fieldType} key={key} />
+              ))}
+            </Select>
             {fieldType === 'number' ? (
               <>
                 <TextInput
