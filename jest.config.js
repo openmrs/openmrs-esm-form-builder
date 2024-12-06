@@ -14,6 +14,7 @@ module.exports = {
     'lodash-es': 'lodash',
     '^dexie$': '<rootDir>/node_modules/dexie',
     '^react-i18next$': '<rootDir>/__mocks__/react-i18next.js',
+    'react-markdown': '<rootDir>/__mocks__/react-markdown.tsx',
   },
   setupFilesAfterEnv: ['<rootDir>/src/setup-tests.ts'],
   testEnvironment: 'jsdom',

@@ -69,7 +69,7 @@ export interface Schema {
       questions: Array<{
         id: string;
         label?: string;
-        value?: string;
+        value?: any;
         type: string;
         required?: string | boolean | RequiredFieldProps;
         questionOptions: {
@@ -123,7 +123,7 @@ export interface Section {
 export interface Question {
   id: string;
   label?: string;
-  value?: string;
+  value?: any;
   type: string;
   questionOptions: QuestionOptions;
   datePickerFormat?: DatePickerType;
