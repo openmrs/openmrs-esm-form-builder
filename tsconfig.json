@@ -20,7 +20,10 @@
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "target": "es2015"
+    "target": "es2015",
+    "paths": {
+      "@openmrs/*": ["./node_modules/@openmrs/*"]
+    }
   },
   "types": ["@testing-library/jest-dom", "lodash"],
 }
