@@ -245,19 +245,14 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     closeModal();
   };
 
-<<<<<<< HEAD
   const createQuestion = (updatedAnswers) => {
-=======
-  const createQuestion = () => {
-    console.log(question, 'question state object');
->>>>>>> 487b0f6 ((refactor) Break rendering types)
     try {
       const questionIndex = schema.pages[pageIndex]?.sections?.[sectionIndex]?.questions?.length ?? 0;
       const computedQuestionId = `question${questionIndex + 1}Section${sectionIndex + 1}Page-${pageIndex + 1}`;
 
       const newQuestion = {
-        ...(questionLabel && {label: questionLabel}),
-        ...((renderingType === 'markdown') && {value: questionValue}),
+        ...(questionLabel && { label: questionLabel }),
+        ...(renderingType === 'markdown' && { value: questionValue }),
         type: questionType ? questionType : 'control',
         required: isQuestionRequired,
         id: questionId ?? computedQuestionId,
@@ -369,14 +364,16 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         <ModalBody hasScrollingContent>
           <FormGroup legendText={''}>
             <Stack gap={5}>
-              {renderingType === 'markdown' ? <MarkdownQuestion onValueChange={setQuestionValue}/> : (
+              {renderingType === 'markdown' ? (
+                <MarkdownQuestion onValueChange={setQuestionValue} />
+              ) : (
                 <TextInput
-                id="questionLabel"
-                labelText={<RequiredLabel isRequired={isQuestionRequired} text={t('questionLabel', 'Label')} t={t} />}
-                placeholder={t('labelPlaceholder', 'e.g. Type of Anaesthesia')}
-                value={questionLabel}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setQuestionLabel(event.target.value)}
-              />
+                  id="questionLabel"
+                  labelText={<RequiredLabel isRequired={isQuestionRequired} text={t('questionLabel', 'Label')} t={t} />}
+                  placeholder={t('labelPlaceholder', 'e.g. Type of Anaesthesia')}
+                  value={questionLabel}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setQuestionLabel(event.target.value)}
+                />
               )}
 
               <TextInput
@@ -463,12 +460,16 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 required
               >
                 {!renderingType && <SelectItem text={t('chooseRenderingType', 'Choose a rendering type')} value="" />}
-                {questionTypes.filter((questionType) => !['obs', 'control'].includes(questionType)).includes(questionType as Exclude<QuestionType, 'obs' | 'control'>)
+                {questionTypes
+                  .filter((questionType) => !['obs', 'control'].includes(questionType))
+                  .includes(questionType as Exclude<QuestionType, 'obs' | 'control'>)
                   ? renderTypeOptions[questionType].map((type, key) => (
                       <SelectItem key={`${questionType}-${key}`} text={type} value={type} />
                     ))
-                  : questionType === 'obs' 
-                    ? fieldTypes.filter(type => type !== 'markdown').map((type, key) => <SelectItem key={key} text={type} value={type} />) 
+                  : questionType === 'obs'
+                    ? fieldTypes
+                        .filter((type) => type !== 'markdown')
+                        .map((type, key) => <SelectItem key={key} text={type} value={type} />)
                     : fieldTypes.map((type, key) => <SelectItem key={key} text={type} value={type} />)}
               </Select>
 
