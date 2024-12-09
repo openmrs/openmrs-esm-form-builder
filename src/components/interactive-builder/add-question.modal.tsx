@@ -42,12 +42,13 @@ import type {
   ProgramWorkflow,
   DatePickerType,
   DatePickerTypeOption,
+  Question,
 } from '../../types';
 import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { useProgramWorkStates, usePrograms } from '../../hooks/useProgramStates';
-import MarkdownQuestion from './markdown-question.component';
+import MarkdownQuestion from './modals/question/question-form/rendering-types/inputs/markdown/markdown.component';
 import styles from './question-modal.scss';
 
 interface AddQuestionModalProps {
@@ -97,6 +98,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { fieldTypes, questionTypes } = useConfig<ConfigObject>();
+  const [question, setQuestion] = useState<Question>(null);
   const [answers, setAnswers] = useState<Array<Answer>>([]);
   const [conceptMappings, setConceptMappings] = useState<Array<ConceptMapping>>([]);
   const [conceptToLookup, setConceptToLookup] = useState('');
@@ -107,12 +109,10 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [renderingType, setRenderingType] = useState<RenderType | null>(null);
   const [isQuestionRequired, setIsQuestionRequired] = useState(false);
   const [max, setMax] = useState('');
-  const [min, setMin] = useState('');
   const [questionId, setQuestionId] = useState('');
   const [questionLabel, setQuestionLabel] = useState('');
   const [questionValue, setQuestionValue] = useState('');
   const [questionType, setQuestionType] = useState<QuestionType | null>(null);
-  const [rows, setRows] = useState('');
   const [selectedAnswers, setSelectedAnswers] = useState<
     Array<{
       id: string;
@@ -251,8 +251,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       const computedQuestionId = `question${questionIndex + 1}Section${sectionIndex + 1}Page-${pageIndex + 1}`;
 
       const newQuestion = {
-        ...(questionLabel && {label: questionLabel}),
-        ...((renderingType === 'markdown') && {value: questionValue}),
+        ...(questionLabel && { label: questionLabel }),
+        ...(renderingType === 'markdown' && { value: questionValue }),
         type: questionType ? questionType : 'control',
         required: isQuestionRequired,
         id: questionId ?? computedQuestionId,
@@ -260,8 +260,9 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           datePickerType && { datePickerFormat: datePickerType }),
         questionOptions: {
           rendering: renderingType,
-          ...(min && { min }),
+          ...(question.questionOptions.min && { min: question.questionOptions.min }),
           ...(max && { max }),
+          ...(question.questionOptions.rows && { rows: question.questionOptions.rows }),
           ...(selectedConcept && { concept: selectedConcept?.uuid }),
           ...(conceptMappings.length && { conceptMappings }),
           ...(updatedAnswers.length && {
@@ -363,14 +364,16 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         <ModalBody hasScrollingContent>
           <FormGroup legendText={''}>
             <Stack gap={5}>
-              {renderingType === 'markdown' ? <MarkdownQuestion onValueChange={setQuestionValue}/> : (
+              {renderingType === 'markdown' ? (
+                <MarkdownQuestion onValueChange={setQuestionValue} />
+              ) : (
                 <TextInput
-                id="questionLabel"
-                labelText={<RequiredLabel isRequired={isQuestionRequired} text={t('questionLabel', 'Label')} t={t} />}
-                placeholder={t('labelPlaceholder', 'e.g. Type of Anaesthesia')}
-                value={questionLabel}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setQuestionLabel(event.target.value)}
-              />
+                  id="questionLabel"
+                  labelText={<RequiredLabel isRequired={isQuestionRequired} text={t('questionLabel', 'Label')} t={t} />}
+                  placeholder={t('labelPlaceholder', 'e.g. Type of Anaesthesia')}
+                  value={questionLabel}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setQuestionLabel(event.target.value)}
+                />
               )}
 
               <TextInput
@@ -457,12 +460,16 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 required
               >
                 {!renderingType && <SelectItem text={t('chooseRenderingType', 'Choose a rendering type')} value="" />}
-                {questionTypes.filter((questionType) => !['obs', 'control'].includes(questionType)).includes(questionType as Exclude<QuestionType, 'obs' | 'control'>)
+                {questionTypes
+                  .filter((questionType) => !['obs', 'control'].includes(questionType))
+                  .includes(questionType as Exclude<QuestionType, 'obs' | 'control'>)
                   ? renderTypeOptions[questionType].map((type, key) => (
                       <SelectItem key={`${questionType}-${key}`} text={type} value={type} />
                     ))
-                  : questionType === 'obs' 
-                    ? fieldTypes.filter(type => type !== 'markdown').map((type, key) => <SelectItem key={key} text={type} value={type} />) 
+                  : questionType === 'obs'
+                    ? fieldTypes
+                        .filter((type) => type !== 'markdown')
+                        .map((type, key) => <SelectItem key={key} text={type} value={type} />)
                     : fieldTypes.map((type, key) => <SelectItem key={key} text={type} value={type} />)}
               </Select>
 
@@ -526,68 +533,6 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
               {questionType === 'obs' ? (
                 <>
-                  {renderingType === 'number' ? (
-                    <>
-                      <TextInput
-                        id="min"
-                        labelText="Min"
-                        value={min || ''}
-                        invalid={parseFloat(min) > parseFloat(max)}
-                        invalidText={
-                          parseFloat(min) > parseFloat(max)
-                            ? t('invalidMinMax', 'Min value cannot be greater than max')
-                            : ''
-                        }
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setMin(event.target.value)}
-                        required
-                      />
-                      <TextInput
-                        id="max"
-                        labelText="Max"
-                        value={max || ''}
-                        invalid={parseFloat(min) > parseFloat(max)}
-                        invalidText={
-                          parseFloat(min) > parseFloat(max)
-                            ? t('invalidMinMax', 'Min value cannot be greater than max')
-                            : ''
-                        }
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => setMax(event.target.value)}
-                        required
-                      />
-                    </>
-                  ) : renderingType === 'textarea' ? (
-                    <TextInput
-                      id="textAreaRows"
-                      labelText={t('rows', 'Rows')}
-                      value={rows || ''}
-                      onChange={(event: React.ChangeEvent<HTMLInputElement>) => setRows(event.target.value)}
-                      required
-                    />
-                  ) : renderingType === 'toggle' ? (
-                    <div>
-                      <TextInput
-                        id="labelTrue"
-                        labelText={t('labelTrue', 'Label true')}
-                        value={t(toggleLabelTrue || '')}
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                          setToggleLabelTrue(event.target.value)
-                        }
-                        placeholder={t('on', 'On')}
-                        required
-                      />
-                      <TextInput
-                        id="labelFalse"
-                        labelText={t('labelFalse', 'Label false')}
-                        value={t(toggleLabelFalse || '')}
-                        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                          setToggleLabelFalse(event.target.value)
-                        }
-                        placeholder={t('off', 'Off')}
-                        required
-                      />
-                    </div>
-                  ) : null}
-
                   {renderingType !== 'ui-select-extended' && (
                     <div>
                       <FormLabel className={styles.label}>

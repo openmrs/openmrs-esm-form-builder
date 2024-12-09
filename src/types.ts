@@ -1,12 +1,18 @@
 import type { OpenmrsResource } from '@openmrs/esm-framework';
 import type {
   OpenmrsFormResource,
+  FormField,
   ProgramState,
   ReferencedForm,
   RenderType,
   RequiredFieldProps,
 } from '@openmrs/esm-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
+
+export interface ComponentProps {
+  formField: FormField;
+  setFormField: (formField: FormField) => void;
+}
 
 export interface Form {
   uuid: string;
@@ -69,7 +75,7 @@ export interface Schema {
       questions: Array<{
         id: string;
         label?: string;
-        value?: any;
+        value?: string;
         type: string;
         required?: string | boolean | RequiredFieldProps;
         questionOptions: {
@@ -139,6 +145,7 @@ export interface QuestionOptions {
   conceptMappings?: Array<ConceptMapping>;
   max?: string;
   min?: string;
+  isSearchable?: boolean;
   attributeType?: string;
   calculate?: {
     calculateExpression: string;
