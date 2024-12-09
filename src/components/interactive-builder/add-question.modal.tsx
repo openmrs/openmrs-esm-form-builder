@@ -48,7 +48,7 @@ import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { useProgramWorkStates, usePrograms } from '../../hooks/useProgramStates';
-import MarkdownQuestion from './markdown-question.component';
+import MarkdownQuestion from './modals/question/question-form/rendering-types/inputs/markdown/markdown.component';
 import styles from './question-modal.scss';
 
 interface AddQuestionModalProps {

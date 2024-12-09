@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { CopyButton, IconButton } from '@carbon/react';
 import { Draggable, Edit, TrashCan } from '@carbon/react/icons';
 import { showModal } from '@openmrs/esm-framework';
-import MarkdownWrapper from '../markdown-wrapper';
+import MarkdownWrapper from '../markdown-wrapper/markdown-wrapper';
 import type { Question, Schema } from '@types';
 import styles from './draggable-question.scss';
 

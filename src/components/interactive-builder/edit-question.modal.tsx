@@ -54,7 +54,7 @@ import { usePersonAttributeName } from '../../hooks/usePersonAttributeName';
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { usePrograms, useProgramWorkStates } from '../../hooks/useProgramStates';
 import { getDatePickerType } from './add-question.modal';
-import MarkdownQuestion from './markdown-question.component';
+import MarkdownQuestion from './modals/question/question-form/rendering-types/inputs/markdown/markdown.component';
 import styles from './question-modal.scss';
 
 interface EditQuestionModalProps {
