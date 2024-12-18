@@ -2,16 +2,13 @@ import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FormLabel, InlineNotification, ComboBox, InlineLoading } from '@carbon/react';
 import { usePatientIdentifierTypes } from '@hooks/usePatientIdentifierTypes';
-import { usePatientIdentifierName } from '@hooks/usePatientIdentifierName';
 import type { ComponentProps, PatientIdentifierType } from '@types';
 import styles from './patient-identifier-type-question.scss';
 
 const PatientIdentifierTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) => {
   const { t } = useTranslation();
-  const { patientIdentifierTypes, patientIdentifierTypeLookupError } = usePatientIdentifierTypes();
-  const { patientIdentifierNameLookupError, isLoadingPatientidentifierName } = usePatientIdentifierName(
-    formField.questionOptions?.identifierType ?? '',
-  );
+  const { patientIdentifierTypes, patientIdentifierTypeLookupError, isLoadingPatientIdentifierTypes } =
+    usePatientIdentifierTypes();
   const [selectedPatientIdetifierType, setSelectedPatientIdetifierType] = useState<PatientIdentifierType>(
     formField.questionOptions?.identifierType
       ? patientIdentifierTypes.find(
@@ -38,7 +35,7 @@ const PatientIdentifierTypeQuestion: React.FC<ComponentProps> = ({ formField, se
       <FormLabel className={styles.label}>
         {t('searchForBackingPatientIdentifierType', 'Search for a backing patient identifier type')}
       </FormLabel>
-      {patientIdentifierTypeLookupError || patientIdentifierNameLookupError ? (
+      {patientIdentifierTypeLookupError && (
         <InlineNotification
           kind="error"
           lowContrast
@@ -46,8 +43,8 @@ const PatientIdentifierTypeQuestion: React.FC<ComponentProps> = ({ formField, se
           title={t('errorFetchingPatientIdentifierTypes', 'Error fetching patient identifier types')}
           subtitle={t('pleaseTryAgain', 'Please try again.')}
         />
-      ) : null}
-      {isLoadingPatientidentifierName ? (
+      )}
+      {isLoadingPatientIdentifierTypes ? (
         <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />
       ) : (
         <ComboBox

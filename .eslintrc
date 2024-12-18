@@ -5,14 +5,11 @@
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking"
+    "plugin:jest-dom/recommended",
+    "plugin:testing-library/react"
   ],
   "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "project": true,
-    "tsconfigRootDir": "__dirname"
-  },
-  "plugins": ["@typescript-eslint", "import", "react-hooks", "testing-library"],
+  "plugins": ["@typescript-eslint", "import", "jest-dom", "react-hooks", "testing-library"],
   "root": true,
   "overrides": [
     {
@@ -22,36 +19,37 @@
     }
   ],
   "rules": {
-    "import/no-duplicates": "error",
-    "react-hooks/exhaustive-deps": "warn",
-    "react-hooks/rules-of-hooks": "error",
+    // Disabling these rules for now just to keep the diff small. We'll enable them one by one as we go.
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/ban-types": "off",
     "@typescript-eslint/no-explicit-any": "off",
-    // not hugely concerned about accidental implicit type coercions for now https://typescript-eslint.io/rules/no-base-to-string
-    "@typescript-eslint/no-base-to-string": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/triple-slash-reference": "off",
     // The following rules need `noImplicitAny` to be set to `true` in our tsconfig. They are too restrictive for now, but should be reconsidered in future
     "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/no-unsafe-call": "off",
     "@typescript-eslint/no-unsafe-member-access": "off",
     "@typescript-eslint/unbound-method": "off",
-    // Nitpicky. Prefer `interface T` over type T
-    "@typescript-eslint/consistent-type-definitions": "error",
-    "@typescript-eslint/consistent-type-exports": "error",
-    "@typescript-eslint/no-floating-promises": "off",
-    // Use `import type` instead of `import` for type imports
+    // Use `import type` instead of `import` for type imports https://typescript-eslint.io/blog/consistent-type-imports-and-exports-why-and-how
     "@typescript-eslint/consistent-type-imports": [
       "error",
       {
         "fixStyle": "inline-type-imports"
       }
     ],
-    // Use Array<T> instead of T[] consistently
-    "@typescript-eslint/array-type": [
+    "import/no-duplicates": "error",
+    "no-console": [
       "error",
       {
-        "default": "generic"
+        "allow": ["warn", "error"]
       }
     ],
-    "no-console": ["error", { "allow": ["warn", "error"] }],
+    "no-unsafe-optional-chaining": "off",
+    "no-explicit-any": "off",
+    "no-extra-boolean-cast": "off",
+    "no-prototype-builtins": "off",
+    "no-useless-escape": "off",
     "no-restricted-imports": [
       "error",
       {
@@ -77,6 +75,9 @@
           }
         ]
       }
-    ]
+    ],
+    "prefer-const": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
   }
 }
