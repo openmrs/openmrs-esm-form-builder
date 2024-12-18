@@ -48,7 +48,6 @@ import { useConceptLookup } from '../../hooks/useConceptLookup';
 import { usePatientIdentifierTypes } from '../../hooks/usePatientIdentifierTypes';
 import { usePersonAttributeTypes } from '../../hooks/usePersonAttributeTypes';
 import { useProgramWorkStates, usePrograms } from '../../hooks/useProgramStates';
-import MarkdownQuestion from './modals/question/question-form/rendering-types/inputs/markdown/markdown.component';
 import styles from './question-modal.scss';
 
 interface AddQuestionModalProps {
@@ -364,17 +363,13 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         <ModalBody hasScrollingContent>
           <FormGroup legendText={''}>
             <Stack gap={5}>
-              {renderingType === 'markdown' ? (
-                <MarkdownQuestion onValueChange={setQuestionValue} />
-              ) : (
-                <TextInput
-                  id="questionLabel"
-                  labelText={<RequiredLabel isRequired={isQuestionRequired} text={t('questionLabel', 'Label')} t={t} />}
-                  placeholder={t('labelPlaceholder', 'e.g. Type of Anaesthesia')}
-                  value={questionLabel}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setQuestionLabel(event.target.value)}
-                />
-              )}
+              <TextInput
+                id="questionLabel"
+                labelText={<RequiredLabel isRequired={isQuestionRequired} text={t('questionLabel', 'Label')} t={t} />}
+                placeholder={t('labelPlaceholder', 'e.g. Type of Anaesthesia')}
+                value={questionLabel}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setQuestionLabel(event.target.value)}
+              />
 
               <TextInput
                 id="questionId"

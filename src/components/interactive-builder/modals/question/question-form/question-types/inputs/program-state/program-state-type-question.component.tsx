@@ -12,12 +12,12 @@ interface ProgramStateData {
 
 const ProgramStateTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) => {
   const { t } = useTranslation();
-  const [selectedProgramState, setSelectedProgramState] = useState<Array<ProgramState>>();
-  const [selectedProgram, setSelectedProgram] = useState<Program>(null);
-  const [programWorkflow, setProgramWorkflow] = useState<ProgramWorkflow>(null);
   const { programs, programsLookupError, isLoadingPrograms } = usePrograms();
+  const [selectedProgram, setSelectedProgram] = useState<Program>();
+  const [selectedProgramWorkflow, setSelectedProgramWorkflow] = useState<ProgramWorkflow>();
+  const [selectedProgramStates, setSelectedProgramStates] = useState<Array<ProgramState>>();
   const { programStates, programStatesLookupError, isLoadingProgramStates, mutateProgramStates } = useProgramWorkStates(
-    programWorkflow?.uuid,
+    selectedProgramWorkflow?.uuid,
   );
   const [programWorkflows, setProgramWorkflows] = useState<Array<ProgramWorkflow>>([]);
 
@@ -32,7 +32,7 @@ const ProgramStateTypeQuestion: React.FC<ComponentProps> = ({ formField, setForm
 
   const handleProgramWorkflowChange = useCallback(
     (selectedItem: ProgramWorkflow) => {
-      setProgramWorkflow(selectedItem);
+      setSelectedProgramWorkflow(selectedItem);
       void mutateProgramStates();
       setFormField({
         ...formField,
@@ -44,7 +44,7 @@ const ProgramStateTypeQuestion: React.FC<ComponentProps> = ({ formField, setForm
 
   const selectProgramStates = useCallback(
     (data: ProgramStateData) => {
-      setSelectedProgramState(data.selectedItems);
+      setSelectedProgramStates(data.selectedItems);
       setFormField({
         ...formField,
         questionOptions: {
@@ -64,11 +64,25 @@ const ProgramStateTypeQuestion: React.FC<ComponentProps> = ({ formField, setForm
   }, []);
 
   useEffect(() => {
-    setSelectedProgramState(
-      programStates.filter((programState) =>
-        formField.questionOptions?.answers?.some((answer) => answer.value === programState.uuid),
-      ),
+    const selectedProgramResult = programs.find((program) => program.uuid === formField.questionOptions?.programUuid);
+    if (selectedProgramResult) {
+      setSelectedProgram(selectedProgramResult);
+      if (formField.questionOptions.workflowUuid) {
+        const selectedProgramWorkflowResult = selectedProgramResult.allWorkflows.find(
+          (workflow) => workflow.uuid === formField.questionOptions?.workflowUuid,
+        );
+        if (selectedProgramWorkflowResult) {
+          setSelectedProgramWorkflow(selectedProgramWorkflowResult);
+        }
+      }
+    }
+  }, [formField.questionOptions?.programUuid, formField.questionOptions?.workflowUuid, programs]);
+
+  useEffect(() => {
+    const selectedProgramStatesResults = programStates.filter((programState) =>
+      formField.questionOptions?.answers?.some((answer) => answer.concept === programState.concept.uuid),
     );
+    setSelectedProgramStates(selectedProgramStatesResults);
   }, [formField.questionOptions?.answers, programStates]);
 
   return (
@@ -83,7 +97,7 @@ const ProgramStateTypeQuestion: React.FC<ComponentProps> = ({ formField, setForm
           subtitle={t('pleaseTryAgain', 'Please try again.')}
         />
       )}
-      {programs && (
+      {programs.length > 0 && (
         <ComboBox
           id="programLookup"
           items={programs}
@@ -105,14 +119,14 @@ const ProgramStateTypeQuestion: React.FC<ComponentProps> = ({ formField, setForm
           itemToString={(item: ProgramWorkflow) => item?.concept?.display}
           onChange={({ selectedItem }: { selectedItem: ProgramWorkflow }) => handleProgramWorkflowChange(selectedItem)}
           placeholder={t('addProgramWorkflow', 'Add program workflow')}
-          selectedItem={programWorkflow}
+          selectedItem={selectedProgramWorkflow}
           titleText={t('programWorkflow', 'Program workflow')}
           initialSelectedItem={programWorkflows.find(
             (programWorkflow) => programWorkflow?.uuid === formField.questionOptions?.workflowUuid,
           )}
         />
       )}
-      {programWorkflow && (
+      {selectedProgramWorkflow && (
         <div>
           {isLoadingProgramStates && <SelectSkeleton />}
           {programStatesLookupError && (
@@ -132,10 +146,10 @@ const ProgramStateTypeQuestion: React.FC<ComponentProps> = ({ formField, setForm
               itemToString={convertItemsToString}
               selectionFeedback="top-after-reopen"
               onChange={selectProgramStates}
-              selectedItems={selectedProgramState}
+              selectedItems={selectedProgramStates}
             />
           )}
-          {selectedProgramState?.map((answer) => (
+          {selectedProgramStates?.map((answer) => (
             <div>
               <Tag className={styles.tag} key={answer?.uuid} type={'blue'}>
                 {answer?.concept?.display}
