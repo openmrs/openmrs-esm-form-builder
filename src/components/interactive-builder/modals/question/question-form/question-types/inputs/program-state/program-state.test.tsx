@@ -99,7 +99,7 @@ const programs: Array<Program> = [
 
 describe('ProgramStateTypeQuestion', () => {
   it('renders without crashing', async () => {
-    mockUsePrograms.mockReturnValue({ programs: [], programsLookupError: null, isLoadingPrograms: false });
+    mockUsePrograms.mockReturnValue({ programs: programs, programsLookupError: null, isLoadingPrograms: false });
     mockUseProgramWorkflowStates.mockReturnValue({
       programStates: [],
       programStatesLookupError: null,
@@ -158,6 +158,16 @@ describe('ProgramStateTypeQuestion', () => {
     });
     await user.click(programOneSelectOption);
     expect(screen.getByRole('combobox', { name: /^program$/i })).toHaveDisplayValue(/program 1/i);
+    expect(
+      screen.queryByRole('option', {
+        name: /program 1/i,
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('option', {
+        name: /program 2/i,
+      }),
+    ).not.toBeInTheDocument();
 
     const programWorkflowInput = screen.getByRole('combobox', {
       name: /program workflow/i,
@@ -175,7 +185,19 @@ describe('ProgramStateTypeQuestion', () => {
 
     const programWorkflowSelectionOption = screen.getByRole('option', { name: /program 1 workflow 1/i });
     await user.click(programWorkflowSelectionOption);
-    screen.logTestingPlaygroundURL();
+    expect(screen.getByRole('combobox', { name: /^program workflow$/i })).toHaveDisplayValue(/program 1 workflow 1/i);
+    expect(screen.queryByRole('option', { name: /program 1 workflow 1/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /program 1 workflow 2/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/program state/i)).toBeInTheDocument();
+
+    const programStateMenu = screen.getByRole('combobox', {
+      name: /program state/i,
+    });
+    expect(programStateMenu).toBeInTheDocument();
+    await user.click(programStateMenu);
+
+    expect(screen.getByRole('option', { name: /program 1 state 1/i })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /program 1 state 2/i })).toBeInTheDocument();
   });
 
   it('renders the selected program, workflow and state in edit mode', async () => {
