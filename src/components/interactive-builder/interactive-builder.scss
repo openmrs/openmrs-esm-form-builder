@@ -2,6 +2,8 @@
 @use '@carbon/type';
 
 .container {
+  overflow-y: scroll;
+  height: 95vh;
   :global(.cds--modal-content:focus) {
     outline: none;
   }
