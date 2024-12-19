@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
-import { type PersonAttributeType } from '../types';
+import type { PersonAttributeType } from '@types';
 
 export function usePersonAttributeTypes() {
   const customRepresentation = 'custom:(uuid,display,format,concept)';

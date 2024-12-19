@@ -141,20 +141,8 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
     await formBuilderPage.addQuestionButton().click();
   });
 
-  await test.step('And then I type in the question label', async () => {
-    await formBuilderPage.questionLabelInput().fill(formDetails.pages[0].sections[0].questions[0].label);
-  });
-
   await test.step('And then I type in the question id', async () => {
     await formBuilderPage.questionIdInput().fill(formDetails.pages[0].sections[0].questions[0].id);
-  });
-
-  await test.step('And then I set the question type to required', async () => {
-    await formBuilderPage.page
-      .getByRole('group', { name: /Is this question a required/i })
-      .locator('span')
-      .nth(2)
-      .click();
   });
 
   await test.step('And then I set the question type to obs', async () => {
@@ -163,6 +151,18 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
 
   await test.step('And then I set the rendering type to be radio', async () => {
     await formBuilderPage.renderingTypeDropdown().selectOption('radio');
+  });
+
+  await test.step('And then I type in the question label', async () => {
+    await formBuilderPage.questionLabelInput().fill(formDetails.pages[0].sections[0].questions[0].label);
+  });
+
+  await test.step('And then I set the question type to required', async () => {
+    await formBuilderPage.page
+      .getByRole('group', { name: /Is this question a required/i })
+      .locator('span')
+      .nth(2)
+      .click();
   });
 
   await test.step('And then I select the concept to be `Tested for COVID 19`', async () => {
