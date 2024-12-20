@@ -1,7 +1,17 @@
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import flattenDeep from 'lodash-es/flattenDeep';
-import { ModalHeader, Form, ModalBody, FormGroup, Button, Stack, ModalFooter } from '@carbon/react';
+import {
+  ModalHeader,
+  Form,
+  ModalBody,
+  FormGroup,
+  Button,
+  Stack,
+  ModalFooter,
+  Accordion,
+  AccordionItem,
+} from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import Question from './question-form/question/question.component';
 import type { FormField, FormSchema } from '@openmrs/esm-form-engine-lib';
@@ -109,6 +119,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
       if (formFieldCopy.questions.length === 1 && formFieldCopy.questions[0].id === '') {
         formFieldCopy.questions[0] = updatedObsGroupFormField;
       } else {
+        formFieldCopy.questions.pop();
         formFieldCopy.questions.push(updatedObsGroupFormField);
       }
       setFormField(formFieldCopy);
@@ -132,14 +143,23 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
                 setFormField={updateFormField}
                 checkIfQuestionIdExists={checkIfQuestionIdExists}
               />
-              {formField.questions?.length > 1 &&
-                formField.questions.map((question) => (
-                  <Question
-                    formField={question}
-                    setFormField={updateObsGroupQuestion}
-                    checkIfQuestionIdExists={checkIfQuestionIdExists}
-                  />
-                ))}
+              {formField.questions?.length > 1 && (
+                <Accordion size="lg">
+                  {formField.questions.map((question, index) => (
+                    <AccordionItem
+                      title={question.label ?? `Question ${index + 1}`}
+                      open={index === formField.questions.length - 1}
+                      className={styles.obsGroupQuestionContent}
+                    >
+                      <Question
+                        formField={question}
+                        setFormField={updateObsGroupQuestion}
+                        checkIfQuestionIdExists={checkIfQuestionIdExists}
+                      />
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              )}
               {formField.type === 'obsGroup' && (
                 <Button onClick={addObsGroupQuestion}>
                   <span>{t('addObsGroupQuestion', 'Add a grouped question')}</span>

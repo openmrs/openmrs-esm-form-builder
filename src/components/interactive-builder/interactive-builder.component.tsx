@@ -437,38 +437,38 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                               {section.questions?.length ? (
                                 section.questions.map((question, questionIndex) => {
                                   return (
-                                      <Droppable
-                                        id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
-                                        key={questionIndex}
-                                      >
-                                        <DraggableQuestion
-                                          handleDuplicateQuestion={duplicateQuestion}
-                                          key={question.id}
-                                          onSchemaChange={onSchemaChange}
-                                          pageIndex={pageIndex}
-                                          question={question}
-                                          questionCount={section.questions.length}
-                                          questionIndex={questionIndex}
-                                          schema={schema}
-                                          sectionIndex={sectionIndex}
-                                        />
-                                        {getValidationError(question) && (
-                                          <div className={styles.validationErrorMessage}>
-                                            {getValidationError(question)}
-                                          </div>
-                                        )}
-                                        {getAnswerErrors(question.questionOptions.answers)?.length ? (
-                                          <div className={styles.answerErrors}>
-                                            <div>Answer Errors</div>
-                                            {getAnswerErrors(question.questionOptions.answers)?.map((error, index) => (
-                                              <div
-                                                className={styles.validationErrorMessage}
-                                                key={index}
-                                              >{`${error.field.label}: ${error.errorMessage}`}</div>
-                                            ))}
-                                          </div>
-                                        ) : null}
-                                      </Droppable>
+                                    <Droppable
+                                      id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
+                                      key={questionIndex}
+                                    >
+                                      <DraggableQuestion
+                                        handleDuplicateQuestion={duplicateQuestion}
+                                        key={question.id}
+                                        onSchemaChange={onSchemaChange}
+                                        pageIndex={pageIndex}
+                                        question={question}
+                                        questionCount={section.questions.length}
+                                        questionIndex={questionIndex}
+                                        schema={schema}
+                                        sectionIndex={sectionIndex}
+                                      />
+                                      {getValidationError(question) && (
+                                        <div className={styles.validationErrorMessage}>
+                                          {getValidationError(question)}
+                                        </div>
+                                      )}
+                                      {getAnswerErrors(question.questionOptions.answers)?.length ? (
+                                        <div className={styles.answerErrors}>
+                                          <div>Answer Errors</div>
+                                          {getAnswerErrors(question.questionOptions.answers)?.map((error, index) => (
+                                            <div
+                                              className={styles.validationErrorMessage}
+                                              key={index}
+                                            >{`${error.field.label}: ${error.errorMessage}`}</div>
+                                          ))}
+                                        </div>
+                                      ) : null}
+                                    </Droppable>
                                   );
                                 })
                               ) : (
