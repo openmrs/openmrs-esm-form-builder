@@ -1,10 +1,12 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactMde from 'react-mde';
 import ReactMarkdown from 'react-markdown';
 import type { ComponentProps } from '@types';
 import styles from './markdown.scss';
 
 const MarkdownQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) => {
+  const { t } = useTranslation();
   const [selectedTab, setSelectedTab] = React.useState<'write' | 'preview'>('write');
 
   const handleEditorChange = (newValue: string) => {
@@ -32,7 +34,7 @@ const MarkdownQuestion: React.FC<ComponentProps> = ({ formField, setFormField })
             tabIndex: -1,
           },
         }}
-        loadingPreview="loading preview..."
+        loadingPreview={t('loadingPreview', 'Loading preview...')}
       />
     </div>
   );

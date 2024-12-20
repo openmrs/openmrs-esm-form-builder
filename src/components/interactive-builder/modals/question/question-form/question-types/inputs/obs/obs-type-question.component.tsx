@@ -1,21 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  FormLabel,
-  InlineNotification,
-  Layer,
-  Tile,
-  Search,
-  InlineLoading,
-  MultiSelect,
-  FormGroup,
-  Tag,
-  Stack,
-} from '@carbon/react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { FormLabel, InlineNotification, MultiSelect, FormGroup, Tag, Stack } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import { useDebounce } from '@openmrs/esm-framework';
-import { ArrowUpRight } from '@carbon/react/icons';
-import { useConceptLookup } from '@hooks/useConceptLookup';
-import { useConceptId } from '@hooks/useConceptId';
+import ConceptSearch from './concept-search.component';
 import type { Concept, ConceptMapping, ComponentProps, DatePickerType } from '@types';
 import styles from './obs-type-question.scss';
 
@@ -26,15 +12,6 @@ interface AnswerItem {
 
 const ObsTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) => {
   const { t } = useTranslation();
-  const [conceptToLookup, setConceptToLookup] = useState('');
-  const debouncedConceptToLookup = useDebounce(conceptToLookup);
-  const { concepts, conceptLookupError, isLoadingConcepts } = useConceptLookup(debouncedConceptToLookup);
-  const {
-    concept: initialConcept,
-    conceptName,
-    conceptNameLookupError,
-    isLoadingConcept,
-  } = useConceptId(formField.questionOptions?.concept ?? '');
   const [selectedConcept, setSelectedConcept] = useState<Concept>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<Array<AnswerItem>>(
     formField.questionOptions?.answers
@@ -44,23 +21,8 @@ const ObsTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) 
         }))
       : [],
   );
+  const [addedAnswers, setAddedAnswers] = useState<AnswerItem[]>([]);
   const [conceptMappings, setConceptMappings] = useState<Array<ConceptMapping>>([]);
-
-  useEffect(() => {
-    if (initialConcept) {
-      setSelectedConcept(initialConcept);
-      setConceptMappings(
-        initialConcept?.mappings?.map((conceptMapping) => {
-          const data = conceptMapping.display.split(': ');
-          return {
-            relationship: conceptMapping.conceptMapType.display,
-            type: data[0],
-            value: data[1],
-          };
-        }),
-      );
-    }
-  }, [initialConcept]);
 
   const getDatePickerType = useCallback((concept: Concept): DatePickerType | null => {
     const conceptDataType = concept.datatype.name;
@@ -76,14 +38,8 @@ const ObsTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) 
     }
   }, []);
 
-  const handleConceptChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => setConceptToLookup(event.target.value),
-    [],
-  );
-
   const handleConceptSelect = useCallback(
     (concept: Concept) => {
-      setConceptToLookup('');
       setSelectedConcept(concept);
       setConceptMappings(
         concept?.mappings?.map((conceptMapping) => {
@@ -106,6 +62,17 @@ const ObsTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) 
     [formField, getDatePickerType, setFormField],
   );
 
+  const clearSelectedConcept = useCallback(() => {
+    setSelectedConcept(null);
+    setConceptMappings([]);
+    const updatedFormField = { ...formField };
+    if (updatedFormField.questionOptions) {
+      delete updatedFormField.questionOptions.concept, updatedFormField.questionOptions.answers;
+    }
+    if (updatedFormField.datePickerFormat) delete updatedFormField.datePickerFormat;
+    setFormField(updatedFormField);
+  }, [formField, setFormField]);
+
   const selectAnswers = useCallback(
     ({ selectedItems }: { selectedItems: Array<AnswerItem> }) => {
       setSelectedAnswers(selectedItems);
@@ -123,19 +90,38 @@ const ObsTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) 
     [formField, setFormField],
   );
 
-  const clearSelectedConcept = useCallback(() => {
-    setSelectedConcept(null);
-    setConceptMappings([]);
-    const updatedFormField = { ...formField };
-    if (updatedFormField.questionOptions) {
-      delete updatedFormField.questionOptions.concept, updatedFormField.questionOptions.answers;
-    }
-    if (updatedFormField.datePickerFormat) delete updatedFormField.datePickerFormat;
-    setFormField(updatedFormField);
-  }, [formField, setFormField]);
+  const handleDeleteAdditionalAnswer = (id: string) => {
+    setAddedAnswers((prevAnswers) => prevAnswers.filter((answer) => answer.id !== id));
+    const selectedAnswers = formField.questionOptions?.answers ?? [];
+    setFormField({
+      ...formField,
+      questionOptions: {
+        ...formField.questionOptions,
+        answers: selectedAnswers.filter((answer) => answer.concept !== id),
+      },
+    });
+  };
 
-  const items = useMemo(() => {
-    // Convert concept answers to items format
+  const handleSelectAdditionalAnswer = (concept: Concept) => {
+    const newAnswer = { id: concept.uuid, text: concept.display };
+    const answerExistsInSelected = selectedAnswers.some((answer) => answer.id === newAnswer.id);
+    const answerExistsInAdded = addedAnswers.some((answer) => answer.id === newAnswer.id);
+    if (!answerExistsInSelected && !answerExistsInAdded) {
+      setAddedAnswers((prevAnswers) => [...prevAnswers, newAnswer]);
+      const existingAnswers = formField.questionOptions?.answers ?? [];
+      existingAnswers.push({ concept: concept.uuid, label: concept.display });
+      setFormField({
+        ...formField,
+        questionOptions: {
+          ...formField.questionOptions,
+          answers: existingAnswers,
+        },
+      });
+    }
+  };
+
+  const answerItems = useMemo(() => {
+    // Convert answers from the concept to items format
     const conceptAnswerItems =
       selectedConcept?.answers?.map((answer) => ({
         id: answer.uuid,
@@ -144,7 +130,7 @@ const ObsTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) 
 
     const formFieldAnswers = formField.questionOptions?.answers ?? [];
 
-    // If no concept answers but we have form field answers, use those
+    // If no answers from concept but we have form field answers, use those
     if (conceptAnswerItems.length === 0 && formFieldAnswers.length > 0) {
       return formFieldAnswers.map((answer) => ({
         id: answer.concept,
@@ -163,96 +149,15 @@ const ObsTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) 
     return [...conceptAnswerItems, ...additionalAnswers];
   }, [selectedConcept, formField]);
 
-  const convertItemsToString = useCallback((item: AnswerItem) => item.text, []);
+  const convertAnswerItemsToString = useCallback((item: AnswerItem) => item.text, []);
 
   return (
     <Stack gap={5}>
-      <div>
-        <FormLabel className={styles.label}>{t('searchForBackingConcept', 'Search for a backing concept')}</FormLabel>
-        {conceptLookupError || conceptNameLookupError ? (
-          <InlineNotification
-            kind="error"
-            lowContrast
-            className={styles.error}
-            title={
-              conceptLookupError
-                ? t('errorFetchingConcepts', 'Error fetching concepts')
-                : t('errorFetchingConceptName', "Couldn't resolve concept name")
-            }
-            subtitle={
-              conceptLookupError
-                ? t('pleaseTryAgain', 'Please try again.')
-                : t('conceptDoesNotExist', `The linked concept '{{conceptName}}' does not exist in your dictionary`, {
-                    conceptName: formField.questionOptions.concept,
-                  })
-            }
-          />
-        ) : null}
-        {isLoadingConcept ? (
-          <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />
-        ) : (
-          <Search
-            id="conceptLookup"
-            onClear={clearSelectedConcept}
-            onChange={handleConceptChange}
-            labelText={t('searchForBackingConcept', 'Search for a backing concept')}
-            placeholder={t('searchConcept', 'Search using a concept name or UUID')}
-            required
-            size="md"
-            value={(() => {
-              if (conceptToLookup) {
-                return conceptToLookup;
-              }
-              if (selectedConcept) {
-                return selectedConcept.display;
-              }
-              if (conceptName) {
-                return conceptName;
-              }
-              return '';
-            })()}
-          />
-        )}
-      </div>
-      {(() => {
-        if (!conceptToLookup) return null;
-        if (isLoadingConcepts)
-          return <InlineLoading className={styles.loader} description={t('searching', 'Searching') + '...'} />;
-        if (concepts?.length && !isLoadingConcepts) {
-          return (
-            <ul className={styles.conceptList}>
-              {concepts?.map((concept, index) => (
-                <li role="menuitem" className={styles.concept} key={index} onClick={() => handleConceptSelect(concept)}>
-                  {concept.display}
-                </li>
-              ))}
-            </ul>
-          );
-        }
-        return (
-          <Layer>
-            <Tile className={styles.emptyResults}>
-              <span>
-                {t('noMatchingConcepts', 'No concepts were found that match')}{' '}
-                <strong>"{debouncedConceptToLookup}".</strong>
-              </span>
-            </Tile>
-
-            <div className={styles.oclLauncherBanner}>
-              {<p className={styles.bodyShort01}>{t('conceptSearchHelpText', "Can't find a concept?")}</p>}
-              <a
-                className={styles.oclLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                href={'https://app.openconceptlab.org/'}
-              >
-                {t('searchInOCL', 'Search in OCL')}
-                <ArrowUpRight size={16} />
-              </a>
-            </div>
-          </Layer>
-        );
-      })()}
+      <ConceptSearch
+        defaultConcept={formField.questionOptions?.concept ?? null}
+        onClearSelectedConcept={clearSelectedConcept}
+        onSelectConcept={handleConceptSelect}
+      />
 
       {selectedConcept?.allowDecimal === false && (
         <InlineNotification
@@ -286,13 +191,13 @@ const ObsTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) 
         </FormGroup>
       ) : null}
 
-      {!isLoadingConcept && items.length > 0 && (
+      {answerItems.length > 0 && (
         <MultiSelect
           className={styles.multiSelect}
           direction="top"
           id="selectAnswers"
-          items={items}
-          itemToString={convertItemsToString}
+          items={answerItems}
+          itemToString={convertAnswerItemsToString}
           onChange={selectAnswers}
           size="md"
           selectedItems={selectedAnswers}
@@ -313,6 +218,30 @@ const ObsTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) 
             </Tag>
           ))}
         </div>
+      )}
+
+      {selectedConcept && selectedConcept.datatype?.name === 'Coded' && (
+        <>
+          <ConceptSearch
+            label={t('searchForAnswerConcept', 'Search for a concept to add as an answer')}
+            onSelectConcept={handleSelectAdditionalAnswer}
+          />
+          {addedAnswers.length > 0 ? (
+            <div>
+              {addedAnswers.map((answer) => (
+                <Tag className={styles.tag} key={answer.id} type={'blue'}>
+                  {answer.text}
+                  <button
+                    className={styles.conceptAnswerButton}
+                    onClick={() => handleDeleteAdditionalAnswer(answer.id)}
+                  >
+                    X
+                  </button>
+                </Tag>
+              ))}
+            </div>
+          ) : null}{' '}
+        </>
       )}
     </Stack>
   );
