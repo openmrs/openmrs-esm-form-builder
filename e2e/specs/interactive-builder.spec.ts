@@ -36,7 +36,6 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
                     },
                   ],
                 },
-                validators: [],
               },
             ],
           },
