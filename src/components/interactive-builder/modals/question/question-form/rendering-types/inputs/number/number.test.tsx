@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Number from './number.component';
+import { FormFieldProvider } from '../../../../form-field-context';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
 
 const mockSetFormField = jest.fn();
@@ -10,6 +11,11 @@ const formField: FormField = {
   questionOptions: { rendering: 'number', min: '1', max: '10' },
   id: '1',
 };
+
+jest.mock('../../../../form-field-context', () => ({
+  ...jest.requireActual('../../../../form-field-context'),
+  useFormField: () => ({ formField, setFormField: mockSetFormField }),
+}));
 
 describe('Number Component', () => {
   it('renders', () => {
@@ -72,5 +78,9 @@ describe('Number Component', () => {
 });
 
 function renderNumberComponent() {
-  render(<Number formField={formField} setFormField={mockSetFormField} />);
+  render(
+    <FormFieldProvider initialFormField={formField}>
+      <Number />
+    </FormFieldProvider>,
+  );
 }

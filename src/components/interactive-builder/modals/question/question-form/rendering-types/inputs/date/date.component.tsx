@@ -1,10 +1,12 @@
 import React, { useCallback } from 'react';
 import { RadioButtonGroup, RadioButton } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import type { DatePickerTypeOption, ComponentProps } from '@types';
+import { useFormField } from '../../../../form-field-context';
+import type { DatePickerTypeOption } from '@types';
 
-const Date: React.FC<ComponentProps> = ({ formField, setFormField }) => {
+const Date: React.FC = () => {
   const { t } = useTranslation();
+  const { formField, setFormField } = useFormField();
 
   const datePickerTypeOptions: Record<string, Array<DatePickerTypeOption>> = {
     datetime: [{ value: 'both', label: t('calendarAndTimer', 'Calendar and timer'), defaultChecked: true }],

@@ -1,16 +1,21 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import UiSelectExtended from './ui-select-extended.component';
-import type { FormField } from '@openmrs/esm-form-engine-lib';
 import userEvent from '@testing-library/user-event';
+import UiSelectExtended from './ui-select-extended.component';
+import { FormFieldProvider } from '../../../../form-field-context';
+import type { FormField } from '@openmrs/esm-form-engine-lib';
 
 const mockSetFormField = jest.fn();
 const formField: FormField = {
-  datePickerFormat: 'both',
   type: 'obs',
   questionOptions: { rendering: 'ui-select-extended', isSearchable: false },
   id: '1',
 };
+
+jest.mock('../../../../form-field-context', () => ({
+  ...jest.requireActual('../../../../form-field-context'),
+  useFormField: () => ({ formField, setFormField: mockSetFormField }),
+}));
 
 describe('UiSelectExtended Component', () => {
   it('renders', () => {
@@ -45,5 +50,9 @@ describe('UiSelectExtended Component', () => {
 });
 
 function renderUiSelectExtendedComponent() {
-  render(<UiSelectExtended formField={formField} setFormField={mockSetFormField} />);
+  render(
+    <FormFieldProvider initialFormField={formField}>
+      <UiSelectExtended />
+    </FormFieldProvider>,
+  );
 }

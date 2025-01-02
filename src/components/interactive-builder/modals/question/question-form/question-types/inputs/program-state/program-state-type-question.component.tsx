@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SelectSkeleton, Stack, ComboBox, InlineNotification, MultiSelect, Tag } from '@carbon/react';
 import { usePrograms, useProgramWorkStates } from '@hooks/useProgramStates';
-import type { ProgramWorkflow, Program, ComponentProps } from '@types';
+import { useFormField } from '../../../../form-field-context';
+import type { ProgramWorkflow, Program } from '@types';
 import type { ProgramState } from '@openmrs/esm-form-engine-lib';
 import styles from './program-state-type-question.scss';
 
@@ -10,8 +11,9 @@ interface ProgramStateData {
   selectedItems: Array<ProgramState>;
 }
 
-const ProgramStateTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) => {
+const ProgramStateTypeQuestion: React.FC = () => {
   const { t } = useTranslation();
+  const { formField, setFormField } = useFormField();
   const { programs, programsLookupError, isLoadingPrograms } = usePrograms();
   const [selectedProgram, setSelectedProgram] = useState<Program>();
   const [selectedProgramWorkflow, setSelectedProgramWorkflow] = useState<ProgramWorkflow>();

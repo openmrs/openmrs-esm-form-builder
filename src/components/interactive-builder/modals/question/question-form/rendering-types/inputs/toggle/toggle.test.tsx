@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import Toggle from './toggle.component';
+import { FormFieldProvider } from '../../../../form-field-context';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
 
 const mockSetFormField = jest.fn();
@@ -10,6 +11,11 @@ const formField: FormField = {
   questionOptions: { rendering: 'toggle', toggleOptions: { labelTrue: 'True', labelFalse: 'False' } },
   id: '1',
 };
+
+jest.mock('../../../../form-field-context', () => ({
+  ...jest.requireActual('../../../../form-field-context'),
+  useFormField: () => ({ formField, setFormField: mockSetFormField }),
+}));
 
 describe('Toggle Component', () => {
   it('renders', () => {
@@ -45,5 +51,9 @@ describe('Toggle Component', () => {
 });
 
 function renderToggleComponent() {
-  render(<Toggle formField={formField} setFormField={mockSetFormField} />);
+  render(
+    <FormFieldProvider initialFormField={formField}>
+      <Toggle />
+    </FormFieldProvider>,
+  );
 }

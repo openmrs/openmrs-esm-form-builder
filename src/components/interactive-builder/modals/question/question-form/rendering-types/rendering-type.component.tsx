@@ -1,10 +1,10 @@
 import React from 'react';
 import { Date, Markdown, Number, Text, TextArea, Toggle, UiSelectExtended } from './inputs';
+import { useFormField } from '../../form-field-context';
 import type { RenderType } from '@openmrs/esm-form-engine-lib';
-import type { ComponentProps } from '@types';
 import { renderTypeOptions, renderingTypes } from '@constants';
 
-const componentMap: Partial<Record<RenderType, React.FC<ComponentProps>>> = {
+const componentMap: Partial<Record<RenderType, React.FC>> = {
   number: Number,
   text: Text,
   textarea: TextArea,
@@ -15,7 +15,8 @@ const componentMap: Partial<Record<RenderType, React.FC<ComponentProps>>> = {
   markdown: Markdown,
 };
 
-const RenderTypeComponent: React.FC<ComponentProps> = ({ formField, setFormField }) => {
+const RenderTypeComponent: React.FC = () => {
+  const { formField } = useFormField();
   // Get allowed rendering types based on formField.type
   const allowedRenderingTypes =
     formField.type && formField.type !== 'obs' ? renderTypeOptions[formField.type] : renderingTypes;
@@ -34,7 +35,7 @@ const RenderTypeComponent: React.FC<ComponentProps> = ({ formField, setFormField
     return null;
   }
 
-  return <Component formField={formField} setFormField={setFormField} />;
+  return <Component />;
 };
 
 export default RenderTypeComponent;

@@ -1,29 +1,34 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TextInput } from '@carbon/react';
-import type { FormField } from '@openmrs/esm-form-engine-lib';
-import type { ComponentProps } from '@types';
+import { useFormField } from '../../../../form-field-context';
 
-const Text: React.FC<ComponentProps> = ({ formField, setFormField }) => {
+const Text: React.FC = () => {
   const { t } = useTranslation();
+  const { formField, setFormField } = useFormField();
+
+  const checkIfInvalid = useCallback(() => {
+    if (parseFloat(formField.questionOptions?.minLength ?? '') > parseFloat(formField.questionOptions?.maxLength ?? ''))
+      return true;
+    else false;
+  }, [formField.questionOptions?.maxLength, formField.questionOptions?.minLength]);
+
+  const getInvalidText = useCallback(() => {
+    const invalid = checkIfInvalid();
+    if (invalid) return t('invalidMinMax', 'Min value cannot be greater than max');
+    else return '';
+  }, [checkIfInvalid, t]);
+
   return (
     <>
       <TextInput
         id="minLength"
-        labelText="Min length of characters "
+        labelText="Min length of characters"
         value={formField.questionOptions?.minLength ?? ''}
-        invalid={
-          parseFloat(formField.questionOptions?.minLength ?? '') >
-          parseFloat(formField.questionOptions?.maxLength ?? '')
-        }
-        invalidText={
-          parseFloat(formField.questionOptions?.minLength ?? '') >
-          parseFloat(formField.questionOptions?.maxLength ?? '')
-            ? t('invalidMinMax', 'Min value cannot be greater than max')
-            : ''
-        }
+        invalid={checkIfInvalid()}
+        invalidText={getInvalidText()}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          const updatedQuestion: FormField = {
+          const updatedQuestion = {
             ...formField,
             questionOptions: { ...formField.questionOptions, minLength: event.target.value },
           };
@@ -34,18 +39,10 @@ const Text: React.FC<ComponentProps> = ({ formField, setFormField }) => {
         id="maxLength"
         labelText="Max length of characters"
         value={formField.questionOptions?.maxLength ?? ''}
-        invalid={
-          parseFloat(formField.questionOptions?.minLength ?? '') >
-          parseFloat(formField.questionOptions?.maxLength ?? '')
-        }
-        invalidText={
-          parseFloat(formField.questionOptions?.minLength ?? '') >
-          parseFloat(formField.questionOptions?.maxLength ?? '')
-            ? t('invalidMinMax', 'Min value cannot be greater than max')
-            : ''
-        }
+        invalid={checkIfInvalid()}
+        invalidText={getInvalidText}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          const updatedQuestion: FormField = {
+          const updatedQuestion = {
             ...formField,
             questionOptions: { ...formField.questionOptions, maxLength: event.target.value },
           };

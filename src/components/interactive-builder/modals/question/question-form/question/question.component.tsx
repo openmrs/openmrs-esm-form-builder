@@ -4,17 +4,18 @@ import { useTranslation } from 'react-i18next';
 import RenderTypeComponent from '../rendering-types/rendering-type.component';
 import QuestionTypeComponent from '../question-types/question-type.component';
 import RequiredLabel from '../required-label/required-label.component';
+import { useFormField } from '../../form-field-context';
 import type { FormField, RenderType } from '@openmrs/esm-form-engine-lib';
-import type { ComponentProps } from '@types';
 import { questionTypes, renderTypeOptions, renderingTypes } from '@constants';
 import styles from './question.scss';
 
-interface QuestionProps extends ComponentProps {
+interface QuestionProps {
   checkIfQuestionIdExists: (idToTest: string) => boolean;
 }
 
-const Question: React.FC<QuestionProps> = ({ formField, setFormField, checkIfQuestionIdExists }) => {
+const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
   const { t } = useTranslation();
+  const { formField, setFormField } = useFormField();
 
   const convertLabelToCamelCase = () => {
     const camelCasedLabel = formField.label
@@ -145,10 +146,8 @@ const Question: React.FC<QuestionProps> = ({ formField, setFormField, checkIfQue
           </RadioButtonGroup>
         </>
       )}
-      {formField.type && <QuestionTypeComponent formField={formField} setFormField={setFormField} />}
-      {formField.questionOptions && formField.questionOptions.rendering && (
-        <RenderTypeComponent formField={formField} setFormField={setFormField} />
-      )}
+      {formField.type && <QuestionTypeComponent />}
+      {formField.questionOptions && formField.questionOptions.rendering && <RenderTypeComponent />}
     </>
   );
 };
