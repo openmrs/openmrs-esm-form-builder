@@ -1,26 +1,31 @@
 import React from 'react';
+import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 import PatientIdentifierTypeQuestion from './patient-identifier-type-question.component';
+import { FormFieldProvider } from '../../../../form-field-context';
 import { usePatientIdentifierTypes } from '@hooks/usePatientIdentifierTypes';
-import userEvent from '@testing-library/user-event';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
 import type { PatientIdentifierType } from '@types';
 
 const mockSetFormField = jest.fn();
-
-const mockUsePatientIdentifierTypes = jest.mocked(usePatientIdentifierTypes);
-jest.mock('@hooks/usePatientIdentifierTypes', () => ({
-  ...jest.requireActual('@hooks/usePatientIdentifierTypes'),
-  usePatientIdentifierTypes: jest.fn((value: string) => value),
-}));
-
-const initialFormField: FormField = {
+const formField: FormField = {
   id: '1',
   type: 'patientIdentifier',
   questionOptions: {
     rendering: 'text',
   },
 };
+
+jest.mock('../../../../form-field-context', () => ({
+  ...jest.requireActual('../../../../form-field-context'),
+  useFormField: () => ({ formField, setFormField: mockSetFormField }),
+}));
+
+const mockUsePatientIdentifierTypes = jest.mocked(usePatientIdentifierTypes);
+jest.mock('@hooks/usePatientIdentifierTypes', () => ({
+  ...jest.requireActual('@hooks/usePatientIdentifierTypes'),
+  usePatientIdentifierTypes: jest.fn((value: string) => value),
+}));
 
 const patientIdentifierTypes: Array<PatientIdentifierType> = [
   { display: 'Type 1', description: 'Example description', name: 'Type 1', uuid: '1' },
@@ -35,7 +40,7 @@ describe('PatientIdentifierTypeQuestion', () => {
       isLoadingPatientIdentifierTypes: false,
     });
     const user = userEvent.setup();
-    render(<PatientIdentifierTypeQuestion formField={initialFormField} setFormField={mockSetFormField} />);
+    renderComponent();
 
     expect(screen.getByText(/search for a backing patient identifier type/i)).toBeInTheDocument();
     expect(
@@ -64,7 +69,7 @@ describe('PatientIdentifierTypeQuestion', () => {
       patientIdentifierTypeLookupError: null,
       isLoadingPatientIdentifierTypes: true,
     });
-    render(<PatientIdentifierTypeQuestion formField={initialFormField} setFormField={mockSetFormField} />);
+    renderComponent();
 
     expect(screen.getByText(/loading\.\.\./i)).toBeInTheDocument();
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
@@ -84,7 +89,7 @@ describe('PatientIdentifierTypeQuestion', () => {
       patientIdentifierTypeLookupError: Error(),
       isLoadingPatientIdentifierTypes: false,
     });
-    render(<PatientIdentifierTypeQuestion formField={initialFormField} setFormField={mockSetFormField} />);
+    renderComponent();
 
     expect(screen.getByText(/error fetching patient identifier types/i)).toBeInTheDocument();
     expect(screen.getByText(/please try again\./i)).toBeInTheDocument();
@@ -96,8 +101,9 @@ describe('PatientIdentifierTypeQuestion', () => {
       patientIdentifierTypeLookupError: null,
       isLoadingPatientIdentifierTypes: false,
     });
-    initialFormField.questionOptions.identifierType = patientIdentifierTypes[0].uuid;
-    render(<PatientIdentifierTypeQuestion formField={initialFormField} setFormField={mockSetFormField} />);
+    formField.questionOptions.identifierType = patientIdentifierTypes[0].uuid;
+    renderComponent();
+
     expect(
       screen.getByRole('button', {
         name: /clear selected item/i,
@@ -106,3 +112,11 @@ describe('PatientIdentifierTypeQuestion', () => {
     expect(screen.getByRole('combobox')).toHaveDisplayValue(/type 1/i);
   });
 });
+
+function renderComponent() {
+  render(
+    <FormFieldProvider initialFormField={formField}>
+      <PatientIdentifierTypeQuestion />
+    </FormFieldProvider>,
+  );
+}

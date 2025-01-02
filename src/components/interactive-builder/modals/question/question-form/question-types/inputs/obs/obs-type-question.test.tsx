@@ -2,12 +2,25 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ObsTypeQuestion from './obs-type-question.component';
+import { FormFieldProvider } from '../../../../form-field-context';
 import { useConceptId } from '@hooks/useConceptId';
 import { useConceptLookup } from '@hooks/useConceptLookup';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
 import type { Concept } from '@types';
 
 const mockSetFormField = jest.fn();
+const formField: FormField = {
+  id: '1',
+  type: 'obs',
+  questionOptions: {
+    rendering: 'text',
+  },
+};
+
+jest.mock('../../../../form-field-context', () => ({
+  ...jest.requireActual('../../../../form-field-context'),
+  useFormField: () => ({ formField, setFormField: mockSetFormField }),
+}));
 
 const concepts: Array<Concept> = [
   {
@@ -28,14 +41,6 @@ const concepts: Array<Concept> = [
   },
 ];
 
-const initialFormField: FormField = {
-  id: '1',
-  type: 'obs',
-  questionOptions: {
-    rendering: 'text',
-  },
-};
-
 const mockUseConceptLookup = jest.mocked(useConceptLookup);
 jest.mock('@hooks/useConceptLookup', () => ({
   ...jest.requireActual('@hooks/useConceptLookup'),
@@ -49,7 +54,7 @@ jest.mock('@hooks/useConceptId', () => ({
 }));
 
 describe('ObsTypeQuestion', () => {
-  it('renders without crashing', () => {
+  it('renders', () => {
     mockUseConceptLookup.mockReturnValue({ concepts: [], conceptLookupError: null, isLoadingConcepts: false });
     mockUseConceptId.mockReturnValue({
       concept: null,
@@ -57,7 +62,7 @@ describe('ObsTypeQuestion', () => {
       conceptNameLookupError: null,
       isLoadingConcept: false,
     });
-    render(<ObsTypeQuestion formField={initialFormField} setFormField={mockSetFormField} />);
+    renderComponent();
     expect(screen.getByRole('searchbox', { name: /search for a backing concept/i })).toBeInTheDocument();
   });
 
@@ -70,7 +75,7 @@ describe('ObsTypeQuestion', () => {
       isLoadingConcept: false,
     });
     const user = userEvent.setup();
-    render(<ObsTypeQuestion formField={initialFormField} setFormField={mockSetFormField} />);
+    renderComponent();
 
     const searchInput = screen.getByRole('searchbox', { name: /search for a backing concept/i });
     await user.click(searchInput);
@@ -84,8 +89,8 @@ describe('ObsTypeQuestion', () => {
     await user.click(conceptMenuItem);
 
     expect(mockSetFormField).toHaveBeenCalledWith({
-      ...initialFormField,
-      questionOptions: { ...initialFormField.questionOptions, concept: '123' },
+      ...formField,
+      questionOptions: { ...formField.questionOptions, concept: '123' },
     });
     expect(
       screen.getByRole('cell', {
@@ -117,7 +122,7 @@ describe('ObsTypeQuestion', () => {
       isLoadingConcept: false,
     });
     const user = userEvent.setup();
-    render(<ObsTypeQuestion formField={initialFormField} setFormField={mockSetFormField} />);
+    renderComponent();
 
     const searchInput = screen.getByRole('searchbox', { name: /search for a backing concept/i });
     await user.click(searchInput);
@@ -141,7 +146,7 @@ describe('ObsTypeQuestion', () => {
       isLoadingConcept: false,
     });
     const user = userEvent.setup();
-    render(<ObsTypeQuestion formField={initialFormField} setFormField={mockSetFormField} />);
+    renderComponent();
 
     const searchInput = screen.getByRole('searchbox', { name: /search for a backing concept/i });
     await user.click(searchInput);
@@ -157,7 +162,7 @@ describe('ObsTypeQuestion', () => {
       conceptNameLookupError: null,
       isLoadingConcept: false,
     });
-    render(<ObsTypeQuestion formField={initialFormField} setFormField={mockSetFormField} />);
+    renderComponent();
 
     expect(screen.getByText(/error fetching concepts/i)).toBeInTheDocument();
     expect(screen.getByText(/please try again\./i)).toBeInTheDocument();
@@ -172,7 +177,7 @@ describe('ObsTypeQuestion', () => {
       isLoadingConcept: false,
     });
     const user = userEvent.setup();
-    render(<ObsTypeQuestion formField={initialFormField} setFormField={mockSetFormField} />);
+    renderComponent();
 
     const searchInput = screen.getByRole('searchbox', { name: /search for a backing concept/i });
     await user.click(searchInput);
@@ -184,14 +189,14 @@ describe('ObsTypeQuestion', () => {
 
     await user.click(conceptMenuItem);
     expect(mockSetFormField).toHaveBeenCalledWith({
-      ...initialFormField,
+      ...formField,
       datePickerFormat: 'calendar',
-      questionOptions: { ...initialFormField.questionOptions, concept: '456' },
+      questionOptions: { ...formField.questionOptions, concept: '456' },
     });
   });
 
   it('loads the concept details along with the selected answer when editing a question', async () => {
-    initialFormField.questionOptions = {
+    formField.questionOptions = {
       rendering: 'select',
       concept: concepts[0].uuid,
       answers: [{ label: 'Answer 1', concept: '1' }],
@@ -204,7 +209,7 @@ describe('ObsTypeQuestion', () => {
       conceptNameLookupError: null,
     });
     const user = userEvent.setup();
-    render(<ObsTypeQuestion formField={initialFormField} setFormField={mockSetFormField} />);
+    renderComponent();
 
     expect(
       screen.getByRole('searchbox', {
@@ -252,7 +257,8 @@ describe('ObsTypeQuestion', () => {
       isLoadingConcept: true,
     });
     const user = userEvent.setup();
-    render(<ObsTypeQuestion formField={initialFormField} setFormField={mockSetFormField} />);
+    renderComponent();
+
     expect(
       screen.queryByRole('searchbox', {
         name: /search for a backing concept/i,
@@ -269,12 +275,12 @@ describe('ObsTypeQuestion', () => {
       conceptNameLookupError: Error(),
       isLoadingConcept: false,
     });
-    initialFormField.questionOptions = {
+    formField.questionOptions = {
       rendering: 'select',
       concept: concepts[0].uuid,
       answers: [{ label: 'Answer 1', concept: '1' }],
     };
-    render(<ObsTypeQuestion formField={initialFormField} setFormField={mockSetFormField} />);
+    renderComponent();
 
     expect(screen.getByText(/couldn't resolve concept name/i)).toBeInTheDocument();
     expect(
@@ -283,3 +289,11 @@ describe('ObsTypeQuestion', () => {
     expect(screen.getByText(/answer 1/i)).toBeInTheDocument();
   });
 });
+
+function renderComponent() {
+  render(
+    <FormFieldProvider initialFormField={formField}>
+      <ObsTypeQuestion />
+    </FormFieldProvider>,
+  );
+}

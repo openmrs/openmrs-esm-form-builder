@@ -2,11 +2,12 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactMde from 'react-mde';
 import ReactMarkdown from 'react-markdown';
-import type { ComponentProps } from '@types';
+import { useFormField } from '../../../../form-field-context';
 import styles from './markdown.scss';
 
-const MarkdownQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) => {
+const MarkdownQuestion: React.FC = () => {
   const { t } = useTranslation();
+  const { formField, setFormField } = useFormField();
   const [selectedTab, setSelectedTab] = React.useState<'write' | 'preview'>('write');
 
   const handleEditorChange = (newValue: string) => {

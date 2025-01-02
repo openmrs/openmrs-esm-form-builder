@@ -1,21 +1,23 @@
 import React from 'react';
 import { ObsTypeQuestion, ProgramStateTypeQuestion, PatientIdentifierTypeQuestion } from './inputs';
-import type { QuestionType, ComponentProps } from '@types';
+import { useFormField } from '../../form-field-context';
+import type { QuestionType } from '@types';
 
-const componentMap: Partial<Record<QuestionType, React.FC<ComponentProps>>> = {
+const componentMap: Partial<Record<QuestionType, React.FC>> = {
   obs: ObsTypeQuestion,
   programState: ProgramStateTypeQuestion,
   patientIdentifier: PatientIdentifierTypeQuestion,
   obsGroup: ObsTypeQuestion,
 };
 
-const QuestionTypeComponent: React.FC<ComponentProps> = ({ formField, setFormField }) => {
+const QuestionTypeComponent: React.FC = () => {
+  const { formField } = useFormField();
   const Component = componentMap[formField.type];
   if (!Component) {
     console.error(`No component found for questiontype: ${formField.type}`);
     return null;
   }
-  return <Component formField={formField} setFormField={setFormField} />;
+  return <Component />;
 };
 
 export default QuestionTypeComponent;

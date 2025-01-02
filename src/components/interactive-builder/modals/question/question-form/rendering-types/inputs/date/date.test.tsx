@@ -1,8 +1,9 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import Date from './date.component';
-import type { FormField } from '@openmrs/esm-form-engine-lib';
 import userEvent from '@testing-library/user-event';
+import Date from './date.component';
+import { FormFieldProvider } from '../../../../form-field-context';
+import type { FormField } from '@openmrs/esm-form-engine-lib';
 
 const mockSetFormField = jest.fn();
 const formField: FormField = {
@@ -11,6 +12,10 @@ const formField: FormField = {
   questionOptions: { rendering: 'date' },
   id: '1',
 };
+jest.mock('../../../../form-field-context', () => ({
+  ...jest.requireActual('../../../../form-field-context'),
+  useFormField: () => ({ formField, setFormField: mockSetFormField }),
+}));
 
 describe('Date Component', () => {
   it('renders', () => {
@@ -44,5 +49,9 @@ describe('Date Component', () => {
 });
 
 function renderDateComponent() {
-  render(<Date formField={formField} setFormField={mockSetFormField} />);
+  render(
+    <FormFieldProvider initialFormField={formField}>
+      <Date />
+    </FormFieldProvider>,
+  );
 }

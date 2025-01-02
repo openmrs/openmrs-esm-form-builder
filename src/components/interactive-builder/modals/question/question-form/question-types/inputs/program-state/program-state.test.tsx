@@ -1,20 +1,25 @@
 import React from 'react';
+import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 import ProgramStateTypeQuestion from './program-state-type-question.component';
-import userEvent from '@testing-library/user-event';
-import type { FormField, ProgramState } from '@openmrs/esm-form-engine-lib';
+import { FormFieldProvider } from '../../../../form-field-context';
 import { usePrograms, useProgramWorkStates } from '@hooks/useProgramStates';
+import type { FormField, ProgramState } from '@openmrs/esm-form-engine-lib';
 import type { Program } from '@types';
 
 const mockSetFormField = jest.fn();
-const initialFormField: FormField = {
+const formField: FormField = {
   id: '1',
-  type: 'programState',
+  type: 'patientIdentifier',
   questionOptions: {
-    rendering: 'select',
-    answers: [],
+    rendering: 'text',
   },
 };
+
+jest.mock('../../../../form-field-context', () => ({
+  ...jest.requireActual('../../../../form-field-context'),
+  useFormField: () => ({ formField, setFormField: mockSetFormField }),
+}));
 
 const mockUsePrograms = jest.mocked(usePrograms);
 const mockUseProgramWorkflowStates = jest.mocked(useProgramWorkStates);
@@ -106,7 +111,7 @@ describe('ProgramStateTypeQuestion', () => {
       isLoadingProgramStates: null,
       mutateProgramStates: jest.fn(),
     });
-    render(<ProgramStateTypeQuestion formField={initialFormField} setFormField={mockSetFormField} />);
+    renderComponent();
 
     expect(screen.getByRole('combobox', { name: /^program$/i })).toBeInTheDocument();
   });
@@ -119,7 +124,7 @@ describe('ProgramStateTypeQuestion', () => {
       isLoadingProgramStates: null,
       mutateProgramStates: jest.fn(),
     });
-    render(<ProgramStateTypeQuestion formField={initialFormField} setFormField={mockSetFormField} />);
+    renderComponent();
 
     expect(screen.queryByRole('combobox', { name: /^program$/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('combobox', { name: /^program workflow$/i })).not.toBeInTheDocument();
@@ -134,7 +139,7 @@ describe('ProgramStateTypeQuestion', () => {
       mutateProgramStates: jest.fn(),
     });
     const user = userEvent.setup();
-    render(<ProgramStateTypeQuestion formField={initialFormField} setFormField={mockSetFormField} />);
+    renderComponent();
 
     expect(screen.getByRole('combobox', { name: /^program$/i })).toBeInTheDocument();
     const selectProgramsButton = screen.getByRole('button', {
@@ -208,7 +213,7 @@ describe('ProgramStateTypeQuestion', () => {
       isLoadingProgramStates: null,
       mutateProgramStates: jest.fn(),
     });
-    initialFormField.questionOptions = {
+    formField.questionOptions = {
       rendering: 'select',
       programUuid: programs[0].uuid,
       workflowUuid: programs[0].allWorkflows[0].uuid,
@@ -216,8 +221,7 @@ describe('ProgramStateTypeQuestion', () => {
         { concept: programOneWorkflowOneStates[0].concept.uuid, label: programOneWorkflowOneStates[0].concept.display },
       ],
     };
-
-    render(<ProgramStateTypeQuestion formField={initialFormField} setFormField={mockSetFormField} />);
+    renderComponent();
 
     expect(screen.getByRole('combobox', { name: /^program$/i })).toHaveDisplayValue(/program 1/i);
     expect(
@@ -231,3 +235,11 @@ describe('ProgramStateTypeQuestion', () => {
     expect(screen.getByText(/program 1 state 1/i)).toBeInTheDocument();
   });
 });
+
+function renderComponent() {
+  render(
+    <FormFieldProvider initialFormField={formField}>
+      <ProgramStateTypeQuestion />
+    </FormFieldProvider>,
+  );
+}

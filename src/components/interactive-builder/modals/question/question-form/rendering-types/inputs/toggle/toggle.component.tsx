@@ -1,11 +1,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { TextInput } from '@carbon/react';
-import type { FormField } from '@openmrs/esm-form-engine-lib';
-import type { ComponentProps } from '@types';
+import { useFormField } from '../../../../form-field-context';
 
-const Toggle: React.FC<ComponentProps> = ({ formField, setFormField }) => {
+const Toggle: React.FC = () => {
   const { t } = useTranslation();
+  const { formField, setFormField } = useFormField();
+
   return (
     <>
       <TextInput
@@ -13,7 +14,7 @@ const Toggle: React.FC<ComponentProps> = ({ formField, setFormField }) => {
         labelText={t('labelTrue', 'Label true')}
         value={formField.questionOptions?.toggleOptions?.labelTrue ?? ''}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          const updatedQuestion: FormField = {
+          const updatedQuestion = {
             ...formField,
             questionOptions: {
               ...formField.questionOptions,
@@ -29,7 +30,7 @@ const Toggle: React.FC<ComponentProps> = ({ formField, setFormField }) => {
         labelText={t('labelFalse', 'Label false')}
         value={formField.questionOptions?.toggleOptions?.labelFalse ?? ''}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          const updatedQuestion: FormField = {
+          const updatedQuestion = {
             ...formField,
             questionOptions: {
               ...formField.questionOptions,

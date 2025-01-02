@@ -2,7 +2,8 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { FormLabel, InlineNotification, MultiSelect, FormGroup, Tag, Stack } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from './concept-search.component';
-import type { Concept, ConceptMapping, ComponentProps, DatePickerType } from '@types';
+import { useFormField } from '../../../../form-field-context';
+import type { Concept, ConceptMapping, DatePickerType } from '@types';
 import styles from './obs-type-question.scss';
 
 interface AnswerItem {
@@ -10,8 +11,9 @@ interface AnswerItem {
   text: string;
 }
 
-const ObsTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) => {
+const ObsTypeQuestion: React.FC = () => {
   const { t } = useTranslation();
+  const { formField, setFormField } = useFormField();
   const [selectedConcept, setSelectedConcept] = useState<Concept>(null);
   const [selectedAnswers, setSelectedAnswers] = useState<Array<AnswerItem>>(
     formField.questionOptions?.answers

@@ -1,11 +1,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { TextInput } from '@carbon/react';
-import type { FormField } from '@openmrs/esm-form-engine-lib';
-import type { ComponentProps } from '@types';
+import { useFormField } from '../../../../form-field-context';
 
-const Number: React.FC<ComponentProps> = ({ formField, setFormField }) => {
+const Number: React.FC = () => {
   const { t } = useTranslation();
+  const { formField, setFormField } = useFormField();
+
   return (
     <>
       <TextInput
@@ -19,7 +20,7 @@ const Number: React.FC<ComponentProps> = ({ formField, setFormField }) => {
             : ''
         }
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          const updatedQuestion: FormField = {
+          const updatedQuestion = {
             ...formField,
             questionOptions: { ...formField.questionOptions, min: event.target.value },
           };
@@ -37,7 +38,7 @@ const Number: React.FC<ComponentProps> = ({ formField, setFormField }) => {
             : ''
         }
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          const updatedQuestion: FormField = {
+          const updatedQuestion = {
             ...formField,
             questionOptions: { ...formField.questionOptions, max: event.target.value },
           };

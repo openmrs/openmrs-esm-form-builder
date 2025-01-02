@@ -2,11 +2,13 @@ import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FormLabel, InlineNotification, ComboBox, InlineLoading } from '@carbon/react';
 import { usePatientIdentifierTypes } from '@hooks/usePatientIdentifierTypes';
-import type { ComponentProps, PatientIdentifierType } from '@types';
+import { useFormField } from '../../../../form-field-context';
+import type { PatientIdentifierType } from '@types';
 import styles from './patient-identifier-type-question.scss';
 
-const PatientIdentifierTypeQuestion: React.FC<ComponentProps> = ({ formField, setFormField }) => {
+const PatientIdentifierTypeQuestion: React.FC = () => {
   const { t } = useTranslation();
+  const { formField, setFormField } = useFormField();
   const { patientIdentifierTypes, patientIdentifierTypeLookupError, isLoadingPatientIdentifierTypes } =
     usePatientIdentifierTypes();
   const [selectedPatientIdetifierType, setSelectedPatientIdetifierType] = useState<PatientIdentifierType>(

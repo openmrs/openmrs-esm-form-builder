@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import RenderingTypeComponent from './rendering-type.component';
+import { FormFieldProvider } from '../../form-field-context';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
 
 const mockSetFormField = jest.fn();
@@ -10,6 +11,11 @@ const formField: FormField = {
   questionOptions: { rendering: 'date' },
   id: '1',
 };
+
+jest.mock('../../form-field-context', () => ({
+  ...jest.requireActual('../../form-field-context'),
+  useFormField: () => ({ formField, setFormField: mockSetFormField }),
+}));
 
 describe('RenderingType Component', () => {
   it('renders the date component for rendering type date', () => {
@@ -86,5 +92,9 @@ describe('RenderingType Component', () => {
 });
 
 function renderRenderingTypeComponent() {
-  render(<RenderingTypeComponent formField={formField} setFormField={mockSetFormField} />);
+  render(
+    <FormFieldProvider initialFormField={formField}>
+      <RenderingTypeComponent />
+    </FormFieldProvider>,
+  );
 }

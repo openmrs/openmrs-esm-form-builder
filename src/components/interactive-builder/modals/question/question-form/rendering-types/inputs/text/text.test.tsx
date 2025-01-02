@@ -1,8 +1,10 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import Text from './text.component';
-import type { FormField } from '@openmrs/esm-form-engine-lib';
 import userEvent from '@testing-library/user-event';
+import Text from './text.component';
+import { FormFieldProvider } from '../../../../form-field-context';
+
+import type { FormField } from '@openmrs/esm-form-engine-lib';
 
 const mockSetFormField = jest.fn();
 const formField: FormField = {
@@ -11,6 +13,11 @@ const formField: FormField = {
   questionOptions: { rendering: 'text', minLength: '1', maxLength: '10' },
   id: '1',
 };
+
+jest.mock('../../../../form-field-context', () => ({
+  ...jest.requireActual('../../../../form-field-context'),
+  useFormField: () => ({ formField, setFormField: mockSetFormField }),
+}));
 
 describe('Text Component', () => {
   it('renders', () => {
@@ -58,5 +65,9 @@ describe('Text Component', () => {
 });
 
 function renderTextComponent() {
-  render(<Text formField={formField} setFormField={mockSetFormField} />);
+  render(
+    <FormFieldProvider initialFormField={formField}>
+      <Text />
+    </FormFieldProvider>,
+  );
 }

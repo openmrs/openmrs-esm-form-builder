@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import flattenDeep from 'lodash-es/flattenDeep';
 import {
@@ -14,21 +14,22 @@ import {
 } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import Question from './question-form/question/question.component';
+import { FormFieldProvider, useFormField } from './form-field-context';
 import type { FormField, FormSchema } from '@openmrs/esm-form-engine-lib';
 import styles from './question.scss';
 
 interface QuestionModalProps {
+  schema: FormSchema;
   formField?: FormField;
   closeModal: () => void;
   onSchemaChange: (schema: FormSchema) => void;
   pageIndex: number;
+  sectionIndex: number;
   questionIndex: number;
   resetIndices: () => void;
-  schema: FormSchema;
-  sectionIndex: number;
 }
 
-const QuestionModal: React.FC<QuestionModalProps> = ({
+const QuestionModalContent: React.FC<QuestionModalProps> = ({
   formField: formFieldProp,
   closeModal,
   schema,
@@ -38,27 +39,23 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   onSchemaChange,
 }) => {
   const { t } = useTranslation();
-  const [formField, setFormField] = useState<FormField>(
-    formFieldProp ?? { type: '', questionOptions: undefined, id: '' },
-  );
+  const { formField, setFormField } = useFormField();
 
   const checkIfQuestionIdExists = useCallback(
     (idToTest: string): boolean => {
       if (formFieldProp) return false;
-      else {
-        const nestedIds = schema?.pages?.map((page) => {
-          return page?.sections?.map((section) => {
-            return section?.questions?.map((question) => {
-              question.questions?.map((nestedQuestion) => {
-                return nestedQuestion.id;
-              });
-              return question.id;
+      const nestedIds = schema?.pages?.map((page) => {
+        return page?.sections?.map((section) => {
+          return section?.questions?.map((question) => {
+            question.questions?.map((nestedQuestion) => {
+              return nestedQuestion.id;
             });
+            return question.id;
           });
         });
-        const questionIds: Array<string> = flattenDeep(nestedIds);
-        return questionIds.includes(idToTest);
-      }
+      });
+      const questionIds: Array<string> = flattenDeep(nestedIds);
+      return questionIds.includes(idToTest);
     },
     [formFieldProp, schema],
   );
@@ -106,27 +103,6 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
     closeModal();
   };
 
-  const updateFormField = useCallback(
-    (updatedFormField: FormField) => {
-      setFormField(updatedFormField);
-    },
-    [setFormField],
-  );
-
-  const updateObsGroupQuestion = useCallback(
-    (updatedObsGroupFormField: FormField) => {
-      const formFieldCopy = { ...formField };
-      if (formFieldCopy.questions.length === 1 && formFieldCopy.questions[0].id === '') {
-        formFieldCopy.questions[0] = updatedObsGroupFormField;
-      } else {
-        formFieldCopy.questions.pop();
-        formFieldCopy.questions.push(updatedObsGroupFormField);
-      }
-      setFormField(formFieldCopy);
-    },
-    [formField, setFormField],
-  );
-
   return (
     <>
       <ModalHeader
@@ -138,24 +114,19 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
         <ModalBody hasScrollingContent>
           <FormGroup>
             <Stack gap={5}>
-              <Question
-                formField={formField}
-                setFormField={updateFormField}
-                checkIfQuestionIdExists={checkIfQuestionIdExists}
-              />
-              {formField.questions?.length > 1 && (
+              <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
+              {formField.questions?.length >= 1 && (
                 <Accordion size="lg">
                   {formField.questions.map((question, index) => (
                     <AccordionItem
+                      key={index}
                       title={question.label ?? `Question ${index + 1}`}
                       open={index === formField.questions.length - 1}
                       className={styles.obsGroupQuestionContent}
                     >
-                      <Question
-                        formField={question}
-                        setFormField={updateObsGroupQuestion}
-                        checkIfQuestionIdExists={checkIfQuestionIdExists}
-                      />
+                      <FormFieldProvider initialFormField={question} isObsGrouped={true}>
+                        <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
+                      </FormFieldProvider>
                     </AccordionItem>
                   ))}
                 </Accordion>
@@ -185,6 +156,16 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
           </Button>
         </ModalFooter>
       </Form>
+    </>
+  );
+};
+
+const QuestionModal: React.FC<QuestionModalProps> = (props) => {
+  return (
+    <>
+      <FormFieldProvider initialFormField={props.formField ?? { type: '', questionOptions: undefined, id: '' }}>
+        <QuestionModalContent {...props} />
+      </FormFieldProvider>
     </>
   );
 };
