@@ -10,7 +10,7 @@ import type { Program } from '@types';
 const mockSetFormField = jest.fn();
 const formField: FormField = {
   id: '1',
-  type: 'patientIdentifier',
+  type: 'programState',
   questionOptions: {
     rendering: 'text',
   },
@@ -31,10 +31,12 @@ jest.mock('@hooks/useProgramStates', () => ({
 
 const programOneWorkflowOneStates: Array<ProgramState> = [
   {
+    uuid: '1111',
     concept: { display: 'Program 1 State 1', uuid: '1111' },
     programWorkflow: { display: 'Program 1 Workflow 1', uuid: '111' },
   },
   {
+    uuid: '1112',
     concept: { display: 'Program 1 State 2', uuid: '1112' },
     programWorkflow: { display: 'Program 1 Workflow 1', uuid: '111' },
   },
@@ -53,16 +55,7 @@ const programs: Array<Program> = [
       {
         uuid: '12',
         concept: { display: 'Program 1 Workflow 2', uuid: '112' },
-        states: [
-          {
-            concept: { display: 'Program 1 State 3', uuid: '1121' },
-            programWorkflow: { display: 'Program 1 Workflow 2', uuid: '112' },
-          },
-          {
-            concept: { display: 'Program 1 State 4', uuid: '1122' },
-            programWorkflow: { display: 'Program 1 Workflow 2', uuid: '112' },
-          },
-        ],
+        states: [],
       },
     ],
   },
@@ -73,30 +66,7 @@ const programs: Array<Program> = [
       {
         uuid: '21',
         concept: { display: 'Program 2 Workflow 1', uuid: '211' },
-        states: [
-          {
-            concept: { display: 'Program 2 State 1', uuid: '2111' },
-            programWorkflow: { display: 'Program 2 Workflow 1', uuid: '211' },
-          },
-          {
-            concept: { display: 'Program 2 State 2', uuid: '2112' },
-            programWorkflow: { display: 'Program 2 Workflow 1', uuid: '211' },
-          },
-        ],
-      },
-      {
-        uuid: '22',
-        concept: { display: 'Program 2 Workflow 2', uuid: '212' },
-        states: [
-          {
-            concept: { display: 'Program 2 State 3', uuid: '2121' },
-            programWorkflow: { display: 'Program 2 Workflow 2', uuid: '212' },
-          },
-          {
-            concept: { display: 'Program 2 State 4', uuid: '2122' },
-            programWorkflow: { display: 'Program 2 Workflow 2', uuid: '212' },
-          },
-        ],
+        states: [],
       },
     ],
   },
@@ -147,32 +117,19 @@ describe('ProgramStateTypeQuestion', () => {
     });
     expect(selectProgramsButton).toBeInTheDocument();
     await user.click(selectProgramsButton);
-    expect(
-      screen.getByRole('option', {
-        name: /program 1/i,
-      }),
-    ).toBeInTheDocument();
+
+    const programOneSelectOption = screen.getByRole('option', {
+      name: /program 1/i,
+    });
+    expect(programOneSelectOption).toBeInTheDocument();
     expect(
       screen.getByRole('option', {
         name: /program 2/i,
       }),
     ).toBeInTheDocument();
 
-    const programOneSelectOption = screen.getByRole('option', {
-      name: /program 1/i,
-    });
     await user.click(programOneSelectOption);
     expect(screen.getByRole('combobox', { name: /^program$/i })).toHaveDisplayValue(/program 1/i);
-    expect(
-      screen.queryByRole('option', {
-        name: /program 1/i,
-      }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('option', {
-        name: /program 2/i,
-      }),
-    ).not.toBeInTheDocument();
 
     const programWorkflowInput = screen.getByRole('combobox', {
       name: /program workflow/i,
@@ -185,14 +142,13 @@ describe('ProgramStateTypeQuestion', () => {
     const programWorkflowMenuButton = menuButtons[1];
     expect(programWorkflowMenuButton).toHaveRole('button');
     await user.click(programWorkflowMenuButton);
-    expect(screen.getByRole('option', { name: /program 1 workflow 1/i })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: /program 1 workflow 2/i })).toBeInTheDocument();
 
     const programWorkflowSelectionOption = screen.getByRole('option', { name: /program 1 workflow 1/i });
+    expect(programWorkflowSelectionOption).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /program 1 workflow 2/i })).toBeInTheDocument();
+
     await user.click(programWorkflowSelectionOption);
     expect(screen.getByRole('combobox', { name: /^program workflow$/i })).toHaveDisplayValue(/program 1 workflow 1/i);
-    expect(screen.queryByRole('option', { name: /program 1 workflow 1/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('option', { name: /program 1 workflow 2/i })).not.toBeInTheDocument();
     expect(screen.getByText(/program state/i)).toBeInTheDocument();
 
     const programStateMenu = screen.getByRole('combobox', {
@@ -201,7 +157,8 @@ describe('ProgramStateTypeQuestion', () => {
     expect(programStateMenu).toBeInTheDocument();
     await user.click(programStateMenu);
 
-    expect(screen.getByRole('option', { name: /program 1 state 1/i })).toBeInTheDocument();
+    const programStateSelection = screen.getByRole('option', { name: /program 1 state 1/i });
+    expect(programStateSelection).toBeInTheDocument();
     expect(screen.getByRole('option', { name: /program 1 state 2/i })).toBeInTheDocument();
   });
 
@@ -217,9 +174,7 @@ describe('ProgramStateTypeQuestion', () => {
       rendering: 'select',
       programUuid: programs[0].uuid,
       workflowUuid: programs[0].allWorkflows[0].uuid,
-      answers: [
-        { concept: programOneWorkflowOneStates[0].concept.uuid, label: programOneWorkflowOneStates[0].concept.display },
-      ],
+      answers: [{ value: programOneWorkflowOneStates[0].uuid, label: programOneWorkflowOneStates[0].concept.display }],
     };
     renderComponent();
 

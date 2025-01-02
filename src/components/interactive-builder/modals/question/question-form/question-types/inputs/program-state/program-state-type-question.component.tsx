@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SelectSkeleton, Stack, ComboBox, InlineNotification, MultiSelect, Tag } from '@carbon/react';
+import { SelectSkeleton, Stack, ComboBox, InlineNotification, MultiSelect, Tag, FormLabel } from '@carbon/react';
 import { usePrograms, useProgramWorkStates } from '@hooks/useProgramStates';
 import { useFormField } from '../../../../form-field-context';
 import type { ProgramWorkflow, Program } from '@types';
@@ -17,36 +17,79 @@ const ProgramStateTypeQuestion: React.FC = () => {
   const { programs, programsLookupError, isLoadingPrograms } = usePrograms();
   const [selectedProgram, setSelectedProgram] = useState<Program>();
   const [selectedProgramWorkflow, setSelectedProgramWorkflow] = useState<ProgramWorkflow>();
-  const [selectedProgramStates, setSelectedProgramStates] = useState<Array<ProgramState>>();
+  const [programWorkflows, setProgramWorkflows] = useState<Array<ProgramWorkflow>>([]);
   const { programStates, programStatesLookupError, isLoadingProgramStates, mutateProgramStates } = useProgramWorkStates(
     selectedProgramWorkflow?.uuid,
   );
-  const [programWorkflows, setProgramWorkflows] = useState<Array<ProgramWorkflow>>([]);
+
+  const selectedProgramStates = useMemo(() => {
+    if (!formField.questionOptions?.answers || !programStates.length) {
+      return [];
+    }
+
+    const answerUuids = new Set(formField.questionOptions.answers.map((answer) => answer.value));
+    return programStates.filter((programState) => answerUuids.has(programState.uuid));
+  }, [formField.questionOptions?.answers, programStates]);
 
   const handleProgramChange = useCallback(
     (selectedItem: Program) => {
       setSelectedProgram(selectedItem);
-      setProgramWorkflows(selectedItem?.allWorkflows);
-      setFormField({ ...formField, questionOptions: { ...formField.questionOptions, programUuid: selectedItem.uuid } });
+      setSelectedProgramWorkflow(null);
+      setProgramWorkflows(selectedItem?.allWorkflows ?? []);
+      setFormField((prevField) => {
+        if (selectedItem) {
+          return {
+            ...prevField,
+            questionOptions: {
+              ...prevField.questionOptions,
+              programUuid: selectedItem.uuid,
+            },
+          };
+        }
+        const newQuestionOptions = { ...prevField.questionOptions };
+        delete newQuestionOptions.programUuid;
+        delete newQuestionOptions.workflowUuid;
+        delete newQuestionOptions.answers;
+
+        return {
+          ...prevField,
+          questionOptions: newQuestionOptions,
+        };
+      });
     },
-    [formField, setFormField],
+    [setFormField],
   );
 
   const handleProgramWorkflowChange = useCallback(
-    (selectedItem: ProgramWorkflow) => {
+    (selectedItem: ProgramWorkflow | null) => {
       setSelectedProgramWorkflow(selectedItem);
       void mutateProgramStates();
-      setFormField({
-        ...formField,
-        questionOptions: { ...formField.questionOptions, workflowUuid: selectedItem.uuid },
+
+      setFormField((prevField) => {
+        if (selectedItem) {
+          return {
+            ...prevField,
+            questionOptions: {
+              ...prevField.questionOptions,
+              workflowUuid: selectedItem.uuid,
+            },
+          };
+        }
+        const newQuestionOptions = { ...prevField.questionOptions };
+        delete newQuestionOptions.workflowUuid;
+        delete newQuestionOptions.answers;
+
+        return {
+          ...prevField,
+          questionOptions: newQuestionOptions,
+        };
       });
     },
-    [formField, mutateProgramStates, setFormField],
+    [mutateProgramStates, setFormField],
   );
 
   const selectProgramStates = useCallback(
     (data: ProgramStateData) => {
-      setSelectedProgramStates(data.selectedItems);
       setFormField({
         ...formField,
         questionOptions: {
@@ -61,14 +104,13 @@ const ProgramStateTypeQuestion: React.FC = () => {
     [formField, setFormField],
   );
 
-  const convertItemsToString = useCallback((item: ProgramState) => {
-    return item.concept.display;
-  }, []);
-
+  // Initialize selected program and workflow from formField
   useEffect(() => {
     const selectedProgramResult = programs.find((program) => program.uuid === formField.questionOptions?.programUuid);
     if (selectedProgramResult) {
       setSelectedProgram(selectedProgramResult);
+      setProgramWorkflows(selectedProgramResult.allWorkflows);
+
       if (formField.questionOptions.workflowUuid) {
         const selectedProgramWorkflowResult = selectedProgramResult.allWorkflows.find(
           (workflow) => workflow.uuid === formField.questionOptions?.workflowUuid,
@@ -80,16 +122,13 @@ const ProgramStateTypeQuestion: React.FC = () => {
     }
   }, [formField.questionOptions?.programUuid, formField.questionOptions?.workflowUuid, programs]);
 
-  useEffect(() => {
-    const selectedProgramStatesResults = programStates.filter((programState) =>
-      formField.questionOptions?.answers?.some((answer) => answer.concept === programState.concept.uuid),
-    );
-    setSelectedProgramStates(selectedProgramStatesResults);
-  }, [formField.questionOptions?.answers, programStates]);
+  const convertItemsToString = useCallback((item: ProgramState) => {
+    return item.concept.display;
+  }, []);
 
   return (
     <Stack gap={5}>
-      {isLoadingPrograms && <SelectSkeleton />}
+      <FormLabel className={styles.label}>{t('selectProgram', 'Select a program')}</FormLabel>
       {programsLookupError && (
         <InlineNotification
           kind="error"
@@ -99,19 +138,23 @@ const ProgramStateTypeQuestion: React.FC = () => {
           subtitle={t('pleaseTryAgain', 'Please try again.')}
         />
       )}
-      {programs.length > 0 && (
-        <ComboBox
-          id="programLookup"
-          items={programs}
-          itemToString={(item: Program) => item?.name}
-          onChange={({ selectedItem }: { selectedItem: Program }) => {
-            handleProgramChange(selectedItem);
-          }}
-          placeholder={t('addProgram', 'Add program')}
-          selectedItem={selectedProgram}
-          titleText={t('program', 'Program')}
-          initialSelectedItem={programs.find((program) => program?.uuid === formField.questionOptions?.programUuid)}
-        />
+      {isLoadingPrograms ? (
+        <SelectSkeleton />
+      ) : (
+        programs.length > 0 && (
+          <ComboBox
+            id="programLookup"
+            items={programs}
+            itemToString={(item: Program) => item?.name}
+            onChange={({ selectedItem }: { selectedItem: Program }) => {
+              handleProgramChange(selectedItem);
+            }}
+            placeholder={t('addProgram', 'Add program')}
+            selectedItem={selectedProgram}
+            titleText={t('program', 'Program')}
+            initialSelectedItem={programs.find((program) => program?.uuid === formField.questionOptions?.programUuid)}
+          />
+        )
       )}
 
       {selectedProgram && (
@@ -130,7 +173,6 @@ const ProgramStateTypeQuestion: React.FC = () => {
       )}
       {selectedProgramWorkflow && (
         <div>
-          {isLoadingProgramStates && <SelectSkeleton />}
           {programStatesLookupError && (
             <InlineNotification
               kind="error"
@@ -140,20 +182,24 @@ const ProgramStateTypeQuestion: React.FC = () => {
               subtitle={t('pleaseTryAgain', 'Please try again.')}
             />
           )}
-          {programStates?.length > 0 && (
-            <MultiSelect
-              titleText={t('programState', 'Program state')}
-              id="programState"
-              items={programStates}
-              itemToString={convertItemsToString}
-              selectionFeedback="top-after-reopen"
-              onChange={selectProgramStates}
-              selectedItems={selectedProgramStates}
-            />
+          {isLoadingProgramStates ? (
+            <SelectSkeleton />
+          ) : (
+            programStates?.length > 0 && (
+              <MultiSelect
+                titleText={t('programState', 'Program state')}
+                id="programState"
+                items={programStates}
+                itemToString={convertItemsToString}
+                selectionFeedback="top-after-reopen"
+                onChange={selectProgramStates}
+                selectedItems={selectedProgramStates}
+              />
+            )
           )}
           {selectedProgramStates?.map((answer) => (
-            <div>
-              <Tag className={styles.tag} key={answer?.uuid} type={'blue'}>
+            <div key={answer.uuid}>
+              <Tag className={styles.tag} type="blue">
                 {answer?.concept?.display}
               </Tag>
             </div>
