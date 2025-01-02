@@ -207,7 +207,6 @@ const ObsTypeQuestion: React.FC = () => {
             id: answer.concept,
             text: answer.label,
           }))}
-          label={t('selectAnswersToDisplay', 'Select answers to display')}
           titleText={t('selectAnswersToDisplay', 'Select answers to display')}
         />
       )}
