@@ -9,11 +9,6 @@ import type {
 } from '@openmrs/esm-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
 
-export interface ComponentProps {
-  formField: FormField;
-  setFormField: (formField: FormField) => void;
-}
-
 export interface Form {
   uuid: string;
   name: string;
