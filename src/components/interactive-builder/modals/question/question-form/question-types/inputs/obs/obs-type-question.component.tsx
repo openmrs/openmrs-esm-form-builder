@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { FormLabel, InlineNotification, MultiSelect, FormGroup, Tag, Stack } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from './concept-search.component';
@@ -40,11 +40,28 @@ const ObsTypeQuestion: React.FC = () => {
     }
   }, []);
 
-  const handleConceptSelect = useCallback(
-    (concept: Concept) => {
-      setSelectedConcept(concept);
+  const handleConceptSelect = useCallback((concept: Concept) => {
+    setSelectedConcept(concept);
+  }, []);
+
+  useEffect(() => {
+    if (selectedConcept) {
+      const datePickerType = getDatePickerType(selectedConcept);
+      setFormField((prevField) => ({
+        ...prevField,
+        questionOptions: {
+          ...prevField.questionOptions,
+          concept: selectedConcept.uuid,
+        },
+        ...(datePickerType && { datePickerFormat: datePickerType }),
+      }));
+    }
+  }, [selectedConcept, getDatePickerType, setFormField]);
+
+  useEffect(() => {
+    if (selectedConcept) {
       setConceptMappings(
-        concept?.mappings?.map((conceptMapping) => {
+        selectedConcept?.mappings?.map((conceptMapping) => {
           const data = conceptMapping.display.split(': ');
           return {
             relationship: conceptMapping.conceptMapType.display,
@@ -53,16 +70,8 @@ const ObsTypeQuestion: React.FC = () => {
           };
         }),
       );
-      const datePickerType = getDatePickerType(concept);
-      const updatedFormField = {
-        ...formField,
-        questionOptions: { ...formField.questionOptions, concept: concept.uuid },
-        ...(datePickerType && { datePickerFormat: datePickerType }),
-      };
-      setFormField(updatedFormField);
-    },
-    [formField, getDatePickerType, setFormField],
-  );
+    }
+  }, [selectedConcept]);
 
   const clearSelectedConcept = useCallback(() => {
     setSelectedConcept(null);
@@ -77,19 +86,26 @@ const ObsTypeQuestion: React.FC = () => {
 
   const selectAnswers = useCallback(
     ({ selectedItems }: { selectedItems: Array<AnswerItem> }) => {
+      const mappedAnswers = selectedItems.map((answer) => ({
+        concept: answer.id,
+        label: answer.text,
+      }));
+
       setSelectedAnswers(selectedItems);
-      setFormField({
-        ...formField,
-        questionOptions: {
-          ...formField.questionOptions,
-          answers: selectedItems.map((answer) => ({
-            concept: answer.id,
-            label: answer.text,
-          })),
-        },
+      setFormField((prevField) => {
+        if (JSON.stringify(prevField.questionOptions?.answers) === JSON.stringify(mappedAnswers)) {
+          return prevField;
+        }
+        return {
+          ...prevField,
+          questionOptions: {
+            ...prevField.questionOptions,
+            answers: mappedAnswers,
+          },
+        };
       });
     },
-    [formField, setFormField],
+    [setFormField],
   );
 
   const handleDeleteAdditionalAnswer = (id: string) => {
@@ -149,7 +165,7 @@ const ObsTypeQuestion: React.FC = () => {
       }));
 
     return [...conceptAnswerItems, ...additionalAnswers];
-  }, [selectedConcept, formField]);
+  }, [selectedConcept?.answers, formField.questionOptions?.answers]);
 
   const convertAnswerItemsToString = useCallback((item: AnswerItem) => item.text, []);
 
