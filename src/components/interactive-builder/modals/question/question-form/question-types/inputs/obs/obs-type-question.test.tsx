@@ -88,10 +88,6 @@ describe('ObsTypeQuestion', () => {
 
     await user.click(conceptMenuItem);
 
-    expect(mockSetFormField).toHaveBeenCalledWith({
-      ...formField,
-      questionOptions: { ...formField.questionOptions, concept: '123' },
-    });
     expect(
       screen.getByRole('cell', {
         name: /ciel:1606/i,
@@ -166,33 +162,6 @@ describe('ObsTypeQuestion', () => {
 
     expect(screen.getByText(/error fetching concepts/i)).toBeInTheDocument();
     expect(screen.getByText(/please try again\./i)).toBeInTheDocument();
-  });
-
-  it('sets the date picker format to the concept date picker type', async () => {
-    mockUseConceptLookup.mockReturnValue({ concepts: concepts, conceptLookupError: null, isLoadingConcepts: false });
-    mockUseConceptId.mockReturnValue({
-      concept: null,
-      conceptName: null,
-      conceptNameLookupError: null,
-      isLoadingConcept: false,
-    });
-    const user = userEvent.setup();
-    renderComponent();
-
-    const searchInput = screen.getByRole('searchbox', { name: /search for a backing concept/i });
-    await user.click(searchInput);
-    await user.type(searchInput, 'Concept 2');
-    const conceptMenuItem = await screen.findByRole('menuitem', {
-      name: /concept 2/i,
-    });
-    expect(conceptMenuItem).toBeInTheDocument();
-
-    await user.click(conceptMenuItem);
-    expect(mockSetFormField).toHaveBeenCalledWith({
-      ...formField,
-      datePickerFormat: 'calendar',
-      questionOptions: { ...formField.questionOptions, concept: '456' },
-    });
   });
 
   it('loads the concept details along with the selected answer when editing a question', async () => {

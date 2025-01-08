@@ -17,16 +17,18 @@ export const FormFieldProvider: React.FC<{
 
   const updateObsGroupedQuestion = useCallback(
     (updatedObsGroupFormField: FormField) => {
-      const formFieldCopy = { ...formField };
-      if (formFieldCopy.questions.length === 1 && formFieldCopy.questions[0].id === '') {
-        formFieldCopy.questions[0] = updatedObsGroupFormField;
-      } else {
-        formFieldCopy.questions.pop();
-        formFieldCopy.questions.push(updatedObsGroupFormField);
-      }
-      setFormField(formFieldCopy);
+      setFormField((prevFormField) => {
+        const formFieldCopy = { ...prevFormField };
+        if (formFieldCopy.questions.length === 1 && formFieldCopy.questions[0].id === '') {
+          formFieldCopy.questions[0] = updatedObsGroupFormField;
+        } else {
+          formFieldCopy.questions.pop();
+          formFieldCopy.questions.push(updatedObsGroupFormField);
+        }
+        return formFieldCopy;
+      });
     },
-    [formField, setFormField],
+    [setFormField],
   );
 
   return (

@@ -66,12 +66,11 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
       questionOptions: undefined,
       id: '',
     };
-    const newFormField: FormField = {
-      ...formField,
-      questions: formField.questions ? [...formField.questions, emptyQuestion] : [emptyQuestion],
-    };
-    setFormField(newFormField);
-  }, [formField, setFormField]);
+    setFormField((prevFormField) => ({
+      ...prevFormField,
+      questions: prevFormField.questions ? [...prevFormField.questions, emptyQuestion] : [emptyQuestion],
+    }));
+  }, [setFormField]);
 
   const saveQuestion = () => {
     try {

@@ -76,13 +76,19 @@ const ObsTypeQuestion: React.FC = () => {
   const clearSelectedConcept = useCallback(() => {
     setSelectedConcept(null);
     setConceptMappings([]);
-    const updatedFormField = { ...formField };
-    if (updatedFormField.questionOptions) {
-      delete updatedFormField.questionOptions.concept, updatedFormField.questionOptions.answers;
-    }
-    if (updatedFormField.datePickerFormat) delete updatedFormField.datePickerFormat;
-    setFormField(updatedFormField);
-  }, [formField, setFormField]);
+
+    setFormField((prevFormField) => {
+      const updatedFormField = { ...prevFormField };
+      if (updatedFormField.questionOptions) {
+        delete updatedFormField.questionOptions.concept;
+        delete updatedFormField.questionOptions.answers;
+      }
+      if (updatedFormField.datePickerFormat) {
+        delete updatedFormField.datePickerFormat;
+      }
+      return updatedFormField;
+    });
+  }, [setFormField]);
 
   const selectAnswers = useCallback(
     ({ selectedItems }: { selectedItems: Array<AnswerItem> }) => {
@@ -92,8 +98,10 @@ const ObsTypeQuestion: React.FC = () => {
       }));
 
       setSelectedAnswers(selectedItems);
+
       setFormField((prevField) => {
-        if (JSON.stringify(prevField.questionOptions?.answers) === JSON.stringify(mappedAnswers)) {
+        const currentAnswers = prevField.questionOptions?.answers || [];
+        if (JSON.stringify(currentAnswers) === JSON.stringify(mappedAnswers)) {
           return prevField;
         }
         return {
@@ -108,35 +116,45 @@ const ObsTypeQuestion: React.FC = () => {
     [setFormField],
   );
 
-  const handleDeleteAdditionalAnswer = (id: string) => {
-    setAddedAnswers((prevAnswers) => prevAnswers.filter((answer) => answer.id !== id));
-    const selectedAnswers = formField.questionOptions?.answers ?? [];
-    setFormField({
-      ...formField,
-      questionOptions: {
-        ...formField.questionOptions,
-        answers: selectedAnswers.filter((answer) => answer.concept !== id),
-      },
-    });
-  };
-
-  const handleSelectAdditionalAnswer = (concept: Concept) => {
-    const newAnswer = { id: concept.uuid, text: concept.display };
-    const answerExistsInSelected = selectedAnswers.some((answer) => answer.id === newAnswer.id);
-    const answerExistsInAdded = addedAnswers.some((answer) => answer.id === newAnswer.id);
-    if (!answerExistsInSelected && !answerExistsInAdded) {
-      setAddedAnswers((prevAnswers) => [...prevAnswers, newAnswer]);
-      const existingAnswers = formField.questionOptions?.answers ?? [];
-      existingAnswers.push({ concept: concept.uuid, label: concept.display });
-      setFormField({
-        ...formField,
-        questionOptions: {
-          ...formField.questionOptions,
-          answers: existingAnswers,
-        },
+  const handleDeleteAdditionalAnswer = useCallback(
+    (id: string) => {
+      setAddedAnswers((prevAnswers) => prevAnswers.filter((answer) => answer.id !== id));
+      setFormField((prevFormField) => {
+        const selectedAnswers = prevFormField.questionOptions?.answers ?? [];
+        return {
+          ...prevFormField,
+          questionOptions: {
+            ...prevFormField.questionOptions,
+            answers: selectedAnswers.filter((answer) => answer.concept !== id),
+          },
+        };
       });
-    }
-  };
+    },
+    [setFormField],
+  );
+
+  const handleSelectAdditionalAnswer = useCallback(
+    (concept: Concept) => {
+      const newAnswer = { id: concept.uuid, text: concept.display };
+      const answerExistsInSelected = selectedAnswers.some((answer) => answer.id === newAnswer.id);
+      const answerExistsInAdded = addedAnswers.some((answer) => answer.id === newAnswer.id);
+      if (!answerExistsInSelected && !answerExistsInAdded) {
+        setAddedAnswers((prevAnswers) => [...prevAnswers, newAnswer]);
+        setFormField((prevFormField) => {
+          const existingAnswers = prevFormField.questionOptions?.answers ?? [];
+          existingAnswers.push({ concept: concept.uuid, label: concept.display });
+          return {
+            ...prevFormField,
+            questionOptions: {
+              ...prevFormField.questionOptions,
+              answers: existingAnswers,
+            },
+          };
+        });
+      }
+    },
+    [selectedAnswers, addedAnswers, setFormField],
+  );
 
   const answerItems = useMemo(() => {
     // Convert answers from the concept to items format
