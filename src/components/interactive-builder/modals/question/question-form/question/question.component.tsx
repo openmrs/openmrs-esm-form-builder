@@ -147,7 +147,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
         </>
       )}
       {formField.type && <QuestionTypeComponent />}
-      {formField.questionOptions && formField.questionOptions.rendering && <RenderTypeComponent />}
+      {formField.questionOptions?.rendering && <RenderTypeComponent />}
     </>
   );
 };
