@@ -106,7 +106,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
     <>
       <ModalHeader
         className={styles.modalHeader}
-        title={t('createNewQuestion', 'Create a new question')}
+        title={formFieldProp ? t('editQuestion', 'Edit question') : t('createNewQuestion', 'Create a new question')}
         closeModal={closeModal}
       />
       <Form className={styles.form} onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
