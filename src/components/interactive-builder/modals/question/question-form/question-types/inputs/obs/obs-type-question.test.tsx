@@ -164,6 +164,43 @@ describe('ObsTypeQuestion', () => {
     expect(screen.getByText(/please try again\./i)).toBeInTheDocument();
   });
 
+  it('sets the date picker format to the concept date picker type', async () => {
+    mockUseConceptLookup.mockReturnValue({ concepts: concepts, conceptLookupError: null, isLoadingConcepts: false });
+    mockUseConceptId.mockReturnValue({
+      concept: null,
+      conceptName: null,
+      conceptNameLookupError: null,
+      isLoadingConcept: false,
+    });
+    const user = userEvent.setup();
+    renderComponent();
+
+    const searchInput = screen.getByRole('searchbox', { name: /search for a backing concept/i });
+    await user.click(searchInput);
+    await user.type(searchInput, 'Concept 2');
+
+    const conceptMenuItem = await screen.findByRole('menuitem', {
+      name: /concept 2/i,
+    });
+    await user.click(conceptMenuItem);
+
+    // Gets all calls made to our mock function, the arguments from the first call and the first argument of the first call
+    const updateFn = mockSetFormField.mock.calls[0][0];
+
+    // Execute the update function with the previous state
+    const resultState = updateFn(formField);
+
+    // Check that the result has the expected values
+    expect(resultState).toEqual({
+      ...formField,
+      datePickerFormat: 'calendar',
+      questionOptions: {
+        ...formField.questionOptions,
+        concept: '456',
+      },
+    });
+  });
+
   it('loads the concept details along with the selected answer when editing a question', async () => {
     formField.questionOptions = {
       rendering: 'select',
