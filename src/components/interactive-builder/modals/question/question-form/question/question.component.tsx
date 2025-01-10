@@ -3,7 +3,7 @@ import { TextInput, Button, Select, SelectItem, RadioButtonGroup, RadioButton } 
 import { useTranslation } from 'react-i18next';
 import RenderTypeComponent from '../rendering-types/rendering-type.component';
 import QuestionTypeComponent from '../question-types/question-type.component';
-import RequiredLabel from '../required-label/required-label.component';
+import RequiredLabel from '../common/required-label/required-label.component';
 import { useFormField } from '../../form-field-context';
 import type { FormField, RenderType } from '@openmrs/esm-form-engine-lib';
 import { questionTypes, renderTypeOptions, renderingTypes } from '@constants';

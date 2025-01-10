@@ -1,6 +1,7 @@
 @use '@carbon/colors';
+@use '@carbon/layout';
 
 .required {
   color: colors.$red-60;
-  margin-left: 0.125rem;
+  margin-left: $spacing-02;
 }
