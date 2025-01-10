@@ -10,15 +10,15 @@
   width: 100%;
   max-width: unset;
   padding: '0rem';
-  margin-bottom: $spacing-05;
+  margin-bottom: layout.$spacing-05;
 }
 
 .loader {
-  padding: layout.$spacing-04 $spacing-03;
+  padding: layout.$spacing-04 layout.$spacing-03;
 }
 
 .concept {
-  padding: $spacing-04;
+  padding: layout.$spacing-04;
   border-bottom: 1px solid colors.$gray-20;
 
   &:last-of-type {

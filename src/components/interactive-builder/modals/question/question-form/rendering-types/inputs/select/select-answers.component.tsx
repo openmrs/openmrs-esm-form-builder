@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
 import { useFormField } from '../../../../form-field-context';
 import type { Concept } from '@types';
-import styles from './select.scss';
+import styles from './select-answers.scss';
 
 interface AnswerItem {
   id: string;
