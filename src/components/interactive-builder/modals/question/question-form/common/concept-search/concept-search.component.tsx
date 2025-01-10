@@ -6,7 +6,7 @@ import { useConceptId } from '@hooks/useConceptId';
 import { useConceptLookup } from '@hooks/useConceptLookup';
 import { useDebounce } from '@openmrs/esm-framework';
 import type { Concept } from '@types';
-import styles from './obs-type-question.scss';
+import styles from './concept-search.scss';
 
 interface ConceptSearchProps {
   label?: TFunction;
