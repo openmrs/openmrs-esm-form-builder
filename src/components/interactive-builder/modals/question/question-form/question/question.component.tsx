@@ -97,7 +97,9 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
         {!formField.questionOptions?.rendering && (
           <SelectItem text={t('chooseRenderingType', 'Choose a rendering type')} value="" />
         )}
-        {formField.type && formField.type !== 'obs' && questionTypes.includes(formField.type)
+        {formField.type &&
+        formField.type !== 'obs' &&
+        questionTypes.includes(formField.type as keyof typeof renderTypeOptions)
           ? renderTypeOptions[formField?.type].map((type, key) => (
               <SelectItem key={`${type}-${key}`} text={type} value={type} />
             ))
