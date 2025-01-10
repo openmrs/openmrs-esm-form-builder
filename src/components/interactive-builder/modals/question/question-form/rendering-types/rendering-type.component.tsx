@@ -1,5 +1,5 @@
 import React from 'react';
-import { Date, Markdown, Number, Text, TextArea, Toggle, UiSelectExtended } from './inputs';
+import { Date, Markdown, Number, SelectAnswers, Text, TextArea, Toggle, UiSelectExtended } from './inputs';
 import { useFormField } from '../../form-field-context';
 import type { RenderType } from '@openmrs/esm-form-engine-lib';
 import { renderTypeOptions, renderingTypes } from '@constants';
@@ -13,6 +13,9 @@ const componentMap: Partial<Record<RenderType, React.FC>> = {
   date: Date,
   datetime: Date,
   markdown: Markdown,
+  select: SelectAnswers,
+  radio: SelectAnswers,
+  checkbox: SelectAnswers,
 };
 
 const RenderTypeComponent: React.FC = () => {

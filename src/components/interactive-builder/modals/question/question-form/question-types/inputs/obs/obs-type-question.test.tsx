@@ -9,6 +9,7 @@ import type { FormField } from '@openmrs/esm-form-engine-lib';
 import type { Concept } from '@types';
 
 const mockSetFormField = jest.fn();
+const setConcept = jest.fn();
 const formField: FormField = {
   id: '1',
   type: 'obs',
@@ -19,7 +20,7 @@ const formField: FormField = {
 
 jest.mock('../../../../form-field-context', () => ({
   ...jest.requireActual('../../../../form-field-context'),
-  useFormField: () => ({ formField, setFormField: mockSetFormField }),
+  useFormField: () => ({ formField, setFormField: mockSetFormField, setConcept }),
 }));
 
 const concepts: Array<Concept> = [
@@ -66,7 +67,7 @@ describe('ObsTypeQuestion', () => {
     expect(screen.getByRole('searchbox', { name: /search for a backing concept/i })).toBeInTheDocument();
   });
 
-  it('renders the concept details after searching for a concept and displays the concept mappings and answers', async () => {
+  it('renders the concept details after searching for a concept and displays the concept mappings', async () => {
     mockUseConceptLookup.mockReturnValue({ concepts: concepts, conceptLookupError: null, isLoadingConcepts: false });
     mockUseConceptId.mockReturnValue({
       concept: null,
@@ -98,70 +99,6 @@ describe('ObsTypeQuestion', () => {
         name: /same\-as/i,
       }),
     ).toBeInTheDocument();
-
-    const answersMenu = screen.getByRole('combobox', {
-      name: /select answers to display/i,
-    });
-    expect(answersMenu).toBeInTheDocument();
-
-    await user.click(answersMenu);
-    expect(screen.getByText(/answer 1/i)).toBeInTheDocument();
-    expect(screen.getByText(/answer 2/i)).toBeInTheDocument();
-  });
-
-  it('displays an error with a link to ocl when concept query gives empty results', async () => {
-    mockUseConceptLookup.mockReturnValue({ concepts: [], conceptLookupError: null, isLoadingConcepts: false });
-    mockUseConceptId.mockReturnValue({
-      concept: null,
-      conceptName: null,
-      conceptNameLookupError: null,
-      isLoadingConcept: false,
-    });
-    const user = userEvent.setup();
-    renderComponent();
-
-    const searchInput = screen.getByRole('searchbox', { name: /search for a backing concept/i });
-    await user.click(searchInput);
-    await user.type(searchInput, 'Does not exist');
-
-    expect(screen.getByText(/no concepts were found that match/i)).toBeInTheDocument();
-    expect(screen.getByText(/can't find a concept\?/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', {
-        name: /search in ocl/i,
-      }),
-    ).toBeInTheDocument();
-  });
-
-  it('shows loading spinner when concept is loading', async () => {
-    mockUseConceptLookup.mockReturnValue({ concepts: concepts, conceptLookupError: null, isLoadingConcepts: true });
-    mockUseConceptId.mockReturnValue({
-      concept: null,
-      conceptName: null,
-      conceptNameLookupError: null,
-      isLoadingConcept: false,
-    });
-    const user = userEvent.setup();
-    renderComponent();
-
-    const searchInput = screen.getByRole('searchbox', { name: /search for a backing concept/i });
-    await user.click(searchInput);
-    await user.type(searchInput, 'Does not exist');
-    expect(screen.getByText(/searching\.\.\./i)).toBeInTheDocument();
-  });
-
-  it('displays an error message if the searched concept cannot be found', async () => {
-    mockUseConceptLookup.mockReturnValue({ concepts: [], conceptLookupError: Error(), isLoadingConcepts: false });
-    mockUseConceptId.mockReturnValue({
-      concept: null,
-      conceptName: null,
-      conceptNameLookupError: null,
-      isLoadingConcept: false,
-    });
-    renderComponent();
-
-    expect(screen.getByText(/error fetching concepts/i)).toBeInTheDocument();
-    expect(screen.getByText(/please try again\./i)).toBeInTheDocument();
   });
 
   it('sets the date picker format to the concept date picker type', async () => {
@@ -201,7 +138,7 @@ describe('ObsTypeQuestion', () => {
     });
   });
 
-  it('loads the concept details along with the selected answer when editing a question', async () => {
+  it('loads the selected concept details', async () => {
     formField.questionOptions = {
       rendering: 'select',
       concept: concepts[0].uuid,
@@ -214,7 +151,6 @@ describe('ObsTypeQuestion', () => {
       isLoadingConcept: false,
       conceptNameLookupError: null,
     });
-    const user = userEvent.setup();
     renderComponent();
 
     expect(
@@ -233,66 +169,6 @@ describe('ObsTypeQuestion', () => {
         name: /same\-as/i,
       }),
     ).toBeInTheDocument();
-
-    const answersMenu = screen.getByRole('combobox', {
-      name: /select answers to display/i,
-    });
-    expect(answersMenu).toBeInTheDocument();
-
-    await user.click(answersMenu);
-    expect(
-      screen.getByRole('option', {
-        name: /answer 1/i,
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('option', {
-        name: /answer 2/i,
-      }),
-    ).toBeInTheDocument();
-
-    expect(screen.getByTitle(/answer 1/i)).toBeInTheDocument();
-  });
-
-  it('shows loading spinner when loading the concept when editing the question', async () => {
-    mockUseConceptLookup.mockReturnValue({ concepts: concepts, conceptLookupError: null, isLoadingConcepts: true });
-    mockUseConceptId.mockReturnValue({
-      concept: null,
-      conceptName: null,
-      conceptNameLookupError: null,
-      isLoadingConcept: true,
-    });
-    const user = userEvent.setup();
-    renderComponent();
-
-    expect(
-      screen.queryByRole('searchbox', {
-        name: /search for a backing concept/i,
-      }),
-    ).not.toBeInTheDocument();
-    expect(screen.getByText(/loading\.\.\./i)).toBeInTheDocument();
-  });
-
-  it('shows error if concept in question cannot be not when trying to edit', async () => {
-    mockUseConceptLookup.mockReturnValue({ concepts: [], conceptLookupError: null, isLoadingConcepts: false });
-    mockUseConceptId.mockReturnValue({
-      concept: null,
-      conceptName: null,
-      conceptNameLookupError: Error(),
-      isLoadingConcept: false,
-    });
-    formField.questionOptions = {
-      rendering: 'select',
-      concept: concepts[0].uuid,
-      answers: [{ label: 'Answer 1', concept: '1' }],
-    };
-    renderComponent();
-
-    expect(screen.getByText(/couldn't resolve concept name/i)).toBeInTheDocument();
-    expect(
-      screen.getByText(/the linked concept '\{\{conceptname\}\}' does not exist in your dictionary/i),
-    ).toBeInTheDocument();
-    expect(screen.getByText(/answer 1/i)).toBeInTheDocument();
   });
 });
 

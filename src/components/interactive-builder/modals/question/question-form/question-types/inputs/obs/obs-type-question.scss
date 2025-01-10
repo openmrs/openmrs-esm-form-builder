@@ -1,69 +1,8 @@
 @use '@carbon/colors';
 @use '@carbon/layout';
-@use '@carbon/type';
 
 .label {
-  margin-bottom: 0.5rem;
-}
-
-.error {
-  width: 100%;
-  max-width: unset;
-  padding: '0rem';
-  margin-bottom: 1rem;
-}
-
-.loader {
-  padding: 0.75rem 0.5rem;
-}
-
-.conceptList {
-  background: colors.$white-0;
-  max-height: 14rem;
-  overflow-y: auto;
-  border: 1px solid colors.$gray-20;
-  border-top: none;
-}
-
-.conceptList li:hover {
-  background-color: colors.$gray-20;
-}
-
-.concept {
-  padding: 0.75rem;
-  border-bottom: 1px solid colors.$gray-20;
-
-  &:last-of-type {
-    border-bottom: none;
-  }
-}
-
-.emptyResults {
-  @include type.type-style('body-compact-01');
-  color: colors.$gray-70;
-  min-height: 1rem;
-}
-
-.oclLauncherBanner {
-  padding: 0.5rem 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: colors.$gray-50;
-
-  p {
-    color: colors.$white-0;
-  }
-}
-
-.oclLink {
-  color: colors.$blue-10;
-  display: flex;
-  align-items: center;
-
-  svg {
-    margin-left: 0.25rem;
-  }
+  margin-bottom: layout.$spacing-03;
 }
 
 .table {
@@ -76,9 +15,9 @@
 
   td,
   th {
-    padding: 0.25rem;
+    padding: layout.$spacing-02;
     border: 1px solid colors.$gray-20;
-    max-width: 10rem;
+    max-width: layout.$spacing-13;
     text-align: left;
   }
 }
@@ -93,27 +32,4 @@
   tbody > tr:nth-child(odd) {
     background-color: colors.$gray-10;
   }
-}
-
-.multiSelect {
-  :global(.cds--list-box__field--wrapper) {
-    align-items: center;
-    display: flex;
-    height: 2.5rem;
-    justify-content: space-between;
-    margin-left: 0.5rem;
-    width: 100%;
-  }
-}
-
-.tag {
-  margin-right: 0.5rem;
-}
-
-.conceptAnswerButton {
-  margin-left: 5px;
-  color: black;
-  background: none;
-  border: none;
-  padding: 0;
 }

@@ -1,0 +1,67 @@
+@use '@carbon/colors';
+@use '@carbon/layout';
+@use '@carbon/type';
+
+.label {
+  margin-bottom: layout.$spacing-02;
+}
+
+.error {
+  width: 100%;
+  max-width: unset;
+  padding: '0rem';
+  margin-bottom: $spacing-05;
+}
+
+.loader {
+  padding: layout.$spacing-04 $spacing-03;
+}
+
+.concept {
+  padding: $spacing-04;
+  border-bottom: 1px solid colors.$gray-20;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+}
+
+.conceptList {
+  background: colors.$white-0;
+  max-height: 14rem;
+  overflow-y: auto;
+  border: 1px solid colors.$gray-20;
+  border-top: none;
+}
+
+.conceptList li:hover {
+  background-color: colors.$gray-20;
+}
+
+.emptyResults {
+  @include type.type-style('body-compact-01');
+  color: colors.$gray-70;
+  min-height: layout.$spacing-05;
+}
+
+.oclLauncherBanner {
+  padding: layout.$spacing-03 layout.$spacing-05;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: colors.$gray-50;
+
+  p {
+    color: colors.$white-0;
+  }
+}
+
+.oclLink {
+  color: colors.$blue-10;
+  display: flex;
+  align-items: center;
+
+  svg {
+    margin-left: 0.25rem;
+  }
+}

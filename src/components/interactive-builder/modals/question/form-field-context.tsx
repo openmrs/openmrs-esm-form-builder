@@ -1,9 +1,12 @@
 import React, { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
+import type { Concept } from '@types';
 
 interface FormFieldContextType {
   formField: FormField;
   setFormField: React.Dispatch<React.SetStateAction<FormField>>;
+  concept: Concept;
+  setConcept: React.Dispatch<React.SetStateAction<Concept>>;
 }
 
 const FormFieldContext = createContext<FormFieldContextType | undefined>(undefined);
@@ -12,8 +15,10 @@ export const FormFieldProvider: React.FC<{
   children: ReactNode;
   initialFormField: FormField;
   isObsGrouped?: boolean;
-}> = ({ children, initialFormField, isObsGrouped = false }) => {
+  selectedConcept?: Concept;
+}> = ({ children, initialFormField, isObsGrouped = false, selectedConcept = null }) => {
   const [formField, setFormField] = useState<FormField>(initialFormField);
+  const [concept, setConcept] = useState<Concept | null>(selectedConcept);
 
   const updateObsGroupedQuestion = useCallback(
     (updatedObsGroupFormField: FormField) => {
@@ -33,7 +38,7 @@ export const FormFieldProvider: React.FC<{
 
   return (
     <FormFieldContext.Provider
-      value={{ formField, setFormField: isObsGrouped ? updateObsGroupedQuestion : setFormField }}
+      value={{ formField, setFormField: isObsGrouped ? updateObsGroupedQuestion : setFormField, concept, setConcept }}
     >
       {children}
     </FormFieldContext.Provider>
