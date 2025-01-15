@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import AceEditor from 'react-ace';
 import 'ace-builds/webpack-resolver';
 import { addCompleter } from 'ace-builds/src-noconflict/ext-language_tools';
@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useStandardFormSchema } from '../../hooks/useStandardFormSchema';
 import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
-import { ActionableNotification, Link } from '@carbon/react';
+import { ActionableNotification, Link, InlineNotification } from '@carbon/react';
 import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
 
 import styles from './schema-editor.scss';
@@ -23,6 +23,7 @@ interface SchemaEditorProps {
   stringifiedSchema: string;
   errors: Array<MarkerProps>;
   setErrors: (errors: Array<MarkerProps>) => void;
+  invalidJsonErrorMessage: string;
   setValidationOn: (validationStatus: boolean) => void;
 }
 
@@ -32,6 +33,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   setErrors,
   errors,
   validationOn,
+  invalidJsonErrorMessage,
   setValidationOn,
 }) => {
   const { schema, schemaProperties } = useStandardFormSchema();
@@ -176,24 +178,59 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     setValidationOn(false);
     setCurrentIndex(0);
     onSchemaChange(newValue);
-    debouncedValidateSchema(newValue, schema);
+    if (validationOn) debouncedValidateSchema(newValue, schema);
   };
 
   // Schema Validation Errors
-  const ErrorNotification = ({ text, line }) => (
-    <ActionableNotification
-      subtitle={text}
-      inline
-      title={t('errorOnLine', 'Error on line') + ` ${line + 1}: `}
-      kind="error"
-      lowContrast
-      actionButtonLabel={
-        <Link target="_blank" rel="noopener noreferrer" href="https://json.openmrs.org/form.schema.json">
-          {t('referenceSchema', 'Reference schema')}
-        </Link>
+  const ErrorNotification = ({ text, line, onClose }) => {
+    const linkRef = useRef(null);
+
+    useEffect(() => {
+      const currentLink = linkRef.current;
+
+      const handleClick = () => {
+        if (currentLink) {
+          currentLink.blur();
+        }
+      };
+
+      if (currentLink) {
+        currentLink.focus();
+        currentLink.blur();
+        currentLink.addEventListener('click', handleClick);
       }
-    />
-  );
+
+      return () => {
+        if (currentLink) {
+          currentLink.removeEventListener('click', handleClick);
+        }
+      };
+    }, []);
+
+    return (
+      <ActionableNotification
+        subtitle={text}
+        inline
+        title={t('errorOnLine', 'Error on line') + ` ${line + 1}: `}
+        kind="error"
+        lowContrast
+        className={styles.actionableNotification}
+        actionButtonLabel={
+          <Link
+            ref={linkRef}
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://json.openmrs.org/form.schema.json"
+          >
+            {t('referenceSchema', 'Reference schema')}
+          </Link>
+        }
+        onCloseButtonClick={() => {
+          if (onClose) onClose();
+        }}
+      />
+    );
+  };
 
   const onPreviousErrorClick = () => {
     setCurrentIndex((prevIndex) => Math.max(prevIndex - 1, 0));
@@ -203,30 +240,58 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     setCurrentIndex((prevIndex) => Math.min(prevIndex + 1, errors.length - 1));
   };
 
-  const ErrorMessages = () => (
-    <div className={styles.validationErrorsContainer}>
-      <ErrorNotification text={errors[currentIndex]?.text} line={errors[currentIndex]?.startRow} />
-      <div className={styles.pagination}>
-        <ChevronLeft
-          disabled={currentIndex === 0}
-          onClick={onPreviousErrorClick}
-          className={currentIndex === 0 ? styles.disabledIcon : styles.paginationIcon}
-        />
-        <div>
-          {currentIndex + 1}/{errors.length}
-        </div>
-        <ChevronRight
-          disabled={currentIndex === errors.length - 1}
-          onClick={onNextErrorClick}
-          className={currentIndex === errors.length - 1 ? styles.disabledIcon : styles.paginationIcon}
-        />
-      </div>
-    </div>
-  );
+  const ErrorMessages = () => {
+    const paginationRef = useRef(null);
+
+    const handleCloseErrorNotification = useCallback(() => {
+      if (paginationRef.current) {
+        paginationRef.current.style.display = 'none';
+      }
+    }, []);
+
+    return (
+      <>
+        {invalidJsonErrorMessage ? (
+          <InlineNotification
+            kind="error"
+            lowContrast
+            title={t('errorParsingJsonSchema', 'Error parsing JSON schema')}
+            subtitle={invalidJsonErrorMessage}
+            className={styles.jsonSchemaError}
+          />
+        ) : (
+          <div className={styles.validationErrorsContainer}>
+            <div>
+              <ErrorNotification
+                text={errors[currentIndex]?.text}
+                line={errors[currentIndex]?.startRow}
+                onClose={handleCloseErrorNotification}
+              />
+            </div>
+            <div ref={paginationRef} className={styles.pagination}>
+              <ChevronLeft
+                disabled={currentIndex === 0}
+                onClick={onPreviousErrorClick}
+                className={currentIndex === 0 ? styles.disabledIcon : styles.paginationIcon}
+              />
+              <div>
+                {currentIndex + 1}/{errors.length}
+              </div>
+              <ChevronRight
+                disabled={currentIndex === errors.length - 1}
+                onClick={onNextErrorClick}
+                className={currentIndex === errors.length - 1 ? styles.disabledIcon : styles.paginationIcon}
+              />
+            </div>
+          </div>
+        )}
+      </>
+    );
+  };
 
   return (
     <div>
-      {errors.length && validationOn ? <ErrorMessages /> : null}
+      {(errors.length && validationOn) || invalidJsonErrorMessage ? <ErrorMessages /> : null}
       <AceEditor
         style={{ height: '100vh', width: '100%', border: errors.length ? '3px solid #DA1E28' : 'none' }}
         mode="json"
