@@ -3,7 +3,6 @@ import { Tag, MultiSelect, Stack } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
 import { useFormField } from '../../../../form-field-context';
-import type { QuestionAnswerOption } from '@openmrs/esm-form-engine-lib';
 import type { Concept } from '@types';
 import styles from './select-answers.scss';
 
@@ -31,21 +30,18 @@ const SelectAnswers: React.FC = () => {
     })),
   );
 
-  const areAnswersEqual = (arr1: QuestionAnswerOption[], arr2: QuestionAnswerOption[]) => {
-    if (arr1.length !== arr2.length) return false;
-    return arr1.every((item, index) => item.concept === arr2[index].concept && item.label === arr2[index].label);
-  };
-
-  const updateFormFieldAnswers = useCallback(
-    (selectedAnswers: AnswerItem[]) => {
-      const mappedAnswers = selectedAnswers.map((answer) => ({
+  const handleSelectAnswers = useCallback(
+    ({ selectedItems }: { selectedItems: Array<AnswerItem> }) => {
+      const mappedAnswers = selectedItems.map((answer) => ({
         concept: answer.id,
         label: answer.text,
       }));
 
+      setSelectedAnswers(selectedItems);
+
       setFormField((prevField) => {
         const currentAnswers = prevField.questionOptions?.answers || [];
-        if (areAnswersEqual(currentAnswers, mappedAnswers)) {
+        if (JSON.stringify(currentAnswers) === JSON.stringify(mappedAnswers)) {
           return prevField;
         }
         return {
@@ -60,20 +56,10 @@ const SelectAnswers: React.FC = () => {
     [setFormField],
   );
 
-  const handleSelectAnswers = useCallback(
-    ({ selectedItems }: { selectedItems: Array<AnswerItem> }) => {
-      setSelectedAnswers(selectedItems);
-      updateFormFieldAnswers(selectedItems);
-    },
-    [setSelectedAnswers, updateFormFieldAnswers],
-  );
-
   const handleSelectAdditionalAnswer = useCallback(
     (concept: Concept) => {
       const newAnswer = { id: concept.uuid, text: concept.display };
-      const answerExistsInSelected = formField.questionOptions.answers
-        ? formField.questionOptions.answers?.some((answer) => answer.id === newAnswer.id)
-        : [];
+      const answerExistsInSelected = selectedAnswers.some((answer) => answer.id === newAnswer.id);
       const answerExistsInAdded = addedAnswers.some((answer) => answer.id === newAnswer.id);
       if (!answerExistsInSelected && !answerExistsInAdded) {
         setAddedAnswers((prevAnswers) => [...prevAnswers, newAnswer]);
@@ -90,7 +76,7 @@ const SelectAnswers: React.FC = () => {
         });
       }
     },
-    [formField, addedAnswers, setFormField],
+    [selectedAnswers, addedAnswers, setFormField],
   );
 
   const handleDeleteAdditionalAnswer = useCallback(
@@ -158,11 +144,11 @@ const SelectAnswers: React.FC = () => {
         />
       )}
 
-      {formField.questionOptions?.answers && formField.questionOptions?.answers?.length > 0 && (
+      {selectedAnswers.length > 0 && (
         <div>
-          {formField.questionOptions.answers.map((answer) => (
+          {selectedAnswers.map((answer) => (
             <Tag className={styles.tag} key={answer.id} type={'blue'}>
-              {answer.label}
+              {answer.text}
             </Tag>
           ))}
         </div>
