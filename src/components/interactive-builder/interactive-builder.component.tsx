@@ -1,16 +1,16 @@
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { DragEndEvent } from '@dnd-kit/core';
 import { DndContext, KeyboardSensor, MouseSensor, closestCorners, useSensor, useSensors } from '@dnd-kit/core';
 import { Accordion, AccordionItem, Button, IconButton, InlineLoading } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { showModal, showSnackbar } from '@openmrs/esm-framework';
+import DraggableQuestion from './draggable/draggable-question.component';
+import Droppable from './droppable/droppable-container.component';
+import EditableValue from './editable/editable-value.component';
+import type { DragEndEvent } from '@dnd-kit/core';
 import type { FormSchema } from '@openmrs/esm-form-engine-lib';
-import type { Schema, Question } from '../../types';
-import DraggableQuestion from './draggable-question.component';
-import Droppable from './droppable-container.component';
-import EditableValue from './editable-value.component';
+import type { Schema, Question } from '@types';
 import styles from './interactive-builder.scss';
 
 interface ValidationError {
@@ -117,7 +117,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
   const launchAddQuestionModal = useCallback(
     (pageIndex: number, sectionIndex: number) => {
-      const dispose = showModal('add-question-modal', {
+      const dispose = showModal('question-modal', {
         closeModal: () => dispose(),
         onSchemaChange,
         schema,
@@ -437,38 +437,38 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                               {section.questions?.length ? (
                                 section.questions.map((question, questionIndex) => {
                                   return (
-                                      <Droppable
-                                        id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
-                                        key={questionIndex}
-                                      >
-                                        <DraggableQuestion
-                                          handleDuplicateQuestion={duplicateQuestion}
-                                          key={question.id}
-                                          onSchemaChange={onSchemaChange}
-                                          pageIndex={pageIndex}
-                                          question={question}
-                                          questionCount={section.questions.length}
-                                          questionIndex={questionIndex}
-                                          schema={schema}
-                                          sectionIndex={sectionIndex}
-                                        />
-                                        {getValidationError(question) && (
-                                          <div className={styles.validationErrorMessage}>
-                                            {getValidationError(question)}
-                                          </div>
-                                        )}
-                                        {getAnswerErrors(question.questionOptions.answers)?.length ? (
-                                          <div className={styles.answerErrors}>
-                                            <div>Answer Errors</div>
-                                            {getAnswerErrors(question.questionOptions.answers)?.map((error, index) => (
-                                              <div
-                                                className={styles.validationErrorMessage}
-                                                key={index}
-                                              >{`${error.field.label}: ${error.errorMessage}`}</div>
-                                            ))}
-                                          </div>
-                                        ) : null}
-                                      </Droppable>
+                                    <Droppable
+                                      id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
+                                      key={questionIndex}
+                                    >
+                                      <DraggableQuestion
+                                        handleDuplicateQuestion={duplicateQuestion}
+                                        key={question.id}
+                                        onSchemaChange={onSchemaChange}
+                                        pageIndex={pageIndex}
+                                        question={question}
+                                        questionCount={section.questions.length}
+                                        questionIndex={questionIndex}
+                                        schema={schema}
+                                        sectionIndex={sectionIndex}
+                                      />
+                                      {getValidationError(question) && (
+                                        <div className={styles.validationErrorMessage}>
+                                          {getValidationError(question)}
+                                        </div>
+                                      )}
+                                      {getAnswerErrors(question.questionOptions.answers)?.length ? (
+                                        <div className={styles.answerErrors}>
+                                          <div>Answer Errors</div>
+                                          {getAnswerErrors(question.questionOptions.answers)?.map((error, index) => (
+                                            <div
+                                              className={styles.validationErrorMessage}
+                                              key={index}
+                                            >{`${error.field.label}: ${error.errorMessage}`}</div>
+                                          ))}
+                                        </div>
+                                      ) : null}
+                                    </Droppable>
                                   );
                                 })
                               ) : (

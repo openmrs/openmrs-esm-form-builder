@@ -78,7 +78,9 @@ dist/
 # EditorConfig
 .editorconfig
 
+.DS_Store
 .idea
+.vscode
 .turbo
 /test-results/
 /playwright-report/
