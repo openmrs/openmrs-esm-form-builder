@@ -20,6 +20,7 @@ const config: PlaywrightTestConfig = {
     locale: 'en-US',
     storageState: 'e2e/storageState.json',
     video: 'retain-on-failure',
+    trace: 'retain-on-failure',
   },
   projects: [
     {
