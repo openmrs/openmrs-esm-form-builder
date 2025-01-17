@@ -6,7 +6,8 @@
   background-color: colors.$white-0;
   padding: 1rem;
   overflow-y: scroll;
-  height: 100vh;
+  overflow-x: hidden;
+  height: 95vh;
 }
 
 .loadingContainer {
