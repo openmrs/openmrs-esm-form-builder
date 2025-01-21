@@ -107,6 +107,8 @@ function renderInteractiveBuilder(props = {}) {
     onSchemaChange: jest.fn(),
     schema: {} as Schema,
     validationResponse: [],
+    setScrollToString: jest.fn(), 
+    selectedQuestion: { questionId: '', sectionLabel: '' },
   };
 
   render(<InteractiveBuilder {...defaultProps} {...props} />);

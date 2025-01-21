@@ -273,3 +273,8 @@ export interface DatePickerTypeOption {
   label: string;
   defaultChecked: boolean;
 }
+
+export interface SelectedQuestion {
+  questionId: string;
+  sectionLabel: string;
+}

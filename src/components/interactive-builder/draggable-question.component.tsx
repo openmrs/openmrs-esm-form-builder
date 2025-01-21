@@ -72,6 +72,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
 
   return (
     <div
+      id={question.id}
       className={classNames({
         [styles.dragContainer]: true,
         [styles.dragContainerWhenDragging]: isDragging,
