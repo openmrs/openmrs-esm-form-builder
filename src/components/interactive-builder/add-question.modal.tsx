@@ -149,7 +149,12 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [programWorkflows, setProgramWorkflows] = useState<Array<ProgramWorkflow>>([]);
   const [toggleLabelTrue, setToggleLabelTrue] = useState('');
   const [toggleLabelFalse, setToggleLabelFalse] = useState('');
-
+  const [selectedOrders, setSelectedOrders] = useState<
+    Array<{
+      concept: string;
+      label: string;
+    }>
+  >([]);
   const renderTypeOptions = {
     encounterDatetime: ['date'],
     encounterLocation: ['ui-select-extended'],
@@ -173,6 +178,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const handleAnsConceptChange = (event: React.ChangeEvent<HTMLInputElement>) =>
     setConceptAnsToLookup(event.target.value);
 
+  const handleOrdersChange = (event: React.ChangeEvent<HTMLInputElement>) => setConceptToLookup(event.target.value);
   const handleConceptSelect = (concept: Concept) => {
     const updatedDatePickerType = getDatePickerType(concept);
     if (updatedDatePickerType) setDatePickerType(updatedDatePickerType);
@@ -195,6 +201,21 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       }),
     );
   };
+
+  const handleOrdersSelect = (concept: Concept) => {
+    const updatedDatePickerType = getDatePickerType(concept);
+    if (updatedDatePickerType) setDatePickerType(updatedDatePickerType);
+    setConceptToLookup('');
+    setSelectedConcept(concept);
+    setSelectedOrders([
+      ...selectedOrders,
+      {
+        concept: concept.uuid,
+        label: concept.display,
+      },
+    ]);
+  };
+
   const handleDeleteAnswer = (id) => {
     setAddedAnswers((prevAnswers) => prevAnswers.filter((answer) => answer.id !== id));
   };
@@ -251,8 +272,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       const computedQuestionId = `question${questionIndex + 1}Section${sectionIndex + 1}Page-${pageIndex + 1}`;
 
       const newQuestion = {
-        ...(questionLabel && {label: questionLabel}),
-        ...((renderingType === 'markdown') && {value: questionValue}),
+        ...(questionLabel && { label: questionLabel }),
+        ...(renderingType === 'markdown' && { value: questionValue }),
         type: questionType ? questionType : 'control',
         required: isQuestionRequired,
         id: questionId ?? computedQuestionId,
@@ -295,6 +316,11 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
               labelFalse: toggleLabelFalse,
             },
           }),
+          ...(questionType === 'testOrder' && {
+            orderType: 'testOrder',
+            orderSettingUuid: 'INPATIENT',
+            selectableOrders: selectedOrders,
+          }),
         },
         validators: [],
       };
@@ -314,6 +340,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       setSelectedAnswers([]);
       setAddObsComment(false);
       setAddInlineDate(false);
+      setSelectedOrders([]);
 
       showSnackbar({
         title: t('success', 'Success!'),
@@ -363,14 +390,16 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         <ModalBody hasScrollingContent>
           <FormGroup legendText={''}>
             <Stack gap={5}>
-              {renderingType === 'markdown' ? <MarkdownQuestion onValueChange={setQuestionValue}/> : (
+              {renderingType === 'markdown' ? (
+                <MarkdownQuestion onValueChange={setQuestionValue} />
+              ) : (
                 <TextInput
-                id="questionLabel"
-                labelText={<RequiredLabel isRequired={isQuestionRequired} text={t('questionLabel', 'Label')} t={t} />}
-                placeholder={t('labelPlaceholder', 'e.g. Type of Anaesthesia')}
-                value={questionLabel}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setQuestionLabel(event.target.value)}
-              />
+                  id="questionLabel"
+                  labelText={<RequiredLabel isRequired={isQuestionRequired} text={t('questionLabel', 'Label')} t={t} />}
+                  placeholder={t('labelPlaceholder', 'e.g. Type of Anaesthesia')}
+                  value={questionLabel}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setQuestionLabel(event.target.value)}
+                />
               )}
 
               <TextInput
@@ -457,12 +486,16 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 required
               >
                 {!renderingType && <SelectItem text={t('chooseRenderingType', 'Choose a rendering type')} value="" />}
-                {questionTypes.filter((questionType) => !['obs', 'control'].includes(questionType)).includes(questionType as Exclude<QuestionType, 'obs' | 'control'>)
+                {questionTypes
+                  .filter((questionType) => !['obs', 'control'].includes(questionType))
+                  .includes(questionType as Exclude<QuestionType, 'obs' | 'control'>)
                   ? renderTypeOptions[questionType].map((type, key) => (
                       <SelectItem key={`${questionType}-${key}`} text={type} value={type} />
                     ))
-                  : questionType === 'obs' 
-                    ? fieldTypes.filter(type => type !== 'markdown').map((type, key) => <SelectItem key={key} text={type} value={type} />) 
+                  : questionType === 'obs'
+                    ? fieldTypes
+                        .filter((type) => type !== 'markdown')
+                        .map((type, key) => <SelectItem key={key} text={type} value={type} />)
                     : fieldTypes.map((type, key) => <SelectItem key={key} text={type} value={type} />)}
               </Select>
 
@@ -998,6 +1031,106 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                       ))}
                     </div>
                   )}
+                </Stack>
+              )}
+
+              {questionType === 'testOrder' && (
+                <Stack gap={5}>
+                  <div>
+                    <FormLabel className={styles.label}>
+                      {t('searchForBackingConcept', 'Search for a backing concept')}
+                    </FormLabel>
+                    {conceptLookupError ? (
+                      <InlineNotification
+                        kind="error"
+                        lowContrast
+                        className={styles.error}
+                        title={t('errorFetchingConcepts', 'Error fetching concepts')}
+                        subtitle={t('pleaseTryAgain', 'Please try again.')}
+                      />
+                    ) : null}
+                    <Search
+                      id="conceptLookup"
+                      onClear={() => {
+                        setSelectedConcept(null);
+                        setDatePickerType('both');
+                        setAnswers([]);
+                        setConceptMappings([]);
+                      }}
+                      onChange={handleOrdersChange}
+                      placeholder={t('searchConcept', 'Search using a concept name or UUID')}
+                      required
+                      size="md"
+                      value={(() => {
+                        if (conceptToLookup) {
+                          return conceptToLookup;
+                        }
+                        if (selectedConcept) {
+                          return selectedConcept.display;
+                        }
+                        return '';
+                      })()}
+                    />
+                    {(() => {
+                      if (!conceptToLookup) return null;
+                      if (isLoadingConcepts)
+                        return (
+                          <InlineLoading className={styles.loader} description={t('searching', 'Searching') + '...'} />
+                        );
+                      if (concepts?.length && !isLoadingConcepts) {
+                        return (
+                          <ul className={styles.conceptList}>
+                            {concepts?.map((concept, index) => (
+                              <li
+                                role="menuitem"
+                                className={styles.concept}
+                                key={index}
+                                onClick={() => handleOrdersSelect(concept)}
+                              >
+                                {concept.display}
+                              </li>
+                            ))}
+                          </ul>
+                        );
+                      }
+                      return (
+                        <Layer>
+                          <Tile className={styles.emptyResults}>
+                            <span>
+                              {t('noMatchingConcepts', 'No concepts were found that match')}{' '}
+                              <strong>"{debouncedConceptToLookup}".</strong>
+                            </span>
+                          </Tile>
+
+                          <div className={styles.oclLauncherBanner}>
+                            {
+                              <p className={styles.bodyShort01}>
+                                {t('conceptSearchHelpText', "Can't find a concept?")}
+                              </p>
+                            }
+                            <a
+                              className={styles.oclLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              href={'https://app.openconceptlab.org/'}
+                            >
+                              {t('searchInOCL', 'Search in OCL')}
+                              <ArrowUpRight size={16} />
+                            </a>
+                          </div>
+                        </Layer>
+                      );
+                    })()}
+                    {selectedOrders.length ? (
+                      <div>
+                        {selectedOrders.map((answer) => (
+                          <Tag className={styles.tag} key={answer.concept} type={'blue'}>
+                            {answer.label}
+                          </Tag>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
                 </Stack>
               )}
             </Stack>

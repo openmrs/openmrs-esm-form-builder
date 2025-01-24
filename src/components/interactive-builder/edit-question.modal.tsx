@@ -105,7 +105,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const [max, setMax] = useState(questionToEdit.questionOptions.max ?? '');
   const [min, setMin] = useState(questionToEdit.questionOptions.min ?? '');
   const [questionId, setQuestionId] = useState('');
-  const [questionLabel, setQuestionLabel] = useState('');
+  const [questionLabel, setQuestionLabel] = useState(questionToEdit.label);
   const [questionValue, setQuestionValue] = useState(questionToEdit.value);
   const [questionType, setQuestionType] = useState<QuestionType | null>(null);
   const [datePickerType, setDatePickerType] = useState<DatePickerType | null>(
@@ -165,7 +165,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   const [addInlineDate, setAddInlineDate] = useState(false);
   const [toggleLabelTrue, setToggleLabelTrue] = useState(questionToEdit?.questionOptions?.toggleOptions?.labelTrue);
   const [toggleLabelFalse, setToggleLabelFalse] = useState(questionToEdit?.questionOptions?.toggleOptions?.labelFalse);
-
+  const [selectedOrders, setSelectedOrders] = useState(questionToEdit?.questionOptions?.selectableOrders ?? []);
   // Maps the data type of a concept to a date picker type.
   const datePickerTypeOptions: Record<string, Array<DatePickerTypeOption>> = {
     datetime: [{ value: 'both', label: t('calendarAndTimer', 'Calendar and timer'), defaultChecked: true }],
@@ -223,9 +223,30 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
     );
   };
 
+  const handleOrdersSelect = (concept: Concept) => {
+    const datePickerType = getDatePickerType(concept);
+    if (datePickerType) {
+      setDatePickerType(datePickerType);
+    }
+    setConceptToLookup('');
+    setSelectedAnswers([]);
+    setAddedAnswers([]);
+    setSelectedOrders([
+      ...selectedOrders,
+      {
+        concept: concept.uuid,
+        label: concept.display,
+      },
+    ]);
+  };
+
   const handleDeleteAnswer = (id) => {
     const updatedAnswers = addedAnswers.filter((answer) => answer.id !== id);
     setAddedAnswers(updatedAnswers);
+  };
+
+  const handleRemoveOrder = (concept) => {
+    setSelectedOrders(selectedOrders.filter((order) => order.concept !== concept));
   };
 
   const handleSaveMoreAnswers = () => {
@@ -334,7 +355,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
             concept: selectedConcept ? selectedConcept.uuid : questionToEdit.questionOptions.concept,
             conceptMappings: conceptMappings?.length ? conceptMappings : questionToEdit.questionOptions.conceptMappings,
           }),
-          answers: mappedAnswers,
+          ...(mappedAnswers && { answers: mappedAnswers }),
           ...(questionType === 'patientIdentifier' && {
             identifierType: selectedPatientIdentifierType
               ? selectedPatientIdentifierType['uuid']
@@ -348,9 +369,11 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
           ...(addInlineDate && {
             showDate: addInlineDate ? addInlineDate : /true/.test(questionToEdit.questionOptions.showDate.toString()),
           }),
-          attributeType: selectedPersonAttributeType
-            ? selectedPersonAttributeType['uuid']
-            : questionToEdit.questionOptions.attributeType,
+          ...((selectedPersonAttributeType || questionToEdit.questionOptions.attributeType) && {
+            attributeType: selectedPersonAttributeType
+              ? selectedPersonAttributeType['uuid']
+              : questionToEdit.questionOptions.attributeType,
+          }),
           ...(selectedProgram && { programUuid: selectedProgram.uuid }),
           ...(programWorkflow && { workflowUuid: programWorkflow.uuid }),
           ...(fieldType === 'toggle' && {
@@ -358,6 +381,11 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
               labelTrue: toggleLabelTrue,
               labelFalse: toggleLabelFalse,
             },
+          }),
+          ...(questionToEdit.type === 'testOrder' && {
+            orderType: 'testOrder',
+            orderSettingUuid: 'INPATIENT',
+            selectableOrders: selectedOrders,
           }),
         },
       };
@@ -375,6 +403,7 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
       setSelectedAnswers([]);
       setAddObsComment(false);
       setAddInlineDate(false);
+      setSelectedOrders([]);
 
       showSnackbar({
         title: t('questionEdited', 'Question edited'),
@@ -1085,6 +1114,85 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
                       ))}
               </RadioButtonGroup>
             ) : null}
+
+            {questionToEdit.type === 'testOrder' && (
+              <>
+                <Search
+                  defaultValue={conceptName}
+                  id="conceptLookup"
+                  onClear={() => {
+                    setSelectedConcept(null);
+                    setDatePickerType('both');
+                  }}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleConceptChange(e.target.value?.trim())}
+                  placeholder={t('searchConcept', 'Search using a concept name or UUID')}
+                  required
+                  size="md"
+                  value={selectedConcept?.display}
+                />
+                {(() => {
+                  if (!conceptToLookup) return null;
+                  if (isLoadingConcepts)
+                    return (
+                      <InlineLoading className={styles.loader} description={t('searching', 'Searching') + '...'} />
+                    );
+                  if (concepts?.length && !isLoadingConcepts) {
+                    return (
+                      <ul className={styles.conceptList}>
+                        {concepts?.map((concept, index) => (
+                          <li
+                            role="menuitem"
+                            className={styles.concept}
+                            key={index}
+                            onClick={() => handleOrdersSelect(concept)}
+                          >
+                            {concept.display}
+                          </li>
+                        ))}
+                      </ul>
+                    );
+                  }
+                  return (
+                    <Layer>
+                      <Tile className={styles.emptyResults}>
+                        <span>
+                          {t('noMatchingConcepts', 'No concepts were found that match')}{' '}
+                          <strong>"{conceptToLookup}".</strong>
+                        </span>
+                      </Tile>
+
+                      <div className={styles.oclLauncherBanner}>
+                        {<p className={styles.bodyShort01}>{t('conceptSearchHelpText', "Can't find a concept?")}</p>}
+                        <a
+                          className={styles.oclLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          href={'https://app.openconceptlab.org/'}
+                        >
+                          {t('searchInOCL', 'Search in OCL')}
+                          <ArrowUpRight size={16} />
+                        </a>
+                      </div>
+                    </Layer>
+                  );
+                })()}
+                {selectedOrders.length ? (
+                  <div>
+                    {selectedOrders.map((answer) => (
+                      <Tag
+                        className={styles.tag}
+                        filter
+                        key={answer.concept}
+                        onClose={() => handleRemoveOrder(answer.concept)}
+                        type="blue"
+                      >
+                        {answer.label}
+                      </Tag>
+                    ))}
+                  </div>
+                ) : null}
+              </>
+            )}
           </Stack>
         </ModalBody>
         <ModalFooter>
