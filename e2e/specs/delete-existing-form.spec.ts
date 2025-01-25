@@ -1,0 +1,46 @@
+import { test } from '../core';
+import { createForm, createValueReference, addFormResources, deleteForm } from '../commands/form-operations';
+import type { Form } from '../../src/types';
+import { FormBuilderPage } from '../pages';
+import { expect } from '@playwright/test';
+
+let form: Form = null;
+test.beforeEach(async ({ api }) => {
+  form = await createForm(api, false);
+  const valueReference = await createValueReference(api);
+  await addFormResources(api, valueReference, form.uuid);
+});
+
+test('Delete an existing form', async ({ page }) => {
+  const formBuilderPage = new FormBuilderPage(page);
+
+  await test.step('When I visit the form builder', async () => {
+    await formBuilderPage.gotoFormBuilder();
+  });
+
+  await test.step('And I search for the form I need to delete', async () => {
+    await formBuilderPage.searchForForm(form.name);
+  });
+
+  await test.step('And I click the `Delete` button on the form I need to delete', async () => {
+    await formBuilderPage.page
+      .getByRole('row', { name: form.name })
+      .getByLabel(/delete schema/i)
+      .click();
+  });
+
+  await test.step('Then I click the `Delete` button on the modal', async () => {
+    await formBuilderPage.deleteFormConfirmationButton().click();
+  });
+
+  await test.step('Then I should get a success message and the row with the form name should be removed', async () => {
+    await expect(formBuilderPage.page.getByText(/form deleted/i)).toBeVisible();
+    await expect(formBuilderPage.page.getByRole('row', { name: form.name })).toHaveCount(0);
+  });
+});
+
+test.afterEach(async ({ api }) => {
+  if (form) {
+    await deleteForm(api, form.uuid);
+  }
+});
