@@ -26,6 +26,7 @@ test('Delete an existing form', async ({ page }) => {
     await formBuilderPage.page
       .getByRole('row', { name: form.name })
       .getByLabel(/delete schema/i)
+      .first()
       .click();
   });
 

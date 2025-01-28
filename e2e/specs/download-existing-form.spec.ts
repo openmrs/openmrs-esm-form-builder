@@ -28,6 +28,7 @@ test('Download an existing form', async ({ page }) => {
     await formBuilderPage.page
       .getByRole('row', { name: form.name })
       .getByLabel(/download schema/i)
+      .first()
       .click();
     const download = await downloadPromise;
     expect(download).toBeDefined();

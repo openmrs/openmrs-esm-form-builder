@@ -26,6 +26,7 @@ test('Unpublish a form', async ({ page }) => {
     await formBuilderPage.page
       .getByRole('row', { name: form.name })
       .getByLabel(/edit schema/i)
+      .first()
       .click();
   });
 

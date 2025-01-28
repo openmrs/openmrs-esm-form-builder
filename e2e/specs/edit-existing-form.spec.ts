@@ -23,7 +23,11 @@ test('Editing an existing form', async ({ page }) => {
   });
 
   await test.step('And I click the `Edit` button on the form I need to edit', async () => {
-    await formBuilderPage.page.getByRole('row', { name: form.name }).getByLabel('Edit Schema').click();
+    await formBuilderPage.page
+      .getByRole('row', { name: form.name })
+      .getByLabel(/edit schema/i)
+      .first()
+      .click();
   });
 
   await test.step('Then I click the `Save Form` button', async () => {

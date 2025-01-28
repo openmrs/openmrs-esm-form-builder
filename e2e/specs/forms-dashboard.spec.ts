@@ -61,7 +61,7 @@ test('Clicking on a form should navigate me to the editor', async ({ page }) => 
   });
 
   await test.step('And I click the `A sample test form` form', async () => {
-    await formBuilderPage.page.getByText('A sample test form').click();
+    await formBuilderPage.page.getByText('A sample test form').first().click();
   });
 
   await test.step('Then I should be navigated to the editor page', async () => {
