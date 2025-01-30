@@ -92,7 +92,7 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
   });
 
   await test.step('And then I click on `Save`', async () => {
-    await formBuilderPage.savePageButton().click();
+    await formBuilderPage.saveButton().click();
     await expect(formBuilderPage.page.getByText(/new page created/i)).toBeVisible();
     expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toEqual({
       ...formDetails,
@@ -178,7 +178,7 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
   });
 
   await test.step('And then I click on `Save`', async () => {
-    await formBuilderPage.saveQuestionButton().click();
+    await formBuilderPage.saveButton().click();
     await expect(formBuilderPage.page.getByText(/new question created/i)).toBeVisible();
   });
 
