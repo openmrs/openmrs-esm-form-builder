@@ -1,13 +1,14 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { DragEndEvent } from '@dnd-kit/core';
+import classNames from 'classnames';
 import { DndContext, KeyboardSensor, MouseSensor, closestCorners, useSensor, useSensors } from '@dnd-kit/core';
 import { Accordion, AccordionItem, Button, IconButton, InlineLoading } from '@carbon/react';
 import { Add, TrashCan } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { showModal, showSnackbar } from '@openmrs/esm-framework';
 import type { FormSchema } from '@openmrs/esm-form-engine-lib';
-import type { Schema, Question } from '../../types';
+import type { Schema, Question, SelectedQuestion } from '../../types';
 import DraggableQuestion from './draggable-question.component';
 import Droppable from './droppable-container.component';
 import EditableValue from './editable-value.component';
@@ -24,6 +25,8 @@ interface InteractiveBuilderProps {
   onSchemaChange: (schema: Schema) => void;
   schema: Schema;
   validationResponse: Array<ValidationError>;
+  setScrollToString: (scrollToString: string) => void;
+  selectedQuestion: SelectedQuestion;
 }
 
 const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
@@ -31,7 +34,73 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   onSchemaChange,
   schema,
   validationResponse,
+  setScrollToString,
+  selectedQuestion = { questionId: '', sectionLabel: '' }
 }) => {
+  const accordionRefs = useRef(new Map());
+  const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
+  const questionRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  const scrollToElementByIdAndOpenAccordion = useCallback((id: string, secondId: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const button = element.querySelector('button[type="button"].cds--accordion__heading');
+      if (button && button instanceof HTMLButtonElement) {
+        setTimeout(() => {
+          const ariaExpanded = button.getAttribute('aria-expanded');
+          if (ariaExpanded === 'false') {
+            button.setAttribute('aria-expanded', 'true');
+            button.click();
+          }
+          const nestedElement = document.getElementById(secondId);
+          setTimeout(() => {
+            if (nestedElement) {
+              nestedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }, 100);
+        }, 100);
+      }
+    }
+  }, []);
+  
+  useEffect(() => {
+    if (selectedQuestion) {
+      const { questionId, sectionLabel } = selectedQuestion;
+      scrollToElementByIdAndOpenAccordion(sectionLabel, questionId);
+    }
+  }, [scrollToElementByIdAndOpenAccordion, selectedQuestion])
+
+  useEffect(() => {
+    const handleDoubleClickOutside = () => {
+      const highlightedElement = document.querySelector('[class*="highlightedBorder"]');
+      if (highlightedElement) {
+        highlightedElement.classList.forEach(className => {
+          if (className.includes('highlightedBorder')) {
+            highlightedElement.classList.remove(className);
+          }
+        });
+      }
+    };
+    document.addEventListener('dblclick', handleDoubleClickOutside);
+      return () => {
+      document.removeEventListener('dblclick', handleDoubleClickOutside);
+    };
+  }, []);
+
+
+  useEffect(() => {
+    if (selectedQuestionId && questionRefs.current.has(selectedQuestionId)) {
+      const questionElement = questionRefs.current.get(selectedQuestionId);
+      questionElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [selectedQuestionId]);
+
+  const handleQuestionSelect = (questionId: string) => {
+    setSelectedQuestionId(questionId);
+    setScrollToString(questionId)
+  };
+
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 10, // Enable sort function when dragging 10px 💡 here!!!
@@ -411,8 +480,15 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                   ) : null}
                   {page?.sections?.length ? (
                     page.sections?.map((section, sectionIndex) => (
-                      <Accordion key={sectionIndex}>
-                        <AccordionItem title={section.label}>
+                      <Accordion id={`${section.label}-${sectionIndex}`} key={sectionIndex}>
+                        <AccordionItem
+                          title={section.label}
+                          ref={(el) => {
+                            if (el) {
+                              accordionRefs.current.set(sectionIndex.toString(), el);
+                            }
+                          }}
+                        >
                           <>
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                               <div className={styles.editorContainer}>
@@ -441,17 +517,25 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                         id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
                                         key={questionIndex}
                                       >
-                                        <DraggableQuestion
-                                          handleDuplicateQuestion={duplicateQuestion}
+                                        <div
                                           key={question.id}
-                                          onSchemaChange={onSchemaChange}
-                                          pageIndex={pageIndex}
-                                          question={question}
-                                          questionCount={section.questions.length}
-                                          questionIndex={questionIndex}
-                                          schema={schema}
-                                          sectionIndex={sectionIndex}
-                                        />
+                                          onClick={() => handleQuestionSelect(question.id)}
+                                          className={classNames({
+                                            [styles.selectedQuestion]: true,
+                                            [styles.highlightedBorder]: (question.id === selectedQuestion?.questionId),
+                                          })}
+                                        >
+                                          <DraggableQuestion
+                                            handleDuplicateQuestion={duplicateQuestion}
+                                            onSchemaChange={onSchemaChange}
+                                            pageIndex={pageIndex}
+                                            question={question}
+                                            questionCount={section.questions.length}
+                                            questionIndex={questionIndex}
+                                            schema={schema}
+                                            sectionIndex={sectionIndex}
+                                          />
+                                        </div>
                                         {getValidationError(question) && (
                                           <div className={styles.validationErrorMessage}>
                                             {getValidationError(question)}

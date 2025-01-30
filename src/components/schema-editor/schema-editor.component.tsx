@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import AceEditor from 'react-ace';
 import 'ace-builds/webpack-resolver';
 import { addCompleter } from 'ace-builds/src-noconflict/ext-language_tools';
@@ -9,6 +9,7 @@ import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
 import { ActionableNotification, Link } from '@carbon/react';
 import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
+import type { Schema, SelectedQuestion } from '../../types';
 
 import styles from './schema-editor.scss';
 
@@ -24,6 +25,9 @@ interface SchemaEditorProps {
   errors: Array<MarkerProps>;
   setErrors: (errors: Array<MarkerProps>) => void;
   setValidationOn: (validationStatus: boolean) => void;
+  scrollToString: string;
+  onScrollComplete: () => void;
+  setSelectedQuestion: (selectedQn: SelectedQuestion) => void;
 }
 
 const SchemaEditor: React.FC<SchemaEditorProps> = ({
@@ -33,13 +37,112 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   errors,
   validationOn,
   setValidationOn,
+  scrollToString,
+  onScrollComplete,
+  setSelectedQuestion
 }) => {
+  const editorRef = useRef<AceEditor>(null);
+
+  const handleEditorClick = useCallback((e: any) => {
+    if (!editorRef.current) return;
+    const editor = editorRef.current.editor;
+    const position = e.getDocumentPosition();
+    const row: number = position.row;
+    const lineContent = editor.session.getLine(row);
+
+    try {
+      const parsedJson: Schema = JSON.parse(stringifiedSchema);
+
+      const findQuestionInPages = (pages) => {
+        for (const page of pages) {
+          if (page.sections && Array.isArray(page.sections)) {
+            for (let sectionPosition = 0; sectionPosition < page.sections.length; sectionPosition++) {
+              const section = page.sections[sectionPosition];
+              if (section.questions && Array.isArray(section.questions)) {
+                for (const question of section.questions) {
+                  if (question.label && lineContent.includes(`"label": "${question.label}"`)) {
+                    return { questionId: question.id, sectionLabel: `${section.label}-${sectionPosition}` };
+                  }
+                }
+              }
+            }
+          }
+        }
+        return null;
+      };
+      
+      const foundQuestion = findQuestionInPages(parsedJson.pages || []);
+      if (foundQuestion) {
+        setSelectedQuestion(foundQuestion);
+      }
+    } catch (error) {
+      console.error('Error parsing JSON:', error);
+    }
+  },[setSelectedQuestion, stringifiedSchema]);
+
+  useEffect(() => {
+    const currentEditorRef = editorRef.current;
+
+    if (currentEditorRef) {
+      const editor = currentEditorRef.editor;
+      editor.on("click", handleEditorClick);
+    }
+
+    return () => {
+      if (currentEditorRef) {
+        const editor = currentEditorRef.editor;
+        editor.off("click", handleEditorClick);
+      }
+    };
+  }, [stringifiedSchema, handleEditorClick]);
+
   const { schema, schemaProperties } = useStandardFormSchema();
   const { t } = useTranslation();
   const [autocompleteSuggestions, setAutocompleteSuggestions] = useState<
     Array<{ name: string; type: string; path: string }>
   >([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+
+  const schemaString = useMemo(() => {
+    try {
+      return JSON.parse(stringifiedSchema) as Schema;
+    } catch (error) {
+      console.error('Error parsing schema:', error);
+      return null;
+    }
+  }, [stringifiedSchema]);
+
+  
+  useEffect(() => {
+    const getLabelByQuestionId = (id: string): string | null => {
+      if (!schemaString) return null;
+  
+      for (const page of schemaString.pages || []) {
+        for (const section of page.sections || []) {
+          const question = section.questions?.find(
+            q => q.id === id
+          );
+  
+          if (question) {
+            return (question.label ?? question.value) as string ?? null;
+          }
+        }
+      }
+      return null;
+  
+    };
+    if (scrollToString && editorRef.current) {
+      const editor = editorRef.current.editor;
+      const lines = editor.getSession().getDocument().getAllLines();
+      const lineIndex = lines.findIndex((line) => line.includes(getLabelByQuestionId(scrollToString)));
+
+      if (lineIndex !== -1) {
+        editor.scrollToLine(lineIndex, true, true, () => {});
+        editor.gotoLine(lineIndex + 1, 0, true);
+        onScrollComplete();
+      }
+    }
+  }, [scrollToString, onScrollComplete, schemaString]);
 
   // Enable autocompletion in the schema
   const generateAutocompleteSuggestions = useCallback(() => {
@@ -228,6 +331,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     <div>
       {errors.length && validationOn ? <ErrorMessages /> : null}
       <AceEditor
+        ref={editorRef}
         style={{ height: '100vh', width: '100%', border: errors.length ? '3px solid #DA1E28' : 'none' }}
         mode="json"
         theme="textmate"

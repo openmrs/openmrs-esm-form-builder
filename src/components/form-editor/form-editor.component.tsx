@@ -48,6 +48,11 @@ interface MarkerProps extends IMarker {
   text: string;
 }
 
+interface SelectedQuestion {
+  questionId: string;
+  sectionLabel: string;
+}
+
 type Status = 'idle' | 'formLoaded' | 'schemaLoaded';
 
 const ErrorNotification = ({ error, title }: ErrorProps) => {
@@ -63,6 +68,7 @@ const ErrorNotification = ({ error, title }: ErrorProps) => {
 };
 
 const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
+  const [selectedQuestion, setSelectedQuestion] = useState<SelectedQuestion | null>(null);
   const defaultEnterDelayInMs = 300;
   const { formUuid } = useParams<{ formUuid: string }>();
   const { blockRenderingWithErrors, dataTypeToRenderingMap } = useConfig<ConfigObject>();
@@ -276,6 +282,12 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
 
   const responsiveSize = isMaximized ? 16 : 8;
 
+  const [scrollToString, setScrollToString] = useState<string>('');
+
+  const resetScrollToString = useCallback(() => {
+    setScrollToString('');
+  }, []);
+
   return (
     <div className={styles.container}>
       <Grid
@@ -369,6 +381,9 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                 setValidationOn={setValidationOn}
                 stringifiedSchema={stringifiedSchema}
                 validationOn={validationOn}
+                scrollToString={scrollToString}
+                onScrollComplete={resetScrollToString}
+                setSelectedQuestion={setSelectedQuestion}
               />
             </div>
           </div>
@@ -407,6 +422,8 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                   onSchemaChange={updateSchema}
                   isLoading={isLoadingFormOrSchema}
                   validationResponse={validationResponse}
+                  setScrollToString={setScrollToString}
+                  selectedQuestion={selectedQuestion}
                 />
               </TabPanel>
               <TabPanel>{form && <AuditDetails form={form} key={form.uuid} />}</TabPanel>
