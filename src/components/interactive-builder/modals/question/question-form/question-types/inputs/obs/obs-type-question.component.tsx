@@ -1,15 +1,10 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { FormLabel, InlineNotification, MultiSelect, FormGroup, Tag, Stack } from '@carbon/react';
+import React, { useCallback, useState } from 'react';
+import { FormLabel, InlineNotification, FormGroup, Stack } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
 import { useFormField } from '../../../../form-field-context';
 import type { Concept, ConceptMapping, DatePickerType } from '@types';
 import styles from './obs-type-question.scss';
-
-interface AnswerItem {
-  id: string;
-  text: string;
-}
 
 const ObsTypeQuestion: React.FC = () => {
   const { t } = useTranslation();
