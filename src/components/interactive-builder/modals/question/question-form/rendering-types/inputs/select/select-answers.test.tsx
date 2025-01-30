@@ -31,7 +31,7 @@ const concepts: Array<Concept> = [
   {
     uuid: '456',
     display: 'Concept 2',
-    datatype: { uuid: '456', name: 'Date' },
+    datatype: { uuid: '457', name: 'Date' },
     mappings: [{ display: 'CIEL:1656', conceptMapType: { display: 'SAME-AS' } }],
   },
 ];
@@ -96,18 +96,22 @@ describe('Select answers component', () => {
 
     const searchInput = screen.getByRole('searchbox', { name: /search for a backing concept/i });
     await user.click(searchInput);
-    await user.type(searchInput, 'Concept 1');
+    await user.type(searchInput, 'Concept 2');
     expect(
       screen.getByRole('searchbox', {
         name: /search for a backing concept/i,
       }),
-    ).toHaveDisplayValue(/concept 1/i);
+    ).toHaveDisplayValue(/concept 2/i);
     const additionalAnswerOption1 = screen.getByRole('menuitem', {
-      name: /concept 1/i,
+      name: /concept 2/i,
     });
     expect(additionalAnswerOption1).toBeInTheDocument();
     await user.click(additionalAnswerOption1);
-    expect(screen.getByText(/concept 1/i)).toBeInTheDocument();
+
+    expect(screen.getByTitle(/concept 2/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/total items selected: 1,to clear selection, press delete or backspace/i),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('button', {
         name: /x/i,

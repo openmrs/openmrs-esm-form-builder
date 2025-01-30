@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Tag, MultiSelect, Stack } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
@@ -14,20 +14,15 @@ interface AnswerItem {
 const SelectAnswers: React.FC = () => {
   const { t } = useTranslation();
   const { formField, concept, setFormField } = useFormField();
-  const [selectedAnswers, setSelectedAnswers] = useState<Array<AnswerItem>>(
-    formField.questionOptions?.answers
-      ? formField.questionOptions.answers.map((answer) => ({
-          id: answer.concept,
-          text: answer.label,
-        }))
-      : [],
-  );
   const [addedAnswers, setAddedAnswers] = useState<AnswerItem[]>([]);
-  const initiallySelectedAnswers = useRef(
-    formField?.questionOptions?.answers?.map((answer) => ({
-      id: answer.concept,
-      text: answer.label,
-    })),
+
+  const selectedAnswers = useMemo(
+    () =>
+      formField.questionOptions?.answers?.map((answer) => ({
+        id: answer.concept,
+        text: answer.label,
+      })) ?? [],
+    [formField.questionOptions?.answers],
   );
 
   const handleSelectAnswers = useCallback(
@@ -36,8 +31,6 @@ const SelectAnswers: React.FC = () => {
         concept: answer.id,
         label: answer.text,
       }));
-
-      setSelectedAnswers(selectedItems);
 
       setFormField((prevField) => {
         const currentAnswers = prevField.questionOptions?.answers || [];
@@ -139,7 +132,6 @@ const SelectAnswers: React.FC = () => {
           onChange={handleSelectAnswers}
           size="md"
           selectedItems={selectedAnswers}
-          initialSelectedItems={initiallySelectedAnswers}
           titleText={t('selectAnswersToDisplay', 'Select answers to display')}
         />
       )}

@@ -24,10 +24,11 @@ const RenderTypeComponent: React.FC = () => {
   const allowedRenderingTypes =
     formField.type && formField.type !== 'obs' ? renderTypeOptions[formField.type] : renderingTypes;
 
-  // Only get component if rendering type is allowed
-  const Component = allowedRenderingTypes?.includes(formField.questionOptions?.rendering)
-    ? componentMap[formField.questionOptions?.rendering]
-    : null;
+  // Only get component if rendering type is allowed. Exception is program state because selecting the states is also implemented in the SelectAnswers component
+  const Component =
+    allowedRenderingTypes?.includes(formField.questionOptions?.rendering) && formField.type !== 'programState'
+      ? componentMap[formField.questionOptions?.rendering]
+      : null;
 
   if (!Component) {
     if (formField.questionOptions?.rendering) {
