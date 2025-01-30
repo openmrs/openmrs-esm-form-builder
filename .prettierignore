@@ -9,6 +9,5 @@ yarn.lock
 
 # by file type
 **/*.css
-**/*.scss
 **/*.md
 **/*.json

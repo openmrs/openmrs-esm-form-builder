@@ -1,0 +1,35 @@
+@use '@carbon/colors';
+@use '@carbon/layout';
+
+.label {
+  margin-bottom: layout.$spacing-03;
+}
+
+.table {
+  width: 100%;
+
+  tr {
+    background-color: colors.$white-0;
+    border: 1px solid colors.$gray-20;
+  }
+
+  td,
+  th {
+    padding: layout.$spacing-02;
+    border: 1px solid colors.$gray-20;
+    max-width: layout.$spacing-13;
+    text-align: left;
+  }
+}
+
+.tableStriped {
+  @extend .table;
+
+  thead {
+    font-weight: bold;
+  }
+
+  tbody > tr:nth-child(odd) {
+    background-color: colors.$gray-10;
+  }
+}

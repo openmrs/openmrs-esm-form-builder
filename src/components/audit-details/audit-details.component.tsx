@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatDatetime, parseDate } from '@openmrs/esm-framework';
 import { StructuredListWrapper, StructuredListRow, StructuredListCell, StructuredListBody } from '@carbon/react';
-import type { EncounterType } from '../../types';
+import type { EncounterType } from '@types';
 
 interface AuditDetailsProps {
   form: FormGroupData;

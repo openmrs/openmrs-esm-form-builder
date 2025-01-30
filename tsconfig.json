@@ -12,6 +12,7 @@
       "es2016.array.include",
       "es2018",
       "es2020",
+      "es2022",
       "esnext"
     ],
     "module": "esnext",
@@ -21,7 +22,14 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "target": "es2015",
+    "baseUrl": ".",
     "paths": {
+      "__mocks__": ["./__mocks__"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@types": ["./src/types"],
+      "@tools/*": ["./tools/*"],
+      "@constants": ["./src/constants"],
+      "@resources/*": ["./src/resources/*"],
       "@openmrs/*": ["./node_modules/@openmrs/*"]
     }
   },

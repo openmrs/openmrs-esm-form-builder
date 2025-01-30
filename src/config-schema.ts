@@ -1,6 +1,6 @@
 import { Type } from '@openmrs/esm-framework';
 import { type RenderType } from '@openmrs/esm-form-engine-lib';
-import { type QuestionType } from './types';
+import type { QuestionType } from '@types';
 
 export const configSchema = {
   questionTypes: {

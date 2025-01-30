@@ -2,9 +2,9 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type FetchResponse, navigate, openmrsFetch, showModal } from '@openmrs/esm-framework';
-import { renderWithSwr, waitForLoadingToFinish } from '../../test-helpers';
-import { deleteForm } from '../../forms.resource';
 import Dashboard from './dashboard.component';
+import { renderWithSwr, waitForLoadingToFinish } from '@tools/test-helpers';
+import { deleteForm } from '@resources/forms.resource';
 
 type OpenmrsFetchResponse = Promise<
   FetchResponse<{
@@ -38,7 +38,7 @@ const formsResponse = [
   },
 ];
 
-jest.mock('../../forms.resource', () => ({
+jest.mock('@resources/forms.resource', () => ({
   deleteForm: jest.fn(),
 }));
 

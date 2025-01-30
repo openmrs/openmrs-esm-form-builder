@@ -19,13 +19,6 @@ import { ArrowLeft, Maximize, Minimize, Download } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { type TFunction, useTranslation } from 'react-i18next';
 import { ConfigurableLink, showModal, useConfig } from '@openmrs/esm-framework';
-import type { IMarker } from 'react-ace';
-import type { FormSchema } from '@openmrs/esm-form-engine-lib';
-import type { Schema } from '../../types';
-import { useClobdata } from '../../hooks/useClobdata';
-import { useForm } from '../../hooks/useForm';
-import { handleFormValidation } from '../../form-validator.resource';
-import { type ConfigObject } from '../../config-schema';
 import ActionButtons from '../action-buttons/action-buttons.component';
 import AuditDetails from '../audit-details/audit-details.component';
 import FormRenderer from '../form-renderer/form-renderer.component';
@@ -33,6 +26,13 @@ import Header from '../header/header.component';
 import InteractiveBuilder from '../interactive-builder/interactive-builder.component';
 import SchemaEditor from '../schema-editor/schema-editor.component';
 import ValidationMessage from '../validation-info/validation-info.component';
+import { handleFormValidation } from '@resources/form-validator.resource';
+import { useClobdata } from '@hooks/useClobdata';
+import { useForm } from '@hooks/useForm';
+import type { IMarker } from 'react-ace';
+import type { FormSchema } from '@openmrs/esm-form-engine-lib';
+import type { Schema } from '@types';
+import type { ConfigObject } from '../../config-schema';
 import styles from './form-editor.scss';
 
 interface ErrorProps {

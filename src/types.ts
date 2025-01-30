@@ -1,12 +1,14 @@
 import type { OpenmrsResource } from '@openmrs/esm-framework';
 import type {
   OpenmrsFormResource,
+  FormField,
   ProgramState,
   ReferencedForm,
   RenderType,
   RequiredFieldProps,
 } from '@openmrs/esm-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
+import type { questionTypes } from '@constants';
 
 export interface Form {
   uuid: string;
@@ -43,19 +45,7 @@ export interface Resource {
   valueReference: string;
 }
 
-export type QuestionType =
-  | 'complex-obs'
-  | 'control'
-  | 'encounterDatetime'
-  | 'encounterLocation'
-  | 'encounterProvider'
-  | 'encounterRole'
-  | 'obs'
-  | 'obsGroup'
-  | 'patientIdentifier'
-  | 'personAttribute'
-  | 'testOrder'
-  | 'programState';
+export type QuestionType = (typeof questionTypes)[number];
 
 export type DatePickerType = 'both' | 'calendar' | 'timer';
 
@@ -69,7 +59,7 @@ export interface Schema {
       questions: Array<{
         id: string;
         label?: string;
-        value?: any;
+        value?: string;
         type: string;
         required?: string | boolean | RequiredFieldProps;
         questionOptions: {
@@ -139,6 +129,7 @@ export interface QuestionOptions {
   conceptMappings?: Array<ConceptMapping>;
   max?: string;
   min?: string;
+  isSearchable?: boolean;
   attributeType?: string;
   calculate?: {
     calculateExpression: string;
@@ -171,7 +162,7 @@ export interface Concept {
   display: string;
   mappings: Array<Mapping>;
   datatype: OpenmrsResource;
-  answers: Array<ConceptAnswer>;
+  answers?: Array<ConceptAnswer>;
   allowDecimal?: boolean;
 }
 

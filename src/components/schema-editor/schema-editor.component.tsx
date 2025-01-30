@@ -4,12 +4,11 @@ import 'ace-builds/webpack-resolver';
 import { addCompleter } from 'ace-builds/src-noconflict/ext-language_tools';
 import type { IMarker } from 'react-ace';
 import { useTranslation } from 'react-i18next';
-import { useStandardFormSchema } from '../../hooks/useStandardFormSchema';
+import { ActionableNotification, Link } from '@carbon/react';
+import { useStandardFormSchema } from '@hooks/useStandardFormSchema';
 import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
-import { ActionableNotification, Link } from '@carbon/react';
 import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
-
 import styles from './schema-editor.scss';
 
 interface MarkerProps extends IMarker {

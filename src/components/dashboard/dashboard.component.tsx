@@ -34,15 +34,15 @@ import {
   useLayoutType,
   usePagination,
 } from '@openmrs/esm-framework';
-import type { ConfigObject } from '../../config-schema';
-import type { Form as TypedForm } from '../../types';
-import { deleteForm } from '../../forms.resource';
-import { FormBuilderPagination } from '../pagination';
-import { useClobdata } from '../../hooks/useClobdata';
-import { useForms } from '../../hooks/useForms';
 import EmptyState from '../empty-state/empty-state.component';
 import ErrorState from '../error-state/error-state.component';
 import Header from '../header/header.component';
+import { deleteForm } from '@resources/forms.resource';
+import { FormBuilderPagination } from '../pagination';
+import { useClobdata } from '@hooks/useClobdata';
+import { useForms } from '@hooks/useForms';
+import type { ConfigObject } from '../../config-schema';
+import type { Form as TypedForm } from '@types';
 import styles from './dashboard.scss';
 
 type Mutator = KeyedMutator<{

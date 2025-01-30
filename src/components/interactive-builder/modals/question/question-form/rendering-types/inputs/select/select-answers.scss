@@ -1,0 +1,25 @@
+@use '@carbon/colors';
+@use '@carbon/layout';
+
+.multiSelect {
+  :global(.cds--list-box__field--wrapper) {
+    align-items: center;
+    display: flex;
+    height: layout.$spacing-08;
+    justify-content: space-between;
+    margin-left: layout.$spacing-03;
+    width: 100%;
+  }
+}
+
+.tag {
+  margin-right: layout.$spacing-03;
+}
+
+.conceptAnswerButton {
+  margin-left: 5px;
+  color: colors.$black;
+  background: none;
+  border: none;
+  padding: 0;
+}

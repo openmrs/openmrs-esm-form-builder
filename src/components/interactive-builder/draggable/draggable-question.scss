@@ -1,0 +1,40 @@
+@use '@carbon/colors';
+@use '@carbon/layout';
+@use '@carbon/type';
+
+.buttonsContainer {
+  display: flex;
+  align-items: center;
+}
+
+.iconAndName {
+  display: flex;
+  align-items: center;
+}
+
+.questionLabel {
+  @include type.type-style('body-01');
+}
+
+.dragContainer {
+  display: flex;
+  min-height: 3rem;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.dragContainerWhenDragging {
+  @extend .dragContainer;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  background-color: rgba(255, 255, 255, 0.552);
+  transform: scale(0.75);
+}
+
+.dragIcon {
+  margin-right: 0.5rem;
+
+  :focus {
+    border: none !important;
+  }
+}
