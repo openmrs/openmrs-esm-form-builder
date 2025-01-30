@@ -418,6 +418,10 @@ const EditQuestionModal: React.FC<EditQuestionModalProps> = ({
   }, [programWorkflow, questionToEdit.questionOptions.answers]);
 
   useEffect(() => {
+    setQuestionLabel(questionToEdit.label);
+  }, [questionToEdit.label]);
+
+  useEffect(() => {
     if (questionToEdit?.questionOptions?.answers) {
       const initialAnswers = questionToEdit.questionOptions.answers.map((answer) => ({
         id: answer.concept,
