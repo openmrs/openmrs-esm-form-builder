@@ -20,7 +20,7 @@
     "coverage": "yarn test --coverage --passWithNoTests",
     "postinstall": "husky install",
     "extract-translations": "i18next 'src/**/*.component.tsx' 'src/**/*.modal.tsx' --config ./i18next-parser.config.js",
-    "ci:bump-form-engine-lib": "yarn up @openmrs/esm-form-engine-lib@next"
+    "ci:bump-form-engine-lib": "yarn up @openmrs/esm-form-engine-lib@latest"
   },
   "files": [
     "dist",
@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "@carbon/react": "~1.49.0",
-    "@openmrs/esm-form-engine-lib": "next",
+    "@openmrs/esm-form-engine-lib": "latest",
     "ajv": "^8.17.1",
     "dotenv": "^16.4.5",
     "file-loader": "^6.2.0",
