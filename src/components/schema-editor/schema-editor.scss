@@ -1,41 +1,23 @@
 @use '@carbon/colors';
+@use '@carbon/layout';
 @use '@carbon/type';
-
-.actionButtons {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin: 1rem 0;
-
-  button {
-    margin-left: 1rem
-  }
-}
-
-.errorContainer {
-  @include type.type-style("body-compact-02");
-  background-color: colors.$red-20;
-  color: colors.$red-70;
-  padding: 1.5rem;
-  margin: 1rem 0;
-}
 
 .validationErrorsContainer {
   display: flex;
-  gap: 0.5rem;
+  gap: layout.$spacing-05;
 
   :global(.cds--actionable-notification) {
     max-width: 38rem;
   }
   :global(.cds--actionable-notification__details) {
-    margin: 0 0rem 0 .8125rem !important;
+    margin: 0 0 0 0.8125rem !important;
   }
 }
 
 .pagination {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: layout.$spacing-05;
   font-size: 0.875rem;
 
   .paginationIcon {
@@ -47,9 +29,4 @@
     fill: colors.$gray-40;
     cursor: not-allowed;
   }
-}
-
-.heading {
-  @include type.type-style('heading-compact-02');
-  margin-bottom: 1rem;
 }

@@ -1,9 +1,9 @@
 @use '@carbon/colors';
 @use '@carbon/layout';
-@use "@carbon/type";
+@use '@carbon/type';
 
 .container {
-  padding: 1rem;
+  padding: layout.$spacing-05;
   background-color: colors.$gray-10;
 }
 
@@ -68,21 +68,6 @@
   }
 }
 
-.toolbar {
-  position: relative;
-  display: flex;
-  width: 100%;
-  min-height: 2rem;
-  margin-bottom: 0.5rem;
-}
-
-.emptyContainer {
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  padding: 1rem;
-}
-
 .tableContainer {
   padding: 0;
 
@@ -94,7 +79,7 @@
 
   :global(.cds--table-toolbar) {
     position: relative;
-    height: 2rem;
+    height: layout.$spacing-07;
     min-height: 0rem;
     overflow: visible;
     top: 0;
@@ -103,7 +88,6 @@
   &:global(.cds--data-table-container) {
     padding-top: 0rem;
   }
-
 }
 
 .filterContainer {
@@ -114,7 +98,7 @@
   }
 
   :global(.cds--list-box__menu-icon) {
-    height: 1rem;
+    height: layout.$spacing-05;
   }
 }
 
@@ -125,13 +109,13 @@
 .content {
   @include type.type-style('heading-compact-02');
   color: colors.$gray-70;
-  margin-bottom: 0.5rem;
+  margin-bottom: layout.$spacing-03;
 }
 
 .tileContainer {
   background-color: colors.$white-0;
   border-top: 1px solid colors.$gray-70;
-  padding: 5rem 0;
+  padding: layout.$spacing-11 0;
 }
 
 .tile {
@@ -146,16 +130,5 @@
 }
 
 .warningMessage {
-  margin: 1rem 0;
+  margin: layout.$spacing-05 0;
 }
-
-.spinner {
-  &:global(.cds--inline-loading) {
-    min-height: 1rem;
-  }
-
-  :global(.cds--inline-loading__text) {
-    font-size: unset;
-  }
-}
-

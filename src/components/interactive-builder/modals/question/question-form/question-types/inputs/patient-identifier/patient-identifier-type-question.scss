@@ -1,0 +1,9 @@
+@use '@carbon/layout';
+
+.label {
+  margin-bottom: layout.$spacing-03;
+}
+
+.loader {
+  padding: layout.$spacing-04 layout.$spacing-03;
+}

@@ -1,9 +1,9 @@
 @use '@carbon/colors';
 @use '@carbon/layout';
-@use "@carbon/type";
+@use '@carbon/type';
 
 .container {
-  padding: 1rem 2rem;
+  padding: layout.$spacing-05 layout.$spacing-07;
   display: flex;
   flex-direction: column;
 }
@@ -16,7 +16,7 @@
   max-width: 100%;
 
   :global(.cds--tabs__nav-item--selected) {
-    border-bottom: 2px solid var(--cds-border-interactive, colors.$teal-70);
+    border-bottom: layout.$spacing-01 solid var(--cds-border-interactive, colors.$teal-70);
     outline: none !important;
   }
 }
@@ -42,7 +42,7 @@
   justify-content: space-between;
 
   button {
-    margin-left: 1rem
+    margin-left: layout.$spacing-05;
   }
 }
 
@@ -66,19 +66,13 @@
   align-items: center;
 }
 
-.bottomHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .tabHeading {
   display: flex;
   align-items: center;
   @include type.type-style('heading-compact-01');
-  min-height: 2.5rem;
+  min-height: layout.$spacing-08;
   width: 100%;
-  padding: 0.75rem;
+  padding: layout.$spacing-04;
 }
 
 .backButton {
@@ -106,7 +100,7 @@
 }
 
 button {
-  padding-block-start: 0.5rem;
+  padding-block-start: layout.$spacing-03;
 }
 
 .topBtns {

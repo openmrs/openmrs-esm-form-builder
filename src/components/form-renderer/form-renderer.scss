@@ -1,10 +1,10 @@
 @use '@carbon/colors';
 @use '@carbon/layout';
-@use "@carbon/type";
+@use '@carbon/type';
 
 .container {
   background-color: colors.$white-0;
-  padding: 1rem;
+  padding: layout.$spacing-05;
   overflow-y: scroll;
   overflow-x: hidden;
   height: 95vh;
@@ -13,7 +13,7 @@
 .loadingContainer {
   @extend .container;
   background-color: colors.$gray-10;
-  margin-top: 5rem;
+  margin-top: layout.$spacing-11;
 }
 
 .loader {
@@ -30,18 +30,18 @@
   flex-flow: column wrap;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: layout.$spacing-06;
 }
 
 .errorStateTile {
   @extend .emptyStateTile;
 
   .helperText {
-    margin: 0.75rem 0;
+    margin: layout.$spacing-04 0;
   }
 
   button {
-    margin-top: 0.25rem;
+    margin-top: layout.$spacing-02;
   }
 }
 
@@ -51,7 +51,7 @@
 }
 
 .helperText {
-  margin-top: 0.5rem;
+  margin-top: layout.$spacing-03;
   @include type.type-style('body-01');
   color: colors.$gray-90;
 }

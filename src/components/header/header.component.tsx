@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Calendar, Location, UserFollow } from '@carbon/react/icons';
 import { formatDate, useSession } from '@openmrs/esm-framework';
-import Illustration from './illo.component';
+import Illustration from './illustration.component';
 import styles from './header.scss';
 
 interface HeaderProps {
