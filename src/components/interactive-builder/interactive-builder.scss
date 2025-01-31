@@ -1,4 +1,5 @@
 @use '@carbon/colors';
+@use '@carbon/layout';
 @use '@carbon/type';
 
 .container {
@@ -14,62 +15,24 @@
   }
 }
 
-.flexContainer {
-  display: flex;
-  align-items: center;
-}
-
-.helperText {
-  @include type.type-style('body-compact-01');
-  margin: 1rem 0rem;
-}
-
-.heading {
-  @include type.type-style('heading-03');
-  margin: 1rem 0rem 0.5rem;
-}
-
-.styledHeading {
-  @include type.type-style('heading-02');
-  margin: 0.5rem 0rem;
-
-  &:after {
-    content: "";
-    display: block;
-    width: 2rem;
-    padding-top: 0.188rem;
-    border-bottom: 0.375rem solid var(--brand-03);
-  }
-}
-
-.subheading {
-  @extend .heading;
-  @include type.type-style('heading-02');
-}
-
-.name {
-  @extend .heading;
-  @include type.type-style('heading-02');
-}
-
 .editableFieldsContainer {
-  margin: 1rem 0;
+  margin: layout.$spacing-05 0;
   border-bottom: 1px solid colors.$gray-20;
 }
 
 .addQuestionButton {
-  margin: 0.75rem 0;
+  margin: layout.$spacing-04 0;
 }
 
 .header {
-  margin: 2rem 0;
+  margin: layout.$spacing-07 0;
 }
 
 .explainer {
-  margin: 1rem 0.5rem;
+  margin: layout.$spacing-05 layout.$spacing-03;
 
   p {
-    margin: 1.5rem 0;
+    margin: layout.$spacing-06 0;
 
     &:first-of-type {
       @include type.type-style('heading-04');
@@ -78,42 +41,36 @@
 }
 
 .sectionExplainer {
-  margin: 1rem 0.5rem;
+  margin: layout.$spacing-05 layout.$spacing-03;
 }
 
 .startButton {
-  margin: 1rem 0;
+  margin: layout.$spacing-05 0;
 }
 
 .editorContainer {
   display: flex;
   justify-content: space-between;
-  margin: 0.25rem 0.5rem;
+  margin: layout.$spacing-02 layout.$spacing-03;
   align-items: center;
   width: 100%;
 }
 
-.buttonContainer {
-  span {
-    margin: 0rem 0.5rem;
-  }
-}
-
 .addSectionButton {
-  margin: 1rem;
+  margin: layout.$spacing-05;
 }
 
 .validationErrorMessage {
-  margin-left: 1rem;
+  margin-left: layout.$spacing-05;
   color: colors.$red-60;
-  font-size: 0.75rem;
+  font-size: layout.$spacing-03;
 }
 
 .answerErrors {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-left: 2rem;
-  margin-top: 1rem;
-  font-size: 0.75rem;
+  gap: layout.$spacing-03;
+  margin-left: layout.$spacing-06;
+  margin-top: layout.$spacing-05;
+  font-size: layout.$spacing-03;
 }

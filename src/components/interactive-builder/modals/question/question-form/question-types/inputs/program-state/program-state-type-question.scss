@@ -1,0 +1,20 @@
+@use '@carbon/layout';
+
+.label {
+  margin-bottom: layout.$spacing-03;
+}
+
+.loader {
+  padding: layout.$spacing-04 layout.$spacing-03;
+}
+
+.error {
+  width: 100%;
+  max-width: unset;
+  padding: 0;
+  margin-bottom: layout.$spacing-05;
+}
+
+.tag {
+  margin-right: layout.$spacing-03;
+}

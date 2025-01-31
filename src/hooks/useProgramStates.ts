@@ -32,20 +32,3 @@ export function useProgramWorkStates(workflowUuid: string) {
     mutateProgramStates: mutate,
   };
 }
-
-export function useProgramState(stateUuid: string) {
-  const customRepresentation = 'custom:(uuid,retired,states,concept:(uuid,display))';
-  const url = `${restBaseUrl}/workflow/${stateUuid}?v=${customRepresentation}`;
-
-  const { data, error, isLoading, mutate } = useSWR<{ data: ProgramWorkflowState }, Error>(
-    stateUuid ? url : null,
-    openmrsFetch,
-  );
-
-  return {
-    programWorkflow: data?.data ?? null,
-    programWorkflowLookupError: error,
-    isLoadingProgramWorkflow: isLoading,
-    mutateProgramWorkflow: mutate,
-  };
-}

@@ -1,7 +1,9 @@
+@use '@carbon/layout';
+
 .questionIdLabel {
   > span {
     display: inline-block;
-    margin-right: 1rem;
+    margin-right: layout.$spacing-05;
   }
 
   display: flex;

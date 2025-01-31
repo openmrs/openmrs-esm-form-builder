@@ -24,11 +24,13 @@ export const FormFieldProvider: React.FC<{
     (updatedObsGroupFormField: FormField) => {
       setFormField((prevFormField) => {
         const formFieldCopy = { ...prevFormField };
-        if (formFieldCopy.questions.length === 1 && formFieldCopy.questions[0].id === '') {
-          formFieldCopy.questions[0] = updatedObsGroupFormField;
-        } else {
-          formFieldCopy.questions.pop();
-          formFieldCopy.questions.push(updatedObsGroupFormField);
+        if (formFieldCopy.questions) {
+          if (formFieldCopy.questions?.length === 1 && formFieldCopy.questions[0].id === '') {
+            formFieldCopy.questions[0] = updatedObsGroupFormField;
+          } else {
+            formFieldCopy.questions.pop();
+            formFieldCopy.questions.push(updatedObsGroupFormField);
+          }
         }
         return formFieldCopy;
       });

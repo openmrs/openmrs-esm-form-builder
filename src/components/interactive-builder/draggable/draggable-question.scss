@@ -18,7 +18,7 @@
 
 .dragContainer {
   display: flex;
-  min-height: 3rem;
+  min-height: layout.$spacing-09;
   justify-content: space-between;
   align-items: center;
   width: 100%;
@@ -32,7 +32,7 @@
 }
 
 .dragIcon {
-  margin-right: 0.5rem;
+  margin-right: layout.$spacing-02;
 
   :focus {
     border: none !important;

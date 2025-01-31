@@ -1,7 +1,8 @@
 @use '@carbon/colors';
+@use '@carbon/layout';
 
 .droppable {
-  border: 2px solid transparent;
+  border: layout.$spacing-01 solid transparent;
 }
 
 .isOver {
