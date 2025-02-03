@@ -123,7 +123,17 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                       open={index === formField.questions.length - 1}
                       className={styles.obsGroupQuestionContent}
                     >
-                      <FormFieldProvider initialFormField={question} isObsGrouped={true}>
+                      <FormFieldProvider
+                        initialFormField={question}
+                        isObsGrouped={true}
+                        updateParentFormField={(updatedFormField) => {
+                          setFormField((prevFormField) => {
+                            const updatedQuestions = [...prevFormField.questions];
+                            updatedQuestions[index] = updatedFormField;
+                            return { ...prevFormField, questions: updatedQuestions };
+                          });
+                        }}
+                      >
                         <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
                       </FormFieldProvider>
                     </AccordionItem>

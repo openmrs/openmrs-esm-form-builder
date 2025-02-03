@@ -7,6 +7,7 @@ interface FormFieldContextType {
   setFormField: React.Dispatch<React.SetStateAction<FormField>>;
   concept: Concept;
   setConcept: React.Dispatch<React.SetStateAction<Concept>>;
+  updateParentFormField?: (updatedFormField: FormField) => void;
 }
 
 const FormFieldContext = createContext<FormFieldContextType | undefined>(undefined);
@@ -16,31 +17,33 @@ export const FormFieldProvider: React.FC<{
   initialFormField: FormField;
   isObsGrouped?: boolean;
   selectedConcept?: Concept;
-}> = ({ children, initialFormField, isObsGrouped = false, selectedConcept = null }) => {
+  updateParentFormField?: (updatedFormField: FormField) => void;
+}> = ({ children, initialFormField, isObsGrouped = false, selectedConcept = null, updateParentFormField }) => {
   const [formField, setFormField] = useState<FormField>(initialFormField);
   const [concept, setConcept] = useState<Concept | null>(selectedConcept);
 
   const updateObsGroupedQuestion = useCallback(
     (updatedObsGroupFormField: FormField) => {
       setFormField((prevFormField) => {
-        const formFieldCopy = { ...prevFormField };
-        if (formFieldCopy.questions) {
-          if (formFieldCopy.questions?.length === 1 && formFieldCopy.questions[0].id === '') {
-            formFieldCopy.questions[0] = updatedObsGroupFormField;
-          } else {
-            formFieldCopy.questions.pop();
-            formFieldCopy.questions.push(updatedObsGroupFormField);
-          }
+        const formFieldCopy = { ...updatedObsGroupFormField };
+        if (updateParentFormField) {
+          updateParentFormField(formFieldCopy);
         }
         return formFieldCopy;
       });
     },
-    [setFormField],
+    [setFormField, updateParentFormField],
   );
 
   return (
     <FormFieldContext.Provider
-      value={{ formField, setFormField: isObsGrouped ? updateObsGroupedQuestion : setFormField, concept, setConcept }}
+      value={{
+        formField,
+        setFormField: isObsGrouped ? updateObsGroupedQuestion : setFormField,
+        concept,
+        setConcept,
+        updateParentFormField,
+      }}
     >
       {children}
     </FormFieldContext.Provider>
