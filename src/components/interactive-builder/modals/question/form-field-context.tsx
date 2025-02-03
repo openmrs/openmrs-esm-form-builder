@@ -23,16 +23,42 @@ export const FormFieldProvider: React.FC<{
   const updateObsGroupedQuestion = useCallback(
     (updatedObsGroupFormField: FormField) => {
       setFormField((prevFormField) => {
-        const formFieldCopy = { ...prevFormField };
-        if (formFieldCopy.questions) {
-          if (formFieldCopy.questions?.length === 1 && formFieldCopy.questions[0].id === '') {
-            formFieldCopy.questions[0] = updatedObsGroupFormField;
-          } else {
-            formFieldCopy.questions.pop();
-            formFieldCopy.questions.push(updatedObsGroupFormField);
-          }
+        let newFormField = { ...prevFormField, ...updatedObsGroupFormField };
+
+        if (!prevFormField.questions) {
+          newFormField.questions = [updatedObsGroupFormField];
+          return newFormField;
         }
-        return formFieldCopy;
+
+        const placeholderIndex = prevFormField.questions.findIndex((q) => q.id === '');
+        if (placeholderIndex !== -1) {
+          const updatedQuestions = [...prevFormField.questions];
+          updatedQuestions[placeholderIndex] = {
+            ...updatedQuestions[placeholderIndex],
+            ...updatedObsGroupFormField,
+          };
+          newFormField.questions = updatedQuestions;
+          return newFormField;
+        }
+
+        const matchIndex = prevFormField.questions.findIndex((q) => q.id === updatedObsGroupFormField.id);
+        if (matchIndex !== -1) {
+          const updatedQuestions = [...prevFormField.questions];
+          updatedQuestions[matchIndex] = {
+            ...updatedQuestions[matchIndex],
+            ...updatedObsGroupFormField,
+          };
+          newFormField.questions = updatedQuestions;
+          return newFormField;
+        }
+
+        const updatedQuestions = [...prevFormField.questions];
+        updatedQuestions[updatedQuestions.length - 1] = {
+          ...updatedQuestions[updatedQuestions.length - 1],
+          ...updatedObsGroupFormField,
+        };
+        newFormField.questions = updatedQuestions;
+        return newFormField;
       });
     },
     [setFormField],
@@ -40,7 +66,12 @@ export const FormFieldProvider: React.FC<{
 
   return (
     <FormFieldContext.Provider
-      value={{ formField, setFormField: isObsGrouped ? updateObsGroupedQuestion : setFormField, concept, setConcept }}
+      value={{
+        formField,
+        setFormField: isObsGrouped ? updateObsGroupedQuestion : setFormField,
+        concept,
+        setConcept,
+      }}
     >
       {children}
     </FormFieldContext.Provider>
