@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useRef } from 'react';
 import { Tag, MultiSelect, Stack } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
@@ -16,6 +16,9 @@ const SelectAnswers: React.FC = () => {
   const { formField, concept, setFormField } = useFormField();
   const [addedAnswers, setAddedAnswers] = useState<AnswerItem[]>([]);
 
+  // Storing the initial answers
+  const initialAnswers = useRef(formField.questionOptions?.answers ?? []);
+
   const selectedAnswers = useMemo(
     () =>
       formField.questionOptions?.answers?.map((answer) => ({
@@ -27,7 +30,8 @@ const SelectAnswers: React.FC = () => {
 
   const handleSelectAnswers = useCallback(
     ({ selectedItems }: { selectedItems: Array<AnswerItem> }) => {
-      const mappedAnswers = selectedItems.map((answer) => ({
+      const mappedAnswers = selectedItems.filter((item) => item.id !== 'select-all')
+        .map((answer) => ({
         concept: answer.id,
         label: answer.text,
       }));
@@ -97,14 +101,17 @@ const SelectAnswers: React.FC = () => {
         text: answer.display,
       })) ?? [];
 
-    const formFieldAnswers = formField.questionOptions?.answers ?? [];
+    const formFieldAnswers = initialAnswers.current;
 
     // If no answers from concept but we have form field answers, use those
     if (conceptAnswerItems.length === 0 && formFieldAnswers.length > 0) {
-      return formFieldAnswers.map((answer) => ({
-        id: answer.concept,
-        text: answer.label,
-      }));
+      return [
+        { id: 'select-all', text: 'Select All', isSelectAll: true },
+        ...formFieldAnswers.map((answer) => ({
+          id: answer.concept,
+          text: answer.label,
+        })),
+      ];
     }
 
     // Merge concept answers with any additional form field answers
