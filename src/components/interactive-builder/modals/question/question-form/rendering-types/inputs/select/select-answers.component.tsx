@@ -16,7 +16,7 @@ const SelectAnswers: React.FC = () => {
   const { formField, concept, setFormField } = useFormField();
   const [addedAnswers, setAddedAnswers] = useState<AnswerItem[]>([]);
 
-  // Storing the initial answers
+  // Storing the initial questionOptions answers
   const initialAnswers = useRef(formField.questionOptions?.answers ?? []);
 
   const selectedAnswers = useMemo(
