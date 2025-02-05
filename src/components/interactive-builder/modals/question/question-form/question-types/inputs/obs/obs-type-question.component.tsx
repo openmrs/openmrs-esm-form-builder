@@ -8,7 +8,7 @@ import styles from './obs-type-question.scss';
 
 const ObsTypeQuestion: React.FC = () => {
   const { t } = useTranslation();
-  const { formField, setFormField, concept, setConcept } = useFormField();
+  const { formField, setFormField, concept, setConcept, isObsGrouped } = useFormField();
   const [conceptMappings, setConceptMappings] = useState<Array<ConceptMapping>>([]);
 
   const getDatePickerType = useCallback((concept: Concept): DatePickerType | null => {
@@ -30,14 +30,24 @@ const ObsTypeQuestion: React.FC = () => {
       setConcept(selectedConcept);
       if (selectedConcept) {
         const datePickerType = getDatePickerType(selectedConcept);
-        setFormField((prevField) => ({
-          ...prevField,
-          questionOptions: {
-            ...prevField.questionOptions,
-            concept: selectedConcept.uuid,
-          },
-          ...(datePickerType && { datePickerFormat: datePickerType }),
-        }));
+        setFormField(
+          isObsGrouped
+            ? {
+                ...formField,
+                questionOptions: {
+                  ...formField.questionOptions,
+                  concept: selectedConcept.uuid,
+                },
+              }
+            : (prevField) => ({
+                ...prevField,
+                questionOptions: {
+                  ...prevField.questionOptions,
+                  concept: selectedConcept.uuid,
+                },
+                ...(datePickerType && { datePickerFormat: datePickerType }),
+              }),
+        );
         setConceptMappings(
           selectedConcept?.mappings?.map((conceptMapping) => {
             const data = conceptMapping.display.split(': ');
@@ -50,7 +60,7 @@ const ObsTypeQuestion: React.FC = () => {
         );
       }
     },
-    [getDatePickerType, setFormField, setConcept],
+    [getDatePickerType, setFormField, setConcept, isObsGrouped, formField],
   );
 
   const clearSelectedConcept = useCallback(() => {

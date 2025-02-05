@@ -8,6 +8,7 @@ interface FormFieldContextType {
   concept: Concept;
   setConcept: React.Dispatch<React.SetStateAction<Concept>>;
   updateParentFormField?: (updatedFormField: FormField) => void;
+  isObsGrouped?: boolean;
 }
 
 const FormFieldContext = createContext<FormFieldContextType | undefined>(undefined);
@@ -43,6 +44,7 @@ export const FormFieldProvider: React.FC<{
         concept,
         setConcept,
         updateParentFormField,
+        isObsGrouped,
       }}
     >
       {children}
