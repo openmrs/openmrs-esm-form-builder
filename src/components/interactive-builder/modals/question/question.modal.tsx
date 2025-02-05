@@ -101,6 +101,16 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
     }
     closeModal();
   };
+  const handleUpdateParentFormField = useCallback(
+    (updatedFormField: FormField, index: number) => {
+      setFormField((prevFormField) => {
+        const updatedQuestions = [...prevFormField.questions];
+        updatedQuestions[index] = updatedFormField;
+        return { ...prevFormField, questions: updatedQuestions };
+      });
+    },
+    [setFormField],
+  );
 
   return (
     <>
@@ -126,13 +136,9 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                       <FormFieldProvider
                         initialFormField={question}
                         isObsGrouped={true}
-                        updateParentFormField={(updatedFormField) => {
-                          setFormField((prevFormField) => {
-                            const updatedQuestions = [...prevFormField.questions];
-                            updatedQuestions[index] = updatedFormField;
-                            return { ...prevFormField, questions: updatedQuestions };
-                          });
-                        }}
+                        updateParentFormField={(updatedFormField) =>
+                          handleUpdateParentFormField(updatedFormField, index)
+                        }
                       >
                         <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
                       </FormFieldProvider>
