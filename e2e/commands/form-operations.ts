@@ -1,7 +1,7 @@
 import type { APIRequestContext } from '@playwright/test';
 import { expect } from '@playwright/test';
 import customSchema from '../support/custom-schema.json';
-import type { Form } from '../../src/types';
+import type { Form } from '@types';
 
 export const createForm = async (api: APIRequestContext, isFormPublished: boolean) => {
   const formResponse = await api.post('form', {

@@ -36,6 +36,7 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
                     },
                   ],
                 },
+                validators: [],
               },
             ],
           },
@@ -92,8 +93,8 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
   });
 
   await test.step('And then I click on `Save`', async () => {
-    await expect(formBuilderPage.savePageButton()).toBeEnabled();
-    await formBuilderPage.savePageButton().click();
+    await expect(formBuilderPage.saveButton()).toBeEnabled();
+    await formBuilderPage.saveButton().click();
     await expect(formBuilderPage.page.getByText(/new page created/i)).toBeVisible();
     expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toEqual({
       ...formDetails,
@@ -115,8 +116,8 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
   });
 
   await test.step('And then I click on `Save`', async () => {
-    await expect(formBuilderPage.saveQuestionButton()).toBeEnabled();
-    await formBuilderPage.saveSectionButton().click();
+    await expect(formBuilderPage.saveButton()).toBeEnabled();
+    await formBuilderPage.saveButton().click();
     await expect(formBuilderPage.page.getByText(/new section created/i)).toBeVisible();
     expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toEqual({
       ...formDetails,
@@ -180,8 +181,8 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
   });
 
   await test.step('And then I click on `Save`', async () => {
-    await expect(formBuilderPage.saveQuestionButton()).toBeEnabled();
-    await formBuilderPage.saveQuestionButton().click();
+    await expect(formBuilderPage.saveButton()).toBeEnabled();
+    await formBuilderPage.saveButton().click();
     await expect(formBuilderPage.page.getByText(/new question created/i)).toBeVisible();
   });
 
@@ -226,6 +227,123 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
     await page.waitForURL(editFormPageURLRegex);
     const editFormPageURL = page.url();
     formUuid = editFormPageURL.split('/').slice(-1)[0];
+  });
+
+  await test.step('Then I click the `Edit` button on the form name I need to edit', async () => {
+    await formBuilderPage.editFormButton().click();
+  });
+
+  await test.step('And then I fill in the updated form name', async () => {
+    await formBuilderPage.editFormNameInput().click();
+    await formBuilderPage.editFormNameInput().fill('An edited form');
+  });
+
+  await test.step('And then I click the `save` button', async () => {
+    await formBuilderPage.saveButton().click();
+  });
+
+  await test.step('Then I should get a success message and the form name should be renamed', async () => {
+    await expect(formBuilderPage.page.getByText(/form renamed/i)).toBeVisible();
+    await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited form/i })).toBeVisible();
+  });
+
+  await test.step('Then I click the `Edit` button on the page I need to edit', async () => {
+    await formBuilderPage.editPageButton().click();
+  });
+
+  await test.step('And then I fill in the updated page name', async () => {
+    await formBuilderPage.editPageNameInput().fill('An edited page');
+  });
+
+  await test.step('Then I click the `Save` button', async () => {
+    await formBuilderPage.saveButton().click();
+  });
+
+  await test.step('Then I should get a success message and the page name should be renamed', async () => {
+    await expect(formBuilderPage.page.getByText(/page renamed/i)).toBeVisible();
+    await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited page/i })).toBeVisible();
+  });
+
+  await test.step('Then I click the `Edit` button on the section I need to edit', async () => {
+    await formBuilderPage.editSectionButton().click();
+  });
+
+  await test.step('And then I fill in the updated section name', async () => {
+    await formBuilderPage.editSectionNameInput().fill('An edited section');
+  });
+
+  await test.step('Then I click the `Save` button', async () => {
+    await formBuilderPage.saveButton().click();
+  });
+
+  await test.step('Then I should get a success message and the section name should be renamed', async () => {
+    await expect(formBuilderPage.page.getByText(/section renamed/i)).toBeVisible();
+    await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited section/i })).toBeVisible();
+  });
+
+  await test.step('Then I click the `Edit` button on the question I need to edit', async () => {
+    await formBuilderPage.editQuestionButton().click();
+  });
+
+  await test.step('And then I type in the updated question label', async () => {
+    await formBuilderPage.questionLabelInput().fill('An edited question label');
+  });
+
+  await test.step('Then I click the `Save` button', async () => {
+    await formBuilderPage.saveButton().click();
+  });
+
+  await test.step('Then I should get a success message and the question name should be renamed', async () => {
+    await expect(formBuilderPage.page.getByText(/question edited/i)).toBeVisible();
+    await expect(formBuilderPage.page.locator('p').getByText(/an edited question label/i)).toBeVisible();
+  });
+
+  await test.step('Then I click the `Duplicate` button on the question I need to duplicate', async () => {
+    await formBuilderPage.duplicateQuestionButton().click();
+  });
+
+  await test.step('Then I should get a success message and a duplicate quesion should be added', async () => {
+    await expect(formBuilderPage.page.getByText(/question duplicated/i)).toBeVisible();
+    await expect(formBuilderPage.page.locator('p').getByText(/an edited question label/i)).toHaveCount(2);
+  });
+
+  await test.step('Then I click the `Delete` button on the question I need to delete', async () => {
+    await formBuilderPage.deleteQuestionButton().click();
+  });
+
+  await test.step('And then I click the `Delete` button on the modal', async () => {
+    await formBuilderPage.page.getByRole('button', { name: /danger delete question/i }).click();
+  });
+
+  await test.step('Then I should get a success message and a question should be deleted', async () => {
+    await expect(formBuilderPage.page.getByText(/question deleted/i)).toBeVisible();
+    await expect(formBuilderPage.page.locator('p').getByText(/an edited question label/i)).toHaveCount(1);
+  });
+
+  await test.step('Then I click the `Delete` button on the section I need to delete', async () => {
+    await formBuilderPage.deleteSectionButton().click();
+  });
+
+  await test.step('And then I click the `Delete` button on the modal', async () => {
+    await formBuilderPage.page.getByRole('button', { name: /danger delete section/i }).click();
+  });
+
+  await test.step('Then I should get a success message and the section should be deleted', async () => {
+    await expect(formBuilderPage.page.getByText(/section deleted/i)).toBeVisible();
+    await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited section/i })).toHaveCount(0);
+  });
+
+  await test.step('Then I click the `Delete` button on the page I need to delete', async () => {
+    await formBuilderPage.deletePageButton().click();
+  });
+
+  await test.step('And then I click the `Delete` button on the modal', async () => {
+    await formBuilderPage.page.getByRole('button', { name: /danger delete page/i }).click();
+  });
+
+  await test.step('Then I should get a success message and the page should be deleted', async () => {
+    await expect(formBuilderPage.page.getByText(/page deleted/i)).toBeVisible();
+    await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited page/i })).toHaveCount(0);
   });
 });
 
