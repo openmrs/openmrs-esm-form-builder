@@ -4,9 +4,11 @@ import type { Concept } from '@types';
 
 interface FormFieldContextType {
   formField: FormField;
-  setFormField: React.Dispatch<React.SetStateAction<FormField>>;
+  setFormField: (value: FormField | ((prev: FormField) => FormField)) => void;
   concept: Concept;
   setConcept: React.Dispatch<React.SetStateAction<Concept>>;
+  updateParentFormField?: (updatedFormField: FormField) => void;
+  isObsGrouped?: boolean;
 }
 
 const FormFieldContext = createContext<FormFieldContextType | undefined>(undefined);
@@ -16,31 +18,34 @@ export const FormFieldProvider: React.FC<{
   initialFormField: FormField;
   isObsGrouped?: boolean;
   selectedConcept?: Concept;
-}> = ({ children, initialFormField, isObsGrouped = false, selectedConcept = null }) => {
-  const [formField, setFormField] = useState<FormField>(initialFormField);
+  updateParentFormField?: (updatedFormField: FormField) => void;
+}> = ({ children, initialFormField, isObsGrouped = false, selectedConcept = null, updateParentFormField }) => {
+  const [formField, setFormFieldInternal] = useState<FormField>(initialFormField);
   const [concept, setConcept] = useState<Concept | null>(selectedConcept);
 
-  const updateObsGroupedQuestion = useCallback(
-    (updatedObsGroupFormField: FormField) => {
-      setFormField((prevFormField) => {
-        const formFieldCopy = { ...prevFormField };
-        if (formFieldCopy.questions) {
-          if (formFieldCopy.questions?.length === 1 && formFieldCopy.questions[0].id === '') {
-            formFieldCopy.questions[0] = updatedObsGroupFormField;
-          } else {
-            formFieldCopy.questions.pop();
-            formFieldCopy.questions.push(updatedObsGroupFormField);
-          }
-        }
-        return formFieldCopy;
-      });
+  const setFormField = useCallback(
+    (valueOrUpdater: FormField | ((prev: FormField) => FormField)) => {
+      if (isObsGrouped) {
+        const newValue = typeof valueOrUpdater === 'function' ? valueOrUpdater(formField) : valueOrUpdater;
+        setFormFieldInternal(newValue);
+        updateParentFormField?.(newValue);
+      } else {
+        setFormFieldInternal(valueOrUpdater);
+      }
     },
-    [setFormField],
+    [isObsGrouped, updateParentFormField, formField],
   );
 
   return (
     <FormFieldContext.Provider
-      value={{ formField, setFormField: isObsGrouped ? updateObsGroupedQuestion : setFormField, concept, setConcept }}
+      value={{
+        formField,
+        setFormField,
+        concept,
+        setConcept,
+        updateParentFormField,
+        isObsGrouped,
+      }}
     >
       {children}
     </FormFieldContext.Provider>
