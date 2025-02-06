@@ -4,8 +4,16 @@ import { render, screen } from '@testing-library/react';
 import { useConceptId } from '@hooks/useConceptId';
 import { useConceptLookup } from '@hooks/useConceptLookup';
 import ConceptSearch from './concept-search.component';
+import type { FormField } from '@openmrs/esm-form-engine-lib';
 import type { Concept } from '@types';
 
+const formField: FormField = {
+  id: '1',
+  type: 'obs',
+  questionOptions: {
+    rendering: 'text',
+  },
+};
 const concepts: Array<Concept> = [
   {
     uuid: '123',
@@ -35,6 +43,12 @@ jest.mock('@hooks/useConceptId', () => ({
   useConceptId: jest.fn(),
 }));
 const onSelectConcept = jest.fn();
+const mockSetFormField = jest.fn();
+const setConcept = jest.fn();
+jest.mock('../../../form-field-context', () => ({
+  ...jest.requireActual('../../../form-field-context'),
+  useFormField: () => ({ formField, setFormField: mockSetFormField, setConcept }),
+}));
 
 describe('Concept search component', () => {
   beforeEach(() => {

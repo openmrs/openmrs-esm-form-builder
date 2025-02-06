@@ -7,6 +7,7 @@ import { useConceptLookup } from '@hooks/useConceptLookup';
 import { useDebounce } from '@openmrs/esm-framework';
 import type { Concept } from '@types';
 import styles from './concept-search.scss';
+import { useFormField } from '../../../form-field-context';
 
 interface ConceptSearchProps {
   label?: TFunction;
@@ -22,6 +23,7 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
   onSelectConcept,
 }) => {
   const { t } = useTranslation();
+  const { setConcept } = useFormField();
   const [conceptToLookup, setConceptToLookup] = useState('');
   const debouncedConceptToLookup = useDebounce(conceptToLookup);
   const { concepts, conceptLookupError, isLoadingConcepts } = useConceptLookup(debouncedConceptToLookup);
@@ -30,15 +32,14 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
     conceptName,
     conceptNameLookupError,
     isLoadingConcept,
-  } = useConceptId(defaultConcept ?? '');
-  const [selectedConcept, setSelectedConcept] = useState<Concept>(null);
+  } = useConceptId(defaultConcept);
+  const [selectedConcept, setSelectedConcept] = useState<Concept>(initialConcept);
 
   useEffect(() => {
     if (initialConcept) {
-      setSelectedConcept(initialConcept);
-      onSelectConcept(initialConcept);
+      setConcept(initialConcept);
     }
-  }, [initialConcept, onSelectConcept]);
+  }, [initialConcept, setConcept]);
 
   const handleConceptChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => setConceptToLookup(event.target.value),
@@ -48,16 +49,19 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
   const handleConceptSelect = useCallback(
     (concept: Concept) => {
       setConceptToLookup('');
+      setConcept(concept);
       setSelectedConcept(concept);
       onSelectConcept(concept);
     },
-    [onSelectConcept],
+    [onSelectConcept, setConcept],
   );
 
   const clearSelectedConcept = useCallback(() => {
     setSelectedConcept(null);
+    setConceptToLookup('');
+    setConcept(null);
     if (onClearSelectedConcept) onClearSelectedConcept();
-  }, [onClearSelectedConcept]);
+  }, [onClearSelectedConcept, setConcept]);
 
   return (
     <>
