@@ -64,13 +64,24 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
     const emptyQuestion: FormField = {
       type: '',
       questionOptions: undefined,
-      id: '',
+      id: '', // new question without an id initially
     };
     setFormField((prevFormField) => ({
       ...prevFormField,
       questions: prevFormField.questions ? [...prevFormField.questions, emptyQuestion] : [emptyQuestion],
     }));
   }, [setFormField]);
+
+  // Updated deletion: filter out the question by its id.
+  const deleteObsGroupQuestion = useCallback(
+    (id: string) => {
+      setFormField((prevFormField) => ({
+        ...prevFormField,
+        questions: prevFormField.questions?.filter((q) => q.id !== id) || [],
+      }));
+    },
+    [setFormField],
+  );
 
   const saveQuestion = () => {
     try {
@@ -129,7 +140,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                 <Accordion size="lg">
                   {formField.questions.map((question, index) => (
                     <AccordionItem
-                      key={index}
+                      key={question.id || index}
                       title={question.label ?? `Question ${index + 1}`}
                       open={index === formField.questions.length - 1}
                       className={styles.obsGroupQuestionContent}
@@ -142,6 +153,13 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                         }
                       >
                         <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
+                        <Button
+                          kind="danger"
+                          onClick={() => deleteObsGroupQuestion(question.id)}
+                          className={styles.deleteObsGroupQuestionButton}
+                        >
+                          {t('deleteQuestion', 'Delete')}
+                        </Button>
                       </FormFieldProvider>
                     </AccordionItem>
                   ))}
