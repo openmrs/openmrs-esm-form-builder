@@ -41,7 +41,14 @@ describe('Date Component', () => {
     const calendarRadioButton = screen.getByRole('radio', { name: /calendar only/i });
     await user.click(calendarRadioButton);
 
-    expect(mockSetFormField).toHaveBeenCalledWith({
+    // Gets all calls made to our mock function, the arguments from the first call and the first argument of the first call
+    const updateFn = mockSetFormField.mock.calls[0][0];
+
+    // Execute the update function with the previous state
+    const resultState = updateFn(formField);
+
+    // Check that the result has the expected values
+    expect(resultState).toEqual({
       ...formField,
       datePickerFormat: 'calendar',
     });

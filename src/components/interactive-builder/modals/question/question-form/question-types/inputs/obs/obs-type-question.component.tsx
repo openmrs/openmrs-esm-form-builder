@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { FormLabel, InlineNotification, FormGroup, Stack } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
@@ -8,8 +8,7 @@ import styles from './obs-type-question.scss';
 
 const ObsTypeQuestion: React.FC = () => {
   const { t } = useTranslation();
-  const { formField, setFormField, concept, setConcept, isObsGrouped } = useFormField();
-  const [conceptMappings, setConceptMappings] = useState<Array<ConceptMapping>>([]);
+  const { formField, setFormField, concept } = useFormField();
 
   const getDatePickerType = useCallback((concept: Concept): DatePickerType | null => {
     const conceptDataType = concept.datatype.name;
@@ -27,46 +26,22 @@ const ObsTypeQuestion: React.FC = () => {
 
   const handleConceptSelect = useCallback(
     (selectedConcept: Concept) => {
-      setConcept(selectedConcept);
       if (selectedConcept) {
         const datePickerType = getDatePickerType(selectedConcept);
-        setFormField(
-          isObsGrouped
-            ? {
-                ...formField,
-                questionOptions: {
-                  ...formField.questionOptions,
-                  concept: selectedConcept.uuid,
-                },
-              }
-            : (prevField) => ({
-                ...prevField,
-                questionOptions: {
-                  ...prevField.questionOptions,
-                  concept: selectedConcept.uuid,
-                },
-                ...(datePickerType && { datePickerFormat: datePickerType }),
-              }),
-        );
-        setConceptMappings(
-          selectedConcept?.mappings?.map((conceptMapping) => {
-            const data = conceptMapping.display.split(': ');
-            return {
-              relationship: conceptMapping.conceptMapType.display,
-              type: data[0],
-              value: data[1],
-            };
-          }),
-        );
+        setFormField((prevField) => ({
+          ...prevField,
+          questionOptions: {
+            ...prevField.questionOptions,
+            concept: selectedConcept.uuid,
+          },
+          ...(datePickerType && { datePickerFormat: datePickerType }),
+        }));
       }
     },
-    [getDatePickerType, setFormField, setConcept, isObsGrouped, formField],
+    [getDatePickerType, setFormField],
   );
 
   const clearSelectedConcept = useCallback(() => {
-    setConcept(null);
-    setConceptMappings([]);
-
     setFormField((prevFormField) => {
       const updatedFormField = { ...prevFormField };
       if (updatedFormField.questionOptions) {
@@ -78,7 +53,21 @@ const ObsTypeQuestion: React.FC = () => {
       }
       return updatedFormField;
     });
-  }, [setFormField, setConcept]);
+  }, [setFormField]);
+
+  const conceptMappings: ConceptMapping[] = useMemo(() => {
+    if (concept && concept.mappings) {
+      return concept.mappings.map((conceptMapping) => {
+        const data = conceptMapping.display.split(': ');
+        return {
+          relationship: conceptMapping.conceptMapType.display,
+          type: data[0],
+          value: data[1],
+        };
+      });
+    }
+    return [];
+  }, [concept]);
 
   return (
     <Stack gap={5}>
@@ -96,7 +85,7 @@ const ObsTypeQuestion: React.FC = () => {
         />
       )}
 
-      {conceptMappings?.length ? (
+      {conceptMappings.length > 0 && (
         <FormGroup>
           <FormLabel className={styles.label}>{t('mappings', 'Mappings')}</FormLabel>
           <table className={styles.tableStriped}>
@@ -118,7 +107,7 @@ const ObsTypeQuestion: React.FC = () => {
             </tbody>
           </table>
         </FormGroup>
-      ) : null}
+      )}
     </Stack>
   );
 };

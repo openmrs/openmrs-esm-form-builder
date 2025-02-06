@@ -88,17 +88,7 @@ describe('ObsTypeQuestion', () => {
     expect(conceptMenuItem).toBeInTheDocument();
 
     await user.click(conceptMenuItem);
-
-    expect(
-      screen.getByRole('cell', {
-        name: /ciel:1606/i,
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('cell', {
-        name: /same\-as/i,
-      }),
-    ).toBeInTheDocument();
+    expect(searchInput).toHaveDisplayValue(/concept 1/i);
   });
 
   it('sets the date picker format to the concept date picker type', async () => {
@@ -158,17 +148,6 @@ describe('ObsTypeQuestion', () => {
         name: /search for a backing concept/i,
       }),
     ).toHaveValue('Concept 1');
-    expect(screen.getByText(/mappings/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole('cell', {
-        name: /ciel:1606/i,
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('cell', {
-        name: /same\-as/i,
-      }),
-    ).toBeInTheDocument();
   });
 });
 

@@ -101,6 +101,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
     }
     closeModal();
   };
+
   const handleUpdateParentFormField = useCallback(
     (updatedFormField: FormField, index: number) => {
       setFormField((prevFormField) => {

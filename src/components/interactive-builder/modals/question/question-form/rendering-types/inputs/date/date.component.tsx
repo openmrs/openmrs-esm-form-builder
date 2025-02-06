@@ -16,10 +16,14 @@ const Date: React.FC = () => {
 
   const handleDatePickerTypeChange = useCallback(
     (type: DatePickerTypeOption) => {
-      setFormField({ ...formField, datePickerFormat: type.value });
+      setFormField((prevField) => ({
+        ...prevField,
+        datePickerFormat: type.value,
+      }));
     },
-    [formField, setFormField],
+    [setFormField],
   );
+
   return (
     <RadioButtonGroup name="datePickerType" legendText={t('datePickerType', 'The type of date picker to show ')}>
       {Object.values(datePickerTypeOptions)
