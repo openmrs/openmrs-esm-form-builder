@@ -114,7 +114,7 @@ describe('Select answers component', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', {
-        name: /x/i,
+        name: /clear all selected items/i,
       }),
     ).toBeInTheDocument();
   });
