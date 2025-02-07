@@ -64,7 +64,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
     const emptyQuestion: FormField = {
       type: '',
       questionOptions: undefined,
-      id: '', // new question without an id initially
+      id: '',
     };
     setFormField((prevFormField) => ({
       ...prevFormField,
@@ -72,12 +72,11 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
     }));
   }, [setFormField]);
 
-  // Updated deletion: filter out the question by its id.
   const deleteObsGroupQuestion = useCallback(
-    (id: string) => {
+    (index: number) => {
       setFormField((prevFormField) => ({
         ...prevFormField,
-        questions: prevFormField.questions?.filter((q) => q.id !== id) || [],
+        questions: prevFormField.questions?.filter((_, i) => i !== index) || [],
       }));
     },
     [setFormField],
@@ -140,9 +139,9 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                 <Accordion size="lg">
                   {formField.questions.map((question, index) => (
                     <AccordionItem
-                      key={question.id || index}
+                      key={question.id || `Question ${index + 1}`}
                       title={question.label ?? `Question ${index + 1}`}
-                      open={index === formField.questions.length - 1}
+                      open={index === formField.questions?.length - 1}
                       className={styles.obsGroupQuestionContent}
                     >
                       <FormFieldProvider
@@ -155,10 +154,10 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                         <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
                         <Button
                           kind="danger"
-                          onClick={() => deleteObsGroupQuestion(question.id)}
+                          onClick={() => deleteObsGroupQuestion(index)}
                           className={styles.deleteObsGroupQuestionButton}
                         >
-                          {t('deleteQuestion', 'Delete')}
+                          {t('deleteQuestion', 'Delete question')}
                         </Button>
                       </FormFieldProvider>
                     </AccordionItem>
