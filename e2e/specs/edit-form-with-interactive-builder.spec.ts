@@ -120,7 +120,7 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   });
 
   await test.step('Then I should get a success message and the question name should be renamed', async () => {
-    await expect(formBuilderPage.page.getByText(/question edited/i)).toBeVisible();
+    await expect(formBuilderPage.page.getByText(/question updated/i)).toBeVisible();
     await expect(formBuilderPage.page.locator('p').getByText(/an edited question label/i)).toBeVisible();
 
     expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toMatchObject({

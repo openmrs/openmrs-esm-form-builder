@@ -36,7 +36,6 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
                     },
                   ],
                 },
-                validators: [],
               },
             ],
           },
@@ -78,10 +77,9 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
     await expect(formBuilderPage.createFormButton()).toBeEnabled();
     await formBuilderPage.createFormButton().click();
     await expect(formBuilderPage.page.getByText(/form created/i)).toBeVisible();
-    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toEqual({
-      ...formDetails,
-      pages: [],
-    });
+    await expect(formBuilderPage.schemaEditorContent()).toHaveText(/^{/, { timeout: 5000 });
+    const schemaText = await formBuilderPage.schemaEditorContent().textContent();
+    expect(JSON.parse(schemaText!)).toEqual({ ...formDetails, pages: [] });
   });
 
   await test.step('And then I click on `Create a new page`', async () => {

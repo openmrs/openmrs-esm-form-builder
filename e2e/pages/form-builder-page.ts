@@ -50,7 +50,7 @@ export class FormBuilderPage {
   readonly editQuestionButton = () => this.page.getByRole('button', { name: /edit question/i });
   readonly duplicateQuestionButton = () => this.page.getByRole('button', { name: /duplicate question/i });
   readonly deleteQuestionButton = () => this.page.getByRole('button', { name: /delete question/i }).nth(0);
-  readonly questionLabelInput = () => this.page.getByRole('textbox', { name: /label/i });
+  readonly questionLabelInput = () => this.page.locator('#questionLabel');
   readonly questionTypeDropdown = () =>
     this.page.getByRole('combobox', {
       name: /question type/i,
