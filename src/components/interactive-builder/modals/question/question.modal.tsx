@@ -72,6 +72,16 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
     }));
   }, [setFormField]);
 
+  const deleteObsGroupQuestion = useCallback(
+    (index: number) => {
+      setFormField((prevFormField) => ({
+        ...prevFormField,
+        questions: prevFormField.questions?.filter((_, i) => i !== index) || [],
+      }));
+    },
+    [setFormField],
+  );
+
   const saveQuestion = () => {
     try {
       if (formFieldProp) {
@@ -129,9 +139,9 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                 <Accordion size="lg">
                   {formField.questions.map((question, index) => (
                     <AccordionItem
-                      key={index}
+                      key={question.id || `Question ${index + 1}`}
                       title={question.label ?? `Question ${index + 1}`}
-                      open={index === formField.questions.length - 1}
+                      open={index === formField.questions?.length - 1}
                       className={styles.obsGroupQuestionContent}
                     >
                       <FormFieldProvider
@@ -142,6 +152,13 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                         }
                       >
                         <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
+                        <Button
+                          kind="danger"
+                          onClick={() => deleteObsGroupQuestion(index)}
+                          className={styles.deleteObsGroupQuestionButton}
+                        >
+                          {t('deleteQuestion', 'Delete question')}
+                        </Button>
                       </FormFieldProvider>
                     </AccordionItem>
                   ))}
