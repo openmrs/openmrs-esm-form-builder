@@ -13,6 +13,37 @@ test.beforeEach(async ({ api }) => {
 
 test('Edit a form using the interactive builder', async ({ page, context }) => {
   const formBuilderPage = new FormBuilderPage(page);
+  const formDetails = {
+    encounterType: 'e22e39fd-7db2-45e7-80f1-60fa0d5a4378',
+    name: 'UI Select Form Test',
+    pages: [
+      {
+        label: 'UI Select Test',
+        sections: [
+          {
+            label: 'Visit Details',
+            isExpanded: 'true',
+            questions: [
+              {
+                label: 'Select Provider',
+                type: 'obs',
+                questionOptions: {
+                  rendering: 'text',
+                  concept: 'a-system-defined-concept-uuid',
+                },
+                id: 'sampleQuestion',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    processor: 'EncounterFormProcessor',
+    referencedForms: [],
+    uuid: 'xxx',
+    version: '1',
+    description: 'This is test description',
+  };
 
   await test.step('When I visit the form builder', async () => {
     await formBuilderPage.gotoFormBuilder();
@@ -46,7 +77,8 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   await test.step('Then I should get a success message and the form name should be renamed', async () => {
     await expect(formBuilderPage.page.getByText(/form renamed/i)).toBeVisible();
     await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited form/i })).toBeVisible();
-    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toMatchObject({
+    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toEqual({
+      ...formDetails,
       name: 'An edited form',
     });
   });
@@ -66,10 +98,29 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   await test.step('Then I should get a success message and the page name should be renamed', async () => {
     await expect(formBuilderPage.page.getByText(/page renamed/i)).toBeVisible();
     await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited page/i })).toBeVisible();
-    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toMatchObject({
+    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toEqual({
+      ...formDetails,
+      name: 'An edited form',
       pages: [
         {
           label: 'An edited page',
+          sections: [
+            {
+              label: 'Visit Details',
+              isExpanded: 'true',
+              questions: [
+                {
+                  label: 'Select Provider',
+                  type: 'obs',
+                  questionOptions: {
+                    rendering: 'text',
+                    concept: 'a-system-defined-concept-uuid',
+                  },
+                  id: 'sampleQuestion',
+                },
+              ],
+            },
+          ],
         },
       ],
     });
@@ -94,12 +145,27 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   await test.step('Then I should get a success message and the section name should be renamed', async () => {
     await expect(formBuilderPage.page.getByText(/section renamed/i)).toBeVisible();
     await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited section/i })).toBeVisible();
-    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toMatchObject({
+    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toEqual({
+      ...formDetails,
+      name: 'An edited form',
       pages: [
         {
+          label: 'An edited page',
           sections: [
             {
               label: 'An edited section',
+              isExpanded: 'true',
+              questions: [
+                {
+                  label: 'Select Provider',
+                  type: 'obs',
+                  questionOptions: {
+                    rendering: 'text',
+                    concept: 'a-system-defined-concept-uuid',
+                  },
+                  id: 'sampleQuestion',
+                },
+              ],
             },
           ],
         },
@@ -122,15 +188,25 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   await test.step('Then I should get a success message and the question name should be renamed', async () => {
     await expect(formBuilderPage.page.getByText(/question updated/i)).toBeVisible();
     await expect(formBuilderPage.page.locator('p').getByText(/an edited question label/i)).toBeVisible();
-
-    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toMatchObject({
+    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toEqual({
+      ...formDetails,
+      name: 'An edited form',
       pages: [
         {
+          label: 'An edited page',
           sections: [
             {
+              label: 'An edited section',
+              isExpanded: 'true',
               questions: [
                 {
                   label: 'An edited question label',
+                  type: 'obs',
+                  questionOptions: {
+                    rendering: 'text',
+                    concept: 'a-system-defined-concept-uuid',
+                  },
+                  id: 'sampleQuestion',
                 },
               ],
             },
@@ -151,18 +227,33 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
     const clipboardContent = await handle.jsonValue();
     await expect(formBuilderPage.page.getByText(/question duplicated/i)).toBeVisible();
     await expect(formBuilderPage.page.locator('p').getByText(/an edited question label/i)).toHaveCount(2);
-    expect(JSON.parse(clipboardContent)).toMatchObject({
+    expect(JSON.parse(clipboardContent)).toEqual({
+      ...formDetails,
+      name: 'An edited form',
       pages: [
         {
+          label: 'An edited page',
           sections: [
             {
+              label: 'An edited section',
+              isExpanded: 'true',
               questions: [
                 {
                   label: 'An edited question label',
+                  type: 'obs',
+                  questionOptions: {
+                    rendering: 'text',
+                    concept: 'a-system-defined-concept-uuid',
+                  },
                   id: 'sampleQuestion',
                 },
                 {
                   label: 'An edited question label',
+                  type: 'obs',
+                  questionOptions: {
+                    rendering: 'text',
+                    concept: 'a-system-defined-concept-uuid',
+                  },
                   id: 'sampleQuestionDuplicate',
                 },
               ],
@@ -184,14 +275,25 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   await test.step('Then I should get a success message and a question should be deleted', async () => {
     await expect(formBuilderPage.page.getByText(/question deleted/i)).toBeVisible();
     await expect(formBuilderPage.page.locator('p').getByText(/an edited question label/i)).toHaveCount(1);
-    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toMatchObject({
+    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toEqual({
+      ...formDetails,
+      name: 'An edited form',
       pages: [
         {
+          label: 'An edited page',
           sections: [
             {
+              label: 'An edited section',
+              isExpanded: 'true',
               questions: [
                 {
                   label: 'An edited question label',
+                  type: 'obs',
+                  questionOptions: {
+                    rendering: 'text',
+                    concept: 'a-system-defined-concept-uuid',
+                  },
+                  id: 'sampleQuestionDuplicate',
                 },
               ],
             },
@@ -212,10 +314,13 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   await test.step('Then I should get a success message and the section should be deleted', async () => {
     await expect(formBuilderPage.page.getByText(/section deleted/i)).toBeVisible();
     await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited section/i })).toHaveCount(0);
-    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toMatchObject({
+    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toEqual({
+      ...formDetails,
+      name: 'An edited form',
       pages: [
         {
           label: 'An edited page',
+          sections: [],
         },
       ],
     });
@@ -232,8 +337,10 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   await test.step('Then I should get a success message and the page should be deleted', async () => {
     await expect(formBuilderPage.page.getByText(/page deleted/i)).toBeVisible();
     await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited page/i })).toHaveCount(0);
-    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toMatchObject({
+    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toEqual({
+      ...formDetails,
       name: 'An edited form',
+      pages: [],
     });
   });
 });
