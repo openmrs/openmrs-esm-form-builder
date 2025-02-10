@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import flattenDeep from 'lodash-es/flattenDeep';
 import {
@@ -29,6 +29,75 @@ interface QuestionModalProps {
   resetIndices: () => void;
 }
 
+/**
+ * Mapping of allowed top‑level property keys for each question type.
+ * Adjust these keys as needed for your implementation.
+ */
+const allowedPropertiesMapping: Record<string, string[]> = {
+  control: ['id', 'label', 'type', 'questionOptions'],
+  encounterDatetime: ['id', 'label', 'type', 'questionOptions', 'datePickerFormat'],
+  encounterLocation: ['id', 'label', 'type', 'questionOptions'],
+  encounterProvider: ['id', 'label', 'type', 'questionOptions'],
+  encounterRole: ['id', 'label', 'type', 'questionOptions'],
+  obs: ['id', 'label', 'type', 'questionOptions'],
+  obsGroup: ['id', 'label', 'type', 'questionOptions', 'questions'],
+  patientIdentifier: ['id', 'label', 'type', 'questionOptions'],
+  testOrder: ['id', 'label', 'type', 'questionOptions'],
+  programState: ['id', 'label', 'type', 'questionOptions'],
+};
+
+/**
+ * Mapping of allowed keys for the nested questionOptions object per question type.
+ */
+const allowedQuestionOptionsMapping: Record<string, string[]> = {
+  control: ['rendering', 'minLength', 'maxLength'],
+  encounterDatetime: ['rendering'],
+  encounterLocation: ['rendering'],
+  encounterProvider: ['rendering'],
+  encounterRole: ['rendering', 'isSearchable'],
+  obs: ['rendering', 'concept'],
+  obsGroup: ['rendering', 'concept'],
+  patientIdentifier: ['rendering', 'identifierType', 'minLength', 'maxLength'],
+  testOrder: ['rendering'],
+  programState: ['rendering', 'programUuid', 'workflowUuid', 'answers'],
+};
+
+/**
+ * Cleans the given questionOptions object by retaining only allowed keys for the new type.
+ */
+function cleanQuestionOptionsForType(options: any, newType: string): any {
+  const allowedOpts = allowedQuestionOptionsMapping[newType] || [];
+  const cleanedOpts = Object.fromEntries(Object.entries(options).filter(([optKey]) => allowedOpts.includes(optKey)));
+  // Ensure required property 'rendering' exists if present in the original options.
+  if (!('rendering' in cleanedOpts) && options.rendering) {
+    cleanedOpts.rendering = options.rendering;
+  }
+  return cleanedOpts;
+}
+
+/**
+ * Cleans the given form field by retaining only allowed top‑level properties for the new type.
+ * Also cleans nested questionOptions using the nested mapping.
+ */
+function cleanFormFieldForType(field: FormField, newType: string): FormField {
+  const allowedKeys = allowedPropertiesMapping[newType] || [];
+  const cleaned: Partial<FormField> = {} as Partial<FormField>;
+
+  // Copy only allowed top‑level properties.
+  (allowedKeys as (keyof FormField)[]).forEach((key) => {
+    if (key in field) {
+      (cleaned as any)[key] = field[key];
+    }
+  });
+
+  // If questionOptions is allowed and exists, clean it using the nested mapping.
+  if (cleaned.questionOptions && typeof cleaned.questionOptions === 'object') {
+    cleaned.questionOptions = cleanQuestionOptionsForType(cleaned.questionOptions, newType);
+  }
+
+  return { ...cleaned, type: newType } as FormField;
+}
+
 const QuestionModalContent: React.FC<QuestionModalProps> = ({
   formField: formFieldProp,
   closeModal,
@@ -40,6 +109,14 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { formField, setFormField } = useFormField();
+  useEffect(() => {
+    if (formField && formField.type) {
+      const cleaned = cleanFormFieldForType(formField, formField.type);
+      if (JSON.stringify(cleaned) !== JSON.stringify(formField)) {
+        setFormField(cleaned);
+      }
+    }
+  }, [formField?.type, formField, setFormField]);
 
   const checkIfQuestionIdExists = useCallback(
     (idToTest: string): boolean => {
@@ -47,9 +124,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
       const nestedIds = schema?.pages?.map((page) => {
         return page?.sections?.map((section) => {
           return section?.questions?.map((question) => {
-            question.questions?.map((nestedQuestion) => {
-              return nestedQuestion.id;
-            });
+            question.questions?.map((nestedQuestion) => nestedQuestion.id);
             return question.id;
           });
         });
@@ -64,7 +139,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
     const emptyQuestion: FormField = {
       type: '',
       questionOptions: undefined,
-      id: '',
+      id: '', // new question without an id initially
     };
     setFormField((prevFormField) => ({
       ...prevFormField,
@@ -72,11 +147,12 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
     }));
   }, [setFormField]);
 
+  // Updated deletion: filter out the question by its id.
   const deleteObsGroupQuestion = useCallback(
-    (index: number) => {
+    (id: string) => {
       setFormField((prevFormField) => ({
         ...prevFormField,
-        questions: prevFormField.questions?.filter((_, i) => i !== index) || [],
+        questions: prevFormField.questions?.filter((q) => q.id !== id) || [],
       }));
     },
     [setFormField],
@@ -139,9 +215,9 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                 <Accordion size="lg">
                   {formField.questions.map((question, index) => (
                     <AccordionItem
-                      key={question.id || `Question ${index + 1}`}
+                      key={question.id || index}
                       title={question.label ?? `Question ${index + 1}`}
-                      open={index === formField.questions?.length - 1}
+                      open={index === formField.questions.length - 1}
                       className={styles.obsGroupQuestionContent}
                     >
                       <FormFieldProvider
@@ -154,10 +230,10 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                         <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
                         <Button
                           kind="danger"
-                          onClick={() => deleteObsGroupQuestion(index)}
+                          onClick={() => deleteObsGroupQuestion(question.id)}
                           className={styles.deleteObsGroupQuestionButton}
                         >
-                          {t('deleteQuestion', 'Delete question')}
+                          {t('deleteQuestion', 'Delete')}
                         </Button>
                       </FormFieldProvider>
                     </AccordionItem>
