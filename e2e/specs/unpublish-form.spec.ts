@@ -2,7 +2,7 @@ import { test } from '../core';
 import { expect } from '@playwright/test';
 import { createForm, createValueReference, addFormResources, deleteForm } from '../commands/form-operations';
 import { FormBuilderPage } from '../pages';
-import type { Form } from '../../src/types';
+import type { Form } from '@types';
 
 let form: Form = null;
 test.beforeEach(async ({ api }) => {
@@ -26,6 +26,7 @@ test('Unpublish a form', async ({ page }) => {
     await formBuilderPage.page
       .getByRole('row', { name: form.name })
       .getByLabel(/edit schema/i)
+      .first()
       .click();
   });
 
