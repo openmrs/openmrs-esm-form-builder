@@ -4,50 +4,50 @@ import { deleteForm } from '../commands/form-operations';
 import { FormBuilderPage } from '../pages';
 
 let formUuid = '';
+const formDetails = {
+  name: 'Covid-19 Screening',
+  pages: [
+    {
+      label: 'Screening',
+      sections: [
+        {
+          label: 'Testing history',
+          isExpanded: 'true',
+          questions: [
+            {
+              label: 'Have you been ever been tested for COVID-19?',
+              type: 'obs',
+              required: true,
+              id: 'everTestedForCovid19',
+              questionOptions: {
+                rendering: 'radio',
+                concept: '89c5bc03-8ce2-40d8-a77d-20b5a62a1ca1',
+                answers: [
+                  {
+                    concept: '1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                    label: 'No',
+                  },
+                  {
+                    concept: '1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                    label: 'Yes',
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  processor: 'EncounterFormProcessor',
+  encounterType: '',
+  referencedForms: [],
+  uuid: '',
+  description: 'A test form for recording COVID-19 screening information',
+};
 
 test('Create a form using the interactive builder', async ({ page, context }) => {
   const formBuilderPage = new FormBuilderPage(page);
-  const formDetails = {
-    name: 'Covid-19 Screening',
-    pages: [
-      {
-        label: 'Screening',
-        sections: [
-          {
-            label: 'Testing history',
-            isExpanded: 'true',
-            questions: [
-              {
-                label: 'Have you been ever been tested for COVID-19?',
-                type: 'obs',
-                required: true,
-                id: 'everTestedForCovid19',
-                questionOptions: {
-                  rendering: 'radio',
-                  concept: '89c5bc03-8ce2-40d8-a77d-20b5a62a1ca1',
-                  answers: [
-                    {
-                      concept: '1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-                      label: 'No',
-                    },
-                    {
-                      concept: '1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-                      label: 'Yes',
-                    },
-                  ],
-                },
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    processor: 'EncounterFormProcessor',
-    encounterType: '',
-    referencedForms: [],
-    uuid: '',
-    description: 'A test form for recording COVID-19 screening information',
-  };
 
   await test.step('When I visit the form builder', async () => {
     await formBuilderPage.gotoFormBuilder();
