@@ -2,7 +2,7 @@ import { test } from '../core';
 import { expect } from '@playwright/test';
 import { FormBuilderPage } from '../pages';
 import { createForm, createValueReference, addFormResources, deleteForm } from '../commands/form-operations';
-import type { Form } from '../../src/types';
+import type { Form } from '@types';
 
 let form: Form = null;
 test.beforeEach(async ({ api }) => {
@@ -61,7 +61,7 @@ test('Clicking on a form should navigate me to the editor', async ({ page }) => 
   });
 
   await test.step('And I click the `A sample test form` form', async () => {
-    await formBuilderPage.page.getByText('A sample test form').click();
+    await formBuilderPage.page.locator(`a[href*="${form.uuid}"]`).click();
   });
 
   await test.step('Then I should be navigated to the editor page', async () => {

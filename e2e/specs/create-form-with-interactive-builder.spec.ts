@@ -4,50 +4,50 @@ import { deleteForm } from '../commands/form-operations';
 import { FormBuilderPage } from '../pages';
 
 let formUuid = '';
+const formDetails = {
+  name: 'Covid-19 Screening',
+  pages: [
+    {
+      label: 'Screening',
+      sections: [
+        {
+          label: 'Testing history',
+          isExpanded: 'true',
+          questions: [
+            {
+              label: 'Have you been ever been tested for COVID-19?',
+              type: 'obs',
+              required: true,
+              id: 'everTestedForCovid19',
+              questionOptions: {
+                rendering: 'radio',
+                concept: '89c5bc03-8ce2-40d8-a77d-20b5a62a1ca1',
+                answers: [
+                  {
+                    concept: '1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                    label: 'No',
+                  },
+                  {
+                    concept: '1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                    label: 'Yes',
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  processor: 'EncounterFormProcessor',
+  encounterType: '',
+  referencedForms: [],
+  uuid: '',
+  description: 'A test form for recording COVID-19 screening information',
+};
 
 test('Create a form using the interactive builder', async ({ page, context }) => {
   const formBuilderPage = new FormBuilderPage(page);
-  const formDetails = {
-    name: 'Covid-19 Screening',
-    pages: [
-      {
-        label: 'Screening',
-        sections: [
-          {
-            label: 'Testing history',
-            isExpanded: 'true',
-            questions: [
-              {
-                label: 'Have you been ever been tested for COVID-19?',
-                type: 'obs',
-                required: true,
-                id: 'everTestedForCovid19',
-                questionOptions: {
-                  rendering: 'radio',
-                  concept: '89c5bc03-8ce2-40d8-a77d-20b5a62a1ca1',
-                  answers: [
-                    {
-                      concept: '1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-                      label: 'No',
-                    },
-                    {
-                      concept: '1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-                      label: 'Yes',
-                    },
-                  ],
-                },
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    processor: 'EncounterFormProcessor',
-    encounterType: '',
-    referencedForms: [],
-    uuid: '',
-    description: 'A test form for recording COVID-19 screening information',
-  };
 
   await test.step('When I visit the form builder', async () => {
     await formBuilderPage.gotoFormBuilder();
@@ -77,10 +77,9 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
     await expect(formBuilderPage.createFormButton()).toBeEnabled();
     await formBuilderPage.createFormButton().click();
     await expect(formBuilderPage.page.getByText(/form created/i)).toBeVisible();
-    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toEqual({
-      ...formDetails,
-      pages: [],
-    });
+    await expect(formBuilderPage.schemaEditorContent()).toHaveText(/^{/, { timeout: 5000 });
+    const schemaText = await formBuilderPage.schemaEditorContent().textContent();
+    expect(JSON.parse(schemaText!)).toEqual({ ...formDetails, pages: [] });
   });
 
   await test.step('And then I click on `Create a new page`', async () => {
@@ -92,10 +91,12 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
   });
 
   await test.step('And then I click on `Save`', async () => {
-    await expect(formBuilderPage.savePageButton()).toBeEnabled();
-    await formBuilderPage.savePageButton().click();
+    await expect(formBuilderPage.saveButton()).toBeEnabled();
+    await formBuilderPage.saveButton().click();
     await expect(formBuilderPage.page.getByText(/new page created/i)).toBeVisible();
-    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toEqual({
+    await expect(formBuilderPage.schemaEditorContent()).toHaveText(/^{/, { timeout: 5000 });
+    const schemaText = await formBuilderPage.schemaEditorContent().textContent();
+    expect(JSON.parse(schemaText!)).toEqual({
       ...formDetails,
       pages: [
         {
@@ -115,10 +116,12 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
   });
 
   await test.step('And then I click on `Save`', async () => {
-    await expect(formBuilderPage.saveQuestionButton()).toBeEnabled();
-    await formBuilderPage.saveSectionButton().click();
+    await expect(formBuilderPage.saveButton()).toBeEnabled();
+    await formBuilderPage.saveButton().click();
     await expect(formBuilderPage.page.getByText(/new section created/i)).toBeVisible();
-    expect(JSON.parse(await formBuilderPage.schemaEditorContent().textContent())).toEqual({
+    await expect(formBuilderPage.schemaEditorContent()).toHaveText(/^{/, { timeout: 5000 });
+    const schemaText = await formBuilderPage.schemaEditorContent().textContent();
+    expect(JSON.parse(schemaText!)).toEqual({
       ...formDetails,
       pages: [
         {
@@ -180,8 +183,8 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
   });
 
   await test.step('And then I click on `Save`', async () => {
-    await expect(formBuilderPage.saveQuestionButton()).toBeEnabled();
-    await formBuilderPage.saveQuestionButton().click();
+    await expect(formBuilderPage.saveButton()).toBeEnabled();
+    await formBuilderPage.saveButton().click();
     await expect(formBuilderPage.page.getByText(/new question created/i)).toBeVisible();
   });
 

@@ -10,6 +10,8 @@ export class FormBuilderPage {
   readonly renderChangesButton = () => this.page.getByRole('button', { name: /render changes/i });
   readonly inputDummySchemaButton = () => this.page.getByRole('button', { name: /input dummy schema/i });
   readonly saveFormButton = () => this.page.getByRole('button', { name: /save form/i });
+  readonly editFormButton = () => this.page.getByRole('button', { name: /edit schema/i });
+  readonly deleteFormConfirmationButton = () => this.page.getByRole('button', { name: /danger delete/i });
   readonly publishFormButton = () => this.page.getByRole('button', { name: /^publish form$/i });
   readonly unpublishFormButton = () => this.page.getByRole('button', { name: /unpublish form/i });
   readonly unpublishFormConfirmationButton = () =>
@@ -27,19 +29,28 @@ export class FormBuilderPage {
   readonly interactiveFormNameInput = () => this.page.getByRole('textbox', { name: /form name/i });
   readonly interactiveFormDescriptionInput = () => this.page.getByRole('textbox', { name: /form description/i });
   readonly createFormButton = () => this.page.getByRole('button', { name: /create form/i });
+  readonly editFormNameInput = () => this.page.locator('#formNameInput');
   readonly addPageButton = () => this.page.getByRole('button', { name: /add page/i });
   readonly pageNameInput = () =>
     this.page.getByRole('textbox', {
       name: /enter a title for your new page/i,
     });
-  readonly savePageButton = () => this.page.getByRole('button', { name: /^save$/i, exact: true });
+  readonly editPageButton = () => this.page.getByRole('button', { name: /edit page/i });
+  readonly editPageNameInput = () => this.page.locator('#pageNameInput');
+  readonly deletePageButton = () => this.page.getByRole('button', { name: /delete page/i });
+  readonly saveButton = () => this.page.getByRole('button', { name: /^save$/i, exact: true });
   readonly pageCreatedMessage = () => this.page.getByText(/new page created/i);
   readonly addSectionButton = () => this.page.getByRole('button', { name: /add section/i });
   readonly sectionNameInput = () => this.page.getByRole('textbox', { name: /enter a section title/i });
-  readonly saveSectionButton = () => this.page.getByRole('button', { name: /^save$/i, exact: true });
+  readonly editSectionButton = () => this.page.getByRole('button', { name: /edit section/i });
+  readonly editSectionNameInput = () => this.page.locator('#sectionNameInput');
+  readonly deleteSectionButton = () => this.page.getByRole('button', { name: /delete section/i });
   readonly sectionCreatedMessage = () => this.page.getByText(/new section created/i);
   readonly addQuestionButton = () => this.page.getByRole('button', { name: /add question/i });
-  readonly questionLabelInput = () => this.page.getByRole('textbox', { name: /label/i });
+  readonly editQuestionButton = () => this.page.getByRole('button', { name: /edit question/i });
+  readonly duplicateQuestionButton = () => this.page.getByRole('button', { name: /duplicate question/i });
+  readonly deleteQuestionButton = () => this.page.getByRole('button', { name: /delete question/i }).nth(0);
+  readonly questionLabelInput = () => this.page.locator('#questionLabel');
   readonly questionTypeDropdown = () =>
     this.page.getByRole('combobox', {
       name: /question type/i,
@@ -53,7 +64,6 @@ export class FormBuilderPage {
   readonly answer = () => this.page.getByRole('menuitem', { name: /tested for covid 19/i });
   readonly questionIdInput = () => this.page.getByRole('textbox', { name: /question id/i });
   readonly questionCreatedMessage = () => this.page.getByText(/new question created/i);
-  readonly saveQuestionButton = () => this.page.getByRole('button', { name: /^save$/i, exact: true });
 
   async gotoFormBuilder() {
     await this.page.goto('form-builder');
