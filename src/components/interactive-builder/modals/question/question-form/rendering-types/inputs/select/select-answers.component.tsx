@@ -30,11 +30,12 @@ const SelectAnswers: React.FC = () => {
 
   const handleSelectAnswers = useCallback(
     ({ selectedItems }: { selectedItems: Array<AnswerItem> }) => {
-      const mappedAnswers = selectedItems.filter((item) => item.id !== 'select-all')
+      const mappedAnswers = selectedItems
+        .filter((item) => item.id !== 'select-all')
         .map((answer) => ({
-        concept: answer.id,
-        label: answer.text,
-      }));
+          concept: answer.id,
+          label: answer.text,
+        }));
 
       setFormField((prevField) => {
         const currentAnswers = prevField.questionOptions?.answers || [];
@@ -123,7 +124,7 @@ const SelectAnswers: React.FC = () => {
       }));
 
     return [...conceptAnswerItems, ...additionalAnswers];
-  }, [concept?.answers, formField.questionOptions?.answers]);
+  }, [concept?.answers]);
 
   const convertAnswerItemsToString = useCallback((item: AnswerItem) => item.text, []);
 
