@@ -35,7 +35,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
     <>
       <TextInput
         id="questionId"
-        invalid={formField?.id ? isQuestionIdValid() : false}
+        invalid={!!formField?.id && isQuestionIdValid()}
         invalidText={t('questionIdExists', 'This question ID already exists in your schema')}
         labelText={
           <div className={styles.questionIdLabel}>

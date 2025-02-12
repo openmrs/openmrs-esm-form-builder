@@ -44,18 +44,18 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
   const checkIfQuestionIdExists = useCallback(
     (idToTest: string): boolean => {
       if (formFieldProp) return false;
-      const nestedIds = schema?.pages?.map((page) => {
-        return page?.sections?.map((section) => {
-          return section?.questions?.map((question) => {
-            question.questions?.map((nestedQuestion) => {
-              return nestedQuestion.id;
-            });
-            return question.id;
-          });
-        });
-      });
-      const questionIds: Array<string> = flattenDeep(nestedIds);
-      return questionIds.includes(idToTest);
+      const getAllQuestionIds = (questions?: FormField[]): string[] => {
+        if (!questions) return [];
+        return questions.reduce((acc, question) => {
+          return acc.concat([question.id], getAllQuestionIds(question.questions));
+        }, [] as string[]);
+      };
+
+      const allIds: string[] =
+        schema?.pages?.flatMap((page) => page?.sections?.flatMap((section) => getAllQuestionIds(section.questions))) ||
+        [];
+
+      return allIds.includes(idToTest);
     },
     [formFieldProp, schema],
   );
@@ -151,7 +151,11 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                           handleUpdateParentFormField(updatedFormField, index)
                         }
                       >
-                        <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
+                        <Question
+                          checkIfQuestionIdExists={(idToTest: string) =>
+                            formField.questions.filter((_, i) => i !== index).some((q) => q.id === idToTest)
+                          }
+                        />
                         <Button
                           kind="danger"
                           onClick={() => deleteObsGroupQuestion(index)}
@@ -180,7 +184,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
             disabled={
               !formField ||
               !formField.id ||
-              checkIfQuestionIdExists(formField.id) ||
+              (!formField.questions && checkIfQuestionIdExists(formField.id)) ||
               !formField.questionOptions?.rendering
             }
             onClick={saveQuestion}
