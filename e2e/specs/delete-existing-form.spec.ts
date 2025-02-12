@@ -1,43 +1,42 @@
 import { test } from '../core';
-import { expect } from '@playwright/test';
 import { createForm, createValueReference, addFormResources, deleteForm } from '../commands/form-operations';
-import { FormBuilderPage } from '../pages';
 import type { Form } from '@types';
+import { FormBuilderPage } from '../pages';
+import { expect } from '@playwright/test';
 
 let form: Form = null;
-
 test.beforeEach(async ({ api }) => {
   form = await createForm(api, false);
   const valueReference = await createValueReference(api);
   await addFormResources(api, valueReference, form.uuid);
 });
 
-test('Publish a form', async ({ page }) => {
+test('Delete an existing form', async ({ page }) => {
   const formBuilderPage = new FormBuilderPage(page);
 
   await test.step('When I visit the form builder', async () => {
     await formBuilderPage.gotoFormBuilder();
   });
 
-  await test.step('And I search for the form I need to publish', async () => {
+  await test.step('And I search for the form I need to delete', async () => {
     await formBuilderPage.searchForForm(form.name);
   });
 
-  await test.step('And I click on a form I need to publish', async () => {
+  await test.step('And I click the `Delete` button on the form I need to delete', async () => {
     await formBuilderPage.page
       .getByRole('row', { name: form.name })
-      .getByLabel(/edit schema/i)
+      .getByLabel(/delete schema/i)
       .first()
       .click();
   });
 
-  await test.step('Then I click on the publish form button', async () => {
-    await formBuilderPage.publishFormButton().click();
+  await test.step('Then I click the `Delete` button on the modal', async () => {
+    await formBuilderPage.deleteFormConfirmationButton().click();
   });
 
-  await test.step('Then I should see the form published notification and the unpublish form button', async () => {
-    await expect(formBuilderPage.page.getByText(/form published/i)).toBeVisible();
-    await expect(formBuilderPage.unpublishFormButton()).toBeVisible();
+  await test.step('Then I should get a success message and the row with the form name should be removed', async () => {
+    await expect(formBuilderPage.page.getByText(/form deleted/i)).toBeVisible();
+    await expect(formBuilderPage.page.getByRole('row', { name: form.name })).toHaveCount(0);
   });
 });
 
