@@ -41,23 +41,32 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
   const { t } = useTranslation();
   const { formField, setFormField } = useFormField();
 
+  const getAllQuestionIds = useCallback((questions?: FormField[]): string[] => {
+    if (!questions) return [];
+    return flattenDeep(questions.map((question) => [question.id, getAllQuestionIds(question.questions)]));
+  }, []);
+
   const checkIfQuestionIdExists = useCallback(
     (idToTest: string): boolean => {
-      if (formFieldProp) return false;
-      const nestedIds = schema?.pages?.map((page) => {
-        return page?.sections?.map((section) => {
-          return section?.questions?.map((question) => {
-            question.questions?.map((nestedQuestion) => {
-              return nestedQuestion.id;
-            });
-            return question.id;
-          });
-        });
-      });
-      const questionIds: Array<string> = flattenDeep(nestedIds);
-      return questionIds.includes(idToTest);
+      // Get all IDs from the schema
+      const schemaIds: string[] =
+        schema?.pages?.flatMap((page) => page?.sections?.flatMap((section) => getAllQuestionIds(section.questions))) ||
+        [];
+
+      // Get all IDs from the current formField's questions array
+      const formFieldIds: string[] = formField?.questions ? getAllQuestionIds(formField.questions) : [];
+
+      // Combine both arrays, along with the parent question ID and count occurrences of the ID
+      const allIds = [...schemaIds, ...formFieldIds];
+      if (!formFieldProp || formFieldProp.id !== formField.id) {
+        allIds.push(formField.id);
+      }
+      const occurrences = allIds.filter((id) => id === idToTest).length;
+
+      // Return true if ID occurs more than once
+      return occurrences > 1;
     },
-    [formFieldProp, schema],
+    [schema, getAllQuestionIds, formField, formFieldProp],
   );
 
   const addObsGroupQuestion = useCallback(() => {
@@ -139,7 +148,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                 <Accordion size="lg">
                   {formField.questions.map((question, index) => (
                     <AccordionItem
-                      key={question.id || `Question ${index + 1}`}
+                      key={`Question ${index + 1}`}
                       title={question.label ?? `Question ${index + 1}`}
                       open={index === formField.questions?.length - 1}
                       className={styles.obsGroupQuestionContent}
@@ -180,7 +189,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
             disabled={
               !formField ||
               !formField.id ||
-              checkIfQuestionIdExists(formField.id) ||
+              (!formField.questions && checkIfQuestionIdExists(formField.id)) ||
               !formField.questionOptions?.rendering
             }
             onClick={saveQuestion}
