@@ -150,7 +150,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
     const emptyQuestion: FormField = {
       type: '',
       questionOptions: undefined,
-      id: '', // new question without an id initially
+      id: '',
     };
     setFormField((prevFormField) => ({
       ...prevFormField,
