@@ -57,13 +57,16 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
       const formFieldIds: string[] = formField?.questions ? getAllQuestionIds(formField.questions) : [];
 
       // Combine both arrays, along with the parent question ID and count occurrences of the ID
-      const allIds = [...schemaIds, ...formFieldIds, formField.id];
+      const allIds = [...schemaIds, ...formFieldIds];
+      if (!formFieldProp || formFieldProp.id !== formField.id) {
+        allIds.push(formField.id);
+      }
       const occurrences = allIds.filter((id) => id === idToTest).length;
 
       // Return true if ID occurs more than once
       return occurrences > 1;
     },
-    [schema, getAllQuestionIds, formField],
+    [schema, getAllQuestionIds, formField, formFieldProp],
   );
 
   const addObsGroupQuestion = useCallback(() => {
