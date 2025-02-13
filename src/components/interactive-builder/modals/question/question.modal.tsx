@@ -41,23 +41,29 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
   const { t } = useTranslation();
   const { formField, setFormField } = useFormField();
 
+  const getAllQuestionIds = useCallback((questions?: FormField[]): string[] => {
+    if (!questions) return [];
+    return flattenDeep(questions.map((question) => [question.id, getAllQuestionIds(question.questions)]));
+  }, []);
+
   const checkIfQuestionIdExists = useCallback(
     (idToTest: string): boolean => {
-      if (formFieldProp) return false;
-      const getAllQuestionIds = (questions?: FormField[]): string[] => {
-        if (!questions) return [];
-        return questions.reduce((acc, question) => {
-          return acc.concat([question.id], getAllQuestionIds(question.questions));
-        }, [] as string[]);
-      };
-
-      const allIds: string[] =
+      // Get all IDs from the schema
+      const schemaIds: string[] =
         schema?.pages?.flatMap((page) => page?.sections?.flatMap((section) => getAllQuestionIds(section.questions))) ||
         [];
 
-      return allIds.includes(idToTest);
+      // Get all IDs from the current formField's questions array
+      const formFieldIds: string[] = formField?.questions ? getAllQuestionIds(formField.questions) : [];
+
+      // Combine both arrays, along with the parent question ID and count occurrences of the ID
+      const allIds = [...schemaIds, ...formFieldIds, formField.id];
+      const occurrences = allIds.filter((id) => id === idToTest).length;
+
+      // Return true if ID occurs more than once
+      return occurrences > 1;
     },
-    [formFieldProp, schema],
+    [schema, getAllQuestionIds, formField],
   );
 
   const addObsGroupQuestion = useCallback(() => {
@@ -151,11 +157,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                           handleUpdateParentFormField(updatedFormField, index)
                         }
                       >
-                        <Question
-                          checkIfQuestionIdExists={(idToTest: string) =>
-                            formField.questions.filter((_, i) => i !== index).some((q) => q.id === idToTest)
-                          }
-                        />
+                        <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
                         <Button
                           kind="danger"
                           onClick={() => deleteObsGroupQuestion(index)}
