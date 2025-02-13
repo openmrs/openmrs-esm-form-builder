@@ -215,7 +215,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                 <Accordion size="lg">
                   {formField.questions.map((question, index) => (
                     <AccordionItem
-                      key={question.id || index}
+                      key={`Question ${index + 1}`}
                       title={question.label ?? `Question ${index + 1}`}
                       open={index === formField.questions.length - 1}
                       className={styles.obsGroupQuestionContent}
