@@ -14,6 +14,7 @@ interface ConceptSearchProps {
   defaultConcept?: string;
   onClearSelectedConcept?: () => void;
   onSelectConcept: (concept: Concept) => void;
+  loadConceptToContext?: boolean;
 }
 
 const ConceptSearch: React.FC<ConceptSearchProps> = ({
@@ -21,9 +22,9 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
   defaultConcept,
   onClearSelectedConcept,
   onSelectConcept,
+  loadConceptToContext = false,
 }) => {
   const { t } = useTranslation();
-  const { setConcept } = useFormField();
   const [conceptToLookup, setConceptToLookup] = useState('');
   const debouncedConceptToLookup = useDebounce(conceptToLookup);
   const { concepts, conceptLookupError, isLoadingConcepts } = useConceptLookup(debouncedConceptToLookup);
@@ -34,12 +35,15 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
     isLoadingConcept,
   } = useConceptId(defaultConcept);
   const [selectedConcept, setSelectedConcept] = useState<Concept>(initialConcept);
+  const { concept, setConcept } = useFormField();
 
   useEffect(() => {
-    if (initialConcept) {
-      setConcept(initialConcept);
+    if (loadConceptToContext) {
+      if (initialConcept && !concept) {
+        setConcept(initialConcept);
+      }
     }
-  }, [initialConcept, setConcept]);
+  }, [initialConcept, loadConceptToContext, concept, setConcept]);
 
   const handleConceptChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => setConceptToLookup(event.target.value),
@@ -49,19 +53,17 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
   const handleConceptSelect = useCallback(
     (concept: Concept) => {
       setConceptToLookup('');
-      setConcept(concept);
       setSelectedConcept(concept);
       onSelectConcept(concept);
     },
-    [onSelectConcept, setConcept],
+    [onSelectConcept],
   );
 
   const clearSelectedConcept = useCallback(() => {
     setSelectedConcept(null);
     setConceptToLookup('');
-    setConcept(null);
     if (onClearSelectedConcept) onClearSelectedConcept();
-  }, [onClearSelectedConcept, setConcept]);
+  }, [onClearSelectedConcept]);
 
   return (
     <>
