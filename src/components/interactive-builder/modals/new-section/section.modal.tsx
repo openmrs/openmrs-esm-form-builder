@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Form, FormGroup, ModalBody, ModalFooter, ModalHeader, TextInput } from '@carbon/react';
+import { Button, Form, FormGroup, ModalBody, ModalFooter, ModalHeader, TextInput , Checkbox } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import type { Schema } from '@types';
 import styles from '../modals.scss';
@@ -15,17 +15,22 @@ interface SectionModalProps {
 const SectionModal: React.FC<SectionModalProps> = ({ closeModal, schema, onSchemaChange, pageIndex }) => {
   const { t } = useTranslation();
   const [sectionTitle, setSectionTitle] = useState('');
+  const [isExpanded, setIsExpanded] = useState('false');
 
   const handleUpdatePageSections = () => {
     updateSections();
     closeModal();
   };
 
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, { checked }: { checked: boolean }) => {
+    checked === true ? setIsExpanded('true') : setIsExpanded('false');
+  };
+
   const updateSections = () => {
     try {
       schema.pages[pageIndex]?.sections?.push({
         label: sectionTitle,
-        isExpanded: 'true',
+        isExpanded: isExpanded,
         questions: [],
       });
       onSchemaChange({ ...schema });
@@ -63,6 +68,12 @@ const SectionModal: React.FC<SectionModalProps> = ({ closeModal, schema, onSchem
               labelText={t('enterSectionTitle', 'Enter a section title')}
               value={sectionTitle}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => setSectionTitle(event.target.value)}
+            />
+            <br></br>
+            <Checkbox
+              id="isExpanded"
+              labelText={t('expandedSection', 'Expanded section')}
+              onChange={handleCheckboxChange}
             />
           </FormGroup>
         </ModalBody>
