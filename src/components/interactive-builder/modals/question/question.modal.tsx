@@ -244,7 +244,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                           onClick={() => deleteObsGroupQuestion(question.id)}
                           className={styles.deleteObsGroupQuestionButton}
                         >
-                          {t('deleteQuestion', 'Delete')}
+                          {t('deleteQuestion', 'Delete question')}
                         </Button>
                       </FormFieldProvider>
                     </AccordionItem>
