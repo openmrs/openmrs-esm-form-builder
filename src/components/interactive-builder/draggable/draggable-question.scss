@@ -2,6 +2,36 @@
 @use '@carbon/layout';
 @use '@carbon/type';
 
+.questionContainer {
+  display: flex;
+  flex-direction: row;
+  min-height: layout.$spacing-09;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.obsGroup {
+  cursor: pointer;
+  transition: background-color 0.1s;
+  border-radius: 1px;
+  &:hover {
+    background-color: colors.$gray-20;
+  }
+  border-top: 1px solid colors.$gray-20;
+  border-bottom: 1px solid colors.$gray-20;
+}
+
+.obsQuestions {
+  display: flex;
+  flex-direction: column;
+  margin-left: 1.5rem;
+}
+
+.question {
+  display: flex;
+  flex-direction: column;
+}
+
 .buttonsContainer {
   display: flex;
   align-items: center;
@@ -20,7 +50,6 @@
   display: flex;
   min-height: layout.$spacing-09;
   justify-content: space-between;
-  align-items: center;
   width: 100%;
 }
 
@@ -37,4 +66,31 @@
   :focus {
     border: none !important;
   }
+}
+
+.hiddenAccordion {
+  display: none;
+}
+
+.accordionContainer {
+  width: 95%;
+}
+
+.collapseIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  cursor: pointer;
+}
+
+.collapseIcon {
+  fill: colors.$gray-70;
+  width: 1rem;
+  height: 1rem;
+}
+
+.isOver {
+  border-color: colors.$teal-40;
 }

@@ -26,6 +26,7 @@ interface QuestionModalProps {
   pageIndex: number;
   sectionIndex: number;
   questionIndex: number;
+  subQuestionIndex?: number;
   resetIndices: () => void;
 }
 
@@ -36,6 +37,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
   pageIndex,
   sectionIndex,
   questionIndex,
+  subQuestionIndex,
   onSchemaChange,
 }) => {
   const { t } = useTranslation();
@@ -94,7 +96,11 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
   const saveQuestion = () => {
     try {
       if (formFieldProp) {
-        schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] = formField;
+        if(subQuestionIndex !== undefined && subQuestionIndex !== null) {
+          schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questions[subQuestionIndex] = formField;
+        } else {
+          schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] = formField;
+        }
       } else {
         schema.pages[pageIndex]?.sections?.[sectionIndex]?.questions?.push(formField);
       }
