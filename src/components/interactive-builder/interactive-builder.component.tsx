@@ -33,7 +33,7 @@ interface ValidationError {
 
 interface InteractiveBuilderProps {
   isLoading: boolean;
-  onSchemaChange: (schema: Schema) => void;
+  onSchemaChange: (schema: FormSchema) => void;
   schema: Schema;
   validationResponse: Array<ValidationError>;
 }
@@ -293,6 +293,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         // If the `questions` array is now empty, delete it
         if (targetQuestion.questions.length === 0) {
             delete targetQuestion.questions;
+            targetQuestion.type = 'control';
         }
         return newSchema;
       }
@@ -343,6 +344,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           // Ensure the `questions` array exists
           if (!targetQuestion.questions) {
               targetQuestion.questions = [];
+              targetQuestion.type = 'obsGroup';
           }
 
           // Add the active question
