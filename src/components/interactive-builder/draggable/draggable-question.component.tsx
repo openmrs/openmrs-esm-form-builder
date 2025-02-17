@@ -36,8 +36,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
 }) => {
   const { t } = useTranslation();
   const defaultEnterDelayInMs = 300;
-  const draggableId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const toggleCollapse = () => {
     if (question.questions) {
       setIsCollapsed(!isCollapsed)
