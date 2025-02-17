@@ -14,7 +14,7 @@ interface ConceptSearchProps {
   defaultConcept?: string;
   onClearSelectedConcept?: () => void;
   onSelectConcept: (concept: Concept) => void;
-  loadConceptToContext?: boolean;
+  retainConceptInContextAfterSearch?: boolean;
 }
 
 const ConceptSearch: React.FC<ConceptSearchProps> = ({
@@ -22,7 +22,7 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
   defaultConcept,
   onClearSelectedConcept,
   onSelectConcept,
-  loadConceptToContext = false,
+  retainConceptInContextAfterSearch = false,
 }) => {
   const { t } = useTranslation();
   const [conceptToLookup, setConceptToLookup] = useState('');
@@ -38,12 +38,10 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
   const { concept, setConcept } = useFormField();
 
   useEffect(() => {
-    if (loadConceptToContext) {
-      if (initialConcept && !concept) {
-        setConcept(initialConcept);
-      }
+    if (retainConceptInContextAfterSearch && initialConcept && !concept) {
+      setConcept(initialConcept);
     }
-  }, [initialConcept, loadConceptToContext, concept, setConcept]);
+  }, [initialConcept, retainConceptInContextAfterSearch, concept, setConcept]);
 
   const handleConceptChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => setConceptToLookup(event.target.value),

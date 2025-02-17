@@ -77,7 +77,7 @@ const ObsTypeQuestion: React.FC = () => {
         defaultConcept={formField.questionOptions?.concept ?? null}
         onClearSelectedConcept={clearSelectedConcept}
         onSelectConcept={handleConceptSelect}
-        loadConceptToContext={true}
+        retainConceptInContextAfterSearch={true}
       />
 
       {concept?.allowDecimal === false && (
