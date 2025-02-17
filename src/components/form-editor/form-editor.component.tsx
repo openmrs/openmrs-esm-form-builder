@@ -124,7 +124,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
     setStringifiedSchema(JSON.stringify(schema, null, 2));
   }, [schema]);
 
-  const updateSchema = useCallback((updatedSchema: Schema) => {
+  const updateSchema = useCallback((updatedSchema: FormSchema) => {
     setSchema(updatedSchema);
     localStorage.setItem('formJSON', JSON.stringify(updatedSchema));
   }, []);
