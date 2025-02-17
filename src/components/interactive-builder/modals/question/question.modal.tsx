@@ -140,7 +140,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
         closeModal={closeModal}
       />
       <Form className={styles.form} onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
-        <ModalBody hasScrollingContent>
+        <ModalBody>
           <FormGroup>
             <Stack gap={5}>
               <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
