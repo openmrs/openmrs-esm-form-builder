@@ -13,6 +13,7 @@ interface DeleteQuestionModal {
   questionIndex: number;
   schema: Schema;
   sectionIndex: number;
+  subQuestionIndex?: number;
   showModal: boolean;
 }
 
@@ -24,6 +25,7 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
   questionIndex,
   schema,
   sectionIndex,
+  subQuestionIndex,
 }) => {
   const { t } = useTranslation();
 
@@ -39,9 +41,13 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
     });
   };
 
-  const deleteQuestion = (pageIndex: number, sectionIndex: number, questionIndex: number) => {
+  const deleteQuestion = (pageIndex: number, sectionIndex: number, questionIndex: number, subQuestionIndex?: number) => {
     try {
-      schema.pages[pageIndex].sections[sectionIndex].questions.splice(questionIndex, 1);
+      if (subQuestionIndex !== undefined && subQuestionIndex !== null) {
+        schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questions?.splice(subQuestionIndex, 1);
+      } else {
+        schema.pages[pageIndex].sections[sectionIndex].questions.splice(questionIndex, 1);
+      }
 
       onSchemaChange({ ...schema });
 
@@ -86,7 +92,11 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
         <Button
           kind="danger"
           onClick={() => {
-            deleteQuestion(pageIndex, sectionIndex, questionIndex);
+            if (subQuestionIndex !== undefined && subQuestionIndex !== null) {
+              deleteQuestion(pageIndex, sectionIndex, questionIndex, subQuestionIndex);
+            } else {
+              deleteQuestion(pageIndex, sectionIndex, questionIndex);
+            }
           }}
         >
           <span>{t('deleteQuestion', 'Delete question')}</span>

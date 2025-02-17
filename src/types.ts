@@ -71,6 +71,7 @@ export interface Schema {
           min?: string;
           conceptMappings?: Array<Record<string, string>>;
         };
+        questions?: Array<Question>;
         validators?: Array<Record<string, string>>;
       }>;
     }>;
