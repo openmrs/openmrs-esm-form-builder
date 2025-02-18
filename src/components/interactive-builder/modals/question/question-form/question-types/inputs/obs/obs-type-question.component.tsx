@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { FormLabel, InlineNotification, FormGroup, Stack } from '@carbon/react';
+import { FormLabel, InlineNotification, FormGroup, Stack, Checkbox } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
 import { useFormField } from '../../../../form-field-context';
@@ -8,7 +8,15 @@ import styles from './obs-type-question.scss';
 
 const ObsTypeQuestion: React.FC = () => {
   const { t } = useTranslation();
-  const { formField, setFormField, concept, setConcept } = useFormField();
+  const { formField, setFormField, concept } = useFormField();
+
+  const [selectedMapping, setSelectedMapping] = useState<string | null>(() => {
+    const conceptValue = formField.questionOptions?.concept;
+    if (conceptValue && conceptValue.includes(':')) {
+      return conceptValue;
+    }
+    return null;
+  });
 
   const getDatePickerType = useCallback((concept: Concept): DatePickerType | null => {
     const conceptDataType = concept.datatype.name;
@@ -27,7 +35,6 @@ const ObsTypeQuestion: React.FC = () => {
   const handleConceptSelect = useCallback(
     (selectedConcept: Concept) => {
       if (selectedConcept) {
-        setConcept(selectedConcept);
         const datePickerType = getDatePickerType(selectedConcept);
         setFormField((prevField) => ({
           ...prevField,
@@ -37,13 +44,13 @@ const ObsTypeQuestion: React.FC = () => {
           },
           ...(datePickerType && { datePickerFormat: datePickerType }),
         }));
+        setSelectedMapping(null);
       }
     },
-    [getDatePickerType, setFormField, setConcept],
+    [getDatePickerType, setFormField],
   );
 
   const clearSelectedConcept = useCallback(() => {
-    setConcept(null);
     setFormField((prevFormField) => {
       const updatedFormField = { ...prevFormField };
       if (updatedFormField.questionOptions) {
@@ -55,7 +62,8 @@ const ObsTypeQuestion: React.FC = () => {
       }
       return updatedFormField;
     });
-  }, [setFormField, setConcept]);
+    setSelectedMapping(null);
+  }, [setFormField]);
 
   const conceptMappings: ConceptMapping[] = useMemo(() => {
     if (concept && concept.mappings) {
@@ -71,13 +79,38 @@ const ObsTypeQuestion: React.FC = () => {
     return [];
   }, [concept]);
 
+  const handleCheckboxChange = useCallback(
+    (mapping: ConceptMapping) => {
+      const newSelectedMapping = `${mapping.type}:${mapping.value}`;
+      if (selectedMapping === newSelectedMapping) {
+        setSelectedMapping(null);
+        setFormField((prevField) => ({
+          ...prevField,
+          questionOptions: {
+            ...prevField.questionOptions,
+            concept: concept.uuid,
+          },
+        }));
+      } else {
+        setSelectedMapping(newSelectedMapping);
+        setFormField((prevField) => ({
+          ...prevField,
+          questionOptions: {
+            ...prevField.questionOptions,
+            concept: newSelectedMapping, // Set to 'Source:code'
+          },
+        }));
+      }
+    },
+    [selectedMapping, setFormField, concept],
+  );
+
   return (
     <Stack gap={5}>
       <ConceptSearch
         defaultConcept={formField.questionOptions?.concept ?? null}
         onClearSelectedConcept={clearSelectedConcept}
         onSelectConcept={handleConceptSelect}
-        retainConceptInContextAfterSearch={true}
       />
 
       {concept?.allowDecimal === false && (
@@ -94,6 +127,7 @@ const ObsTypeQuestion: React.FC = () => {
           <table className={styles.tableStriped}>
             <thead>
               <tr>
+                <th></th>
                 <th>{t('relationship', 'Relationship')}</th>
                 <th>{t('source', 'Source')}</th>
                 <th>{t('code', 'Code')}</th>
@@ -102,6 +136,15 @@ const ObsTypeQuestion: React.FC = () => {
             <tbody>
               {conceptMappings.map((mapping, index) => (
                 <tr key={`mapping-${index}`}>
+                  <td>
+                    {mapping.relationship === 'SAME-AS' && (
+                      <Checkbox
+                        id={`checkbox-${index}`}
+                        checked={selectedMapping === `${mapping.type}:${mapping.value}`}
+                        onChange={() => handleCheckboxChange(mapping)}
+                      />
+                    )}
+                  </td>
                   <td>{mapping.relationship}</td>
                   <td>{mapping.type}</td>
                   <td>{mapping.value}</td>
