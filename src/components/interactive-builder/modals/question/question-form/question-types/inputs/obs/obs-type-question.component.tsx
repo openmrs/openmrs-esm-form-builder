@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { FormLabel, InlineNotification, FormGroup, Stack, RadioButton, RadioButtonGroup } from '@carbon/react';
+import { FormLabel, InlineNotification, FormGroup, Stack } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
 import { useFormField } from '../../../../form-field-context';
@@ -9,7 +9,6 @@ import styles from './obs-type-question.scss';
 const ObsTypeQuestion: React.FC = () => {
   const { t } = useTranslation();
   const { formField, setFormField, concept } = useFormField();
-  const [selectedMappingId, setSelectedMappingId] = useState<string | null>(null); // Track selected radio button by ID
 
   const getDatePickerType = useCallback((concept: Concept): DatePickerType | null => {
     const conceptDataType = concept.datatype.name;
@@ -54,7 +53,6 @@ const ObsTypeQuestion: React.FC = () => {
       }
       return updatedFormField;
     });
-    setSelectedMappingId(null); // Clear selected mapping when concept is cleared
   }, [setFormField]);
 
   const conceptMappings: ConceptMapping[] = useMemo(() => {
@@ -70,21 +68,6 @@ const ObsTypeQuestion: React.FC = () => {
     }
     return [];
   }, [concept]);
-
-  const handleRadioSelect = useCallback(
-    (mapping: ConceptMapping) => {
-      const mappingId = `${mapping.type}:${mapping.value}`;
-      setSelectedMappingId(mappingId); // Update selected mapping ID
-      setFormField((prevField) => ({
-        ...prevField,
-        questionOptions: {
-          ...prevField.questionOptions,
-          concept: mappingId, // Set the concept to the selected mapping's value
-        },
-      }));
-    },
-    [setFormField],
-  );
 
   return (
     <Stack gap={5}>
@@ -111,7 +94,6 @@ const ObsTypeQuestion: React.FC = () => {
                 <th>{t('relationship', 'Relationship')}</th>
                 <th>{t('source', 'Source')}</th>
                 <th>{t('code', 'Code')}</th>
-                <th>{t('select', 'Select')}</th>
               </tr>
             </thead>
             <tbody>
@@ -120,16 +102,6 @@ const ObsTypeQuestion: React.FC = () => {
                   <td>{mapping.relationship}</td>
                   <td>{mapping.type}</td>
                   <td>{mapping.value}</td>
-                  <td>
-                    {mapping.relationship === 'SAME-AS' && (
-                      <RadioButton
-                        id={`radio-${index}`}
-                        checked={selectedMappingId === `${mapping.type}:${mapping.value}`} // Control checked state
-                        onChange={() => handleRadioSelect(mapping)} // Handle selection
-                        labelText="" // No label text since it's in a table
-                      />
-                    )}
-                  </td>
                 </tr>
               ))}
             </tbody>
