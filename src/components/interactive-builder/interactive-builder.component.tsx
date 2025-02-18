@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DndContext, KeyboardSensor, MouseSensor, closestCorners, useSensor, useSensors } from '@dnd-kit/core';
 import { Accordion, AccordionItem, Button, IconButton, InlineLoading } from '@carbon/react';
-import { Add, TrashCan } from '@carbon/react/icons';
+import { Add, TrashCan, Edit } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { showModal, showSnackbar } from '@openmrs/esm-framework';
 import DraggableQuestion from './draggable/draggable-question.component';
@@ -100,6 +100,19 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       });
     },
     [schema, onSchemaChange],
+  );
+
+  const launchEditSectionModal = useCallback(
+    (pageIndex: number, sectionIndex: number) => {
+      const dispose = showModal('edit-section-modal', {
+        closeModal: () => dispose(),
+        pageIndex,
+        sectionIndex,
+        schema,
+        onSchemaChange,
+      });
+    },
+    [onSchemaChange, schema],
   );
 
   const launchDeleteSectionModal = useCallback(
@@ -416,12 +429,16 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                           <>
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                               <div className={styles.editorContainer}>
-                                <EditableValue
-                                  elementType="section"
-                                  id="sectionNameInput"
-                                  value={section.label}
-                                  onSave={(name) => renameSection(name, pageIndex, sectionIndex)}
-                                />
+                                <h1 className={styles['sectionLabel']}>{section.label}</h1>
+                                <IconButton
+                                  enterDelayMs={300}
+                                  kind="ghost"
+                                  label={t('editSection', 'Edit Section')}
+                                  onClick={() => launchEditSectionModal(pageIndex, sectionIndex)}
+                                  size="md"
+                                >
+                                  <Edit />
+                                </IconButton>
                               </div>
                               <IconButton
                                 enterDelayMs={300}
