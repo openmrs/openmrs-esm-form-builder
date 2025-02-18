@@ -15,7 +15,7 @@ interface SectionModalProps {
 const SectionModal: React.FC<SectionModalProps> = ({ closeModal, schema, onSchemaChange, pageIndex }) => {
   const { t } = useTranslation();
   const [sectionTitle, setSectionTitle] = useState('');
-  const [isExpanded, setIsExpanded] = useState('false');
+  const [isExpanded, setIsExpanded] = useState('true');
 
   const handleUpdatePageSections = () => {
     updateSections();
@@ -72,6 +72,7 @@ const SectionModal: React.FC<SectionModalProps> = ({ closeModal, schema, onSchem
             <br></br>
             <Checkbox
               id="isExpanded"
+              checked={isExpanded === 'true' ? true : false}
               labelText={t('expandedSection', 'Expand section')}
               onChange={handleCheckboxChange}
             />
