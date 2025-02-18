@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, ModalBody, ModalFooter, ModalHeader , Form, FormGroup, TextInput, Checkbox } from '@carbon/react';
+import { Button, ModalBody, ModalFooter, ModalHeader, Form, FormGroup, TextInput, Checkbox } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import type { Schema } from '@types';
 import styles from '../modals.scss';
@@ -73,7 +73,7 @@ const EditSectionModal: React.FC<EditSectionModal> = ({
             <Checkbox
               id="isExpanded"
               checked={isExpanded === 'true' ? true : false}
-              labelText={t('expandedSection', 'Expanded section')}
+              labelText={t('expandedSection', 'Expand section')}
               onChange={handleCheckboxChange}
             />
           </FormGroup>
