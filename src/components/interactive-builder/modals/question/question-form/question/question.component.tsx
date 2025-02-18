@@ -27,7 +27,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
     setFormField({ ...formField, id: camelCasedLabel });
   };
 
-  const isQuestionIdValid = useCallback(() => {
+  const isQuestionIdDuplicate = useCallback(() => {
     return checkIfQuestionIdExists(formField.id);
   }, [formField.id, checkIfQuestionIdExists]);
 
@@ -35,7 +35,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
     <>
       <TextInput
         id="questionId"
-        invalid={formField?.id ? isQuestionIdValid() : false}
+        invalid={!!formField?.id && isQuestionIdDuplicate()}
         invalidText={t('questionIdExists', 'This question ID already exists in your schema')}
         labelText={
           <div className={styles.questionIdLabel}>
