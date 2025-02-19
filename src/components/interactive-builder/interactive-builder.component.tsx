@@ -668,16 +668,18 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
             : null}
           <DragOverlay>
             {activeQuestion ? (
-              <DraggableQuestion
-                handleDuplicateQuestion={duplicateQuestion}
-                onSchemaChange={onSchemaChange}
-                pageIndex={activeQuestion.pageIndex}
-                sectionIndex={activeQuestion.sectionIndex}
-                question={activeQuestion.question}
-                questionCount={activeQuestion.questionCount}
-                questionIndex={activeQuestion.questionIndex}
-                schema={schema}
-              />
+              <div className={styles.dragOverlay}>
+                <DraggableQuestion
+                  handleDuplicateQuestion={duplicateQuestion}
+                  onSchemaChange={onSchemaChange}
+                  pageIndex={activeQuestion.pageIndex}
+                  sectionIndex={activeQuestion.sectionIndex}
+                  question={activeQuestion.question}
+                  questionCount={activeQuestion.questionCount}
+                  questionIndex={activeQuestion.questionIndex}
+                  schema={schema}
+                />
+              </div>
             ) : null}
           </DragOverlay>
         </SortableContext>

@@ -91,6 +91,13 @@
   height: 1rem;
 }
 
-.isOver {
-  border-color: colors.$teal-40;
+.droppable {
+  border: layout.$spacing-01 solid transparent;
+}
+
+.dropZone {
+  border: 2px solid colors.$teal-40;
+  &::before {
+    opacity: 0.4;
+  }
 }

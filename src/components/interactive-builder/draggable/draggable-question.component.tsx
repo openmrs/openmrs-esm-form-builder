@@ -69,7 +69,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
     });
   }, [onSchemaChange, pageIndex, question, questionIndex, schema, sectionIndex, subQuestionIndex]);
 
-  const { attributes, listeners, setNodeRef, transform, isDragging, over, isOver } = useSortable({
+  const { attributes, listeners, setNodeRef, active, isDragging, over, isOver } = useSortable({
     id: question.id,
     data: {
       type: (subQuestionIndex === null) || (subQuestionIndex === undefined)  ? 'question' : 'obsQuestion',
@@ -86,7 +86,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
       }
     },
     disabled: questionCount <= 1 && (subQuestionIndex === undefined || subQuestionIndex === null),
-  })
+  });
 
   const handleDuplicate = useCallback(() => {
     if (!isDragging) {
@@ -104,7 +104,8 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
       className={classNames(styles.question, {
         [styles.dragContainer]: true,
         [styles.dragContainerWhenDragging]: isDragging,
-        [styles.isOver]: isOver,
+        [styles.dropZone]: over?.id === question.id,
+        [styles.droppable]: active?.id === question.id,
       })}
     >
       <div
