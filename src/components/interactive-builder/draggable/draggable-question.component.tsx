@@ -110,7 +110,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
     >
       <div
         className={classNames(styles.questionContainer, {
-          [styles.obsGroup]: question?.questions
+          [styles.obsGroup]: question?.questions && question?.questions.length > 0,
         })}
         onClick={toggleCollapse}
       >
@@ -161,7 +161,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           >
             <TrashCan />
           </IconButton>
-          {question?.questions && (
+          {(question?.questions && question?.questions.length > 0) && (
             <span className={styles.collapseIconWrapper}>
               {isCollapsed ? (
                 <ChevronDownIcon className={styles.collapseIcon} aria-label="Expand" />
