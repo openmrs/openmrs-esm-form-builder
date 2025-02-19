@@ -135,13 +135,13 @@ export interface QuestionOptions {
   calculate?: {
     calculateExpression: string;
   };
-  rows?: string;
+  rows?: number;
   orderSettingUuid?: string;
   orderType?: string;
   identifierType?: string;
-  selectableOrders?: Array<Answer>;
+  selectableOrders?: Array<Record<any, any>>;
   weekList?: [];
-  showComment?: string;
+  showComment?: boolean;
   showDate?: string;
   programUuid?: string;
   workflowUuid?: string;

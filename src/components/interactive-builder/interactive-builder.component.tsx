@@ -33,7 +33,7 @@ interface ValidationError {
 
 interface InteractiveBuilderProps {
   isLoading: boolean;
-  onSchemaChange: (schema: FormSchema) => void;
+  onSchemaChange: (schema: Schema) => void;
   schema: Schema;
   validationResponse: Array<ValidationError>;
 }
