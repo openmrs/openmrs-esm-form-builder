@@ -184,17 +184,14 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                       {
                         concept: 'another-system-defined-concept-uuid',
                         label: 'Choice 1',
-                        conceptMappings: [],
                       },
                       {
                         concept: 'yet-another-system-defined-concept-uuid',
                         label: 'Choice 2',
-                        conceptMappings: [],
                       },
                       {
                         concept: 'yet-one-more-system-defined-concept-uuid',
                         label: 'Choice 3',
-                        conceptMappings: [],
                       },
                     ],
                   },
