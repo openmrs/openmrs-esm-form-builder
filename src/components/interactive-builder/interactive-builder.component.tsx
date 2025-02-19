@@ -305,11 +305,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
         targetQuestion.questions.splice(activeQuestion.question.subQuestionIndex, 1);
 
-        // If the `questions` array is now empty, delete it
-        if (targetQuestion.questions.length === 0) {
-            delete targetQuestion.questions;
-            targetQuestion.type = 'control';
-        }
         return newSchema;
       }
       if(activeQuestion.type === 'question') {
