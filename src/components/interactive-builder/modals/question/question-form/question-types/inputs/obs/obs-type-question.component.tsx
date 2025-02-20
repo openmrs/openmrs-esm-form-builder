@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormLabel, InlineNotification, FormGroup, Stack, Checkbox } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
@@ -8,15 +8,14 @@ import styles from './obs-type-question.scss';
 
 const ObsTypeQuestion: React.FC = () => {
   const { t } = useTranslation();
-  const { formField, setFormField, concept } = useFormField();
+  const { formField, setFormField, concept, setConcept } = useFormField();
+  const [selectedMapping, setSelectedMapping] = useState<string | null>(null);
 
-  const [selectedMapping, setSelectedMapping] = useState<string | null>(() => {
-    const conceptValue = formField.questionOptions?.concept;
-    if (conceptValue && conceptValue.includes(':')) {
-      return conceptValue;
+  useEffect(() => {
+    if (formField.questionOptions?.concept) {
+      setSelectedMapping(formField.questionOptions.concept);
     }
-    return null;
-  });
+  }, [formField.questionOptions?.concept]);
 
   const getDatePickerType = useCallback((concept: Concept): DatePickerType | null => {
     const conceptDataType = concept.datatype.name;
@@ -35,6 +34,7 @@ const ObsTypeQuestion: React.FC = () => {
   const handleConceptSelect = useCallback(
     (selectedConcept: Concept) => {
       if (selectedConcept) {
+        setConcept(selectedConcept);
         const datePickerType = getDatePickerType(selectedConcept);
         setFormField((prevField) => ({
           ...prevField,
@@ -47,10 +47,12 @@ const ObsTypeQuestion: React.FC = () => {
         setSelectedMapping(null);
       }
     },
-    [getDatePickerType, setFormField],
+    [getDatePickerType, setFormField, setConcept],
   );
 
   const clearSelectedConcept = useCallback(() => {
+    setConcept(null);
+    setSelectedMapping(null);
     setFormField((prevFormField) => {
       const updatedFormField = { ...prevFormField };
       if (updatedFormField.questionOptions) {
@@ -62,8 +64,35 @@ const ObsTypeQuestion: React.FC = () => {
       }
       return updatedFormField;
     });
+  }, [setFormField, setConcept]);
+
+  const handleCheckboxChange = useCallback(
+    (mapping: ConceptMapping) => {
+      const newConceptValue = `${mapping.type}:${mapping.value}`;
+      setSelectedMapping(newConceptValue);
+      setFormField((prevField) => ({
+        ...prevField,
+        questionOptions: {
+          ...prevField.questionOptions,
+          concept: newConceptValue,
+        },
+      }));
+    },
+    [setFormField],
+  );
+
+  const handleUncheckAll = useCallback(() => {
     setSelectedMapping(null);
-  }, [setFormField]);
+    if (concept) {
+      setFormField((prevField) => ({
+        ...prevField,
+        questionOptions: {
+          ...prevField.questionOptions,
+          concept: concept.uuid,
+        },
+      }));
+    }
+  }, [concept, setFormField]);
 
   const conceptMappings: ConceptMapping[] = useMemo(() => {
     if (concept && concept.mappings) {
@@ -79,38 +108,13 @@ const ObsTypeQuestion: React.FC = () => {
     return [];
   }, [concept]);
 
-  const handleCheckboxChange = useCallback(
-    (mapping: ConceptMapping) => {
-      const newSelectedMapping = `${mapping.type}:${mapping.value}`;
-      if (selectedMapping === newSelectedMapping) {
-        setSelectedMapping(null);
-        setFormField((prevField) => ({
-          ...prevField,
-          questionOptions: {
-            ...prevField.questionOptions,
-            concept: concept.uuid,
-          },
-        }));
-      } else {
-        setSelectedMapping(newSelectedMapping);
-        setFormField((prevField) => ({
-          ...prevField,
-          questionOptions: {
-            ...prevField.questionOptions,
-            concept: newSelectedMapping, // Set to 'Source:code'
-          },
-        }));
-      }
-    },
-    [selectedMapping, setFormField, concept],
-  );
-
   return (
     <Stack gap={5}>
       <ConceptSearch
         defaultConcept={formField.questionOptions?.concept ?? null}
         onClearSelectedConcept={clearSelectedConcept}
         onSelectConcept={handleConceptSelect}
+        retainConceptInContextAfterSearch={true}
       />
 
       {concept?.allowDecimal === false && (
@@ -127,27 +131,33 @@ const ObsTypeQuestion: React.FC = () => {
           <table className={styles.tableStriped}>
             <thead>
               <tr>
-                <th></th>
                 <th>{t('relationship', 'Relationship')}</th>
                 <th>{t('source', 'Source')}</th>
                 <th>{t('code', 'Code')}</th>
+                <th>{t('select', 'Select')}</th>
               </tr>
             </thead>
             <tbody>
               {conceptMappings.map((mapping, index) => (
                 <tr key={`mapping-${index}`}>
+                  <td>{mapping.relationship}</td>
+                  <td>{mapping.type}</td>
+                  <td>{mapping.value}</td>
                   <td>
                     {mapping.relationship === 'SAME-AS' && (
                       <Checkbox
                         id={`checkbox-${index}`}
                         checked={selectedMapping === `${mapping.type}:${mapping.value}`}
-                        onChange={() => handleCheckboxChange(mapping)}
+                        onChange={() => {
+                          if (selectedMapping === `${mapping.type}:${mapping.value}`) {
+                            handleUncheckAll();
+                          } else {
+                            handleCheckboxChange(mapping);
+                          }
+                        }}
                       />
                     )}
                   </td>
-                  <td>{mapping.relationship}</td>
-                  <td>{mapping.type}</td>
-                  <td>{mapping.value}</td>
                 </tr>
               ))}
             </tbody>
@@ -157,5 +167,4 @@ const ObsTypeQuestion: React.FC = () => {
     </Stack>
   );
 };
-
 export default ObsTypeQuestion;
