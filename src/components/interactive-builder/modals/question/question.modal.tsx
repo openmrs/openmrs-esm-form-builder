@@ -30,21 +30,35 @@ interface QuestionModalProps {
 }
 
 /**
- * Mapping of allowed top‑level property keys for each question type.
- * Adjust these keys as needed for your implementation.
+ * Common properties that are required for all question types.
  */
-const allowedPropertiesMapping: Record<string, string[]> = {
-  control: ['id', 'label', 'type', 'questionOptions'],
-  encounterDatetime: ['id', 'label', 'type', 'questionOptions', 'datePickerFormat'],
-  encounterLocation: ['id', 'label', 'type', 'questionOptions'],
-  encounterProvider: ['id', 'label', 'type', 'questionOptions'],
-  encounterRole: ['id', 'label', 'type', 'questionOptions'],
-  obs: ['id', 'label', 'type', 'questionOptions'],
-  obsGroup: ['id', 'label', 'type', 'questionOptions', 'questions'],
-  patientIdentifier: ['id', 'label', 'type', 'questionOptions'],
-  testOrder: ['id', 'label', 'type', 'questionOptions'],
-  programState: ['id', 'label', 'type', 'questionOptions'],
+const requiredProperties: Array<keyof FormField> = ['id', 'label', 'type', 'questionOptions'];
+
+/**
+ * Type-specific properties.
+ */
+const typeSpecificProperties: Record<string, Array<keyof FormField>> = {
+  control: [],
+  encounterDatetime: ['datePickerFormat'],
+  encounterLocation: [],
+  encounterProvider: [],
+  encounterRole: [],
+  obs: ['required'],
+  obsGroup: ['questions'],
+  patientIdentifier: [],
+  testOrder: [],
+  programState: [],
 };
+
+/**
+ * Merge required properties with type-specific ones.
+ */
+const allowedPropertiesMapping: Record<string, string[]> = Object.fromEntries(
+  Object.entries(typeSpecificProperties).map(([type, props]) => {
+    const mergedProps = new Set<string>([...requiredProperties, ...props]);
+    return [type, Array.from(mergedProps)];
+  }),
+);
 
 /**
  * Mapping of allowed keys for the nested questionOptions object per question type.
@@ -55,7 +69,7 @@ const allowedQuestionOptionsMapping: Record<string, string[]> = {
   encounterLocation: ['rendering'],
   encounterProvider: ['rendering'],
   encounterRole: ['rendering', 'isSearchable'],
-  obs: ['rendering', 'concept'],
+  obs: ['rendering', 'concept', 'answers'],
   obsGroup: ['rendering', 'concept'],
   patientIdentifier: ['rendering', 'identifierType', 'minLength', 'maxLength'],
   testOrder: ['rendering'],
@@ -81,12 +95,11 @@ function cleanQuestionOptionsForType(options: any, newType: string): any {
  */
 function cleanFormFieldForType(field: FormField, newType: string): FormField {
   const allowedKeys = allowedPropertiesMapping[newType] || [];
-  const cleaned: Partial<FormField> = {} as Partial<FormField>;
+  const cleaned: Partial<FormField> = {};
 
-  // Copy only allowed top‑level properties.
-  (allowedKeys as (keyof FormField)[]).forEach((key) => {
+  allowedKeys.forEach((key) => {
     if (key in field) {
-      (cleaned as any)[key] = field[key];
+      (cleaned as any)[key] = field[key as keyof FormField];
     }
   });
 
@@ -95,7 +108,9 @@ function cleanFormFieldForType(field: FormField, newType: string): FormField {
     cleaned.questionOptions = cleanQuestionOptionsForType(cleaned.questionOptions, newType);
   }
 
-  return { ...cleaned, type: newType } as FormField;
+  cleaned.type = newType;
+
+  return cleaned as FormField;
 }
 
 const QuestionModalContent: React.FC<QuestionModalProps> = ({
@@ -139,8 +154,6 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
         allIds.push(formField.id);
       }
       const occurrences = allIds.filter((id) => id === idToTest).length;
-
-      // Return true if ID occurs more than once
       return occurrences > 1;
     },
     [schema, getAllQuestionIds, formField, formFieldProp],
@@ -158,12 +171,11 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
     }));
   }, [setFormField]);
 
-  // Updated deletion: filter out the question by its id.
   const deleteObsGroupQuestion = useCallback(
-    (id: string) => {
+    (index: number) => {
       setFormField((prevFormField) => ({
         ...prevFormField,
-        questions: prevFormField.questions?.filter((q) => q.id !== id) || [],
+        questions: prevFormField.questions?.filter((_, i) => i !== index) || [],
       }));
     },
     [setFormField],
@@ -241,7 +253,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                         <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
                         <Button
                           kind="danger"
-                          onClick={() => deleteObsGroupQuestion(question.id)}
+                          onClick={() => deleteObsGroupQuestion(index)}
                           className={styles.deleteObsGroupQuestionButton}
                         >
                           {t('deleteQuestion', 'Delete question')}
