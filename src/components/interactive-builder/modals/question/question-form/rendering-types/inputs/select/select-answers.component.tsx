@@ -5,6 +5,8 @@ import ConceptSearch from '../../../common/concept-search/concept-search.compone
 import { useFormField } from '../../../../form-field-context';
 import type { Concept } from '@types';
 import styles from './select-answers.scss';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import DraggablePortal from './DraggablePortal.component';
 
 interface AnswerItem {
   id: string;
@@ -126,6 +128,27 @@ const SelectAnswers: React.FC = () => {
 
   const convertAnswerItemsToString = useCallback((item: AnswerItem) => item.text, []);
 
+  const handleDragEnd = useCallback(
+    (result: any) => {
+      if (!result.destination) return;
+      const newSelectedAnswers = Array.from(selectedAnswers);
+      const [removed] = newSelectedAnswers.splice(result.source.index, 1);
+      newSelectedAnswers.splice(result.destination.index, 0, removed);
+
+      setFormField((prevFormField) => ({
+        ...prevFormField,
+        questionOptions: {
+          ...prevFormField.questionOptions,
+          answers: newSelectedAnswers.map((answer) => ({
+            concept: answer.id,
+            label: answer.text,
+          })),
+        },
+      }));
+    },
+    [selectedAnswers, setFormField],
+  );
+
   return (
     <Stack gap={5}>
       {answerItems.length > 0 && (
@@ -143,13 +166,42 @@ const SelectAnswers: React.FC = () => {
       )}
 
       {selectedAnswers.length > 0 && (
-        <div>
-          {selectedAnswers.map((answer) => (
-            <Tag className={styles.tag} key={answer.id} type={'blue'}>
-              {answer.text}
-            </Tag>
-          ))}
-        </div>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="selectedAnswersDroppable" direction="horizontal">
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}
+              >
+                {selectedAnswers.map((answer, index) => (
+                  <Draggable key={answer.id} draggableId={answer.id} index={index}>
+                    {(providedDraggable, snapshot) => {
+                      const draggableElement = (
+                        <div
+                          ref={providedDraggable.innerRef}
+                          {...providedDraggable.draggableProps}
+                          {...providedDraggable.dragHandleProps}
+                        >
+                          <Tag className={styles.tag} type="blue">
+                            {answer.text}
+                          </Tag>
+                        </div>
+                      );
+
+                      if (snapshot.isDragging) {
+                        return <DraggablePortal>{draggableElement}</DraggablePortal>;
+                      }
+
+                      return draggableElement;
+                    }}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       )}
 
       {concept && concept.datatype?.name === 'Coded' && (
