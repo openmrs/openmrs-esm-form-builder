@@ -144,11 +144,16 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   });
 
   await test.step('And then I fill in the updated section name', async () => {
-    await formBuilderPage.editSectionNameInput().fill('An edited section');
+    await formBuilderPage.sectionNameInput().fill('An edited section');
     updatedForm.pages[0].sections[0].label = 'An edited section';
   });
 
+  await test.step('And then I check the expand section checkbox', async () => {
+    await formBuilderPage.isExpandedCheckbox().uncheck();
+  });
+
   await test.step('Then I click the `Save` button', async () => {
+    await expect(formBuilderPage.saveButton()).toBeEnabled();
     await formBuilderPage.saveButton().click();
   });
 

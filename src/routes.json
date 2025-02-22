@@ -44,10 +44,6 @@
       "component": "deleteSectionModal"
     },
     {
-      "name": "edit-section-modal",
-      "component": "editSectionModal"
-    },
-    {
       "name": "question-modal",
       "component": "questionModal"
     },

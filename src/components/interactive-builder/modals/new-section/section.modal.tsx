@@ -10,12 +10,25 @@ interface SectionModalProps {
   schema: Schema;
   onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
+  sectionIndex?: number;
+  modalType?: 'edit';
 }
 
-const SectionModal: React.FC<SectionModalProps> = ({ closeModal, schema, onSchemaChange, pageIndex }) => {
+const SectionModal: React.FC<SectionModalProps> = ({
+  closeModal,
+  schema,
+  onSchemaChange,
+  pageIndex,
+  sectionIndex,
+  modalType,
+}) => {
   const { t } = useTranslation();
-  const [sectionTitle, setSectionTitle] = useState('');
-  const [isExpanded, setIsExpanded] = useState('true');
+  const [sectionTitle, setSectionTitle] = useState(() => {
+    return modalType === 'edit' ? schema.pages[pageIndex].sections[sectionIndex].label : '';
+  });
+  const [isExpanded, setIsExpanded] = useState(() => {
+    return modalType === 'edit' ? schema.pages[pageIndex].sections[sectionIndex].isExpanded : 'true';
+  });
 
   const handleUpdatePageSections = () => {
     updateSections();
@@ -28,11 +41,16 @@ const SectionModal: React.FC<SectionModalProps> = ({ closeModal, schema, onSchem
 
   const updateSections = () => {
     try {
-      schema.pages[pageIndex]?.sections?.push({
-        label: sectionTitle,
-        isExpanded: isExpanded,
-        questions: [],
-      });
+      if (modalType === 'edit') {
+        schema.pages[pageIndex].sections[sectionIndex].label = sectionTitle;
+        schema.pages[pageIndex].sections[sectionIndex].isExpanded = isExpanded;
+      } else {
+        schema.pages[pageIndex]?.sections?.push({
+          label: sectionTitle,
+          isExpanded: isExpanded,
+          questions: [],
+        });
+      }
       onSchemaChange({ ...schema });
       setSectionTitle('');
 
@@ -40,12 +58,16 @@ const SectionModal: React.FC<SectionModalProps> = ({ closeModal, schema, onSchem
         title: t('success', 'Success!'),
         kind: 'success',
         isLowContrast: true,
-        subtitle: t('sectionCreated', 'New section created'),
+        subtitle:
+          modalType === 'edit' ? t('sectionEdited', 'Section edited') : t('sectionCreated', 'New section created'),
       });
     } catch (error) {
       if (error instanceof Error) {
         showSnackbar({
-          title: t('errorCreatingSection', 'Error creating section'),
+          title:
+            modalType === 'edit'
+              ? t('errorCreatingSection', 'Error creating section')
+              : t('errorEditingSection', 'Error editing section'),
           kind: 'error',
           subtitle: error?.message,
         });
@@ -57,7 +79,9 @@ const SectionModal: React.FC<SectionModalProps> = ({ closeModal, schema, onSchem
     <>
       <ModalHeader
         className={styles.modalHeader}
-        title={t('createNewSection', 'Create a new section')}
+        title={
+          modalType === 'edit' ? t('editSection', 'Edit the section') : t('createNewSection', 'Create a new section')
+        }
         closeModal={closeModal}
       />
       <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>

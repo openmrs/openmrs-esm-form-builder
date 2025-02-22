@@ -104,12 +104,14 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
   const launchEditSectionModal = useCallback(
     (pageIndex: number, sectionIndex: number) => {
-      const dispose = showModal('edit-section-modal', {
+      const modalType = 'edit';
+      const dispose = showModal('new-section-modal', {
         closeModal: () => dispose(),
         pageIndex,
         sectionIndex,
         schema,
         onSchemaChange,
+        modalType,
       });
     },
     [onSchemaChange, schema],

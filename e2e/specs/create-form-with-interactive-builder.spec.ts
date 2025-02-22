@@ -115,6 +115,10 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
     await formBuilderPage.sectionNameInput().fill(formDetails.pages[0].sections[0].label);
   });
 
+  await test.step('And then I uncheck the expand section checkbox', async () => {
+    await formBuilderPage.isExpandedCheckbox().uncheck();
+  });
+
   await test.step('And then I click on `Save`', async () => {
     await expect(formBuilderPage.saveButton()).toBeEnabled();
     await formBuilderPage.saveButton().click();
@@ -129,7 +133,7 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
           sections: [
             {
               label: 'Testing history',
-              isExpanded: 'true',
+              isExpanded: 'false',
               questions: [],
             },
           ],
