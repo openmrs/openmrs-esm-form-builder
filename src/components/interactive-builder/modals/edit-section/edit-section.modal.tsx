@@ -1,24 +1,31 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Form, FormGroup, ModalBody, ModalFooter, ModalHeader, TextInput, Checkbox } from '@carbon/react';
+import { Button, ModalBody, ModalFooter, ModalHeader, Form, FormGroup, TextInput, Checkbox } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import type { Schema } from '@types';
 import styles from '../modals.scss';
 
-interface SectionModalProps {
+interface EditSectionModal {
   closeModal: () => void;
-  schema: Schema;
   onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
+  sectionIndex: number;
+  schema: Schema;
 }
 
-const SectionModal: React.FC<SectionModalProps> = ({ closeModal, schema, onSchemaChange, pageIndex }) => {
+const EditSectionModal: React.FC<EditSectionModal> = ({
+  closeModal,
+  onSchemaChange,
+  pageIndex,
+  sectionIndex,
+  schema,
+}) => {
   const { t } = useTranslation();
-  const [sectionTitle, setSectionTitle] = useState('');
-  const [isExpanded, setIsExpanded] = useState('true');
+  const [sectionTitle, setSectionTitle] = useState(schema.pages[pageIndex].sections[sectionIndex].label);
+  const [isExpanded, setIsExpanded] = useState(schema.pages[pageIndex].sections[sectionIndex].isExpanded);
 
-  const handleUpdatePageSections = () => {
-    updateSections();
+  const handleEditPageSections = () => {
+    editSection(pageIndex, sectionIndex);
     closeModal();
   };
 
@@ -26,26 +33,23 @@ const SectionModal: React.FC<SectionModalProps> = ({ closeModal, schema, onSchem
     checked === true ? setIsExpanded('true') : setIsExpanded('false');
   };
 
-  const updateSections = () => {
+  const editSection = (pageIndex: number, sectionIndex: number) => {
     try {
-      schema.pages[pageIndex]?.sections?.push({
-        label: sectionTitle,
-        isExpanded: isExpanded,
-        questions: [],
-      });
+      schema.pages[pageIndex].sections[sectionIndex].label = sectionTitle;
+      schema.pages[pageIndex].sections[sectionIndex].isExpanded = isExpanded;
+
       onSchemaChange({ ...schema });
-      setSectionTitle('');
 
       showSnackbar({
         title: t('success', 'Success!'),
         kind: 'success',
         isLowContrast: true,
-        subtitle: t('sectionCreated', 'New section created'),
+        subtitle: t('SectionEdited', 'Section edited'),
       });
     } catch (error) {
       if (error instanceof Error) {
         showSnackbar({
-          title: t('errorCreatingSection', 'Error creating section'),
+          title: t('errorDeletingSection', 'Error editing section'),
           kind: 'error',
           subtitle: error?.message,
         });
@@ -55,11 +59,7 @@ const SectionModal: React.FC<SectionModalProps> = ({ closeModal, schema, onSchem
 
   return (
     <>
-      <ModalHeader
-        className={styles.modalHeader}
-        title={t('createNewSection', 'Create a new section')}
-        closeModal={closeModal}
-      />
+      <ModalHeader className={styles.modalHeader} title={t('editSection', 'Edit section')} closeModal={closeModal} />
       <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
           <FormGroup legendText={''}>
@@ -83,11 +83,12 @@ const SectionModal: React.FC<SectionModalProps> = ({ closeModal, schema, onSchem
         <Button onClick={closeModal} kind="secondary">
           {t('cancel', 'Cancel')}
         </Button>
-        <Button disabled={!sectionTitle} onClick={handleUpdatePageSections}>
-          <span>{t('save', 'Save')}</span>
+        <Button disabled={!sectionTitle} onClick={handleEditPageSections}>
+          <span>{t('edit', 'Edit')}</span>
         </Button>
       </ModalFooter>
     </>
   );
 };
-export default SectionModal;
+
+export default EditSectionModal;
