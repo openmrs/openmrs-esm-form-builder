@@ -80,7 +80,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
       <ModalHeader
         className={styles.modalHeader}
         title={
-          modalType === 'edit' ? t('editSection', 'Edit the section') : t('createNewSection', 'Create a new section')
+          modalType === 'edit' ? t('editTheSection', 'Edit the section') : t('createNewSection', 'Create a new section')
         }
         closeModal={closeModal}
       />
