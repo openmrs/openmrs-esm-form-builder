@@ -149,7 +149,7 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   });
 
   await test.step('And then I check the expand section checkbox', async () => {
-    await formBuilderPage.isExpandedCheckbox().uncheck();
+    await formBuilderPage.isExpandedCheckbox().check();
   });
 
   await test.step('Then I click the `Save` button', async () => {
