@@ -97,7 +97,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
             <Checkbox
               id="isExpanded"
               checked={isExpanded === 'true' ? true : false}
-              labelText={t('expandedSection', 'Expand section')}
+              labelText={t('expandedSection', 'Keep section Expanded')}
               onChange={handleCheckboxChange}
             />
           </FormGroup>
