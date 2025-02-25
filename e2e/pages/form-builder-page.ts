@@ -60,7 +60,7 @@ export class FormBuilderPage {
       name: /rendering type/i,
     });
   readonly conceptSearchInput = () => this.page.getByPlaceholder(/search using a concept name or uuid/i);
-  readonly selectAnswersDropdown = () => this.page.getByText(/select answers to display/i);
+  readonly selectAnswersDropdown = () => this.page.getByRole('combobox', { name: /select answers to display/i });
   readonly answer = () => this.page.getByRole('menuitem', { name: /tested for covid 19/i });
   readonly questionIdInput = () => this.page.getByRole('textbox', { name: /question id/i });
   readonly questionCreatedMessage = () => this.page.getByText(/new question created/i);
