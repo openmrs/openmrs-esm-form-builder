@@ -187,6 +187,7 @@ const ProgramStateTypeQuestion: React.FC = () => {
           ) : (
             programStates?.length > 0 && (
               <MultiSelect
+                label={t('programState', 'Program state')}
                 titleText={t('programState', 'Program state')}
                 id="programState"
                 items={programStates}

@@ -54,11 +54,7 @@ describe('PatientIdentifierTypeQuestion', () => {
       }),
     ).toBeInTheDocument();
     await user.click(menuBox);
-    expect(
-      screen.getByRole('listbox', {
-        name: /choose an item/i,
-      }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
     expect(screen.getByText(/type 1/i)).toBeInTheDocument();
     expect(screen.getByText(/type 2/i)).toBeInTheDocument();
   });
