@@ -43,19 +43,21 @@ const SelectAnswers: React.FC = () => {
           label: answer.text,
         }));
 
-      setFormField((prevField) => {
-        const currentAnswers = prevField.questionOptions?.answers || [];
-        if (JSON.stringify(currentAnswers) === JSON.stringify(mappedAnswers)) {
-          return prevField;
-        }
-        return {
-          ...prevField,
-          questionOptions: {
-            ...prevField.questionOptions,
-            answers: mappedAnswers,
-          },
-        };
-      });
+      setTimeout(() => {
+        setFormField((prevField) => {
+          const currentAnswers = prevField.questionOptions?.answers || [];
+          if (JSON.stringify(currentAnswers) === JSON.stringify(mappedAnswers)) {
+            return prevField;
+          }
+          return {
+            ...prevField,
+            questionOptions: {
+              ...prevField.questionOptions,
+              answers: mappedAnswers,
+            },
+          };
+        });
+      }, 0);
     },
     [setFormField],
   );
@@ -139,6 +141,7 @@ const SelectAnswers: React.FC = () => {
       {answerItems.length > 0 && (
         <MultiSelect
           className={styles.multiSelect}
+          label={t('selectAnswersToDisplay', 'Select answers to display')}
           direction="top"
           id="selectAnswers"
           items={answerItems}
