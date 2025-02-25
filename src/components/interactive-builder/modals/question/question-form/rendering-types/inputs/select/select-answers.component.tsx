@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { Tag, MultiSelect, Stack } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
@@ -15,6 +15,12 @@ const SelectAnswers: React.FC = () => {
   const { t } = useTranslation();
   const { formField, concept, setFormField } = useFormField();
   const [addedAnswers, setAddedAnswers] = useState<AnswerItem[]>([]);
+
+  useEffect(() => {
+    if (!concept) {
+      setAddedAnswers([]);
+    }
+  }, [concept]);
 
   // Storing the initial questionOptions answers
   const initialAnswers = useRef(formField.questionOptions?.answers ?? []);

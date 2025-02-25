@@ -8,7 +8,7 @@ import styles from './obs-type-question.scss';
 
 const ObsTypeQuestion: React.FC = () => {
   const { t } = useTranslation();
-  const { formField, setFormField, concept } = useFormField();
+  const { formField, setFormField, concept, setConcept } = useFormField();
 
   const getDatePickerType = useCallback((concept: Concept): DatePickerType | null => {
     const conceptDataType = concept.datatype.name;
@@ -27,6 +27,7 @@ const ObsTypeQuestion: React.FC = () => {
   const handleConceptSelect = useCallback(
     (selectedConcept: Concept) => {
       if (selectedConcept) {
+        setConcept(selectedConcept);
         const datePickerType = getDatePickerType(selectedConcept);
         setFormField((prevField) => ({
           ...prevField,
@@ -38,10 +39,11 @@ const ObsTypeQuestion: React.FC = () => {
         }));
       }
     },
-    [getDatePickerType, setFormField],
+    [getDatePickerType, setFormField, setConcept],
   );
 
   const clearSelectedConcept = useCallback(() => {
+    setConcept(null);
     setFormField((prevFormField) => {
       const updatedFormField = { ...prevFormField };
       if (updatedFormField.questionOptions) {
@@ -53,7 +55,7 @@ const ObsTypeQuestion: React.FC = () => {
       }
       return updatedFormField;
     });
-  }, [setFormField]);
+  }, [setFormField, setConcept]);
 
   const conceptMappings: ConceptMapping[] = useMemo(() => {
     if (concept && concept.mappings) {
@@ -75,6 +77,7 @@ const ObsTypeQuestion: React.FC = () => {
         defaultConcept={formField.questionOptions?.concept ?? null}
         onClearSelectedConcept={clearSelectedConcept}
         onSelectConcept={handleConceptSelect}
+        retainConceptInContextAfterSearch={true}
       />
 
       {concept?.allowDecimal === false && (

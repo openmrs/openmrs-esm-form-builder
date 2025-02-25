@@ -1,19 +1,33 @@
 import type { APIRequestContext } from '@playwright/test';
 import { expect } from '@playwright/test';
 import customSchema from '../support/custom-schema.json';
-import type { Form } from '../../src/types';
+import type { Form } from '@types';
 
-export const createForm = async (api: APIRequestContext, isFormPublished: boolean) => {
+export interface FormData {
+  name: string;
+  version: string;
+  published: boolean;
+  description: string;
+}
+
+export const createForm = async (api: APIRequestContext, isFormPublished?: boolean, formData?: FormData) => {
   const formResponse = await api.post('form', {
-    data: {
-      name: `A sample test form ${Math.floor(Math.random() * 10000)}`,
-      version: '1.0',
-      published: isFormPublished,
-      description: 'This is the form description',
-      encounterType: {
-        uuid: 'e22e39fd-7db2-45e7-80f1-60fa0d5a4378',
-      },
-    },
+    data: formData
+      ? {
+          ...formData,
+          encounterType: {
+            uuid: 'e22e39fd-7db2-45e7-80f1-60fa0d5a4378',
+          },
+        }
+      : {
+          name: `A sample test form ${Math.floor(Math.random() * 10000)}`,
+          version: '1.0',
+          published: isFormPublished,
+          description: 'This is the form description',
+          encounterType: {
+            uuid: 'e22e39fd-7db2-45e7-80f1-60fa0d5a4378',
+          },
+        },
   });
   expect(formResponse.ok()).toBeTruthy();
   const form = await formResponse.json();
