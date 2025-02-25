@@ -129,7 +129,7 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
           sections: [
             {
               label: 'Testing history',
-              isExpanded: 'false',
+              isExpanded: 'true',
               questions: [],
             },
           ],

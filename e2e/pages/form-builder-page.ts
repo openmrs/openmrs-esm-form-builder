@@ -42,7 +42,7 @@ export class FormBuilderPage {
   readonly pageCreatedMessage = () => this.page.getByText(/new page created/i);
   readonly addSectionButton = () => this.page.getByRole('button', { name: /add section/i });
   readonly sectionNameInput = () => this.page.getByRole('textbox', { name: /enter a section title/i });
-  readonly isExpandedCheckbox = () => this.page.getByRole('checkbox', { name: /keep section Expanded/i });
+  readonly isExpandedCheckbox = () => this.page.getByTestId('keep-section-expanded-checkbox');
   readonly editSectionButton = () => this.page.getByRole('button', { name: /edit section/i });
   readonly editSectionNameInput = () => this.page.locator('#sectionNameInput');
   readonly deleteSectionButton = () => this.page.getByRole('button', { name: /delete section/i });

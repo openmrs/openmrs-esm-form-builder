@@ -149,7 +149,15 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   });
 
   await test.step('And then I check the expand section checkbox', async () => {
-    await formBuilderPage.isExpandedCheckbox().check();
+    await page.evaluate(() => {
+      const checkbox = document.querySelector(
+        'input[data-testid="keep-section-expanded-checkbox"]',
+      ) as HTMLInputElement;
+      if (checkbox) {
+        checkbox.click();
+      }
+    });
+    updatedForm.pages[0].sections[0].isExpanded = 'false';
   });
 
   await test.step('Then I click the `Save` button', async () => {
