@@ -158,7 +158,7 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   });
 
   await test.step('Then I should get a success message and the section name should be renamed', async () => {
-    await expect(formBuilderPage.page.getByText(/section renamed/i)).toBeVisible();
+    await expect(formBuilderPage.page.getByText(/section edited/i)).toBeVisible();
     await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited section/i })).toBeVisible();
     const formTextContent = await formBuilderPage.schemaEditorContent().textContent();
     expect(JSON.parse(formTextContent)).toEqual(updatedForm);
