@@ -44,7 +44,6 @@ const ObsTypeQuestion: React.FC = () => {
           },
           ...(datePickerType && { datePickerFormat: datePickerType }),
         }));
-        setSelectedMapping(null);
       }
     },
     [getDatePickerType, setFormField, setConcept],
