@@ -29,6 +29,86 @@ interface QuestionModalProps {
   resetIndices: () => void;
 }
 
+/**
+ * Common properties that are required for all question types.
+ */
+const requiredProperties: Array<keyof FormField> = ['id', 'label', 'type', 'questionOptions'];
+
+/**
+ * Type-specific properties.
+ */
+const typeSpecificProperties: Record<string, Array<keyof FormField>> = {
+  control: [],
+  encounterDatetime: ['datePickerFormat'],
+  encounterLocation: [],
+  encounterProvider: [],
+  encounterRole: [],
+  obs: ['required'],
+  obsGroup: ['questions'],
+  patientIdentifier: [],
+  testOrder: [],
+  programState: [],
+};
+
+/**
+ * Merge required properties with type-specific ones.
+ */
+const allowedPropertiesMapping: Record<string, string[]> = Object.fromEntries(
+  Object.entries(typeSpecificProperties).map(([type, props]) => {
+    const mergedProps = new Set<string>([...requiredProperties, ...props]);
+    return [type, Array.from(mergedProps)];
+  }),
+);
+
+/**
+ * Mapping of allowed keys for the nested questionOptions object per question type.
+ */
+const allowedQuestionOptionsMapping: Record<string, string[]> = {
+  control: ['rendering', 'minLength', 'maxLength'],
+  encounterDatetime: ['rendering'],
+  encounterLocation: ['rendering'],
+  encounterProvider: ['rendering'],
+  encounterRole: ['rendering', 'isSearchable'],
+  obs: ['rendering', 'concept', 'answers'],
+  obsGroup: ['rendering', 'concept'],
+  patientIdentifier: ['rendering', 'identifierType', 'minLength', 'maxLength'],
+  testOrder: ['rendering'],
+  programState: ['rendering', 'programUuid', 'workflowUuid', 'answers'],
+};
+
+/**
+ * Cleans the given questionOptions object by retaining only allowed keys for the new type.
+ */
+function cleanQuestionOptionsForType(options: any, newType: string): any {
+  const allowedOpts = allowedQuestionOptionsMapping[newType] || [];
+  const cleanedOpts = Object.fromEntries(Object.entries(options).filter(([optKey]) => allowedOpts.includes(optKey)));
+  cleanedOpts.rendering = options.rendering;
+  return cleanedOpts;
+}
+
+/**
+ * Cleans the given form field by retaining only allowed top‑level properties for the new type.
+ * Also cleans nested questionOptions using the nested mapping.
+ */
+export function cleanFormFieldForType(field: FormField, newType: string): FormField {
+  const allowedKeys = allowedPropertiesMapping[newType] || [];
+  const cleaned: Partial<FormField> = {};
+
+  allowedKeys.forEach((key) => {
+    if (key in field) {
+      (cleaned as any)[key] = field[key as keyof FormField];
+    }
+  });
+
+  // If questionOptions is allowed and exists, clean it using the nested mapping.
+  if (cleaned.questionOptions && typeof cleaned.questionOptions === 'object') {
+    cleaned.questionOptions = cleanQuestionOptionsForType(cleaned.questionOptions, newType);
+  }
+
+  cleaned.type = newType;
+  return cleaned as FormField;
+}
+
 const getAllQuestionIds = (questions?: FormField[]): string[] => {
   if (!questions) return [];
   return flattenDeep(questions.map((question) => [question.id, getAllQuestionIds(question.questions)]));
@@ -45,10 +125,6 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { formField, setFormField } = useFormField();
-
-  /**
-   * NOTE - this does not support nested obsGroup questions
-   */
   const checkIfQuestionIdExists = useCallback(
     (idToTest: string): boolean => {
       // Get all IDs from the schema
@@ -80,6 +156,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
       const allIds = [...filteredSchemaIds, ...formFieldIds];
       const occurrences = allIds.filter((id) => id === idToTest).length;
 
+      // Return true if ID occurs more than once
       return occurrences > 1;
     },
     [schema, formField, formFieldProp],
@@ -166,7 +243,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                     <AccordionItem
                       key={`Question ${index + 1}`}
                       title={question.label ?? `Question ${index + 1}`}
-                      open={index === formField.questions?.length - 1}
+                      open={index === formField.questions.length - 1}
                       className={styles.obsGroupQuestionContent}
                     >
                       <FormFieldProvider
