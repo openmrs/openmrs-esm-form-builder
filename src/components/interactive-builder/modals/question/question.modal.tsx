@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import flattenDeep from 'lodash-es/flattenDeep';
 import {
@@ -82,10 +82,7 @@ const allowedQuestionOptionsMapping: Record<string, string[]> = {
 function cleanQuestionOptionsForType(options: any, newType: string): any {
   const allowedOpts = allowedQuestionOptionsMapping[newType] || [];
   const cleanedOpts = Object.fromEntries(Object.entries(options).filter(([optKey]) => allowedOpts.includes(optKey)));
-  // Ensure required property 'rendering' exists if present in the original options.
-  if (!('rendering' in cleanedOpts) && options.rendering) {
-    cleanedOpts.rendering = options.rendering;
-  }
+  cleanedOpts.rendering = options.rendering;
   return cleanedOpts;
 }
 
@@ -93,7 +90,7 @@ function cleanQuestionOptionsForType(options: any, newType: string): any {
  * Cleans the given form field by retaining only allowed top‑level properties for the new type.
  * Also cleans nested questionOptions using the nested mapping.
  */
-function cleanFormFieldForType(field: FormField, newType: string): FormField {
+export function cleanFormFieldForType(field: FormField, newType: string): FormField {
   const allowedKeys = allowedPropertiesMapping[newType] || [];
   const cleaned: Partial<FormField> = {};
 
@@ -109,9 +106,13 @@ function cleanFormFieldForType(field: FormField, newType: string): FormField {
   }
 
   cleaned.type = newType;
-
   return cleaned as FormField;
 }
+
+const getAllQuestionIds = (questions?: FormField[]): string[] => {
+  if (!questions) return [];
+  return flattenDeep(questions.map((question) => [question.id, getAllQuestionIds(question.questions)]));
+};
 
 const QuestionModalContent: React.FC<QuestionModalProps> = ({
   formField: formFieldProp,
@@ -124,20 +125,6 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { formField, setFormField } = useFormField();
-  useEffect(() => {
-    if (formField && formField.type) {
-      const cleaned = cleanFormFieldForType(formField, formField.type);
-      if (JSON.stringify(cleaned) !== JSON.stringify(formField)) {
-        setFormField(cleaned);
-      }
-    }
-  }, [formField?.type, formField, setFormField]);
-
-  const getAllQuestionIds = useCallback((questions?: FormField[]): string[] => {
-    if (!questions) return [];
-    return flattenDeep(questions.map((question) => [question.id, getAllQuestionIds(question.questions)]));
-  }, []);
-
   const checkIfQuestionIdExists = useCallback(
     (idToTest: string): boolean => {
       // Get all IDs from the schema
@@ -145,18 +132,34 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
         schema?.pages?.flatMap((page) => page?.sections?.flatMap((section) => getAllQuestionIds(section.questions))) ||
         [];
 
-      // Get all IDs from the current formField's questions array
+      // Get all IDs from the obsGroup questions
       const formFieldIds: string[] = formField?.questions ? getAllQuestionIds(formField.questions) : [];
 
+      // The main question's id
+      formFieldIds.push(formField.id);
+
+      const originalFormFieldQuestionIds =
+        formFieldProp && formFieldProp.id !== '' ? getAllQuestionIds(formFieldProp.questions) : [];
+
+      if (formFieldProp && formFieldProp.id !== '') originalFormFieldQuestionIds.push(formFieldProp.id);
+
+      // Remove the ids from the original question from the schema ids
+      const filteredSchemaIds = schemaIds.slice(); // Create a copy to modify
+      originalFormFieldQuestionIds.forEach((idToRemove) => {
+        const indexToRemove = filteredSchemaIds.indexOf(idToRemove);
+        if (indexToRemove !== -1) {
+          filteredSchemaIds.splice(indexToRemove, 1);
+        }
+      });
+
       // Combine both arrays, along with the parent question ID and count occurrences of the ID
-      const allIds = [...schemaIds, ...formFieldIds];
-      if (!formFieldProp || formFieldProp.id !== formField.id) {
-        allIds.push(formField.id);
-      }
+      const allIds = [...filteredSchemaIds, ...formFieldIds];
       const occurrences = allIds.filter((id) => id === idToTest).length;
+
+      // Return true if ID occurs more than once
       return occurrences > 1;
     },
-    [schema, getAllQuestionIds, formField, formFieldProp],
+    [schema, formField, formFieldProp],
   );
 
   const addObsGroupQuestion = useCallback(() => {
