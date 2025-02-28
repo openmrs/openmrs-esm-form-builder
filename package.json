@@ -46,7 +46,7 @@
     "url": "https://github.com/openmrs/openmrs-esm-form-builder/issues"
   },
   "dependencies": {
-    "@carbon/react": "~1.49.0",
+    "@carbon/react": "^1.75.0",
     "@openmrs/esm-form-engine-lib": "latest",
     "ajv": "^8.17.1",
     "dotenv": "^16.4.5",

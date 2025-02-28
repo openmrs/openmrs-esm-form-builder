@@ -178,8 +178,8 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
 
   await test.step('And then I select `Yes` and `No` as the answers to display', async () => {
     await formBuilderPage.selectAnswersDropdown().click();
-    await formBuilderPage.page.getByRole('option', { name: 'No' }).click();
-    await formBuilderPage.page.getByRole('option', { name: 'Yes' }).click();
+    await formBuilderPage.page.getByRole('option', { name: /no/i }).click();
+    await formBuilderPage.page.getByRole('option', { name: /yes/i }).click();
   });
 
   await test.step('And then I click on `Save`', async () => {
