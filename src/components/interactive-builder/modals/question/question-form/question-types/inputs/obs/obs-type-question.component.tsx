@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { FormLabel, InlineNotification, FormGroup, Stack } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
@@ -6,13 +6,16 @@ import { useFormField } from '../../../../form-field-context';
 import type { Concept, ConceptMapping, DatePickerType } from '@types';
 import styles from './obs-type-question.scss';
 
-const ObsTypeQuestion: React.FC = () => {
+interface ObsTypeQuestionProps {
+  setIsConceptIdValid?: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const ObsTypeQuestion: React.FC<ObsTypeQuestionProps> = ({ setIsConceptIdValid }) => {
   const { t } = useTranslation();
   const { formField, setFormField, concept, setConcept } = useFormField();
 
-  const getDatePickerType = useCallback((concept: Concept): DatePickerType | null => {
-    const conceptDataType = concept.datatype.name;
-    switch (conceptDataType) {
+  const getDatePickerType = useCallback((selectedConcept: Concept): DatePickerType | null => {
+    switch (selectedConcept.datatype.name) {
       case 'Datetime':
         return 'both';
       case 'Date':
@@ -78,6 +81,7 @@ const ObsTypeQuestion: React.FC = () => {
         onClearSelectedConcept={clearSelectedConcept}
         onSelectConcept={handleConceptSelect}
         retainConceptInContextAfterSearch={true}
+        onConceptValidityChange={(valid) => setIsConceptIdValid?.(valid)}
       />
 
       {concept?.allowDecimal === false && (
