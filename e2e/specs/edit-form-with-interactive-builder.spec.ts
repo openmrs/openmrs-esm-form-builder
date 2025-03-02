@@ -63,7 +63,7 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
                 type: 'obs',
                 questionOptions: {
                   rendering: 'text',
-                  concept: 'a-system-defined-concept-uuid',
+                  concept: '104677AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
                 },
                 id: 'sampleQuestion',
               },
