@@ -15,6 +15,7 @@ interface ConceptSearchProps {
   onClearSelectedConcept?: () => void;
   onSelectConcept: (concept: Concept) => void;
   retainConceptInContextAfterSearch?: boolean;
+  onConceptValidityChange?: (valid: boolean) => void;
 }
 
 const ConceptSearch: React.FC<ConceptSearchProps> = ({
@@ -23,6 +24,7 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
   onClearSelectedConcept,
   onSelectConcept,
   retainConceptInContextAfterSearch = false,
+  onConceptValidityChange,
 }) => {
   const { t } = useTranslation();
   const [conceptToLookup, setConceptToLookup] = useState('');
@@ -43,6 +45,13 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
     }
   }, [initialConcept, retainConceptInContextAfterSearch, concept, setConcept]);
 
+  useEffect(() => {
+    if (onConceptValidityChange) {
+      const valid = !(conceptLookupError || conceptNameLookupError);
+      onConceptValidityChange(valid);
+    }
+  }, [conceptLookupError, conceptNameLookupError, onConceptValidityChange]);
+
   const handleConceptChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => setConceptToLookup(event.target.value),
     [],
@@ -53,22 +62,24 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
       setConceptToLookup('');
       setSelectedConcept(concept);
       onSelectConcept(concept);
+      onConceptValidityChange?.(true);
     },
-    [onSelectConcept],
+    [onSelectConcept, onConceptValidityChange],
   );
 
   const clearSelectedConcept = useCallback(() => {
     setSelectedConcept(null);
     setConceptToLookup('');
     if (onClearSelectedConcept) onClearSelectedConcept();
-  }, [onClearSelectedConcept]);
+    onConceptValidityChange?.(false);
+  }, [onClearSelectedConcept, onConceptValidityChange]);
 
   return (
     <>
       <FormLabel className={styles.label}>
         {label ?? t('searchForBackingConcept', 'Search for a backing concept')}
       </FormLabel>
-      {conceptLookupError || conceptNameLookupError ? (
+      {(conceptLookupError || conceptNameLookupError) && (
         <InlineNotification
           kind="error"
           lowContrast
@@ -86,7 +97,7 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
                 })
           }
         />
-      ) : null}
+      )}
       {isLoadingConcept ? (
         <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />
       ) : (
@@ -135,9 +146,8 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
                 <strong>"{debouncedConceptToLookup}".</strong>
               </span>
             </Tile>
-
             <div className={styles.oclLauncherBanner}>
-              {<p className={styles.bodyShort01}>{t('conceptSearchHelpText', "Can't find a concept?")}</p>}
+              <p className={styles.bodyShort01}>{t('conceptSearchHelpText', "Can't find a concept?")}</p>
               <a
                 className={styles.oclLink}
                 target="_blank"
