@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import AceEditor from 'react-ace';
 import 'ace-builds/webpack-resolver';
 import { addCompleter } from 'ace-builds/src-noconflict/ext-language_tools';
@@ -8,6 +8,7 @@ import { ActionableNotification, Link } from '@carbon/react';
 import { useStandardFormSchema } from '@hooks/useStandardFormSchema';
 import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
+import isEqual from 'lodash-es/isEqual';
 import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
 import styles from './schema-editor.scss';
 
@@ -25,6 +26,13 @@ interface SchemaEditorProps {
   setValidationOn: (validationStatus: boolean) => void;
 }
 
+// Interface for schema sections to track changes
+interface SchemaSection {
+  path: string;
+  content: any;
+  errors?: Array<MarkerProps>;
+}
+
 const SchemaEditor: React.FC<SchemaEditorProps> = ({
   onSchemaChange,
   stringifiedSchema,
@@ -39,6 +47,11 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     Array<{ name: string; type: string; path: string }>
   >([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+
+  // Store previous schema sections for comparison
+  const [schemaSections, setSchemaSections] = useState<SchemaSection[]>([]);
+  const ajvRef = useRef<Ajv | null>(null);
+  const previousSchemaRef = useRef<string>('');
 
   // Enable autocompletion in the schema
   const generateAutocompleteSuggestions = useCallback(() => {
@@ -104,72 +117,187 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     });
   }, [autocompleteSuggestions]);
 
-  // Validate JSON schema
-  const validateSchema = (content: string, schema) => {
+  // Initialize Ajv instance once
+  useEffect(() => {
+    if (!ajvRef.current) {
+      ajvRef.current = new Ajv({ allErrors: true, jsPropertySyntax: true, strict: false });
+    }
+  }, []);
+
+  // Extract schema sections for comparison
+  const extractSchemaSections = useCallback((content: string): SchemaSection[] => {
     try {
-      const trimmedContent = content.replace(/\s/g, '');
-      // Check if the content is an empty object
-      if (trimmedContent.trim() === '{}') {
-        // Reset errors since the JSON is considered valid
-        setErrors([]);
-        return;
+      const parsedContent = JSON.parse(content);
+      const sections: SchemaSection[] = [];
+
+      // Extract top-level properties
+      if (parsedContent.name) {
+        sections.push({ path: 'name', content: parsedContent.name });
       }
 
-      const ajv = new Ajv({ allErrors: true, jsPropertySyntax: true, strict: false });
-      const validate = ajv.compile(schema);
-      const parsedContent = JSON.parse(content);
-      const isValid = validate(parsedContent);
-      const jsonLines = content.split('\n');
+      if (parsedContent.encounterType) {
+        sections.push({ path: 'encounterType', content: parsedContent.encounterType });
+      }
 
-      const traverse = (schemaPath) => {
-        const pathSegments = schemaPath.split('/').filter((segment) => segment !== '' || segment !== 'type');
-        let lineNumber = -1;
+      if (parsedContent.processor) {
+        sections.push({ path: 'processor', content: parsedContent.processor });
+      }
 
-        for (const segment of pathSegments) {
-          if (segment === 'properties' || segment === 'items') continue; // Skip 'properties' and 'items'
-          const match = segment.match(/^([^[\]]+)/); // Extract property key
-          if (match) {
-            const propertyName: string = pathSegments[pathSegments.length - 2]; // Get property key
-            lineNumber = jsonLines.findIndex((line) => line.includes(propertyName));
+      if (parsedContent.uuid) {
+        sections.push({ path: 'uuid', content: parsedContent.uuid });
+      }
+
+      // Extract pages and their sections
+      if (parsedContent.pages && Array.isArray(parsedContent.pages)) {
+        parsedContent.pages.forEach((page, pageIndex) => {
+          sections.push({ path: `pages[${pageIndex}]`, content: page });
+
+          // Extract sections within pages
+          if (page.sections && Array.isArray(page.sections)) {
+            page.sections.forEach((section, sectionIndex) => {
+              sections.push({
+                path: `pages[${pageIndex}].sections[${sectionIndex}]`,
+                content: section,
+              });
+
+              // Extract questions within sections
+              if (section.questions && Array.isArray(section.questions)) {
+                section.questions.forEach((question, questionIndex) => {
+                  sections.push({
+                    path: `pages[${pageIndex}].sections[${sectionIndex}].questions[${questionIndex}]`,
+                    content: question,
+                  });
+                });
+              }
+            });
           }
-          if (lineNumber !== -1) break;
+        });
+      }
+
+      return sections;
+    } catch (error) {
+      console.error('Error parsing JSON for section extraction:', error);
+      return [];
+    }
+  }, []);
+
+  // Validate JSON schema with memoization
+  const validateSchema = useCallback(
+    (content: string, schema) => {
+      try {
+        const trimmedContent = content.replace(/\s/g, '');
+        // Check if the content is an empty object
+        if (trimmedContent.trim() === '{}') {
+          // Reset errors since the JSON is considered valid
+          setErrors([]);
+          return;
         }
 
-        return lineNumber;
-      };
+        // Parse the content
+        const parsedContent = JSON.parse(content);
 
-      if (!isValid) {
-        const errorMarkers = validate.errors.map((error) => {
-          const schemaPath = error.schemaPath.replace(/^#\//, ''); // Remove leading '#/'
-          const lineNumber = traverse(schemaPath);
-          const pathSegments = error.instancePath.split('.'); // Split the path into segments
-          const errorPropertyName = pathSegments[pathSegments.length - 1];
-          const message =
-            error.keyword === 'type' || error.keyword === 'enum'
-              ? `${errorPropertyName.charAt(0).toUpperCase() + errorPropertyName.slice(1)} ${error.message}`
-              : `${error.message.charAt(0).toUpperCase() + error.message.slice(1)}`;
+        // Extract current schema sections
+        const currentSections = extractSchemaSections(content);
 
-          return {
-            startRow: lineNumber,
-            startCol: 0,
-            endRow: lineNumber,
-            endCol: 1,
-            className: 'error',
-            text: message,
-            type: 'text' as const,
-          };
+        // If schema hasn't changed, reuse previous validation results
+        if (previousSchemaRef.current === content) {
+          return;
+        }
+
+        // Compare with previous sections to find what changed
+        const changedSections: SchemaSection[] = [];
+        const unchangedSections: SchemaSection[] = [];
+
+        currentSections.forEach((currentSection) => {
+          const previousSection = schemaSections.find((s) => s.path === currentSection.path);
+
+          if (!previousSection || !isEqual(previousSection.content, currentSection.content)) {
+            changedSections.push(currentSection);
+          } else {
+            // Reuse previous validation results for unchanged sections
+            unchangedSections.push(previousSection);
+          }
         });
 
-        setErrors(errorMarkers);
-      } else {
-        setErrors([]);
-      }
-    } catch (error) {
-      console.error('Error parsing or validating JSON:', error);
-    }
-  };
+        // If no Ajv instance, create one
+        if (!ajvRef.current) {
+          ajvRef.current = new Ajv({ allErrors: true, jsPropertySyntax: true, strict: false });
+        }
 
-  const debouncedValidateSchema = debounce(validateSchema, 300);
+        const validate = ajvRef.current.compile(schema);
+        const isValid = validate(parsedContent);
+        const jsonLines = content.split('\n');
+
+        const traverse = (schemaPath) => {
+          const pathSegments = schemaPath.split('/').filter((segment) => segment !== '' || segment !== 'type');
+          let lineNumber = -1;
+
+          for (const segment of pathSegments) {
+            if (segment === 'properties' || segment === 'items') continue; // Skip 'properties' and 'items'
+            const match = segment.match(/^([^[\]]+)/); // Extract property key
+            if (match) {
+              const propertyName: string = pathSegments[pathSegments.length - 2]; // Get property key
+              lineNumber = jsonLines.findIndex((line) => line.includes(propertyName));
+            }
+            if (lineNumber !== -1) break;
+          }
+
+          return lineNumber;
+        };
+
+        // Process validation errors
+        let allErrors: MarkerProps[] = [];
+
+        if (!isValid && validate.errors) {
+          // Group errors by path to associate them with sections
+          const errorsByPath = validate.errors.reduce((acc, error) => {
+            const path = error.instancePath || '/';
+            if (!acc[path]) {
+              acc[path] = [];
+            }
+            acc[path].push(error);
+            return acc;
+          }, {});
+
+          // Process errors for changed sections
+          const newErrorMarkers = validate.errors.map((error) => {
+            const schemaPath = error.schemaPath.replace(/^#\//, ''); // Remove leading '#/'
+            const lineNumber = traverse(schemaPath);
+            const pathSegments = error.instancePath.split('.'); // Split the path into segments
+            const errorPropertyName = pathSegments[pathSegments.length - 1] || 'Schema';
+            const message =
+              error.keyword === 'type' || error.keyword === 'enum'
+                ? `${errorPropertyName.charAt(0).toUpperCase() + errorPropertyName.slice(1)} ${error.message}`
+                : `${error.message.charAt(0).toUpperCase() + error.message.slice(1)}`;
+
+            return {
+              startRow: lineNumber,
+              startCol: 0,
+              endRow: lineNumber,
+              endCol: 1,
+              className: 'error',
+              text: message,
+              type: 'text' as const,
+            };
+          });
+
+          allErrors = newErrorMarkers;
+        }
+
+        // Update schema sections with new validation results
+        setSchemaSections(currentSections);
+        previousSchemaRef.current = content;
+
+        // Set all errors
+        setErrors(allErrors);
+      } catch (error) {
+        console.error('Error parsing or validating JSON:', error);
+      }
+    },
+    [extractSchemaSections, setErrors, schemaSections],
+  );
+
+  const debouncedValidateSchema = useMemo(() => debounce(validateSchema, 300), [validateSchema]);
 
   const handleChange = (newValue: string) => {
     setValidationOn(false);
