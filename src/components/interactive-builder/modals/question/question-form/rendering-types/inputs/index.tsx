@@ -6,3 +6,4 @@ export { default as Toggle } from './toggle/toggle.component';
 export { default as UiSelectExtended } from './ui-select-extended/ui-select-extended.component';
 export { default as Markdown } from './markdown/markdown.component';
 export { default as SelectAnswers } from './select/select-answers.component';
+export { default as WorkspaceLauncher } from './workspace-launcher/workspace-launcher.component';
