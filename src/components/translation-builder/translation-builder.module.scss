@@ -1,0 +1,51 @@
+.translationBuilderContainer {
+  padding: 1rem;
+}
+
+.languageSelector {
+  margin-bottom: 1rem;
+  display: inline-flex;
+  align-items: center;
+
+  label {
+    margin-right: 0.5rem;
+    white-space: nowrap;
+  }
+
+  select {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+}
+
+.translationEditor {
+  margin-top: 1rem;
+}
+
+.recursiveContainer {
+  margin-left: 1rem;
+  margin-bottom: 1rem;
+}
+
+.nestedSection {
+  margin-left: 1rem;
+  border-left: 2px solid #ccc;
+  padding-left: 0.5rem;
+}
+
+.sectionLabel {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.translationField {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.5rem;
+
+  label {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+  }
+}

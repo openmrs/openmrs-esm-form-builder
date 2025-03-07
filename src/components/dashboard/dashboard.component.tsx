@@ -34,6 +34,7 @@ import {
   useLayoutType,
   usePagination,
 } from '@openmrs/esm-framework';
+
 import EmptyState from '../empty-state/empty-state.component';
 import ErrorState from '../error-state/error-state.component';
 import Header from '../header/header.component';
@@ -41,8 +42,10 @@ import { deleteForm } from '@resources/forms.resource';
 import { FormBuilderPagination } from '../pagination';
 import { useClobdata } from '@hooks/useClobdata';
 import { useForms } from '@hooks/useForms';
+
 import type { ConfigObject } from '../../config-schema';
 import type { Form as TypedForm } from '@types';
+
 import styles from './dashboard.scss';
 
 type Mutator = KeyedMutator<{
@@ -199,7 +202,7 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
 
   return (
     <>
-      {formResources.length == 0 || !form?.resources[0] ? (
+      {formResources.length === 0 || !form?.resources[0] ? (
         <ImportButton />
       ) : (
         <>
@@ -209,6 +212,27 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
       )}
       <DeleteButton />
     </>
+  );
+}
+
+/**
+ * This button navigates to the Form Editor with `?tab=translation`.
+ * The Form Editor should detect `tab=translation` and auto-select
+ * the Translation Builder tab.
+ */
+function ManageTranslationsButton({ form }: { form: TypedForm }) {
+  const { t } = useTranslation();
+
+  const handleManageTranslations = () => {
+    navigate({
+      to: `${window.spaBase}/form-builder/edit/${form.uuid}?tab=translation`,
+    });
+  };
+
+  return (
+    <Button kind="ghost" size="sm" onClick={handleManageTranslations}>
+      {t('manageTranslations', 'Manage Translations')}
+    </Button>
   );
 }
 
@@ -223,19 +247,15 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
     if (!filter) {
       return forms;
     }
-
     if (filter === 'Published') {
       return forms.filter((form) => form.published);
     }
-
     if (filter === 'Unpublished') {
       return forms.filter((form) => !form.published);
     }
-
     if (filter === 'Retired') {
       return forms.filter((form) => form.retired);
     }
-
     return forms;
   }, [filter, forms]);
 
@@ -260,6 +280,10 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
       header: t('schemaActions', 'Schema actions'),
       key: 'actions',
     },
+    {
+      header: t('manageTranslation', 'Manage Translation'),
+      key: 'manageTranslation', // <-- Key for the new column
+    },
   ];
 
   const editSchemaUrl = '${openmrsSpaBase}/form-builder/edit/${formUuid}';
@@ -268,7 +292,6 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
     if (searchString && searchString.trim() !== '') {
       return filteredRows.filter((form) => form.name.toLowerCase().includes(searchString.toLowerCase()));
     }
-
     return filteredRows;
   }, [searchString, filteredRows]);
 
@@ -290,6 +313,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
     published: <CustomTag condition={form.published} />,
     retired: <CustomTag condition={form.retired} />,
     actions: <ActionButtons form={form} mutate={mutate} responsiveSize={responsiveSize} t={t} />,
+    manageTranslation: <ManageTranslationsButton form={form} />, // <--- Render the new button
   }));
 
   const handleFilter = ({ selectedItem }: { selectedItem: string }) => setFilter(selectedItem);
@@ -355,13 +379,15 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
                 <TableHead>
                   <TableRow>
                     {headers.map((header) => (
-                      <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
+                      <TableHeader {...getHeaderProps({ header })} key={header.key}>
+                        {header.header}
+                      </TableHeader>
                     ))}
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {rows.map((row) => (
-                    <TableRow key="row.id" {...getRowProps({ row })} data-testid={`form-row-${row.id}`}>
+                    <TableRow key={row.id} {...getRowProps({ row })} data-testid={`form-row-${row.id}`}>
                       {row.cells.map((cell) => (
                         <TableCell key={cell.id}>{cell.value}</TableCell>
                       ))}

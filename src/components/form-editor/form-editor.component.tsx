@@ -24,6 +24,7 @@ import AuditDetails from '../audit-details/audit-details.component';
 import FormRenderer from '../form-renderer/form-renderer.component';
 import Header from '../header/header.component';
 import InteractiveBuilder from '../interactive-builder/interactive-builder.component';
+import TranslationBuilder from '../translation-builder/translation-builder.component';
 import SchemaEditor from '../schema-editor/schema-editor.component';
 import ValidationMessage from '../validation-info/validation-info.component';
 import { handleFormValidation } from '@resources/form-validator.resource';
@@ -80,6 +81,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   const [errors, setErrors] = useState<Array<MarkerProps>>([]);
   const [validationOn, setValidationOn] = useState(false);
   const [invalidJsonErrorMessage, setInvalidJsonErrorMessage] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState('en'); // New state for language selector
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
@@ -295,6 +297,19 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
             <div className={styles.heading}>
               <span className={styles.tabHeading}>{t('schemaEditor', 'Schema editor')}</span>
               <div className={styles.topBtns}>
+                {/* Language Selector added here */}
+                <div className={styles.languageSelector}>
+                  <label htmlFor="language-select">{t('selectLanguage', 'Select Language')}: </label>
+                  <select
+                    id="language-select"
+                    value={selectedLanguage}
+                    onChange={(e) => setSelectedLanguage(e.target.value)}
+                  >
+                    <option value="en">English</option>
+                    <option value="fr">French</option>
+                    <option value="es">Spanish</option>
+                  </select>
+                </div>
                 {!schema ? (
                   <FileUploader
                     onChange={handleSchemaImport}
@@ -395,6 +410,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
             <TabList aria-label="Form previews">
               <Tab>{t('preview', 'Preview')}</Tab>
               <Tab>{t('interactiveBuilder', 'Interactive Builder')}</Tab>
+              <Tab>{t('translationBuilder', 'Translation Builder')}</Tab>
               {form && <Tab>{t('auditDetails', 'Audit Details')}</Tab>}
             </TabList>
             <TabPanels>
@@ -408,6 +424,9 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                   isLoading={isLoadingFormOrSchema}
                   validationResponse={validationResponse}
                 />
+              </TabPanel>
+              <TabPanel>
+                <TranslationBuilder />
               </TabPanel>
               <TabPanel>{form && <AuditDetails form={form} key={form.uuid} />}</TabPanel>
             </TabPanels>
