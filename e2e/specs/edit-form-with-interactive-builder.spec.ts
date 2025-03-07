@@ -144,16 +144,29 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   });
 
   await test.step('And then I fill in the updated section name', async () => {
-    await formBuilderPage.editSectionNameInput().fill('An edited section');
+    await formBuilderPage.sectionNameInput().fill('An edited section');
     updatedForm.pages[0].sections[0].label = 'An edited section';
   });
 
+  await test.step('And then I check the expand section checkbox', async () => {
+    await page.evaluate(() => {
+      const checkbox = document.querySelector(
+        'input[data-testid="keep-section-expanded-checkbox"]',
+      ) as HTMLInputElement;
+      if (checkbox) {
+        checkbox.click();
+      }
+    });
+    updatedForm.pages[0].sections[0].isExpanded = 'false';
+  });
+
   await test.step('Then I click the `Save` button', async () => {
+    await expect(formBuilderPage.saveButton()).toBeEnabled();
     await formBuilderPage.saveButton().click();
   });
 
   await test.step('Then I should get a success message and the section name should be renamed', async () => {
-    await expect(formBuilderPage.page.getByText(/section renamed/i)).toBeVisible();
+    await expect(formBuilderPage.page.getByText(/section edited/i)).toBeVisible();
     await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited section/i })).toBeVisible();
     const formTextContent = await formBuilderPage.schemaEditorContent().textContent();
     expect(JSON.parse(formTextContent)).toEqual(updatedForm);
