@@ -45,7 +45,6 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { formField, setFormField } = useFormField();
-
   /**
    * NOTE - this does not support nested obsGroup questions
    */
@@ -80,6 +79,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
       const allIds = [...filteredSchemaIds, ...formFieldIds];
       const occurrences = allIds.filter((id) => id === idToTest).length;
 
+      // Return true if ID occurs more than once
       return occurrences > 1;
     },
     [schema, formField, formFieldProp],
@@ -166,7 +166,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                     <AccordionItem
                       key={`Question ${index + 1}`}
                       title={question.label ?? `Question ${index + 1}`}
-                      open={index === formField.questions?.length - 1}
+                      open={index === formField.questions.length - 1}
                       className={styles.obsGroupQuestionContent}
                     >
                       <FormFieldProvider
