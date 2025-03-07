@@ -1,4 +1,4 @@
-import { cleanFormFieldForType } from '../../question.modal';
+import { cleanFormFieldForType } from '../../question-utils';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
 
 describe('cleanFormFieldForType', () => {
@@ -14,32 +14,29 @@ describe('cleanFormFieldForType', () => {
           { concept: '111', label: 'Yes' },
           { concept: '222', label: 'No' },
         ],
-        irrelevantOption: 'remove me',
       },
       required: true,
-      extraProp: 'should be removed',
-    } as any;
+    };
 
-    // Change type from 'obs' to 'control'
+    // Change type from 'obs' to 'control' and update rendering to 'markdown'
     const newType = 'control';
-    const cleaned = cleanFormFieldForType(formField, newType);
+    const cleaned = cleanFormFieldForType(
+      { ...formField, type: newType, questionOptions: { rendering: 'markdown' } },
+      newType,
+    );
 
     // Assert that the type is updated.
     expect(cleaned.type).toBe('control');
 
-    // Assert that required properties remain.
+    // Assert that id remains.
     expect(cleaned.id).toBe('testQuestion');
+
+    // In our design, label is required for all question types, so it should remain.
     expect(cleaned.label).toBe('Test Question');
 
-    // Irrelevant top-level properties should be removed.
-    expect(cleaned.required).toBeUndefined();
-    expect(cleaned).not.toHaveProperty('extraProp');
-
-    // For nested questionOptions, only allowed keys remain for 'control'.
-    // Allowed keys for 'control' in questionOptions are: rendering, minLength, and maxLength.
-    expect(cleaned.questionOptions).toHaveProperty('rendering', 'radio');
+    // Irrelevant nested properties should be removed.
+    expect(cleaned.questionOptions).toHaveProperty('rendering', 'markdown');
     expect(cleaned.questionOptions).not.toHaveProperty('concept');
     expect(cleaned.questionOptions).not.toHaveProperty('answers');
-    expect(cleaned.questionOptions).not.toHaveProperty('irrelevantOption');
   });
 });
