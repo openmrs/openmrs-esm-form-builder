@@ -33,7 +33,7 @@ export const deletePageModal = getAsyncLifecycle(
 );
 
 export const newSectionModal = getAsyncLifecycle(
-  () => import('./components/interactive-builder/modals/new-section/section.modal'),
+  () => import('./components/interactive-builder/modals/section/section.modal'),
   options,
 );
 
