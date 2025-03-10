@@ -23,12 +23,12 @@ const SectionModal: React.FC<SectionModalProps> = ({
   modalType,
 }) => {
   const { t } = useTranslation();
-  const [sectionTitle, setSectionTitle] = useState(() => {
-    return modalType === 'edit' ? schema.pages[pageIndex].sections[sectionIndex].label : '';
-  });
-  const [isExpanded, setIsExpanded] = useState(() => {
-    return modalType === 'edit' ? schema.pages[pageIndex].sections[sectionIndex].isExpanded : 'true';
-  });
+  const [sectionTitle, setSectionTitle] = useState<string>(
+    modalType === 'edit' ? schema.pages[pageIndex].sections[sectionIndex].label : '',
+  );
+  const [isExpanded, setIsExpanded] = useState<string>(
+    modalType === 'edit' ? schema.pages[pageIndex].sections[sectionIndex].isExpanded : 'true',
+  );
 
   const handleUpdatePageSections = () => {
     updateSections();
@@ -92,8 +92,9 @@ const SectionModal: React.FC<SectionModalProps> = ({
               labelText={t('enterSectionTitle', 'Enter a section title')}
               value={sectionTitle}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => setSectionTitle(event.target.value)}
+              style={{ marginBottom: '16px' }}
             />
-            <br></br>
+
             <Checkbox
               id="isExpanded"
               checked={isExpanded === 'true' ? true : false}
