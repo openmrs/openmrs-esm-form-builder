@@ -79,9 +79,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
     <>
       <ModalHeader
         className={styles.modalHeader}
-        title={
-          modalType === 'edit' ? t('editTheSection', 'Edit the section') : t('createNewSection', 'Create a new section')
-        }
+        title={modalType === 'edit' ? t('editSection', 'Edit section') : t('createNewSection', 'Create a new section')}
         closeModal={closeModal}
       />
       <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
@@ -98,7 +96,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
             <Checkbox
               id="isExpanded"
               checked={isExpanded === 'true' ? true : false}
-              labelText={t('expandedSection', 'Keep section Expanded')}
+              labelText={t('expandedSection', 'Keep section expanded')}
               onChange={handleCheckboxChange}
               data-testid="keep-section-expanded-checkbox"
             />
