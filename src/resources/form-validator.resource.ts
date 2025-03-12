@@ -28,6 +28,7 @@ export const handleFormValidation = async (
 
   if (schema) {
     const parsedForm: Schema = typeof schema === 'string' ? JSON.parse(schema) : schema;
+    // NOTE: We no longer remove parsedForm.translations so it remains part of the JSON
 
     const asyncTasks: Array<Promise<void>> = [];
 
@@ -76,7 +77,7 @@ const handleQuestionValidation = async (conceptObject, errorsArray, configObject
       const { data } = await openmrsFetch(`${restBaseUrl}/concept?references=${searchRef}&v=${conceptRepresentation}`);
       if (data.results.length) {
         const [resObject] = data.results;
-        resObject.datatype.name === 'Boolean' &&
+        if (resObject.datatype.name === 'Boolean') {
           conceptObject.questionOptions.answers.forEach((answer) => {
             if (
               answer.concept !== 'cf82933b-3f3f-45e7-a5ab-5d31aaee3da3' &&
@@ -88,8 +89,9 @@ const handleQuestionValidation = async (conceptObject, errorsArray, configObject
               });
             }
           });
+        }
 
-        resObject.datatype.name === 'Coded' &&
+        if (resObject.datatype.name === 'Coded') {
           conceptObject.questionOptions.answers.forEach((answer) => {
             if (!resObject.answers.some((answerObject) => answerObject.uuid === answer.concept)) {
               warningsArray.push({
@@ -98,6 +100,7 @@ const handleQuestionValidation = async (conceptObject, errorsArray, configObject
               });
             }
           });
+        }
 
         dataTypeChecker(conceptObject, resObject, errorsArray, configObject);
       } else {
@@ -148,18 +151,22 @@ const handlePatientIdentifierValidation = async (question, errors) => {
 };
 
 const dataTypeChecker = (conceptObject, responseObject, array, dataTypeToRenderingMap) => {
-  Object.prototype.hasOwnProperty.call(dataTypeToRenderingMap, responseObject.datatype.name) &&
-    !dataTypeToRenderingMap[responseObject.datatype.name].includes(conceptObject.questionOptions.rendering) &&
+  if (
+    Object.prototype.hasOwnProperty.call(dataTypeToRenderingMap, responseObject.datatype.name) &&
+    !dataTypeToRenderingMap[responseObject.datatype.name].includes(conceptObject.questionOptions.rendering)
+  ) {
     array.push({
       errorMessage: `❓ ${conceptObject.questionOptions.concept}: datatype "${responseObject.datatype.name}" doesn't match control type "${conceptObject.questionOptions.rendering}"`,
       field: conceptObject,
     });
+  }
 
-  !Object.prototype.hasOwnProperty.call(dataTypeToRenderingMap, responseObject.datatype.name) &&
+  if (!Object.prototype.hasOwnProperty.call(dataTypeToRenderingMap, responseObject.datatype.name)) {
     array.push({
       errorMessage: `❓ Untracked datatype "${responseObject.datatype.name}"`,
       field: conceptObject,
     });
+  }
 };
 
 const handleAnswerValidation = async (questionObject, array) => {

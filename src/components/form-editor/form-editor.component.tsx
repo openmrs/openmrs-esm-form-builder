@@ -426,7 +426,9 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                 />
               </TabPanel>
               <TabPanel>
-                <TranslationBuilder />
+                <TabPanel>
+                  <TranslationBuilder formSchema={schema} onUpdateSchema={updateSchema} />
+                </TabPanel>
               </TabPanel>
               <TabPanel>{form && <AuditDetails form={form} key={form.uuid} />}</TabPanel>
             </TabPanels>

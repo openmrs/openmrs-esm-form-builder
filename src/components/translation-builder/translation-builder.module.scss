@@ -2,20 +2,24 @@
   padding: 1rem;
 }
 
-.languageSelector {
+.title {
+  font-size: 1.25rem;
   margin-bottom: 1rem;
-  display: inline-flex;
+}
+
+.languageSelector {
+  display: flex;
   align-items: center;
+  margin-bottom: 1rem;
 
   label {
     margin-right: 0.5rem;
-    white-space: nowrap;
+    font-weight: bold;
   }
 
   select {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 0.25rem;
+    font-size: 0.9rem;
   }
 }
 
@@ -23,29 +27,34 @@
   margin-top: 1rem;
 }
 
-.recursiveContainer {
-  margin-left: 1rem;
-  margin-bottom: 1rem;
-}
-
-.nestedSection {
-  margin-left: 1rem;
-  border-left: 2px solid #ccc;
-  padding-left: 0.5rem;
-}
-
-.sectionLabel {
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-.translationField {
+.translationRow {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   margin-bottom: 0.5rem;
 
-  label {
+  // The key is bold, small
+  .translationKey {
+    font-weight: bold;
     font-size: 0.9rem;
-    margin-bottom: 0.3rem;
+    margin-right: 1rem;
+    min-width: 200px; // or whatever width you want
   }
+
+  .inlineControls {
+    display: flex;
+    align-items: center;
+
+    // EditableValue's text + edit button can appear inline
+    > * {
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+.addNewStringContainer {
+  margin: 1rem 0;
+}
+
+.saveButton {
+  margin-top: 1rem;
 }

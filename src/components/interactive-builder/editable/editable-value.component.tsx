@@ -6,7 +6,7 @@ import ValueEditor from '../value-editor/value-editor.component';
 import styles from './editable-value.scss';
 
 interface EditableValueProps {
-  elementType?: 'schema' | 'page' | 'section';
+  elementType?: 'schema' | 'page' | 'section' | 'translation';
   id: string;
   value: string;
   onSave: (value: string) => void;

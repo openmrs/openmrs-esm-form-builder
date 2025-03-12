@@ -40,40 +40,31 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   >([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
-  // Enable autocompletion in the schema
   const generateAutocompleteSuggestions = useCallback(() => {
     const suggestions: Array<{ name: string; type: string; path: string }> = [];
-
     const traverseSchema = (schemaProps: unknown, path: string) => {
-      if (schemaProps) {
-        if (schemaProps && typeof schemaProps === 'object') {
-          Object.entries(schemaProps).forEach(([propertyName, property]) => {
-            if (propertyName === '$schema') {
-              return;
+      if (schemaProps && typeof schemaProps === 'object') {
+        Object.entries(schemaProps).forEach(([propertyName, property]) => {
+          if (propertyName === '$schema') return;
+          const currentPath = path ? `${path}.${propertyName}` : propertyName;
+          const typedProperty = property as {
+            type?: string;
+            properties?: Record<string, any>;
+            items?: { type?: string; properties?: Record<string, any> };
+            oneOf?: Array<{ type: string }>;
+          };
+          if (typeof property === 'object') {
+            if (typedProperty.type === 'array' && typedProperty.items && typedProperty.items.properties) {
+              traverseSchema(typedProperty.items.properties, currentPath);
+            } else if (typedProperty.properties) {
+              traverseSchema(typedProperty.properties, currentPath);
+            } else if (typedProperty.oneOf) {
+              const types = typedProperty.oneOf.map((item) => item.type).join(' | ');
+              suggestions.push({ name: propertyName, type: types || 'any', path: currentPath });
             }
-
-            const currentPath = path ? `${path}.${propertyName}` : propertyName;
-            const typedProperty = property as {
-              type?: string;
-              properties?: Array<{ type: string }>;
-              items?: { type?: string; properties?: Array<{ type: string }> };
-              oneOf?: Array<{ type: string }>;
-            };
-
-            if (typeof property === 'object') {
-              if (typedProperty.type === 'array' && typedProperty.items && typedProperty.items.properties) {
-                traverseSchema(typedProperty.items.properties, currentPath);
-              } else if (typedProperty.properties) {
-                traverseSchema(typedProperty.properties, currentPath);
-              } else if (typedProperty.oneOf) {
-                const types = typedProperty?.oneOf?.map((item: { type: string }) => item.type).join(' | ');
-                suggestions.push({ name: propertyName, type: types || 'any', path: currentPath });
-              }
-            }
-
-            suggestions.push({ name: propertyName, type: typedProperty.type || 'any', path: currentPath });
-          });
-        }
+          }
+          suggestions.push({ name: propertyName, type: typedProperty.type || 'any', path: currentPath });
+        });
       }
     };
     traverseSchema(schemaProperties, '');
@@ -81,7 +72,6 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   }, [schemaProperties]);
 
   useEffect(() => {
-    // Generate autocomplete suggestions when schema changes
     const suggestions = generateAutocompleteSuggestions();
     setAutocompleteSuggestions(suggestions.flat());
   }, [schemaProperties, generateAutocompleteSuggestions]);
@@ -91,64 +81,52 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
       getCompletions: function (editor, session, pos, prefix, callback) {
         callback(
           null,
-          autocompleteSuggestions.map(function (word) {
-            return {
-              caption: word.name,
-              value: word.name,
-              meta: word.type,
-              docText: `Path: ${word.path}`,
-            };
-          }),
+          autocompleteSuggestions.map((word) => ({
+            caption: word.name,
+            value: word.name,
+            meta: word.type,
+            docText: `Path: ${word.path}`,
+          })),
         );
       },
     });
   }, [autocompleteSuggestions]);
 
-  // Validate JSON schema
   const validateSchema = (content: string, schema) => {
     try {
       const trimmedContent = content.replace(/\s/g, '');
-      // Check if the content is an empty object
       if (trimmedContent.trim() === '{}') {
-        // Reset errors since the JSON is considered valid
         setErrors([]);
         return;
       }
-
       const ajv = new Ajv({ allErrors: true, jsPropertySyntax: true, strict: false });
       const validate = ajv.compile(schema);
       const parsedContent = JSON.parse(content);
       const isValid = validate(parsedContent);
       const jsonLines = content.split('\n');
-
-      const traverse = (schemaPath) => {
-        const pathSegments = schemaPath.split('/').filter((segment) => segment !== '' || segment !== 'type');
+      const traverse = (schemaPath: string) => {
+        const pathSegments = schemaPath.split('/').filter((segment) => segment !== '' && segment !== 'type');
         let lineNumber = -1;
-
         for (const segment of pathSegments) {
-          if (segment === 'properties' || segment === 'items') continue; // Skip 'properties' and 'items'
-          const match = segment.match(/^([^[\]]+)/); // Extract property key
+          const match = segment.match(/^([^[\]]+)/);
           if (match) {
-            const propertyName: string = pathSegments[pathSegments.length - 2]; // Get property key
+            const propertyName = pathSegments[pathSegments.length - 2];
             lineNumber = jsonLines.findIndex((line) => line.includes(propertyName));
           }
           if (lineNumber !== -1) break;
         }
-
         return lineNumber;
       };
-
       if (!isValid) {
         const errorMarkers = validate.errors.map((error) => {
-          const schemaPath = error.schemaPath.replace(/^#\//, ''); // Remove leading '#/'
+          const schemaPath = error.schemaPath.replace(/^#\//, '');
           const lineNumber = traverse(schemaPath);
-          const pathSegments = error.instancePath.split('.'); // Split the path into segments
+          const pathSegments = error.instancePath.split('.');
           const errorPropertyName = pathSegments[pathSegments.length - 1];
           const message =
             error.keyword === 'type' || error.keyword === 'enum'
               ? `${errorPropertyName.charAt(0).toUpperCase() + errorPropertyName.slice(1)} ${error.message}`
               : `${error.message.charAt(0).toUpperCase() + error.message.slice(1)}`;
-
           return {
             startRow: lineNumber,
             startCol: 0,
@@ -159,7 +137,6 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
             type: 'text' as const,
           };
         });
-
         setErrors(errorMarkers);
       } else {
         setErrors([]);
@@ -178,7 +155,6 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     debouncedValidateSchema(newValue, schema);
   };
 
-  // Schema Validation Errors
   const ErrorNotification = ({ text, line }) => (
     <ActionableNotification
       subtitle={text}

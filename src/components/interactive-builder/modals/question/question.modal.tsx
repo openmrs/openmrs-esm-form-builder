@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import flattenDeep from 'lodash-es/flattenDeep';
 import {
@@ -45,8 +45,6 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { formField, setFormField } = useFormField();
-  const [isConceptValid, setIsConceptValid] = useState(true);
-
   /**
    * NOTE - this does not support nested obsGroup questions
    */
@@ -160,14 +158,14 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
         <ModalBody>
           <FormGroup>
             <Stack gap={5}>
-              <Question checkIfQuestionIdExists={checkIfQuestionIdExists} setIsConceptIdValid={setIsConceptValid} />
+              <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
               {formField.questions?.length >= 1 && (
                 <Accordion size="lg">
                   {formField.questions.map((question, index) => (
                     <AccordionItem
                       key={`Question ${index + 1}`}
                       title={question.label ?? `Question ${index + 1}`}
-                      open={index === formField.questions?.length - 1}
+                      open={index === formField.questions.length - 1}
                       className={styles.obsGroupQuestionContent}
                     >
                       <FormFieldProvider
@@ -177,10 +175,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                           handleUpdateParentFormField(updatedFormField, index)
                         }
                       >
-                        <Question
-                          checkIfQuestionIdExists={checkIfQuestionIdExists}
-                          setIsConceptIdValid={setIsConceptValid}
-                        />
+                        <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
                         <Button
                           kind="danger"
                           onClick={() => deleteObsGroupQuestion(index)}
@@ -209,7 +204,6 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
             disabled={
               !formField ||
               !formField.id ||
-              !isConceptValid ||
               (!formField.questions && checkIfQuestionIdExists(formField.id)) ||
               !formField.questionOptions?.rendering
             }

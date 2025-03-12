@@ -71,6 +71,16 @@ export async function getResourceUuid(formUuid: string, valueReference: string):
   return response;
 }
 
+// New function to get translations only
+export async function getTranslations(formUuid: string, language: string): Promise<FetchResponse<any>> {
+  // Assuming the backend has an endpoint for just translations
+  const response: FetchResponse = await openmrsFetch(`${restBaseUrl}/form/${formUuid}/translations/${language}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return response;
+}
+
 export async function updateForm(
   formUuid: string,
   name: string,
