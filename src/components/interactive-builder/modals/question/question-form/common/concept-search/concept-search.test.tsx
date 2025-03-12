@@ -45,9 +45,10 @@ jest.mock('@hooks/useConceptId', () => ({
 const onSelectConcept = jest.fn();
 const mockSetFormField = jest.fn();
 const setConcept = jest.fn();
+const setIsConceptValid = jest.fn();
 jest.mock('../../../form-field-context', () => ({
   ...jest.requireActual('../../../form-field-context'),
-  useFormField: () => ({ formField, setFormField: mockSetFormField, setConcept }),
+  useFormField: () => ({ formField, setFormField: mockSetFormField, setConcept, setIsConceptValid }),
 }));
 
 describe('Concept search component', () => {
