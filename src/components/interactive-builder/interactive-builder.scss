@@ -28,6 +28,10 @@
   margin: layout.$spacing-07 0;
 }
 
+.sectionLabel {
+  @include type.type-style('heading-02');
+}
+
 .explainer {
   margin: layout.$spacing-05 layout.$spacing-03;
 
