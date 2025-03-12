@@ -12,7 +12,7 @@ const componentMap: Partial<Record<QuestionType, React.FC>> = {
 
 const QuestionTypeComponent: React.FC = () => {
   const { formField } = useFormField();
-  const Component = componentMap[formField.type];
+  const Component = componentMap[formField.type as QuestionType];
   if (!Component) {
     console.error(`No component found for questiontype: ${formField.type}`);
     return null;

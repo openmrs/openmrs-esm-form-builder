@@ -10,6 +10,7 @@ import type { Concept } from '@types';
 
 const mockSetFormField = jest.fn();
 const setConcept = jest.fn();
+const setIsConceptValid = jest.fn();
 const formField: FormField = {
   id: '1',
   type: 'obs',
@@ -20,7 +21,7 @@ const formField: FormField = {
 
 jest.mock('../../../../form-field-context', () => ({
   ...jest.requireActual('../../../../form-field-context'),
-  useFormField: () => ({ formField, setFormField: mockSetFormField, setConcept }),
+  useFormField: () => ({ formField, setFormField: mockSetFormField, setConcept, setIsConceptValid }),
 }));
 
 const concepts: Array<Concept> = [
