@@ -6,11 +6,7 @@ import { useFormField } from '../../../../form-field-context';
 import type { Concept, ConceptMapping, DatePickerType } from '@types';
 import styles from './obs-type-question.scss';
 
-interface ObsTypeQuestionProps {
-  setIsConceptIdValid?: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-const ObsTypeQuestion: React.FC<ObsTypeQuestionProps> = ({ setIsConceptIdValid }) => {
+const ObsTypeQuestion: React.FC = () => {
   const { t } = useTranslation();
   const { formField, setFormField, concept, setConcept } = useFormField();
 
@@ -81,7 +77,6 @@ const ObsTypeQuestion: React.FC<ObsTypeQuestionProps> = ({ setIsConceptIdValid }
         onClearSelectedConcept={clearSelectedConcept}
         onSelectConcept={handleConceptSelect}
         retainConceptInContextAfterSearch={true}
-        onConceptValidityChange={(valid) => setIsConceptIdValid?.(valid)}
       />
 
       {concept?.allowDecimal === false && (

@@ -11,10 +11,9 @@ import styles from './question.scss';
 
 interface QuestionProps {
   checkIfQuestionIdExists: (idToTest: string) => boolean;
-  setIsConceptIdValid?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists, setIsConceptIdValid }) => {
+const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
   const { t } = useTranslation();
   const { formField, setFormField } = useFormField();
 
@@ -149,7 +148,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists, setIsConce
           </RadioButtonGroup>
         </>
       )}
-      {formField.type && <QuestionTypeComponent setIsConceptIdValid={setIsConceptIdValid} />}
+      {formField.type && <QuestionTypeComponent />}
       {formField.questionOptions?.rendering && <RenderTypeComponent />}
     </>
   );

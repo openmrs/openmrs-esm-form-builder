@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import flattenDeep from 'lodash-es/flattenDeep';
 import {
@@ -44,8 +44,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
   onSchemaChange,
 }) => {
   const { t } = useTranslation();
-  const { formField, setFormField } = useFormField();
-  const [isConceptValid, setIsConceptValid] = useState(true);
+  const { formField, setFormField, isConceptValid } = useFormField();
 
   /**
    * NOTE - this does not support nested obsGroup questions
@@ -160,7 +159,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
         <ModalBody>
           <FormGroup>
             <Stack gap={5}>
-              <Question checkIfQuestionIdExists={checkIfQuestionIdExists} setIsConceptIdValid={setIsConceptValid} />
+              <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
               {formField.questions?.length >= 1 && (
                 <Accordion size="lg">
                   {formField.questions.map((question, index) => (
@@ -177,10 +176,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                           handleUpdateParentFormField(updatedFormField, index)
                         }
                       >
-                        <Question
-                          checkIfQuestionIdExists={checkIfQuestionIdExists}
-                          setIsConceptIdValid={setIsConceptValid}
-                        />
+                        <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
                         <Button
                           kind="danger"
                           onClick={() => deleteObsGroupQuestion(index)}
@@ -210,6 +206,8 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
               !formField ||
               !formField.id ||
               !isConceptValid ||
+              (formField.type === 'obs' &&
+                (!formField.questionOptions.concept || formField.questionOptions.concept === '')) ||
               (!formField.questions && checkIfQuestionIdExists(formField.id)) ||
               !formField.questionOptions?.rendering
             }
