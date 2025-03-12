@@ -207,7 +207,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
               !formField.id ||
               !isConceptValid ||
               (formField.type === 'obs' &&
-                (!formField.questionOptions.concept || formField.questionOptions.concept === '')) ||
+                (!formField.questionOptions?.concept || formField.questionOptions?.concept === '')) ||
               (!formField.questions && checkIfQuestionIdExists(formField.id)) ||
               !formField.questionOptions?.rendering
             }
