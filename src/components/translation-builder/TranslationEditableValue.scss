@@ -1,0 +1,23 @@
+@use '@carbon/type';
+@use '@carbon/layout';
+
+.schemaLabel {
+  @include type.type-style('heading-03');
+}
+
+.pageLabel {
+  @include type.type-style('heading-02');
+  margin: layout.$spacing-03 0;
+
+  &:after {
+    content: '';
+    display: block;
+    width: layout.$spacing-06;
+    padding-top: 0.188rem;
+    border-bottom: 0.375rem solid var(--brand-03);
+  }
+}
+
+.sectionLabel {
+  @include type.type-style('heading-02');
+}

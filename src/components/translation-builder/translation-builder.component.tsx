@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, InlineLoading, InlineNotification, IconButton } from '@carbon/react';
 import { TrashCan, Add } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
-import EditableValue from '../interactive-builder/editable/editable-value.component';
+import TranslationEditableValue from './TranslationEditableValue.component';
 import styles from './translation-builder.module.scss';
 
 interface TranslationBuilderProps {
@@ -12,9 +12,9 @@ interface TranslationBuilderProps {
 }
 
 /**
- * Always extract translatable strings from the form schema.
- * We traverse pages, sections, questions, and answers
- * and build an object with the original strings as keys & values.
+ * Extract translatable strings from the form schema.
+ * Traverses pages, sections, questions, nested questions, and answers
+ * and builds an object with the original strings as both keys and default values.
  */
 function extractTranslatableStrings(form: any): Record<string, string> {
   const result: Record<string, string> = {};
@@ -33,6 +33,21 @@ function extractTranslatableStrings(form: any): Record<string, string> {
             section.questions.forEach((question: any) => {
               if (question.label) {
                 result[question.label] = question.label;
+              }
+              // Check for nested questions (e.g. in obsGroup)
+              if (question.questions) {
+                question.questions.forEach((subQuestion: any) => {
+                  if (subQuestion.label) {
+                    result[subQuestion.label] = subQuestion.label;
+                  }
+                  if (subQuestion.questionOptions?.answers) {
+                    subQuestion.questionOptions.answers.forEach((answer: any) => {
+                      if (answer.label) {
+                        result[answer.label] = answer.label;
+                      }
+                    });
+                  }
+                });
               }
               if (question.questionOptions?.answers) {
                 question.questionOptions.answers.forEach((answer: any) => {
@@ -61,10 +76,9 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * On every language or schema change:
-   * Always call extractTranslatableStrings to show
-   * all possible translatable strings, ignoring any
-   * existing translations in formSchema.translations.
+   * On every change to the form schema or the selected language,
+   * extract all translatable strings from the schema.
+   * (We ignore any existing translations saved in the schema.)
    */
   useEffect(() => {
     if (!formSchema) return;
@@ -93,14 +107,14 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const handleSaveTranslations = () => {
     if (!formSchema) return;
 
-    // Create or update the "translations" object for the chosen language.
+    // Update the form schema's "translations" property for the chosen language.
     const updatedSchema = { ...formSchema };
     if (!updatedSchema.translations) {
       updatedSchema.translations = {};
     }
     updatedSchema.translations[language] = translations;
 
-    // Pass updated schema back to the parent (Schema Editor).
+    // Pass the updated schema back to the parent (Schema Editor).
     onUpdateSchema(updatedSchema);
     alert(t('saveSuccess', 'Translations saved successfully.'));
   };
@@ -129,7 +143,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
               <div key={key} className={styles.translationRow}>
                 <strong className={styles.translationKey}>{key}</strong>
                 <div className={styles.inlineControls}>
-                  <EditableValue
+                  <TranslationEditableValue
                     id={key}
                     value={typeof value === 'string' ? value : ''}
                     onSave={(newValue) => handleUpdateValue(key, newValue)}
@@ -156,8 +170,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
               renderIcon={Add}
               iconDescription={t('addNewString', 'Add new string')}
               onClick={() => {
-                // Optional: let user add brand new string
-                // (which would not normally be extracted from the form).
+                // Optionally, you can implement adding a new string here.
               }}
             >
               {t('addNewString', 'Add new string')}
