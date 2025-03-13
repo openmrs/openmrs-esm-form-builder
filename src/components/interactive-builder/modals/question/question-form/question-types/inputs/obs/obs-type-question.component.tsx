@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { FormLabel, InlineNotification, FormGroup, Stack } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
@@ -10,9 +10,8 @@ const ObsTypeQuestion: React.FC = () => {
   const { t } = useTranslation();
   const { formField, setFormField, concept, setConcept } = useFormField();
 
-  const getDatePickerType = useCallback((concept: Concept): DatePickerType | null => {
-    const conceptDataType = concept.datatype.name;
-    switch (conceptDataType) {
+  const getDatePickerType = useCallback((selectedConcept: Concept): DatePickerType | null => {
+    switch (selectedConcept.datatype.name) {
       case 'Datetime':
         return 'both';
       case 'Date':

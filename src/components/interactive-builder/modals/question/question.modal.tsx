@@ -44,7 +44,8 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
   onSchemaChange,
 }) => {
   const { t } = useTranslation();
-  const { formField, setFormField } = useFormField();
+  const { formField, setFormField, isConceptValid } = useFormField();
+
   /**
    * NOTE - this does not support nested obsGroup questions
    */
@@ -205,6 +206,9 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
             disabled={
               !formField ||
               !formField.id ||
+              !isConceptValid ||
+              (formField.type === 'obs' &&
+                (!formField.questionOptions?.concept || formField.questionOptions?.concept === '')) ||
               (!formField.questions && checkIfQuestionIdExists(formField.id)) ||
               !formField.questionOptions?.rendering
             }
