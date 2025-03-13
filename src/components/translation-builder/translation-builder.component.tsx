@@ -70,27 +70,22 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const { t, i18n } = useTranslation();
   const { formId } = useParams<{ formId: string }>();
 
-  const [language, setLanguage] = useState('en');
+  // We use "en" as our default language for storing translations in the schema.
+  const [language] = useState('en');
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * On every change to the form schema or the selected language,
+   * On every change to the form schema,
    * extract all translatable strings from the schema.
-   * (We ignore any existing translations saved in the schema.)
+   * We ignore any existing translations saved in formSchema.translations.
    */
   useEffect(() => {
     if (!formSchema) return;
     const fallbackStrings = extractTranslatableStrings(formSchema);
     setTranslations(fallbackStrings);
-  }, [formSchema, language]);
-
-  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedLang = e.target.value;
-    setLanguage(selectedLang);
-    i18n.changeLanguage(selectedLang);
-  };
+  }, [formSchema]);
 
   const handleUpdateValue = (key: string, newValue: string) => {
     setTranslations((prev) => ({ ...prev, [key]: newValue }));
@@ -107,12 +102,12 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const handleSaveTranslations = () => {
     if (!formSchema) return;
 
-    // Update the form schema's "translations" property for the chosen language.
+    // Update the form schema's "translations" property for English.
     const updatedSchema = { ...formSchema };
     if (!updatedSchema.translations) {
       updatedSchema.translations = {};
     }
-    updatedSchema.translations[language] = translations;
+    updatedSchema.translations['en'] = translations;
 
     // Pass the updated schema back to the parent (Schema Editor).
     onUpdateSchema(updatedSchema);
@@ -123,12 +118,12 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     <div className={styles.translationBuilderContainer}>
       <h2 className={styles.title}>{t('translationBuilder', 'Translation Builder')}</h2>
 
+      {/* In this version the language selector is fixed to English,
+          since we’re only storing English translations initially */}
       <div className={styles.languageSelector}>
         <label htmlFor="language-selector">{t('selectLanguage', 'Select Language:')}</label>
-        <select id="language-selector" value={language} onChange={handleLanguageChange}>
+        <select id="language-selector" value="en" disabled>
           <option value="en">English</option>
-          <option value="fr">French</option>
-          <option value="es">Spanish</option>
         </select>
       </div>
 
@@ -170,7 +165,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
               renderIcon={Add}
               iconDescription={t('addNewString', 'Add new string')}
               onClick={() => {
-                // Optionally, you can implement adding a new string here.
+                // Optionally, you can implement adding a new string manually.
               }}
             >
               {t('addNewString', 'Add new string')}

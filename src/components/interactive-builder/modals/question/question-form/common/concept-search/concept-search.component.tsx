@@ -37,7 +37,7 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
     isLoadingConcept,
   } = useConceptId(defaultConcept);
   const [selectedConcept, setSelectedConcept] = useState<Concept>(initialConcept);
-  const { concept, setConcept } = useFormField();
+  const { concept, setConcept, setIsConceptValid } = useFormField();
 
   useEffect(() => {
     if (retainConceptInContextAfterSearch && initialConcept && !concept) {
@@ -57,22 +57,28 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
     [],
   );
 
+  useEffect(() => {
+    if (conceptLookupError || conceptNameLookupError) {
+      setIsConceptValid(false);
+    }
+  }, [conceptLookupError, conceptNameLookupError, setIsConceptValid]);
+
   const handleConceptSelect = useCallback(
     (concept: Concept) => {
       setConceptToLookup('');
       setSelectedConcept(concept);
       onSelectConcept(concept);
-      onConceptValidityChange?.(true);
+      setIsConceptValid(true);
     },
-    [onSelectConcept, onConceptValidityChange],
+    [onSelectConcept, setIsConceptValid],
   );
 
   const clearSelectedConcept = useCallback(() => {
     setSelectedConcept(null);
     setConceptToLookup('');
+    setIsConceptValid(true);
     if (onClearSelectedConcept) onClearSelectedConcept();
-    onConceptValidityChange?.(false);
-  }, [onClearSelectedConcept, onConceptValidityChange]);
+  }, [onClearSelectedConcept, setIsConceptValid]);
 
   return (
     <>

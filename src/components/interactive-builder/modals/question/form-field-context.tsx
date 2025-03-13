@@ -7,6 +7,8 @@ interface FormFieldContextType {
   setFormField: (value: FormField | ((prev: FormField) => FormField)) => void;
   concept: Concept;
   setConcept: React.Dispatch<React.SetStateAction<Concept>>;
+  isConceptValid?: boolean;
+  setIsConceptValid?: React.Dispatch<React.SetStateAction<boolean>>;
   updateParentFormField?: (updatedFormField: FormField) => void;
   isObsGrouped?: boolean;
 }
@@ -22,6 +24,7 @@ export const FormFieldProvider: React.FC<{
 }> = ({ children, initialFormField, isObsGrouped = false, selectedConcept = null, updateParentFormField }) => {
   const [formField, setFormFieldInternal] = useState<FormField>(initialFormField);
   const [concept, setConcept] = useState<Concept | null>(selectedConcept);
+  const [isConceptValid, setIsConceptValid] = useState<boolean>(true);
 
   const setFormField = useCallback(
     (valueOrUpdater: FormField | ((prev: FormField) => FormField)) => {
@@ -43,6 +46,8 @@ export const FormFieldProvider: React.FC<{
         setFormField,
         concept,
         setConcept,
+        isConceptValid,
+        setIsConceptValid,
         updateParentFormField,
         isObsGrouped,
       }}

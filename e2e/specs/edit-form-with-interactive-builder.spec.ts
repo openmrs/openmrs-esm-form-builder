@@ -47,37 +47,6 @@ test.beforeEach(async ({ api }) => {
 
 test('Edit a form using the interactive builder', async ({ page, context }) => {
   const formBuilderPage = new FormBuilderPage(page);
-  const formDetails = {
-    encounterType: 'e22e39fd-7db2-45e7-80f1-60fa0d5a4378',
-    name: 'UI Select Form Test',
-    pages: [
-      {
-        label: 'UI Select Test',
-        sections: [
-          {
-            label: 'Visit Details',
-            isExpanded: 'true',
-            questions: [
-              {
-                label: 'Select Provider',
-                type: 'obs',
-                questionOptions: {
-                  rendering: 'text',
-                  concept: '104677AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-                },
-                id: 'sampleQuestion',
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    processor: 'EncounterFormProcessor',
-    referencedForms: [],
-    uuid: 'xxx',
-    version: '1',
-    description: 'This is test description',
-  };
 
   await test.step('When I visit the form builder', async () => {
     await formBuilderPage.gotoFormBuilder();
@@ -144,16 +113,29 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   });
 
   await test.step('And then I fill in the updated section name', async () => {
-    await formBuilderPage.editSectionNameInput().fill('An edited section');
+    await formBuilderPage.sectionNameInput().fill('An edited section');
     updatedForm.pages[0].sections[0].label = 'An edited section';
   });
 
+  await test.step('And then I check the expand section checkbox', async () => {
+    await page.evaluate(() => {
+      const checkbox = document.querySelector(
+        'input[data-testid="keep-section-expanded-checkbox"]',
+      ) as HTMLInputElement;
+      if (checkbox) {
+        checkbox.click();
+      }
+    });
+    updatedForm.pages[0].sections[0].isExpanded = 'false';
+  });
+
   await test.step('Then I click the `Save` button', async () => {
+    await expect(formBuilderPage.saveButton()).toBeEnabled();
     await formBuilderPage.saveButton().click();
   });
 
   await test.step('Then I should get a success message and the section name should be renamed', async () => {
-    await expect(formBuilderPage.page.getByText(/section renamed/i)).toBeVisible();
+    await expect(formBuilderPage.page.getByText(/section edited/i)).toBeVisible();
     await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited section/i })).toBeVisible();
     const formTextContent = await formBuilderPage.schemaEditorContent().textContent();
     expect(JSON.parse(formTextContent)).toEqual(updatedForm);
@@ -171,11 +153,21 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
     };
   });
 
+  await test.step('And then I edit the question concept', async () => {
+    await formBuilderPage.conceptSearchInput().fill('Tested for COVID 19');
+    await formBuilderPage.conceptSearchInput().press('Enter');
+    await formBuilderPage.page.getByRole('menuitem', { name: /tested for covid 19/i }).click();
+    updatedForm.pages[0].sections[0].questions[0].questionOptions = {
+      ...updatedForm.pages[0].sections[0].questions[0].questionOptions,
+      concept: '89c5bc03-8ce2-40d8-a77d-20b5a62a1ca1',
+    };
+  });
+
   await test.step('Then I click the `Save` button', async () => {
     await formBuilderPage.saveButton().click();
   });
 
-  await test.step('Then I should get a success message and the question name should be renamed', async () => {
+  await test.step('Then I should get a success message and the question label should be renamed', async () => {
     await expect(formBuilderPage.page.getByText(/question updated/i)).toBeVisible();
     await expect(formBuilderPage.page.locator('p').getByText(/an edited question label/i)).toBeVisible();
     const formTextContent = await formBuilderPage.schemaEditorContent().textContent();
