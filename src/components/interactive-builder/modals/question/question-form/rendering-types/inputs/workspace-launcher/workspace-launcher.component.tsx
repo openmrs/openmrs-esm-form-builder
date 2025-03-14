@@ -17,24 +17,22 @@ const WorkspaceLauncher: React.FC = () => {
 
   const handleButtonLabelChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const updatedQuestion = {
-        ...formField,
-        questionOptions: { ...formField.questionOptions, buttonLabel: event.target.value },
-      };
-      setFormField(updatedQuestion);
+      setFormField((prevFormField) => ({
+        ...prevFormField,
+        questionOptions: { ...prevFormField.questionOptions, buttonLabel: event.target.value },
+      }));
     },
-    [formField, setFormField],
+    [setFormField],
   );
 
   const handleWorkspaceNameChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const updatedQuestion = {
-        ...formField,
-        questionOptions: { ...formField.questionOptions, workspaceName: event.target.value },
-      };
-      setFormField(updatedQuestion);
+      setFormField((prevFormField) => ({
+        ...prevFormField,
+        questionOptions: { ...prevFormField.questionOptions, workspaceName: event.target.value },
+      }));
     },
-    [formField, setFormField],
+    [setFormField],
   );
 
   return (

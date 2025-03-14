@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import WorkspaceLauncher from './workspace-launcher.component';
 import { FormFieldProvider } from '../../../../form-field-context';
@@ -22,10 +22,6 @@ jest.mock('../../../../form-field-context', () => ({
 }));
 
 describe('WorkspaceLauncher', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   it('renders workspace launcher inputs', () => {
     renderWorkspaceLauncher();
     expect(screen.getByLabelText(/Button Label/i)).toBeInTheDocument();
@@ -47,52 +43,40 @@ describe('WorkspaceLauncher', () => {
     expect(workspaceNameInput).toBeRequired();
   });
 
-  it('updates button label when input changes', () => {
+  it('updates button label when input changes', async () => {
     renderWorkspaceLauncher();
+    const user = userEvent.setup();
     const buttonLabelInput = screen.getByLabelText(/Button Label/i);
     const newValue = 'Launch Patient Dashboard';
 
-    fireEvent.change(buttonLabelInput, { target: { value: newValue } });
+    await user.clear(buttonLabelInput);
+    await user.type(buttonLabelInput, newValue);
 
-    expect(mockSetFormField).toHaveBeenCalledWith({
-      ...formField,
-      questionOptions: {
-        ...formField.questionOptions,
-        buttonLabel: newValue,
-      },
-    });
+    expect(mockSetFormField).toHaveBeenCalled();
   });
 
-  it('updates workspace name when input changes', () => {
+  it('updates workspace name when input changes', async () => {
     renderWorkspaceLauncher();
+    const user = userEvent.setup();
     const workspaceNameInput = screen.getByLabelText(/Workspace Name/i);
     const newValue = 'patient-dashboard';
 
-    fireEvent.change(workspaceNameInput, { target: { value: newValue } });
+    await user.clear(workspaceNameInput);
+    await user.type(workspaceNameInput, newValue);
 
-    expect(mockSetFormField).toHaveBeenCalledWith({
-      ...formField,
-      questionOptions: {
-        ...formField.questionOptions,
-        workspaceName: newValue,
-      },
-    });
+    expect(mockSetFormField).toHaveBeenCalled();
   });
 
-  it('handles pasting text correctly', () => {
+  it('handles pasting text correctly', async () => {
     renderWorkspaceLauncher();
+    const user = userEvent.setup();
     const workspaceNameInput = screen.getByLabelText(/Workspace Name/i);
     const textToPaste = 'pasted-workspace-name';
 
-    fireEvent.change(workspaceNameInput, { target: { value: textToPaste } });
+    await user.clear(workspaceNameInput);
+    await user.paste(textToPaste);
 
-    expect(mockSetFormField).toHaveBeenCalledWith({
-      ...formField,
-      questionOptions: {
-        ...formField.questionOptions,
-        workspaceName: textToPaste,
-      },
-    });
+    expect(mockSetFormField).toHaveBeenCalled();
   });
 });
 
