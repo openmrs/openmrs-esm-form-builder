@@ -9,7 +9,7 @@ export const questionTypes = [
   'obs',
   'obsGroup',
   'patientIdentifier',
-  'testOrder',
+  'testOrder', // ✅ Ensure testOrder is included
   'programState',
 ] as const;
 
@@ -31,7 +31,7 @@ export const renderingTypes: Array<RenderType> = [
   'number',
   'problem',
   'radio',
-  'repeating',
+  'repeating', // ✅ Ensure repeating is included
   'select',
   'text',
   'textarea',
@@ -50,7 +50,7 @@ export const renderTypeOptions: Record<Exclude<QuestionType, 'obs'>, Array<Rende
   encounterProvider: ['ui-select-extended'],
   encounterRole: ['ui-select-extended'],
   obsGroup: ['group', 'repeating'],
-  testOrder: ['group', 'repeating'],
+  testOrder: ['group', 'repeating'], // ✅ Ensure testOrder is mapped correctly
   patientIdentifier: ['text'],
   programState: ['select'],
 };

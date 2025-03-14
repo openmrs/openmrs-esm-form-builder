@@ -31,13 +31,13 @@ const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
             isExpanded: 'true',
             questions: [
               {
-                label: 'Test Question',
-                type: 'obs',
+                label: 'Test Order Question',
+                type: 'testOrder', // Ensure type is 'testOrder'
                 questionOptions: {
-                  rendering: 'text',
+                  rendering: 'repeating', // Use an allowed rendering type
                   concept: 'xxxx',
                 },
-                id: 'testQuestion',
+                id: 'testOrderQuestion',
               },
             ],
           },

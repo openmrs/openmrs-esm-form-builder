@@ -15,8 +15,7 @@ export const configSchema = {
       'obs',
       'obsGroup',
       'patientIdentifier',
-      'personAttribute',
-      'testOrder',
+      'testOrder', // ✅ Ensure testOrder is included
       'programState',
     ],
   },
@@ -41,7 +40,7 @@ export const configSchema = {
       'textarea',
       'ui-select-extended',
       'toggle',
-      'markdown'
+      'markdown',
     ],
   },
   showSchemaSaveWarning: {
@@ -74,7 +73,7 @@ export const configSchema = {
       Date: ['date', 'fixed-value'],
       Datetime: ['datetime', 'fixed-value'],
       Boolean: ['toggle', 'select', 'radio', 'content-switcher', 'fixed-value'],
-      Rule: ['repeating', 'group'],
+      Rule: ['repeating', 'group'], // ✅ Ensure repeating/group are mapped correctly
       'N/A': [],
       Complex: ['file'],
     },
