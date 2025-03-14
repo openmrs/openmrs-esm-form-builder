@@ -118,9 +118,6 @@ const createSchemaWithInvalidChildQuestion = (): Schema => {
 };
 
 describe('Form Validator - obsGroup Tests', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
 
   it('should validate a valid obsGroup question with valid child questions', async () => {
     const schema = createTestSchema();
