@@ -90,14 +90,45 @@ export const allowedPropertiesMapping: Record<string, string[]> = Object.fromEnt
    Mapping of allowed keys for the nested questionOptions object per question type.
  */
 export const allowedQuestionOptionsMapping: Record<string, string[]> = {
-  control: ['rendering', 'minLength', 'maxLength'],
+  control: ['rendering'],
   encounterDatetime: ['rendering'],
   encounterLocation: ['rendering'],
   encounterProvider: ['rendering'],
-  encounterRole: ['rendering', 'isSearchable'],
+  encounterRole: ['rendering'],
   obs: ['rendering', 'concept', 'answers'],
   obsGroup: ['rendering', 'concept'],
   patientIdentifier: ['rendering', 'identifierType', 'minLength', 'maxLength'],
   testOrder: ['rendering'],
   programState: ['rendering', 'programUuid', 'workflowUuid', 'answers'],
+};
+
+/**
+   Mapping of allowed keys for questionOptions based on the rendering type.
+ */
+export const allowedRenderingOptionsMapping: Record<RenderType, string[]> = {
+  checkbox: ['rendering', 'concept', 'answers'],
+  'checkbox-searchable': ['rendering', 'concept'],
+  'content-switcher': ['rendering', 'concept'],
+  date: ['rendering'],
+  datetime: ['rendering'],
+  drug: ['rendering', 'concept'],
+  'encounter-location': ['rendering', 'concept'],
+  'encounter-provider': ['rendering', 'concept'],
+  'encounter-role': ['rendering', 'concept', 'isSearchable'],
+  'fixed-value': ['rendering', 'concept'],
+  file: ['rendering', 'concept'],
+  group: ['rendering', 'concept'],
+  number: ['rendering', 'concept', 'min', 'max'],
+  problem: ['rendering', 'concept'],
+  radio: ['rendering', 'concept', 'answers'],
+  repeating: ['rendering', 'concept'],
+  select: ['rendering', 'concept', 'answers'],
+  text: ['rendering', 'concept', 'minLength', 'maxLength'],
+  textarea: ['rendering', 'concept', 'rows'],
+  toggle: ['rendering', 'concept', 'toggleOptions'],
+  'ui-select-extended': ['rendering', 'concept', 'isSearchable'],
+  'workspace-launcher': ['rendering', 'concept'],
+  markdown: ['rendering', 'concept'],
+  'extension-widget': ['rendering', 'concept'],
+  'select-concept-answers': ['rendering', 'concept', 'answers'],
 };
