@@ -61,9 +61,6 @@ describe('QuestionModal Component - obsGroup Tests', () => {
   const mockOnSchemaChange = jest.fn();
   const mockResetIndices = jest.fn();
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
 
   it('should render the question modal with obsGroup type', () => {
     const initialFormField: FormField = {
