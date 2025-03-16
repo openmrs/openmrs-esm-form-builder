@@ -16,7 +16,7 @@ import {
   Tabs,
 } from '@carbon/react';
 import { ArrowLeft, Maximize, Minimize, DocumentExport, Download } from '@carbon/react/icons';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { type TFunction, useTranslation } from 'react-i18next';
 import { ConfigurableLink, showModal, useConfig, navigate } from '@openmrs/esm-framework';
 import ActionButtons from '../action-buttons/action-buttons.component';
@@ -68,6 +68,12 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   const defaultEnterDelayInMs = 300;
   const { formUuid } = useParams<{ formUuid: string }>();
   const { blockRenderingWithErrors, dataTypeToRenderingMap } = useConfig<ConfigObject>();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const tabParam = queryParams.get('tab');
+  const defaultTabIndex = tabParam === 'translation' ? 2 : 0;
+  const [activeTabIndex, setActiveTabIndex] = useState(defaultTabIndex);
+
   const isNewSchema = !formUuid;
   const [schema, setSchema] = useState<Schema>();
   const { form, formError, isLoadingForm } = useForm(formUuid);
@@ -444,7 +450,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
               {schema ? (
                 <>
                   <IconButton
-                    enterDelayMs={defaultEnterDelayInMs}
+                    enterDelayInMs={defaultEnterDelayInMs}
                     kind="ghost"
                     label={
                       isMaximized ? t('minimizeEditor', 'Minimize editor') : t('maximizeEditor', 'Maximize editor')
@@ -510,7 +516,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
               errorsCount={validationResponse.length}
             />
           )}
-          <Tabs>
+          <Tabs selectedIndex={activeTabIndex} onChange={({ selectedIndex }) => setActiveTabIndex(selectedIndex)}>
             <TabList aria-label="Form previews">
               <Tab>{t('preview', 'Preview')}</Tab>
               <Tab>{t('interactiveBuilder', 'Interactive Builder')}</Tab>

@@ -91,7 +91,6 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newLang = e.target.value;
     setLocalSelectedLanguage(newLang);
-    i18n.changeLanguage(newLang);
   };
 
   const handleUpdateValue = (key: string, newValue: string) => {
@@ -166,6 +165,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
                     label={t('deleteString', 'Delete string')}
                     onClick={() => handleDeleteString(key)}
                     size="md"
+                    className={styles.deleteButton}
                   >
                     <TrashCan size={16} />
                   </IconButton>
@@ -176,7 +176,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
             <p className={styles.noTranslations}>{t('noTranslations', 'No translatable strings found.')}</p>
           )}
 
-          <div className={styles.addNewStringContainer}>
+          {/* <div className={styles.addNewStringContainer}>
             <Button
               kind="ghost"
               renderIcon={Add}
@@ -187,7 +187,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
             >
               {t('addNewString', 'Add new string')}
             </Button>
-          </div>
+          </div> */}
 
           <Button onClick={handleSaveTranslations} className={styles.saveButton}>
             {t('saveTranslations', 'Save Translations')}
