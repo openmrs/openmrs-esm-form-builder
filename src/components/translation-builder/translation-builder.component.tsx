@@ -5,10 +5,12 @@ import { TrashCan, Add } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import TranslationEditableValue from './TranslationEditableValue.component';
 import styles from './translation-builder.module.scss';
+import { showSnackbar } from '@openmrs/esm-framework';
 
 interface TranslationBuilderProps {
   formSchema: any; // The current form schema JSON passed from SchemaEditor
   onUpdateSchema: (updatedSchema: any) => void; // Callback to update the schema in SchemaEditor
+  languages: string[]; // Available language codes passed from Form Editor
 }
 
 /**
@@ -66,12 +68,12 @@ function extractTranslatableStrings(form: any): Record<string, string> {
   return result;
 }
 
-const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onUpdateSchema }) => {
+const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onUpdateSchema, languages }) => {
   const { t, i18n } = useTranslation();
   const { formId } = useParams<{ formId: string }>();
 
-  // We use "en" as our default language for storing translations in the schema.
-  const [language] = useState('en');
+  // Local state for the selected language within Translation Builder
+  const [localSelectedLanguage, setLocalSelectedLanguage] = useState('en');
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,13 +81,18 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   /**
    * On every change to the form schema,
    * extract all translatable strings from the schema.
-   * We ignore any existing translations saved in formSchema.translations.
    */
   useEffect(() => {
     if (!formSchema) return;
     const fallbackStrings = extractTranslatableStrings(formSchema);
     setTranslations(fallbackStrings);
   }, [formSchema]);
+
+  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newLang = e.target.value;
+    setLocalSelectedLanguage(newLang);
+    i18n.changeLanguage(newLang);
+  };
 
   const handleUpdateValue = (key: string, newValue: string) => {
     setTranslations((prev) => ({ ...prev, [key]: newValue }));
@@ -102,28 +109,38 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const handleSaveTranslations = () => {
     if (!formSchema) return;
 
-    // Update the form schema's "translations" property for English.
+    // Update the form schema's "translations" property for the selected language.
     const updatedSchema = { ...formSchema };
     if (!updatedSchema.translations) {
       updatedSchema.translations = {};
     }
-    updatedSchema.translations['en'] = translations;
+    updatedSchema.translations[localSelectedLanguage] = translations;
 
     // Pass the updated schema back to the parent (Schema Editor).
     onUpdateSchema(updatedSchema);
-    alert(t('saveSuccess', 'Translations saved successfully.'));
+
+    showSnackbar({
+      title: t('success', 'Success!'),
+      kind: 'success',
+      isLowContrast: true,
+      subtitle: t('translationSaveSuccess', '{{language}} translations are saved successfully..!', {
+        language: localSelectedLanguage.toLowerCase(),
+      }),
+    });
   };
 
   return (
     <div className={styles.translationBuilderContainer}>
       <h2 className={styles.title}>{t('translationBuilder', 'Translation Builder')}</h2>
 
-      {/* In this version the language selector is fixed to English,
-          since we’re only storing English translations initially */}
       <div className={styles.languageSelector}>
         <label htmlFor="language-selector">{t('selectLanguage', 'Select Language:')}</label>
-        <select id="language-selector" value="en" disabled>
-          <option value="en">English</option>
+        <select id="language-selector" value={localSelectedLanguage} onChange={handleLanguageChange}>
+          {languages.map((lang) => (
+            <option key={lang} value={lang}>
+              {lang.toLowerCase()}
+            </option>
+          ))}
         </select>
       </div>
 

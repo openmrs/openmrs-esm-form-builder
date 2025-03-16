@@ -15,10 +15,10 @@ import {
   TabPanels,
   Tabs,
 } from '@carbon/react';
-import { ArrowLeft, Maximize, Minimize, Download } from '@carbon/react/icons';
+import { ArrowLeft, Maximize, Minimize, DocumentExport, Download } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { type TFunction, useTranslation } from 'react-i18next';
-import { ConfigurableLink, showModal, useConfig } from '@openmrs/esm-framework';
+import { ConfigurableLink, showModal, useConfig, navigate } from '@openmrs/esm-framework';
 import ActionButtons from '../action-buttons/action-buttons.component';
 import AuditDetails from '../audit-details/audit-details.component';
 import FormRenderer from '../form-renderer/form-renderer.component';
@@ -35,6 +35,7 @@ import type { FormSchema } from '@openmrs/esm-form-engine-lib';
 import type { Schema } from '@types';
 import type { ConfigObject } from '../../config-schema';
 import styles from './form-editor.scss';
+import NewLanguageModal from '../translation-builder/newLanguage.modal';
 
 interface ErrorProps {
   error: Error;
@@ -81,7 +82,20 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   const [errors, setErrors] = useState<Array<MarkerProps>>([]);
   const [validationOn, setValidationOn] = useState(false);
   const [invalidJsonErrorMessage, setInvalidJsonErrorMessage] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('en'); // New state for language selector
+
+  // --- NEW: Manage available languages ---
+  const [languages, setLanguages] = useState<string[]>(['en']);
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [isNewLanguageModalOpen, setIsNewLanguageModalOpen] = useState(false);
+
+  const handleMainLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    if (value === 'add') {
+      setIsNewLanguageModalOpen(true);
+    } else {
+      setSelectedLanguage(value);
+    }
+  };
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
@@ -109,11 +123,9 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
       if (form && Object.keys(form).length > 0) {
         setStatus('formLoaded');
       }
-
       if (status === 'formLoaded' && !isLoadingClobdata && clobdata === undefined) {
         launchRestoreDraftSchemaModal();
       }
-
       if (clobdata && Object.keys(clobdata).length > 0) {
         setStatus('schemaLoaded');
         setSchema(clobdata);
@@ -214,15 +226,13 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
 
   const renderSchemaChanges = useCallback(() => {
     resetErrorMessage();
-    {
-      try {
-        const parsedJson: Schema = JSON.parse(stringifiedSchema);
-        updateSchema(parsedJson);
-        setStringifiedSchema(JSON.stringify(parsedJson, null, 2));
-      } catch (e) {
-        if (e instanceof Error) {
-          setInvalidJsonErrorMessage(e.message);
-        }
+    try {
+      const parsedJson: Schema = JSON.parse(stringifiedSchema);
+      updateSchema(parsedJson);
+      setStringifiedSchema(JSON.stringify(parsedJson, null, 2));
+    } catch (e) {
+      if (e instanceof Error) {
+        setInvalidJsonErrorMessage(e.message);
       }
     }
   }, [stringifiedSchema, updateSchema, resetErrorMessage]);
@@ -242,7 +252,6 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   const handleSchemaImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files[0];
     const reader = new FileReader();
-
     reader.onload = (e) => {
       const result = e.target?.result;
       if (typeof result === 'string') {
@@ -256,7 +265,6 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
         setSchema(parsedJson);
       }
     };
-
     reader.readAsText(file);
   };
 
@@ -268,6 +276,39 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
     [schema],
   );
 
+  // --- NEW: Build a downloadable translation resource Blob ---
+  const downloadableTranslationResource = useMemo(() => {
+    if (!schema || !schema.translations) {
+      return null;
+    }
+    const translationsForLang = schema.translations[selectedLanguage] || {};
+    const translationResource = {
+      uuid: schema.uuid || 'undefined-uuid',
+      form: schema.name,
+      description: `${selectedLanguage.toUpperCase()} Translations for '${schema.name}'`,
+      language: selectedLanguage,
+      translations: translationsForLang,
+    };
+    return new Blob([JSON.stringify(translationResource, null, 2)], { type: 'application/json' });
+  }, [schema, selectedLanguage]);
+
+  // --- Create object URLs for download links ---
+  const entireSchemaUrl = useMemo(() => {
+    return downloadableSchema ? URL.createObjectURL(downloadableSchema) : '#';
+  }, [downloadableSchema]);
+
+  const translationResourceUrl = useMemo(() => {
+    return downloadableTranslationResource ? URL.createObjectURL(downloadableTranslationResource) : '#';
+  }, [downloadableTranslationResource]);
+
+  const entireSchemaFilename = useMemo(() => {
+    return `${schema?.name || 'form'}.json`;
+  }, [schema]);
+
+  const translationFilename = useMemo(() => {
+    return `${schema?.name}_translations_${selectedLanguage}.json`;
+  }, [schema, selectedLanguage]);
+
   const handleCopySchema = useCallback(async () => {
     await navigator.clipboard.writeText(stringifiedSchema);
   }, [stringifiedSchema]);
@@ -277,6 +318,49 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   };
 
   const responsiveSize = isMaximized ? 16 : 8;
+
+  // --- NEW: Merge translations into schema for preview rendering ---
+  const mergedSchemaForPreview = useMemo(() => {
+    if (!schema) return schema;
+    if (schema.translations && schema.translations[selectedLanguage]) {
+      const merged = JSON.parse(JSON.stringify(schema));
+      const translations = schema.translations[selectedLanguage];
+      if (merged.pages) {
+        merged.pages = merged.pages.map((page: any) => {
+          if (translations[page.label]) {
+            page.label = translations[page.label];
+          }
+          if (page.sections) {
+            page.sections = page.sections.map((section: any) => {
+              if (translations[section.label]) {
+                section.label = translations[section.label];
+              }
+              if (section.questions) {
+                section.questions = section.questions.map((question: any) => {
+                  if (translations[question.label]) {
+                    question.label = translations[question.label];
+                  }
+                  if (question.questions) {
+                    question.questions = question.questions.map((subQuestion: any) => {
+                      if (translations[subQuestion.label]) {
+                        subQuestion.label = translations[subQuestion.label];
+                      }
+                      return subQuestion;
+                    });
+                  }
+                  return question;
+                });
+              }
+              return section;
+            });
+          }
+          return page;
+        });
+      }
+      return merged;
+    }
+    return schema;
+  }, [schema, selectedLanguage]);
 
   return (
     <div className={styles.container}>
@@ -297,19 +381,41 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
             <div className={styles.heading}>
               <span className={styles.tabHeading}>{t('schemaEditor', 'Schema editor')}</span>
               <div className={styles.topBtns}>
-                {/* Language Selector added here */}
+                {/* Main Language Selector with Add New Language */}
                 <div className={styles.languageSelector}>
-                  <label htmlFor="language-select">{t('selectLanguage', 'Select Language')}: </label>
-                  <select
-                    id="language-select"
-                    value={selectedLanguage}
-                    onChange={(e) => setSelectedLanguage(e.target.value)}
-                  >
-                    <option value="en">English</option>
-                    <option value="fr">French</option>
-                    <option value="es">Spanish</option>
+                  <label htmlFor="language-select">{t('selectLanguage', 'Select Language')}</label>
+                  <select id="language-select" value={selectedLanguage} onChange={handleMainLanguageChange}>
+                    {languages.map((lang) => (
+                      <option key={lang} value={lang}>
+                        {lang.toLowerCase()}
+                      </option>
+                    ))}
+                    <option value="add">Add new language</option>
                   </select>
+                  {isNewLanguageModalOpen && (
+                    <NewLanguageModal
+                      isOpen={isNewLanguageModalOpen}
+                      onClose={() => setIsNewLanguageModalOpen(false)}
+                      onAddLanguage={(newLanguage: string) => {
+                        if (!languages.includes(newLanguage)) {
+                          setLanguages((prev) => [...prev, newLanguage]);
+                          setSelectedLanguage(newLanguage);
+                        }
+                      }}
+                    />
+                  )}
                 </div>
+                {/* Download Translation Resource Button */}
+                <a download={translationFilename} href={translationResourceUrl}>
+                  <IconButton
+                    enterDelayMs={defaultEnterDelayInMs}
+                    kind="ghost"
+                    label={t('downloadTranslationSchema', 'Download translation schema')}
+                    size="md"
+                  >
+                    <DocumentExport />
+                  </IconButton>
+                </a>
                 {!schema ? (
                   <FileUploader
                     onChange={handleSchemaImport}
@@ -338,7 +444,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
               {schema ? (
                 <>
                   <IconButton
-                    enterDelayInMs={defaultEnterDelayInMs}
+                    enterDelayMs={defaultEnterDelayInMs}
                     kind="ghost"
                     label={
                       isMaximized ? t('minimizeEditor', 'Minimize editor') : t('maximizeEditor', 'Maximize editor')
@@ -351,14 +457,14 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                   <CopyButton
                     align="top"
                     className="cds--btn--md"
-                    enterDelayInMs={defaultEnterDelayInMs}
+                    enterDelayMs={defaultEnterDelayInMs}
                     iconDescription={t('copySchema', 'Copy schema')}
                     kind="ghost"
                     onClick={handleCopySchema}
                   />
-                  <a download={`${form?.name}.json`} href={window.URL.createObjectURL(downloadableSchema)}>
+                  <a download={entireSchemaFilename} href={entireSchemaUrl}>
                     <IconButton
-                      enterDelayInMs={defaultEnterDelayInMs}
+                      enterDelayMs={defaultEnterDelayInMs}
                       kind="ghost"
                       label={t('downloadSchema', 'Download schema')}
                       size="md"
@@ -369,12 +475,10 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                 </>
               ) : null}
             </div>
-            {formError ? (
-              <ErrorNotification error={formError} title={t('formError', 'Error loading form metadata')} />
-            ) : null}
-            {clobdataError ? (
+            {formError && <ErrorNotification error={formError} title={t('formError', 'Error loading form metadata')} />}
+            {clobdataError && (
               <ErrorNotification error={clobdataError} title={t('schemaLoadError', 'Error loading schema')} />
-            ) : null}
+            )}
             <div className={styles.editorContainer}>
               <SchemaEditor
                 errors={errors}
@@ -388,7 +492,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
             </div>
           </div>
         </Column>
-        <Column lg={8} md={8} className={styles.column}>
+        <Column lg={responsiveSize} md={responsiveSize} className={styles.column}>
           <ActionButtons
             schema={schema}
             t={t}
@@ -415,7 +519,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
             </TabList>
             <TabPanels>
               <TabPanel>
-                <FormRenderer schema={schema} isLoading={isLoadingFormOrSchema} />
+                <FormRenderer schema={mergedSchemaForPreview || schema} isLoading={isLoadingFormOrSchema} />
               </TabPanel>
               <TabPanel>
                 <InteractiveBuilder
@@ -426,9 +530,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                 />
               </TabPanel>
               <TabPanel>
-                <TabPanel>
-                  <TranslationBuilder formSchema={schema} onUpdateSchema={updateSchema} />
-                </TabPanel>
+                <TranslationBuilder formSchema={schema} onUpdateSchema={updateSchema} languages={languages} />
               </TabPanel>
               <TabPanel>{form && <AuditDetails form={form} key={form.uuid} />}</TabPanel>
             </TabPanels>
@@ -457,7 +559,6 @@ function BackButton({ t }: TranslationFnProps) {
 
 function FormEditor() {
   const { t } = useTranslation();
-
   return (
     <>
       <Header title={t('schemaEditor', 'Schema editor')} />
