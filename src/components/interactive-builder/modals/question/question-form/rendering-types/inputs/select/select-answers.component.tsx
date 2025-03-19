@@ -11,6 +11,7 @@ import ConceptSearch from '../../../common/concept-search/concept-search.compone
 import { SortableTag } from '../../../common/sortable-tag/sortable-tag.component';
 
 import styles from './select-answers.scss';
+
 interface AnswerItem {
   id: string;
   text: string;
@@ -18,14 +19,15 @@ interface AnswerItem {
 
 const SelectAnswers: React.FC = () => {
   const { t } = useTranslation();
-  const { formField, concept, setFormField } = useFormField();
+  const { formField, concept, setFormField, additionalAnswers, setAdditionalAnswers } = useFormField();
   const [addedAnswers, setAddedAnswers] = useState<AnswerItem[]>([]);
 
   useEffect(() => {
     if (!concept) {
       setAddedAnswers([]);
+      setAdditionalAnswers([]);
     }
-  }, [concept]);
+  }, [concept, setAdditionalAnswers]);
 
   const selectedAnswers = useMemo(
     () =>
@@ -60,27 +62,21 @@ const SelectAnswers: React.FC = () => {
     [setFormField],
   );
 
+  /**
+   * Add a new additional answer to local + context states. Doesn't merge into formField immediately.
+   */
   const handleSelectAdditionalAnswer = useCallback(
     (concept: Concept) => {
       const newAnswer = { id: concept.uuid, text: concept.display };
-      const answerExistsInSelected = selectedAnswers.some((answer) => answer.id === newAnswer.id);
-      const answerExistsInAdded = addedAnswers.some((answer) => answer.id === newAnswer.id);
-      if (!answerExistsInSelected && !answerExistsInAdded) {
-        setAddedAnswers((prevAnswers) => [...prevAnswers, newAnswer]);
-        setFormField((prevFormField) => {
-          const existingAnswers = prevFormField.questionOptions?.answers ?? [];
-          existingAnswers.push({ concept: concept.uuid, label: concept.display });
-          return {
-            ...prevFormField,
-            questionOptions: {
-              ...prevFormField.questionOptions,
-              answers: existingAnswers,
-            },
-          };
-        });
+      const alreadyInSelected = selectedAnswers.some((ans) => ans.id === newAnswer.id);
+      const alreadyInAdded = addedAnswers.some((ans) => ans.id === newAnswer.id);
+
+      if (!alreadyInSelected && !alreadyInAdded) {
+        setAddedAnswers((prev) => [...prev, newAnswer]);
+        setAdditionalAnswers((prev) => [...prev, newAnswer]);
       }
     },
-    [selectedAnswers, addedAnswers, setFormField],
+    [selectedAnswers, addedAnswers, setAdditionalAnswers],
   );
 
   const handleDeleteAdditionalAnswer = useCallback(
@@ -157,6 +153,34 @@ const SelectAnswers: React.FC = () => {
     [setFormField],
   );
 
+  /**
+   * Reordering additional answers by drag & drop
+   */
+  const handleAdditionalDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over) return;
+
+      if (active.id !== over.id) {
+        setAddedAnswers((prev) => {
+          const oldIndex = prev.findIndex((ans) => ans.id === active.id);
+          const newIndex = prev.findIndex((ans) => ans.id === over.id);
+          if (oldIndex === -1 || newIndex === -1) return prev;
+          const reordered = arrayMove(prev, oldIndex, newIndex);
+          return reordered;
+        });
+        setAdditionalAnswers((prev) => {
+          const oldIndex = prev.findIndex((ans) => ans.id === active.id);
+          const newIndex = prev.findIndex((ans) => ans.id === over.id);
+          if (oldIndex === -1 || newIndex === -1) return prev;
+          const reordered = arrayMove(prev, oldIndex, newIndex);
+          return reordered;
+        });
+      }
+    },
+    [setAddedAnswers, setAdditionalAnswers],
+  );
+
   return (
     <Stack gap={5}>
       {answerItems.length > 0 && (
@@ -192,19 +216,15 @@ const SelectAnswers: React.FC = () => {
             onSelectConcept={handleSelectAdditionalAnswer}
           />
           {addedAnswers.length > 0 && (
-            <div>
-              {addedAnswers.map((answer) => (
-                <Tag className={styles.tag} key={answer.id} type="blue">
-                  {answer.text}
-                  <button
-                    className={styles.conceptAnswerButton}
-                    onClick={() => handleDeleteAdditionalAnswer(answer.id)}
-                  >
-                    X
-                  </button>
-                </Tag>
-              ))}
-            </div>
+            <DndContext onDragEnd={handleAdditionalDragEnd}>
+              <SortableContext items={addedAnswers} strategy={verticalListSortingStrategy}>
+                <div>
+                  {addedAnswers.map((answer) => (
+                    <SortableTag key={answer.id} id={answer.id} text={answer.text} />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
           )}
         </>
       )}

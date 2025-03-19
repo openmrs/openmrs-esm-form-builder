@@ -7,3 +7,8 @@
 .sortableTag.dragging {
   opacity: 0.5;
 }
+
+.sortableTagWrapper {
+  display: flex;
+  align-items: center;
+}

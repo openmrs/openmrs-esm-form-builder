@@ -4,6 +4,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 import styles from './sortable-tag.scss';
+import { Draggable } from '@carbon/react/icons';
 
 interface SortableTagProps {
   id: string;
@@ -21,7 +22,8 @@ export const SortableTag: React.FC<SortableTagProps> = ({ id, text }) => {
   };
 
   return (
-    <div ref={setNodeRef} style={dynamicStyle} {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={dynamicStyle} {...attributes} {...listeners} className={styles.sortableTagWrapper}>
+      <Draggable />
       <Tag className={`${styles.sortableTag} ${isDragging ? styles.dragging : ''}`} type="blue">
         {text}
       </Tag>
