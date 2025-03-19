@@ -5,6 +5,7 @@ import RenderTypeComponent from '../rendering-types/rendering-type.component';
 import QuestionTypeComponent from '../question-types/question-type.component';
 import RequiredLabel from '../common/required-label/required-label.component';
 import { useFormField } from '../../form-field-context';
+import { cleanFormFieldForType } from '../../question-utils';
 import type { FormField, RenderType } from '@openmrs/esm-form-engine-lib';
 import { questionTypes, renderTypeOptions, renderingTypes } from '@constants';
 import styles from './question.scss';
@@ -31,6 +32,15 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
     return checkIfQuestionIdExists(formField.id);
   }, [formField.id, checkIfQuestionIdExists]);
 
+  const handleQuestionTypeChange = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      const newType = event.target.value;
+      setFormField((prevFormField) => {
+        return cleanFormFieldForType({ ...prevFormField, type: newType }, newType);
+      });
+    },
+    [setFormField],
+  );
   return (
     <>
       <TextInput
@@ -59,11 +69,10 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
         )}
         required
       />
+
       <Select
         value={formField?.type ?? 'control'}
-        onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
-          setFormField({ ...formField, type: event.target.value })
-        }
+        onChange={handleQuestionTypeChange}
         id="questionType"
         invalidText={t('typeRequired', 'Type is required')}
         labelText={t('questionType', 'Question type')}
@@ -148,6 +157,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
           </RadioButtonGroup>
         </>
       )}
+
       {formField.type && <QuestionTypeComponent />}
       {formField.questionOptions?.rendering && <RenderTypeComponent />}
     </>
