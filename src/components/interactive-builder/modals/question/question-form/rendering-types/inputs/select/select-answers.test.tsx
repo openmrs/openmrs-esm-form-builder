@@ -59,7 +59,11 @@ describe('Select answers component', () => {
   });
   it('renders', () => {
     renderComponent();
-    expect(screen.getByText(/select answers to display/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('combobox', {
+        name: /select answers to display/i,
+      }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/search for a concept to add as an answer/i)).toBeInTheDocument();
     expect(
       screen.getByRole('searchbox', {
@@ -72,7 +76,7 @@ describe('Select answers component', () => {
     const user = userEvent.setup();
     renderComponent();
     const answersMenu = screen.getByRole('combobox', {
-      name: /select answers to display/i,
+      name: /^select answers to display/i,
     });
     expect(answersMenu).toBeInTheDocument();
 
@@ -85,7 +89,7 @@ describe('Select answers component', () => {
     expect(screen.getByTitle(/answer 1/i)).toBeInTheDocument();
     expect(
       screen.getByRole('combobox', {
-        name: /select answers to display total items selected: 1,to clear selection, press delete or backspace/i,
+        name: /select answers to display total items selected: 1 answer 1,to clear selection, press delete or backspace/i,
       }),
     ).toBeInTheDocument();
   });
@@ -110,7 +114,7 @@ describe('Select answers component', () => {
 
     expect(screen.getByTitle(/concept 2/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/total items selected: 1,to clear selection, press delete or backspace/i),
+      screen.getByText(/total items selected: 1 concept 2,to clear selection, press delete or backspace/i),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', {

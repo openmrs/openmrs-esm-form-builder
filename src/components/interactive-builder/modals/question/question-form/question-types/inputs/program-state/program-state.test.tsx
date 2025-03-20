@@ -149,7 +149,7 @@ describe('ProgramStateTypeQuestion', () => {
 
     await user.click(programWorkflowSelectionOption);
     expect(screen.getByRole('combobox', { name: /^program workflow$/i })).toHaveDisplayValue(/program 1 workflow 1/i);
-    expect(screen.getByText(/program state/i)).toBeInTheDocument();
+    expect(screen.getByText(/program state/i, { selector: 'span' })).toBeInTheDocument();
 
     const programStateMenu = screen.getByRole('combobox', {
       name: /program state/i,
@@ -185,7 +185,10 @@ describe('ProgramStateTypeQuestion', () => {
       }),
     ).toHaveDisplayValue(/program 1 workflow 1/i);
     expect(
-      screen.getByText(/total items selected: 1,to clear selection, press delete or backspace/i),
+      screen.getByText(
+        (content, element) =>
+          content.includes('Total items selected') && content.includes('1') && content.includes('To clear selection'),
+      ),
     ).toBeInTheDocument();
     expect(screen.getByText(/program 1 state 1/i)).toBeInTheDocument();
   });
