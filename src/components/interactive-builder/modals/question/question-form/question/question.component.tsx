@@ -16,7 +16,7 @@ interface QuestionProps {
 const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
   const { t } = useTranslation();
   const { formField, setFormField } = useFormField();
-  const [showQuestionInfoInput, setShowQuestionInfoInput] = useState(formField.questionInfo ? true : false);
+  const [isQuestionInfoVisible, setIsQuestionInfoVisible] = useState(!!formField?.questionInfo);
 
   const convertLabelToCamelCase = () => {
     const camelCasedLabel = formField.label
@@ -32,11 +32,29 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
     return checkIfQuestionIdExists(formField.id);
   }, [formField.id, checkIfQuestionIdExists]);
 
-  const handleQuestionInfoLabel = () => {
-    const { questionInfo, ...updatedFormField } = formField;
-    setFormField(updatedFormField);
-    setShowQuestionInfoInput(false);
-  };
+  const handleQuestionInfoToggle = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormField((prevFormField) => {
+        if (e.target.value === 'false') {
+          const { questionInfo, ...updatedFormField } = prevFormField;
+          return updatedFormField;
+        }
+        return prevFormField;
+      });
+      setIsQuestionInfoVisible(e.target.value === 'true');
+    },
+    [setFormField],
+  );
+
+  const handleQuestionInfoChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setFormField((prevFormField) => ({
+        ...prevFormField,
+        questionInfo: event.target.value,
+      }));
+    },
+    [setFormField],
+  );
 
   return (
     <>
@@ -113,34 +131,35 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
           : renderingTypes.map((type, key) => <SelectItem key={key} text={type} value={type} />)}
       </Select>
       <RadioButtonGroup
-        defaultSelected={formField.questionInfo ? 'questionInfoProvided' : 'questionInfoNotProvided'}
+        defaultSelected={formField.questionInfo ? 'true' : 'false'}
         name="isQuestionInfoProvided"
-        legendText={t('isQuestionInfoProvided', 'Provide question info?')}
+        legendText={t('isQuestionInfoProvided', 'Would you like to provide additional details about the question?')}
       >
         <RadioButton
           id="questionInfoProvided"
-          defaultChecked={formField.questionInfo ? true : false}
+          defaultChecked={!!formField?.questionInfo}
           labelText={t('yes', 'Yes')}
-          onClick={() => setShowQuestionInfoInput(true)}
-          value="questionInfoProvided"
+          onClick={handleQuestionInfoToggle}
+          value="true"
         />
         <RadioButton
           id="questionInfoNotProvided"
-          defaultChecked={formField.questionInfo ? false : true}
+          defaultChecked={!formField?.questionInfo}
           labelText={t('no', 'No')}
-          onClick={() => handleQuestionInfoLabel()}
-          value="questionInfoNotProvided"
+          onClick={handleQuestionInfoToggle}
+          value="false"
         />
       </RadioButtonGroup>
-      {showQuestionInfoInput && (
+      {isQuestionInfoVisible && (
         <TextInput
           id="questionInfo"
-          labelText={t('questionInfo', 'question Info')}
-          placeholder={t('questionInfoPlaceholder', 'Info About the question')}
+          labelText={t('questionInfo', 'Additional Question Info')}
+          placeholder={t(
+            'questionInfoPlaceholder',
+            'Enter any relevant info about the question to provide more context.',
+          )}
           value={formField?.questionInfo}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            setFormField({ ...formField, questionInfo: event.target.value })
-          }
+          onChange={handleQuestionInfoChange}
         />
       )}
       {formField.questionOptions && formField.questionOptions.rendering !== 'markdown' && (
