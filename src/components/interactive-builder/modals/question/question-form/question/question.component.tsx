@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { TextInput, Button, Select, SelectItem, RadioButtonGroup, RadioButton } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import RenderTypeComponent from '../rendering-types/rendering-type.component';
@@ -16,6 +16,7 @@ interface QuestionProps {
 const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
   const { t } = useTranslation();
   const { formField, setFormField } = useFormField();
+  const [showQuestionInfoInput, setShowQuestionInfoInput] = useState(formField.questionInfo ? true : false);
 
   const convertLabelToCamelCase = () => {
     const camelCasedLabel = formField.label
@@ -30,6 +31,12 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
   const isQuestionIdDuplicate = useCallback(() => {
     return checkIfQuestionIdExists(formField.id);
   }, [formField.id, checkIfQuestionIdExists]);
+
+  const handleQuestionInfoLabel = () => {
+    const { questionInfo, ...updatedFormField } = formField;
+    setFormField(updatedFormField);
+    setShowQuestionInfoInput(false);
+  };
 
   return (
     <>
@@ -105,6 +112,37 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
             ))
           : renderingTypes.map((type, key) => <SelectItem key={key} text={type} value={type} />)}
       </Select>
+      <RadioButtonGroup
+        defaultSelected={formField.questionInfo ? 'questionInfoProvided' : 'questionInfoNotProvided'}
+        name="isQuestionInfoProvided"
+        legendText={t('isQuestionInfoProvided', 'Provide question info?')}
+      >
+        <RadioButton
+          id="questionInfoProvided"
+          defaultChecked={formField.questionInfo ? true : false}
+          labelText={t('yes', 'Yes')}
+          onClick={() => setShowQuestionInfoInput(true)}
+          value="questionInfoProvided"
+        />
+        <RadioButton
+          id="questionInfoNotProvided"
+          defaultChecked={formField.questionInfo ? false : true}
+          labelText={t('no', 'No')}
+          onClick={() => handleQuestionInfoLabel()}
+          value="questionInfoNotProvided"
+        />
+      </RadioButtonGroup>
+      {showQuestionInfoInput && (
+        <TextInput
+          id="questionInfo"
+          labelText={t('questionInfo', 'question Info')}
+          placeholder={t('questionInfoPlaceholder', 'Info About the question')}
+          value={formField?.questionInfo}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+            setFormField({ ...formField, questionInfo: event.target.value })
+          }
+        />
+      )}
       {formField.questionOptions && formField.questionOptions.rendering !== 'markdown' && (
         <>
           <TextInput
