@@ -131,20 +131,19 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
           : renderingTypes.map((type, key) => <SelectItem key={key} text={type} value={type} />)}
       </Select>
       <RadioButtonGroup
-        defaultSelected={formField.questionInfo ? 'true' : 'false'}
         name="isQuestionInfoProvided"
         legendText={t('isQuestionInfoProvided', 'Would you like to provide additional details about the question?')}
       >
         <RadioButton
           id="questionInfoProvided"
-          defaultChecked={!!formField?.questionInfo}
+          checked={!!formField?.questionInfo}
           labelText={t('yes', 'Yes')}
           onClick={handleQuestionInfoToggle}
           value="true"
         />
         <RadioButton
           id="questionInfoNotProvided"
-          defaultChecked={!formField?.questionInfo}
+          checked={!formField?.questionInfo}
           labelText={t('no', 'No')}
           onClick={handleQuestionInfoToggle}
           value="false"
