@@ -35,7 +35,7 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
     isLoadingConcept,
   } = useConceptId(defaultConcept);
   const [selectedConcept, setSelectedConcept] = useState<Concept>(initialConcept);
-  const { concept, setConcept } = useFormField();
+  const { concept, setConcept, setIsConceptValid } = useFormField();
 
   useEffect(() => {
     if (retainConceptInContextAfterSearch && initialConcept && !concept) {
@@ -48,27 +48,35 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
     [],
   );
 
+  useEffect(() => {
+    if (conceptLookupError || conceptNameLookupError) {
+      setIsConceptValid(false);
+    }
+  }, [conceptLookupError, conceptNameLookupError, setIsConceptValid]);
+
   const handleConceptSelect = useCallback(
     (concept: Concept) => {
       setConceptToLookup('');
       setSelectedConcept(concept);
       onSelectConcept(concept);
+      setIsConceptValid(true);
     },
-    [onSelectConcept],
+    [onSelectConcept, setIsConceptValid],
   );
 
   const clearSelectedConcept = useCallback(() => {
     setSelectedConcept(null);
     setConceptToLookup('');
+    setIsConceptValid(true);
     if (onClearSelectedConcept) onClearSelectedConcept();
-  }, [onClearSelectedConcept]);
+  }, [onClearSelectedConcept, setIsConceptValid]);
 
   return (
     <>
       <FormLabel className={styles.label}>
         {label ?? t('searchForBackingConcept', 'Search for a backing concept')}
       </FormLabel>
-      {conceptLookupError || conceptNameLookupError ? (
+      {(conceptLookupError || conceptNameLookupError) && (
         <InlineNotification
           kind="error"
           lowContrast
@@ -86,7 +94,7 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
                 })
           }
         />
-      ) : null}
+      )}
       {isLoadingConcept ? (
         <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />
       ) : (
@@ -135,9 +143,8 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
                 <strong>"{debouncedConceptToLookup}".</strong>
               </span>
             </Tile>
-
             <div className={styles.oclLauncherBanner}>
-              {<p className={styles.bodyShort01}>{t('conceptSearchHelpText', "Can't find a concept?")}</p>}
+              <p className={styles.bodyShort01}>{t('conceptSearchHelpText', "Can't find a concept?")}</p>
               <a
                 className={styles.oclLink}
                 target="_blank"

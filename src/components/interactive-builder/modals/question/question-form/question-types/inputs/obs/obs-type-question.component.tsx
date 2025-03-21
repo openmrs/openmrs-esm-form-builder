@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormLabel, InlineNotification, FormGroup, Stack, Checkbox } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
@@ -17,9 +18,8 @@ const ObsTypeQuestion: React.FC = () => {
     }
   }, [formField.questionOptions?.concept]);
 
-  const getDatePickerType = useCallback((concept: Concept): DatePickerType | null => {
-    const conceptDataType = concept.datatype.name;
-    switch (conceptDataType) {
+  const getDatePickerType = useCallback((selectedConcept: Concept): DatePickerType | null => {
+    switch (selectedConcept.datatype.name) {
       case 'Datetime':
         return 'both';
       case 'Date':
