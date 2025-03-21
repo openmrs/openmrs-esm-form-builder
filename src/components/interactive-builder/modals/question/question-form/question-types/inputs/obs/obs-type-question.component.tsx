@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormLabel, InlineNotification, FormGroup, Stack, Checkbox } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
@@ -107,6 +106,8 @@ const ObsTypeQuestion: React.FC = () => {
     return [];
   }, [concept]);
 
+  const hasSameAsMappings = conceptMappings.some((mapping) => mapping.relationship === 'SAME-AS');
+
   return (
     <Stack gap={5}>
       <ConceptSearch
@@ -133,7 +134,7 @@ const ObsTypeQuestion: React.FC = () => {
                 <th>{t('relationship', 'Relationship')}</th>
                 <th>{t('source', 'Source')}</th>
                 <th>{t('code', 'Code')}</th>
-                <th>{t('select', 'Select')}</th>
+                {hasSameAsMappings && <th>{t('select', 'Select')}</th>}
               </tr>
             </thead>
             <tbody>
@@ -142,21 +143,23 @@ const ObsTypeQuestion: React.FC = () => {
                   <td>{mapping.relationship}</td>
                   <td>{mapping.type}</td>
                   <td>{mapping.value}</td>
-                  <td>
-                    {mapping.relationship === 'SAME-AS' && (
-                      <Checkbox
-                        id={`checkbox-${index}`}
-                        checked={selectedMapping === `${mapping.type}:${mapping.value}`}
-                        onChange={() => {
-                          if (selectedMapping === `${mapping.type}:${mapping.value}`) {
-                            handleUncheckAll();
-                          } else {
-                            handleCheckboxChange(mapping);
-                          }
-                        }}
-                      />
-                    )}
-                  </td>
+                  {hasSameAsMappings && (
+                    <td>
+                      {mapping.relationship === 'SAME-AS' && (
+                        <Checkbox
+                          id={`checkbox-${index}`}
+                          checked={selectedMapping === `${mapping.type}:${mapping.value}`}
+                          onChange={() => {
+                            if (selectedMapping === `${mapping.type}:${mapping.value}`) {
+                              handleUncheckAll();
+                            } else {
+                              handleCheckboxChange(mapping);
+                            }
+                          }}
+                        />
+                      )}
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
