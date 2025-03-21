@@ -26,7 +26,7 @@ jest.mock('../../form-field-context', () => ({
 }));
 
 describe('Question Component', () => {
-  it('should render the component with radio buttons', () => {
+  it('should render the toggles for question info', () => {
     renderQuestionComponent();
 
     expect(screen.getByRole('group', { name: /isQuestionInfoProvided/i })).toBeInTheDocument();
