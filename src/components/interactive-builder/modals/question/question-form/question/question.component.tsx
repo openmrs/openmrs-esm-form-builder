@@ -131,20 +131,19 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
           : renderingTypes.map((type, key) => <SelectItem key={key} text={type} value={type} />)}
       </Select>
       <RadioButtonGroup
-        defaultSelected={formField.questionInfo ? 'true' : 'false'}
         name="isQuestionInfoProvided"
         legendText={t('isQuestionInfoProvided', 'Would you like to provide additional details about the question?')}
       >
         <RadioButton
           id="questionInfoProvided"
-          defaultChecked={!!formField?.questionInfo}
+          checked={!!formField?.questionInfo}
           labelText={t('yes', 'Yes')}
           onClick={handleQuestionInfoToggle}
           value="true"
         />
         <RadioButton
           id="questionInfoNotProvided"
-          defaultChecked={!formField?.questionInfo}
+          checked={!formField?.questionInfo}
           labelText={t('no', 'No')}
           onClick={handleQuestionInfoToggle}
           value="false"
@@ -181,7 +180,6 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
             required
           />
           <RadioButtonGroup
-            defaultSelected={formField.required ? 'required' : 'optional'}
             name="isQuestionRequired"
             legendText={t(
               'isQuestionRequiredOrOptional',
@@ -190,14 +188,14 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
           >
             <RadioButton
               id="questionIsNotRequired"
-              defaultChecked={formField.required ? !formField.required : true}
+              checked={formField.required ? !formField.required : true}
               labelText={t('optional', 'Optional')}
               onClick={() => setFormField({ ...formField, required: false })}
               value="optional"
             />
             <RadioButton
               id="questionIsRequired"
-              defaultChecked={formField.required ? formField.required : false}
+              checked={formField.required ? formField.required : false}
               labelText={t('required', 'Required')}
               onClick={() => setFormField({ ...formField, required: true })}
               value="required"

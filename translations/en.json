@@ -161,7 +161,7 @@
   "questionId": "Question ID (prefer using camel-case for IDs). Each field should have a unique ID.",
   "questionIdExists": "This question ID already exists in your schema",
   "questionIdPlaceholder": "Enter a unique ID e.g. \"anaesthesiaType\" for a question asking about the type of anaesthesia.",
-  "questionInfo": "Question info",
+  "questionInfo": "Additional question info",
   "questionInfoPlaceholder": "Enter any relevant info about the question to provide more context.",
   "questionLabel": "Label",
   "questionRestored": "Question restored",
