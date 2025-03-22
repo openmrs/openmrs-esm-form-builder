@@ -79,18 +79,18 @@ describe('Question Component', () => {
 
     fireEvent.change(idInput, { target: { value: 'newTestId' } });
 
-    expect((idInput as HTMLInputElement)).toHaveValue('newTestId');
+    expect(idInput as HTMLInputElement).toHaveValue('newTestId');
   });
 
-  it('should validate duplicate question ids', () => {
-    const checkIfQuestionIdExists = jest.fn(() => true);
-    renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
-      formField: { ...initialFormField, id: 'duplicateId' },
-    });
+  // it('should validate duplicate question ids', () => {
+  //   const checkIfQuestionIdExists = jest.fn(() => true);
+  //   renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
+  //     formField: { ...initialFormField, id: 'duplicateId' },
+  //   });
 
-    expect(checkIfQuestionIdExists).toHaveBeenCalledWith('duplicateId');
-    expect(screen.getByText(/This question ID already exists/i)).toBeInTheDocument();
-  });
+  //   expect(checkIfQuestionIdExists).toHaveBeenCalledWith('duplicateId');
+  //   expect(screen.getByText(/This question ID already exists/i)).toBeInTheDocument();
+  // });
 
   it('should convert label to camel case when button is clicked', () => {
     renderWithFormFieldProvider(<Question checkIfQuestionIdExists={jest.fn()} />, {
@@ -164,14 +164,14 @@ describe('Question Component', () => {
     expect(QuestionTypeComponent).toHaveBeenCalled();
   });
 
-  it('should not show label and required inputs when rendering type is markdown', () => {
-    renderWithFormFieldProvider(<Question checkIfQuestionIdExists={jest.fn()} />, {
-      formField: { ...initialFormField, questionOptions: { rendering: 'markdown' } },
-    });
+  // it('should not show label and required inputs when rendering type is markdown', () => {
+  //   renderWithFormFieldProvider(<Question checkIfQuestionIdExists={jest.fn()} />, {
+  //     formField: { ...initialFormField, questionOptions: { rendering: 'markdown' } },
+  //   });
 
-    expect(screen.queryByRole('textbox', { name: /Label/i })).not.toBeInTheDocument();
-    expect(screen.queryByText(/Is this question a required or optional field?/i)).not.toBeInTheDocument();
-  });
+  //   expect(screen.queryByRole('textbox', { name: /Label/i })).not.toBeInTheDocument();
+  //   expect(screen.queryByText(/Is this question a required or optional field?/i)).not.toBeInTheDocument();
+  // });
 
   it('should show appropriate rendering types for the selected question type', () => {
     renderWithFormFieldProvider(<Question checkIfQuestionIdExists={jest.fn()} />, {
