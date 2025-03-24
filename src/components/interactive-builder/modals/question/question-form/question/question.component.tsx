@@ -130,37 +130,6 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
             ))
           : renderingTypes.map((type, key) => <SelectItem key={key} text={type} value={type} />)}
       </Select>
-      <RadioButtonGroup
-        name="isQuestionInfoProvided"
-        legendText={t('isQuestionInfoProvided', 'Would you like to provide additional details about the question?')}
-      >
-        <RadioButton
-          id="questionInfoProvided"
-          checked={!!formField?.questionInfo}
-          labelText={t('yes', 'Yes')}
-          onClick={handleQuestionInfoToggle}
-          value="true"
-        />
-        <RadioButton
-          id="questionInfoNotProvided"
-          checked={!formField?.questionInfo}
-          labelText={t('no', 'No')}
-          onClick={handleQuestionInfoToggle}
-          value="false"
-        />
-      </RadioButtonGroup>
-      {isQuestionInfoVisible && (
-        <TextInput
-          id="questionInfo"
-          labelText={t('questionInfo', 'Additional Question Info')}
-          placeholder={t(
-            'questionInfoPlaceholder',
-            'Enter any relevant info about the question to provide more context.',
-          )}
-          value={formField?.questionInfo}
-          onChange={handleQuestionInfoChange}
-        />
-      )}
       {formField.questionOptions && formField.questionOptions.rendering !== 'markdown' && (
         <>
           <TextInput
@@ -205,6 +174,37 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
       )}
       {formField.type && <QuestionTypeComponent />}
       {formField.questionOptions?.rendering && <RenderTypeComponent />}
+      <RadioButtonGroup
+        name="isQuestionInfoProvided"
+        legendText={t('isQuestionInfoProvided', 'Would you like to provide additional details about the question?')}
+      >
+        <RadioButton
+          id="questionInfoProvided"
+          checked={!!formField?.questionInfo}
+          labelText={t('yes', 'Yes')}
+          onClick={handleQuestionInfoToggle}
+          value="true"
+        />
+        <RadioButton
+          id="questionInfoNotProvided"
+          checked={!formField?.questionInfo}
+          labelText={t('no', 'No')}
+          onClick={handleQuestionInfoToggle}
+          value="false"
+        />
+      </RadioButtonGroup>
+      {isQuestionInfoVisible && (
+        <TextInput
+          id="questionInfo"
+          labelText={t('questionInfo', 'Additional Question Info')}
+          placeholder={t(
+            'questionInfoPlaceholder',
+            'Enter any relevant info about the question to provide more context.',
+          )}
+          value={formField?.questionInfo}
+          onChange={handleQuestionInfoChange}
+        />
+      )}
     </>
   );
 };
