@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo } from 'react';
-import { FormLabel, InlineNotification, FormGroup, Stack } from '@carbon/react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FormLabel, InlineNotification, FormGroup, Stack, Checkbox } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
 import { useFormField } from '../../../../form-field-context';
@@ -9,6 +9,13 @@ import styles from './obs-type-question.scss';
 const ObsTypeQuestion: React.FC = () => {
   const { t } = useTranslation();
   const { formField, setFormField, concept, setConcept } = useFormField();
+  const [selectedMapping, setSelectedMapping] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (formField.questionOptions?.concept) {
+      setSelectedMapping(formField.questionOptions.concept);
+    }
+  }, [formField.questionOptions?.concept]);
 
   const getDatePickerType = useCallback((selectedConcept: Concept): DatePickerType | null => {
     switch (selectedConcept.datatype.name) {
@@ -43,6 +50,7 @@ const ObsTypeQuestion: React.FC = () => {
 
   const clearSelectedConcept = useCallback(() => {
     setConcept(null);
+    setSelectedMapping(null);
     setFormField((prevFormField) => {
       const updatedFormField = { ...prevFormField };
       if (updatedFormField.questionOptions) {
@@ -55,6 +63,34 @@ const ObsTypeQuestion: React.FC = () => {
       return updatedFormField;
     });
   }, [setFormField, setConcept]);
+
+  const handleCheckboxChange = useCallback(
+    (mapping: ConceptMapping) => {
+      const newConceptValue = `${mapping.type}:${mapping.value}`;
+      setSelectedMapping(newConceptValue);
+      setFormField((prevField) => ({
+        ...prevField,
+        questionOptions: {
+          ...prevField.questionOptions,
+          concept: newConceptValue,
+        },
+      }));
+    },
+    [setFormField],
+  );
+
+  const handleUncheckAll = useCallback(() => {
+    setSelectedMapping(null);
+    if (concept) {
+      setFormField((prevField) => ({
+        ...prevField,
+        questionOptions: {
+          ...prevField.questionOptions,
+          concept: concept.uuid,
+        },
+      }));
+    }
+  }, [concept, setFormField]);
 
   const conceptMappings: ConceptMapping[] = useMemo(() => {
     if (concept && concept.mappings) {
@@ -69,6 +105,8 @@ const ObsTypeQuestion: React.FC = () => {
     }
     return [];
   }, [concept]);
+
+  const hasSameAsMappings = conceptMappings.some((mapping) => mapping.relationship === 'SAME-AS');
 
   return (
     <Stack gap={5}>
@@ -96,6 +134,7 @@ const ObsTypeQuestion: React.FC = () => {
                 <th>{t('relationship', 'Relationship')}</th>
                 <th>{t('source', 'Source')}</th>
                 <th>{t('code', 'Code')}</th>
+                {hasSameAsMappings && <th>{t('select', 'Select')}</th>}
               </tr>
             </thead>
             <tbody>
@@ -104,6 +143,23 @@ const ObsTypeQuestion: React.FC = () => {
                   <td>{mapping.relationship}</td>
                   <td>{mapping.type}</td>
                   <td>{mapping.value}</td>
+                  {hasSameAsMappings && (
+                    <td>
+                      {mapping.relationship === 'SAME-AS' && (
+                        <Checkbox
+                          id={`checkbox-${index}`}
+                          checked={selectedMapping === `${mapping.type}:${mapping.value}`}
+                          onChange={() => {
+                            if (selectedMapping === `${mapping.type}:${mapping.value}`) {
+                              handleUncheckAll();
+                            } else {
+                              handleCheckboxChange(mapping);
+                            }
+                          }}
+                        />
+                      )}
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -113,5 +169,4 @@ const ObsTypeQuestion: React.FC = () => {
     </Stack>
   );
 };
-
 export default ObsTypeQuestion;
