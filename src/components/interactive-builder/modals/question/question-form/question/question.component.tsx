@@ -86,8 +86,13 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
       />
       <Select
         value={formField?.type ?? 'control'}
-        onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
-          setFormField({ ...formField, type: event.target.value })
+        onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
+          (formField?.questionOptions?.rendering && event.target.value!=='obs' &&  
+          questionTypes.includes(event.target.value as keyof typeof renderTypeOptions) && 
+          !renderTypeOptions[event.target.value].includes(formField.questionOptions.rendering as  RenderType))
+            ?(delete formField.questionOptions):(true);
+          setFormField({ ...formField, type: event.target.value });
+        }
         }
         id="questionType"
         invalidText={t('typeRequired', 'Type is required')}
