@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Form, ModalBody, ModalHeader, ModalFooter } from '@carbon/react';
 import { type Schema } from '@types';
-import styles from '../modals.scss';
 
 interface RestoreDraftSchemaModalProps {
   closeModal: () => void;
@@ -25,11 +24,7 @@ const RestoreDraftSchemaModal: React.FC<RestoreDraftSchemaModalProps> = ({ close
 
   return (
     <>
-      <ModalHeader
-        className={styles.modalHeader}
-        closeModal={closeModal}
-        title={t('schemaNotFound', 'Schema not found')}
-      />
+      <ModalHeader closeModal={closeModal} title={t('schemaNotFound', 'Schema not found')} />
       <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
           <p>
