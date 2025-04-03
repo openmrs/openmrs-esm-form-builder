@@ -1,0 +1,14 @@
+.sortableTag {
+  cursor: grab;
+  transition: transform 250ms ease;
+  opacity: 1;
+}
+
+.sortableTag.dragging {
+  opacity: 0.5;
+}
+
+.sortableTagWrapper {
+  display: flex;
+  align-items: center;
+}

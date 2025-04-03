@@ -2,6 +2,11 @@ import React, { createContext, useCallback, useContext, useState, type ReactNode
 import type { FormField } from '@openmrs/esm-form-engine-lib';
 import type { Concept } from '@types';
 
+export interface AdditionalAnswer {
+  id: string;
+  text: string;
+}
+
 interface FormFieldContextType {
   formField: FormField;
   setFormField: (value: FormField | ((prev: FormField) => FormField)) => void;
@@ -11,6 +16,8 @@ interface FormFieldContextType {
   setIsConceptValid?: React.Dispatch<React.SetStateAction<boolean>>;
   updateParentFormField?: (updatedFormField: FormField) => void;
   isObsGrouped?: boolean;
+  additionalAnswers: AdditionalAnswer[];
+  setAdditionalAnswers: React.Dispatch<React.SetStateAction<AdditionalAnswer[]>>;
 }
 
 const FormFieldContext = createContext<FormFieldContextType | undefined>(undefined);
@@ -25,6 +32,7 @@ export const FormFieldProvider: React.FC<{
   const [formField, setFormFieldInternal] = useState<FormField>(initialFormField);
   const [concept, setConcept] = useState<Concept | null>(selectedConcept);
   const [isConceptValid, setIsConceptValid] = useState<boolean>(true);
+  const [additionalAnswers, setAdditionalAnswers] = useState<AdditionalAnswer[]>([]);
 
   const setFormField = useCallback(
     (valueOrUpdater: FormField | ((prev: FormField) => FormField)) => {
@@ -50,6 +58,8 @@ export const FormFieldProvider: React.FC<{
         setIsConceptValid,
         updateParentFormField,
         isObsGrouped,
+        additionalAnswers,
+        setAdditionalAnswers,
       }}
     >
       {children}

@@ -44,7 +44,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
   onSchemaChange,
 }) => {
   const { t } = useTranslation();
-  const { formField, setFormField, isConceptValid } = useFormField();
+  const { formField, setFormField, isConceptValid, additionalAnswers } = useFormField();
 
   /**
    * NOTE - this does not support nested obsGroup questions
@@ -107,15 +107,36 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
     [setFormField],
   );
 
-  const saveQuestion = () => {
-    try {
-      if (formFieldProp) {
-        schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] = formField;
-      } else {
-        schema.pages[pageIndex]?.sections?.[sectionIndex]?.questions?.push(formField);
-      }
+  /**
+   * Merges additional answers into formField.questionOptions.answers and updates the schema.
+   */
+  const saveQuestion = useCallback(() => {
+    const current = formField.questionOptions?.answers || [];
+    const mergedAnswers = [
+      ...current,
+      ...additionalAnswers
+        .filter((ans) => !current.some((a) => a.concept === ans.id))
+        .map((ans) => ({ concept: ans.id, label: ans.text })),
+    ];
+    const updatedFormField: FormField = {
+      ...formField,
+      questionOptions: {
+        ...formField.questionOptions,
+        answers: mergedAnswers,
+      },
+    };
 
-      onSchemaChange({ ...schema });
+    setFormField(updatedFormField);
+
+    try {
+      const newSchema = JSON.parse(JSON.stringify(schema));
+
+      if (formFieldProp) {
+        newSchema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] = updatedFormField;
+      } else {
+        newSchema.pages[pageIndex].sections[sectionIndex].questions.push(updatedFormField);
+      }
+      onSchemaChange(newSchema);
 
       showSnackbar({
         title: t('success', 'Success!'),
@@ -135,8 +156,19 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
       }
     }
     closeModal();
-  };
-
+  }, [
+    formField,
+    additionalAnswers,
+    formFieldProp,
+    onSchemaChange,
+    schema,
+    pageIndex,
+    sectionIndex,
+    questionIndex,
+    t,
+    setFormField,
+    closeModal,
+  ]);
   const handleUpdateParentFormField = useCallback(
     (updatedFormField: FormField, index: number) => {
       setFormField((prevFormField) => {
