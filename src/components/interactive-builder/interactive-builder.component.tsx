@@ -427,7 +427,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                   {page?.sections?.length ? (
                     page.sections?.map((section, sectionIndex) => (
                       <Accordion key={sectionIndex}>
-                        <AccordionItem title={section.label}>
+                        <AccordionItem title={section.label} open ={schema.pages[pageIndex].sections[sectionIndex].isExpanded==='true'?true:false}>
                           <>
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                               <div className={styles.editorContainer}>
