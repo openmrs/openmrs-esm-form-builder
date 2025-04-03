@@ -1271,7 +1271,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.14.5, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.17.2, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.19.0, @babel/runtime@npm:^7.22.15, @babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.24.5, @babel/runtime@npm:^7.24.7, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.8.4":
+"@babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.14.5, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.17.2, @babel/runtime@npm:^7.19.0, @babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.24.5, @babel/runtime@npm:^7.24.7, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.8.4":
   version: 7.26.0
   resolution: "@babel/runtime@npm:7.26.0"
   dependencies:
@@ -1354,13 +1354,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@carbon/feature-flags@npm:^0.16.0":
-  version: 0.16.0
-  resolution: "@carbon/feature-flags@npm:0.16.0"
-  checksum: 10/d509cfe9d2a1188c0f1f510dd83d204ff55fbd21a1760eeb008ac0c4deba39e55f6c902b826639643b5ca7aa3cd83ee9a1b05cb44b3ee06d72c1efb6bcfa503f
-  languageName: node
-  linkType: hard
-
 "@carbon/feature-flags@npm:^0.24.0":
   version: 0.24.0
   resolution: "@carbon/feature-flags@npm:0.24.0"
@@ -1398,7 +1391,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@carbon/icons-react@npm:^11.35.0, @carbon/icons-react@npm:^11.53.0, @carbon/icons-react@npm:^11.57.0":
+"@carbon/icons-react@npm:^11.53.0, @carbon/icons-react@npm:^11.57.0":
   version: 11.57.0
   resolution: "@carbon/icons-react@npm:11.57.0"
   dependencies:
@@ -1411,7 +1404,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@carbon/layout@npm:^11.20.0, @carbon/layout@npm:^11.28.0, @carbon/layout@npm:^11.31.0":
+"@carbon/layout@npm:^11.28.0, @carbon/layout@npm:^11.31.0":
   version: 11.31.0
   resolution: "@carbon/layout@npm:11.31.0"
   dependencies:
@@ -1491,40 +1484,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@carbon/react@npm:~1.49.0":
-  version: 1.49.0
-  resolution: "@carbon/react@npm:1.49.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.18.3"
-    "@carbon/feature-flags": "npm:^0.16.0"
-    "@carbon/icons-react": "npm:^11.35.0"
-    "@carbon/layout": "npm:^11.20.0"
-    "@carbon/styles": "npm:^1.49.0"
-    "@ibm/telemetry-js": "npm:^1.2.0"
-    classnames: "npm:2.5.1"
-    copy-to-clipboard: "npm:^3.3.1"
-    downshift: "npm:8.3.1"
-    flatpickr: "npm:4.6.9"
-    invariant: "npm:^2.2.3"
-    lodash.debounce: "npm:^4.0.8"
-    lodash.findlast: "npm:^4.5.0"
-    lodash.isequal: "npm:^4.5.0"
-    lodash.omit: "npm:^4.5.0"
-    lodash.throttle: "npm:^4.1.1"
-    prop-types: "npm:^15.7.2"
-    react-is: "npm:^18.2.0"
-    use-resize-observer: "npm:^6.0.0"
-    wicg-inert: "npm:^3.1.1"
-    window-or-global: "npm:^1.0.1"
-  peerDependencies:
-    react: ^16.8.6 || ^17.0.1 || ^18.2.0
-    react-dom: ^16.8.6 || ^17.0.1 || ^18.2.0
-    sass: ^1.33.0
-  checksum: 10/18e74975d78a8f26a464b2783a98cfa21610679e9bedc31e9f98e5b05a7ecfa157dd00569f9d54985ebfddcaeeae19096553c8f1cf57bc4f070405faeed3d70a
-  languageName: node
-  linkType: hard
-
-"@carbon/styles@npm:^1.49.0, @carbon/styles@npm:^1.73.0, @carbon/styles@npm:^1.78.0":
+"@carbon/styles@npm:^1.73.0, @carbon/styles@npm:^1.78.0":
   version: 1.78.0
   resolution: "@carbon/styles@npm:1.78.0"
   dependencies:
@@ -2127,7 +2087,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ibm/telemetry-js@npm:^1.2.0, @ibm/telemetry-js@npm:^1.5.0, @ibm/telemetry-js@npm:^1.5.1, @ibm/telemetry-js@npm:^1.9.1":
+"@ibm/telemetry-js@npm:^1.5.0, @ibm/telemetry-js@npm:^1.5.1, @ibm/telemetry-js@npm:^1.9.1":
   version: 1.9.1
   resolution: "@ibm/telemetry-js@npm:1.9.1"
   bin:
@@ -3269,7 +3229,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@openmrs/esm-form-builder-app@workspace:."
   dependencies:
-    "@carbon/react": "npm:~1.49.0"
+    "@carbon/react": "npm:^1.76.0"
     "@dnd-kit/core": "npm:^6.1.0"
     "@dnd-kit/modifiers": "npm:^6.0.1"
     "@dnd-kit/sortable": "npm:^7.0.2"
@@ -8760,7 +8720,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"compute-scroll-into-view@npm:^3.0.3, compute-scroll-into-view@npm:^3.1.0":
+"compute-scroll-into-view@npm:^3.1.0":
   version: 3.1.0
   resolution: "compute-scroll-into-view@npm:3.1.0"
   checksum: 10/cc5211d49bced5ad23385da5c2eaf69b6045628581b0dcb9f4dd407bfee51bbd26d2bce426be26edf2feaf8c243706f5a7c3759827d89cc5a01a5cf7d299a5eb
@@ -10085,21 +10045,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"downshift@npm:8.3.1":
-  version: 8.3.1
-  resolution: "downshift@npm:8.3.1"
-  dependencies:
-    "@babel/runtime": "npm:^7.22.15"
-    compute-scroll-into-view: "npm:^3.0.3"
-    prop-types: "npm:^15.8.1"
-    react-is: "npm:^18.2.0"
-    tslib: "npm:^2.6.2"
-  peerDependencies:
-    react: ">=16.12.0"
-  checksum: 10/b616da957802bd80bc8d909d36bff851d9701e743d800be6443514f24deeaf0ce22ae56e6802c386c769328d8442969c6629c6f94d99ff12bea8d07e11c86cee
-  languageName: node
-  linkType: hard
-
 "downshift@npm:9.0.8":
   version: 9.0.8
   resolution: "downshift@npm:9.0.8"
@@ -11274,13 +11219,6 @@ __metadata:
   version: 4.6.13
   resolution: "flatpickr@npm:4.6.13"
   checksum: 10/0e32f2fbd427aa8d838da8fb0cf2e56b65efc22783dcebcc32c11b7fbb6bbc8c3532f9410915f3acb7dc0feebb49202bea03e49cc80b9d4d11b3bdce49488bc0
-  languageName: node
-  linkType: hard
-
-"flatpickr@npm:4.6.9":
-  version: 4.6.9
-  resolution: "flatpickr@npm:4.6.9"
-  checksum: 10/0845ef213be9aa48df3c0983e9cea7043e8678eba931d382994e5e8aa07ae2c6d3fead7570d4dcac8e063b53bc489053b9842cd2a771868a280880dfca487a5e
   languageName: node
   linkType: hard
 
@@ -14131,13 +14069,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.findlast@npm:^4.5.0":
-  version: 4.6.0
-  resolution: "lodash.findlast@npm:4.6.0"
-  checksum: 10/ee7c3e6287ebab628b06449c8847aa00263f10b43bc67f1245e4b34c2edd80802148299f61e8577675790a05a4abe75ffdadacd0984a93724a69c7a01873fb1d
-  languageName: node
-  linkType: hard
-
 "lodash.get@npm:^4.4.2":
   version: 4.4.2
   resolution: "lodash.get@npm:4.4.2"
@@ -14166,24 +14097,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.omit@npm:^4.5.0":
-  version: 4.5.0
-  resolution: "lodash.omit@npm:4.5.0"
-  checksum: 10/f5c67cd1df11f1275662060febb629a4d4e7b547c4bea66454508b5e6096162c2af882aab1ff8cb5dcf2b328f22252416de6ca9c1334588f6310edfac525e511
-  languageName: node
-  linkType: hard
-
 "lodash.sortby@npm:^4.7.0":
   version: 4.7.0
   resolution: "lodash.sortby@npm:4.7.0"
   checksum: 10/38df19ae28608af2c50ac342fc1f414508309d53e1d58ed9adfb2c3cd17c3af290058c0a0478028d932c5404df3d53349d19fa364ef6bed6145a6bc21320399e
-  languageName: node
-  linkType: hard
-
-"lodash.throttle@npm:^4.1.1":
-  version: 4.1.1
-  resolution: "lodash.throttle@npm:4.1.1"
-  checksum: 10/9be9fb2ffd686c20543167883305542f4564062a5f712a40e8c6f2f0d9fd8254a6e9d801c2470b1b24e0cdf2ae83c1277b55aa0fb4799a2db6daf545f53820e1
   languageName: node
   linkType: hard
 
@@ -20318,13 +20235,6 @@ __metadata:
   bin:
     node-which: bin/which.js
   checksum: 10/f17e84c042592c21e23c8195108cff18c64050b9efb8459589116999ea9da6dd1509e6a1bac3aeebefd137be00fabbb61b5c2bc0aa0f8526f32b58ee2f545651
-  languageName: node
-  linkType: hard
-
-"wicg-inert@npm:^3.1.1":
-  version: 3.1.3
-  resolution: "wicg-inert@npm:3.1.3"
-  checksum: 10/b9ca89ba4d4ce17eceab37aa6a10124490584b0d76e5287a43126bff1042aded8f624792db52f9e80f59bd70ffd0e79f243312a94fe928883f6c8834009b12e1
   languageName: node
   linkType: hard
 
