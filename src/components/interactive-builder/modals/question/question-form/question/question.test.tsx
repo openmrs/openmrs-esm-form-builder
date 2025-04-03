@@ -1,15 +1,9 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useTranslation } from 'react-i18next';
-import Question from './question.component';
-import '@testing-library/jest-dom';
-import type { FormField, RenderType } from '@openmrs/esm-form-engine-lib';
+import type { FormField } from '@openmrs/esm-form-engine-lib';
 import { FormFieldProvider } from '../../form-field-context';
-
-jest.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
-}));
+import Question from './question.component';
 
 const mockSetFormField = jest.fn();
 const checkIfQuestionIdExists = jest.fn();
@@ -29,7 +23,9 @@ describe('Question Component', () => {
   it('should render the toggles for question info', () => {
     renderQuestionComponent();
 
-    expect(screen.getByRole('group', { name: /isQuestionInfoProvided/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('group', { name: /would you like to provide additional details about the question?/i }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /Yes/i })).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /No/i })).toBeInTheDocument();
   });
@@ -41,7 +37,7 @@ describe('Question Component', () => {
     const yesRadio = screen.getByRole('radio', { name: /Yes/i });
     await user.click(yesRadio);
 
-    expect(screen.getByLabelText(/questionInfo/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/additional question info/i)).toBeInTheDocument();
   });
 
   it('hides TextInput when "No" is selected', async () => {
@@ -51,7 +47,7 @@ describe('Question Component', () => {
     const noRadio = screen.getByRole('radio', { name: /No/i });
     await user.click(noRadio);
 
-    expect(screen.queryByLabelText(/questionInfo/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/additional question info/i)).not.toBeInTheDocument();
   });
 
   it('updates questionInfo state when user types in TextInput', async () => {
@@ -61,7 +57,7 @@ describe('Question Component', () => {
     const yesRadio = screen.getByRole('radio', { name: /Yes/i });
     await user.click(yesRadio);
 
-    const textInput = screen.getByLabelText(/questionInfo/i);
+    const textInput = screen.getByLabelText(/additional question info/i);
     await user.type(textInput, 'New question info');
 
     expect(textInput).toHaveValue('New question info');
