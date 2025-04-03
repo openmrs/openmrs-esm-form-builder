@@ -32,6 +32,18 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
     return checkIfQuestionIdExists(formField.id);
   }, [formField.id, checkIfQuestionIdExists]);
 
+  const handleFormFieldChange = (questionTypeNew:any)=>{
+    setFormField((formField)=>{
+      if(formField?.questionOptions?.rendering && questionTypeNew!=='obs' &&  
+      questionTypes.includes(questionTypeNew as keyof typeof renderTypeOptions) &&
+      !renderTypeOptions[questionTypeNew].includes(formField.questionOptions.rendering as  RenderType)){
+        formField.questionOptions.rendering = null;
+        return { ...formField, type: questionTypeNew};
+      }
+      return { ...formField, type: questionTypeNew };
+    }); 
+  }
+  
   const handleQuestionInfoToggle = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setFormField((prevFormField) => {
@@ -87,11 +99,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
       <Select
         value={formField?.type ?? 'control'}
         onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
-          (formField?.questionOptions?.rendering && event.target.value!=='obs' &&  
-          questionTypes.includes(event.target.value as keyof typeof renderTypeOptions) && 
-          !renderTypeOptions[event.target.value].includes(formField.questionOptions.rendering as  RenderType))
-            ?(delete formField.questionOptions):(true);
-          setFormField({ ...formField, type: event.target.value });
+          handleFormFieldChange(event.target.value);
         }
         }
         id="questionType"
