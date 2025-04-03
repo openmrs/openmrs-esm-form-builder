@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Button, Form, FormGroup, ModalBody, ModalFooter, ModalHeader, Stack, TextInput } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import type { Schema } from '@types';
-import styles from '../modals.scss';
 
 interface NewFormModalProps {
   schema: Schema;
@@ -51,11 +50,7 @@ const NewFormModal: React.FC<NewFormModalProps> = ({ schema, onSchemaChange, clo
 
   return (
     <>
-      <ModalHeader
-        className={styles.modalHeader}
-        closeModal={closeModal}
-        title={t('createNewForm', 'Create a new form')}
-      />
+      <ModalHeader closeModal={closeModal} title={t('createNewForm', 'Create a new form')} />
       <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
           <Stack gap={5}>

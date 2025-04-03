@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Button, Form, FormGroup, ModalBody, ModalFooter, ModalHeader, TextInput } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import type { Schema } from '@types';
-import styles from '../modals.scss';
 
 interface PageModalProps {
   closeModal: () => void;
@@ -50,11 +49,7 @@ const PageModal: React.FC<PageModalProps> = ({ closeModal, schema, onSchemaChang
 
   return (
     <>
-      <ModalHeader
-        className={styles.modalHeader}
-        title={t('createNewPage', 'Create a new page')}
-        closeModal={closeModal}
-      />
+      <ModalHeader title={t('createNewPage', 'Create a new page')} closeModal={closeModal} />
       <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
           <FormGroup legendText={''}>
