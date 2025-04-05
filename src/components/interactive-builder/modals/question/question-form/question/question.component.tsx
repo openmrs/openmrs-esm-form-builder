@@ -44,19 +44,30 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
     }); 
   }
   
-  const handleQuestionInfoToggle = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setFormField((prevFormField) => {
-        if (e.target.value === 'false') {
-          const { questionInfo, ...updatedFormField } = prevFormField;
-          return updatedFormField;
+ const handleQuestionTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newQuestionType = event.target.value;
+    setFormField((prevFormField) => {
+      const hasPreviousRenderingType = prevFormField?.questionOptions?.rendering;
+      if (hasPreviousRenderingType) {
+        // Check if the new questionType is 'obs' because 'obs' contains all rendering types, so we dont need to clear the previous one if it is present
+        const isQuestionTypeObs = newQuestionType === 'obs' ? true : false;
+        if (!isQuestionTypeObs) {
+          const isNewQuestionTypeHasPrevRenderingType = questionTypes.includes(newQuestionType as keyof typeof renderTypeOptions) && renderTypeOptions[newQuestionType].includes(prevFormField.questionOptions.rendering as RenderType);
+          if (!isNewQuestionTypeHasPrevRenderingType) {
+            return {
+              ...prevFormField,
+              questionOptions: { ...prevFormField.questionOptions, rendering: null },
+              type: newQuestionType
+            };
+          }
         }
-        return prevFormField;
-      });
-      setIsQuestionInfoVisible(e.target.value === 'true');
-    },
-    [setFormField],
-  );
+      }
+      return {
+        ...prevFormField,
+        type: newQuestionType
+      };
+    });
+  };
 
   const handleQuestionInfoChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,10 +109,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
       />
       <Select
         value={formField?.type ?? 'control'}
-        onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
-          handleFormFieldChange(event.target.value);
-        }
-        }
+        onChange={handleQuestionTypeChange}
         id="questionType"
         invalidText={t('typeRequired', 'Type is required')}
         labelText={t('questionType', 'Question type')}
