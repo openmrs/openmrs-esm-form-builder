@@ -71,16 +71,6 @@ export async function getResourceUuid(formUuid: string, valueReference: string):
   return response;
 }
 
-// New function to get translations only
-export async function getTranslations(formUuid: string, language: string): Promise<FetchResponse<any>> {
-  // Assuming the backend has an endpoint for just translations
-  const response: FetchResponse = await openmrsFetch(`${restBaseUrl}/form/${formUuid}/translations/${language}`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-  });
-  return response;
-}
-
 export async function updateForm(
   formUuid: string,
   name: string,
@@ -159,4 +149,60 @@ export async function unpublishForm(uuid: string): Promise<FetchResponse<Form>> 
     body: body,
   });
   return response;
+}
+
+// Function to upload a translation file (as a Blob) to the CLOB storage.
+// It works similarly to uploadSchema but is meant for translation files.
+export async function uploadTranslation(translationBlob: Blob): Promise<string> {
+  const body = new FormData();
+  body.append('file', translationBlob);
+
+  try {
+    const responseText = await window
+      .fetch(`${window.openmrsBase}${restBaseUrl}/clobdata`, {
+        body,
+        method: 'POST',
+      })
+      .then((response) => {
+        return response.text();
+      });
+    return responseText;
+  } catch (error) {
+    console.error('Error uploading translation file:', error);
+    throw error;
+  }
+}
+
+// Function to create a form resource for a translation file.
+// This associates the uploaded translation (via its valueReference) with the form.
+// The 'language' parameter helps differentiate resources for different languages.
+export async function createTranslationResource(
+  formUuid: string,
+  valueReference: string,
+  language: string,
+  schemaName: string,
+): Promise<FetchResponse<Schema>> {
+  const resourceName = `${schemaName}_translations_${language}`;
+
+  const payload = {
+    form: formUuid,
+    name: resourceName,
+    dataType: 'org.openmrs.customdatatype.datatype.LongFreeTextDatatype',
+    handler: null,
+    handlerConfig: null,
+    value: '',
+    valueReference: valueReference,
+  };
+
+  try {
+    const response: FetchResponse = await openmrsFetch(`${restBaseUrl}/form/${formUuid}/resource`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    return response;
+  } catch (error) {
+    console.error('Error creating translation resource:', error);
+    throw error;
+  }
 }

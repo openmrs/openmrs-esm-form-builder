@@ -11,6 +11,7 @@ interface TranslationBuilderProps {
   formSchema: any; // The current form schema JSON passed from SchemaEditor
   onUpdateSchema: (updatedSchema: any) => void; // Callback to update the schema in SchemaEditor
   languages: string[]; // Available language codes passed from Form Editor
+  onSaveTranslation: () => Promise<void>;
 }
 
 /**
@@ -68,7 +69,12 @@ function extractTranslatableStrings(form: any): Record<string, string> {
   return result;
 }
 
-const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onUpdateSchema, languages }) => {
+const TranslationBuilder: React.FC<TranslationBuilderProps> = ({
+  formSchema,
+  onUpdateSchema,
+  languages,
+  onSaveTranslation,
+}) => {
   const { t, i18n } = useTranslation();
   const { formId } = useParams<{ formId: string }>();
 
@@ -130,8 +136,13 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
 
   return (
     <div className={styles.translationBuilderContainer}>
-      <h2 className={styles.title}>{t('translationBuilder', 'Translation Builder')}</h2>
-
+      <div className={styles.translationBuilderHeader}>
+        <h2 className={styles.title}>{t('translationBuilder', 'Translation Builder')}</h2>
+        <Button kind="tertiary" onClick={onSaveTranslation}>
+          {' '}
+          <span>{t('saveTranslation', 'Save translation')}</span>
+        </Button>
+      </div>
       <div className={styles.languageSelector}>
         <label htmlFor="language-selector">{t('selectLanguage', 'Select Language:')}</label>
         <select id="language-selector" value={localSelectedLanguage} onChange={handleLanguageChange}>
@@ -142,7 +153,6 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
           ))}
         </select>
       </div>
-
       {loading ? (
         <InlineLoading description={t('loadingTranslations', 'Loading translations...')} />
       ) : error ? (
@@ -190,7 +200,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
           </div> */}
 
           <Button onClick={handleSaveTranslations} className={styles.saveButton}>
-            {t('saveTranslations', 'Save Translations')}
+            {t('save', 'Save')}
           </Button>
         </div>
       )}

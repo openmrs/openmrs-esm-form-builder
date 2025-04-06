@@ -18,7 +18,7 @@ import {
 import { ArrowLeft, Maximize, Minimize, DocumentExport, Download } from '@carbon/react/icons';
 import { useParams, useLocation } from 'react-router-dom';
 import { type TFunction, useTranslation } from 'react-i18next';
-import { ConfigurableLink, showModal, useConfig, navigate } from '@openmrs/esm-framework';
+import { ConfigurableLink, showModal, useConfig, showSnackbar } from '@openmrs/esm-framework';
 import ActionButtons from '../action-buttons/action-buttons.component';
 import AuditDetails from '../audit-details/audit-details.component';
 import FormRenderer from '../form-renderer/form-renderer.component';
@@ -36,6 +36,7 @@ import type { Schema } from '@types';
 import type { ConfigObject } from '../../config-schema';
 import styles from './form-editor.scss';
 import NewLanguageModal from '../translation-builder/newLanguage.modal';
+import { uploadTranslation, createTranslationResource } from '@resources/forms.resource';
 
 interface ErrorProps {
   error: Error;
@@ -76,7 +77,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
 
   const isNewSchema = !formUuid;
   const [schema, setSchema] = useState<Schema>();
-  const { form, formError, isLoadingForm } = useForm(formUuid);
+  const { form, formError, isLoadingForm, mutate } = useForm(formUuid);
   const { clobdata, clobdataError, isLoadingClobdata } = useClobdata(form);
   const [status, setStatus] = useState<Status>('idle');
   const [isMaximized, setIsMaximized] = useState(false);
@@ -368,6 +369,32 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
     return schema;
   }, [schema, selectedLanguage]);
 
+  const handleSaveTranslation = async () => {
+    if (!downloadableTranslationResource) {
+      showSnackbar({ title: 'Error', kind: 'error', subtitle: 'No translation data to save.' });
+      return;
+    }
+    try {
+      // Example API call similar to uploadSchema but for translations:
+      const valueReference = await uploadTranslation(downloadableTranslationResource);
+      // Associate translation resource with form, using a function similar to getResourceUuid:
+      await createTranslationResource(form.uuid, valueReference, selectedLanguage, schema.name);
+
+      showSnackbar({
+        title: 'Translation Saved',
+        kind: 'success',
+        subtitle: `Translations for ${selectedLanguage.toUpperCase()} saved successfully.`,
+      });
+      await mutate(); // Refresh state if needed.
+    } catch (error) {
+      showSnackbar({
+        title: 'Error saving translation',
+        kind: 'error',
+        subtitle: error?.message,
+      });
+    }
+  };
+
   return (
     <div className={styles.container}>
       <Grid
@@ -536,7 +563,12 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                 />
               </TabPanel>
               <TabPanel>
-                <TranslationBuilder formSchema={schema} onUpdateSchema={updateSchema} languages={languages} />
+                <TranslationBuilder
+                  formSchema={schema}
+                  onUpdateSchema={updateSchema}
+                  languages={languages}
+                  onSaveTranslation={handleSaveTranslation}
+                />
               </TabPanel>
               <TabPanel>{form && <AuditDetails form={form} key={form.uuid} />}</TabPanel>
             </TabPanels>
