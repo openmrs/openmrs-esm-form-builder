@@ -54,10 +54,10 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
         if (hasPreviousRenderingType) {
           const isQuestionTypeObs = newQuestionType === 'obs' ? true : false;
           if (!isQuestionTypeObs) {
-            const isNewQuestionTypeHasPrevRenderingType =
+            const isRenderingTypeValidForQuestionType =
               questionTypes.includes(newQuestionType as keyof typeof renderTypeOptions) &&
               renderTypeOptions[newQuestionType].includes(prevFormField.questionOptions.rendering as RenderType);
-            if (!isNewQuestionTypeHasPrevRenderingType) {
+            if (!isRenderingTypeValidForQuestionType) {
               return {
                 ...prevFormField,
                 questionOptions: { ...prevFormField.questionOptions, rendering: null },
