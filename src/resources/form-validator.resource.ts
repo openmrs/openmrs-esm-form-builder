@@ -109,7 +109,7 @@ const handleQuestionValidation = async (conceptObject, errorsArray, configObject
     } catch (error) {
       console.error(error);
     }
-  } else {
+  } else if (conceptObject.questionOptions.rendering !== 'workspace-launcher') {
     errorsArray.push({
       errorMessage: `❓ No UUID`,
       field: conceptObject,
