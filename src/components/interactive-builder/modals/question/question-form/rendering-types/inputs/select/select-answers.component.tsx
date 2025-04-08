@@ -6,7 +6,6 @@ import { useFormField } from '../../../../form-field-context';
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import type { Concept } from '@types';
 import styles from './select-answers.scss';
-
 interface AnswerItem {
   id: string;
   text: string;
@@ -134,22 +133,25 @@ const SelectAnswers: React.FC = () => {
         return;
       }
 
-      const originalAnswerIds = new Set(concept?.answers?.map((ans) => ans.uuid) || []);
+      const originalAnswersMap = new Map((concept?.answers || []).map((ans) => [ans.uuid, ans.display]));
 
       let allValid = true;
-      const lookupCache = new Map<string, boolean>();
       const uniqueAnswers = Array.from(new Map(answerItems.map((a) => [a.id, a])).values());
 
       for (const answer of uniqueAnswers) {
-        if (originalAnswerIds.has(answer.id)) {
-          continue;
+        if (originalAnswersMap.has(answer.id)) {
+          const expectedName = originalAnswersMap.get(answer.id);
+          if (answer.text !== expectedName) {
+            allValid = false;
+            break;
+          } else {
+            continue;
+          }
         } else {
           const url = `${restBaseUrl}/concept/${answer.id}?v=full`;
           try {
             const res = await openmrsFetch(url);
-            const isValid = res?.data?.uuid === answer.id;
-
-            lookupCache.set(answer.id, isValid);
+            const isValid = res?.data?.uuid === answer.id && res?.data?.display === answer.text;
             if (!isValid) {
               allValid = false;
               break;
