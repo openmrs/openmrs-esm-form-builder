@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { RadioButtonGroup, RadioButton } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { useFormField } from '../../../../form-field-context';
@@ -14,6 +14,18 @@ const Date: React.FC = () => {
     time: [{ value: 'timer', label: t('timerOnly', 'Timer only'), defaultChecked: false }],
   };
 
+  const initializeDefaultSelection=useCallback(()=>{
+    if(!formField.datePickerFormat){
+      setFormField((prevField)=>({
+        ...prevField,
+        datePickerFormat:'both'
+      }));
+    }
+  },[formField.datePickerFormat,setFormField]);
+  useEffect(()=>{
+    initializeDefaultSelection();
+  },[initializeDefaultSelection])
+  
   const handleDatePickerTypeChange = useCallback(
     (type: DatePickerTypeOption) => {
       setFormField((prevField) => ({
