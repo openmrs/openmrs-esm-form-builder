@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Tag, MultiSelect, Stack } from '@carbon/react';
+import { Tag, MultiSelect, Stack, InlineNotification } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
 import { useFormField } from '../../../../form-field-context';
+import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import type { Concept } from '@types';
 import styles from './select-answers.scss';
 
@@ -15,6 +16,7 @@ const SelectAnswers: React.FC = () => {
   const { t } = useTranslation();
   const { formField, concept, setFormField } = useFormField();
   const [addedAnswers, setAddedAnswers] = useState<AnswerItem[]>([]);
+  const [invalidAnswerFound, setInvalidAnswerFound] = useState(false);
 
   useEffect(() => {
     if (!concept) {
@@ -124,6 +126,46 @@ const SelectAnswers: React.FC = () => {
     return [...conceptAnswerItems, ...additionalAnswers];
   }, [concept?.answers, formField.questionOptions?.answers]);
 
+  useEffect(() => {
+    if (!concept?.answers?.length) return;
+    const validateAnswers = async () => {
+      if (!answerItems.length) {
+        setInvalidAnswerFound(false);
+        return;
+      }
+
+      const originalAnswerIds = new Set(concept?.answers?.map((ans) => ans.uuid) || []);
+
+      let allValid = true;
+      const lookupCache = new Map<string, boolean>();
+      const uniqueAnswers = Array.from(new Map(answerItems.map((a) => [a.id, a])).values());
+
+      for (const answer of uniqueAnswers) {
+        if (originalAnswerIds.has(answer.id)) {
+          continue;
+        } else {
+          const url = `${restBaseUrl}/concept/${answer.id}?v=full`;
+          try {
+            const res = await openmrsFetch(url);
+            const isValid = res?.data?.uuid === answer.id;
+
+            lookupCache.set(answer.id, isValid);
+            if (!isValid) {
+              allValid = false;
+              break;
+            }
+          } catch (error) {
+            allValid = false;
+            break;
+          }
+        }
+      }
+      setInvalidAnswerFound(!allValid);
+    };
+
+    validateAnswers();
+  }, [answerItems, concept]);
+
   const convertAnswerItemsToString = useCallback((item: AnswerItem) => item.text, []);
 
   return (
@@ -150,6 +192,17 @@ const SelectAnswers: React.FC = () => {
             </Tag>
           ))}
         </div>
+      )}
+
+      {/* Display an inline notification if any answer fails validation */}
+      {invalidAnswerFound && (
+        <InlineNotification
+          kind="error"
+          lowContrast
+          className={styles.error}
+          title={t('invalidAnswerConcept', 'Invalid Concept Answer Detected')}
+          subtitle={t('answerConceptValidation', 'One or more selected answer concepts do not exist in the system. ')}
+        />
       )}
 
       {concept && concept.datatype?.name === 'Coded' && (
