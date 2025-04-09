@@ -28,8 +28,8 @@ import {
   type Schema,
   type Section,
   type DisableProps,
-} from '../../types';
-import { useFormRule } from '../../hooks/useFormRule';
+} from '@types';
+import { useFormRule } from '@hooks/useFormRule';
 import InputSelectionBox from './input-selection-box.component';
 import {
   arrContains,
@@ -42,6 +42,7 @@ import {
 import styles from './rule-builder.scss';
 import dayjs from 'dayjs';
 import { findQuestionIndices } from '../utils';
+
 export interface Condition {
   id: string;
   isNew: boolean;

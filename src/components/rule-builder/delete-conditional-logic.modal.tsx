@@ -4,9 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { v4 as uuid } from 'uuid';
 import { showSnackbar } from '@openmrs/esm-framework';
 import { type Action, type Condition, type FormRule } from './rule-builder.component';
-import { type Schema } from '../../types';
+import { type Schema } from '@types';
 import { findQuestionIndices } from '../utils';
-import styles from '../modals.scss';
 
 interface DeleteConditionalLogicModalProps {
   closeModal: () => void;
@@ -226,9 +225,8 @@ const DeleteConditionalLogicModal: React.FC<DeleteConditionalLogicModalProps> = 
   const deleteLogic = deleteAll ? deleteAllConditionalLogic : deleteSpecificConditionalLogic;
 
   return (
-    <div>
+    <>
       <ModalHeader
-        className={styles.modalHeader}
         closeModal={closeModal}
         title={
           deleteAll
@@ -264,7 +262,7 @@ const DeleteConditionalLogicModal: React.FC<DeleteConditionalLogicModalProps> = 
           </span>
         </Button>
       </ModalFooter>
-    </div>
+    </>
   );
 };
 

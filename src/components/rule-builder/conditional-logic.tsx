@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Question, Schema } from '../../types';
+import type { Question, Schema } from '@types';
 import RuleBuilder, { type FormRule } from './rule-builder.component';
 import { v4 as uuidv4 } from 'uuid';
 

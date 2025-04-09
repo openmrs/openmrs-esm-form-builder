@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { RuleContext } from '../../hooks/useFormRule';
+import { RuleContext } from '@hooks/useFormRule';
 import { type FormRule } from '../rule-builder/rule-builder.component';
 
 interface RuleProviderProps {

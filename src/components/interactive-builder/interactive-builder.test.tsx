@@ -2,9 +2,9 @@ import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 import { showModal } from '@openmrs/esm-framework';
-import { type FormSchema } from '@openmrs/esm-form-engine-lib';
-import { type Schema } from '../../types';
 import InteractiveBuilder from './interactive-builder.component';
+import { type FormSchema } from '@openmrs/esm-form-engine-lib';
+import { type Schema } from '@types';
 
 const mockShowModal = jest.mocked(showModal);
 

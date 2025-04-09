@@ -1,4 +1,4 @@
-import { type Schema } from '../types';
+import { type Schema } from '@types';
 
 export const findQuestionIndices = (schema: Schema, questionId: string, type: string = 'field') => {
   let pageIndex = -1,

@@ -10,7 +10,7 @@ import ConditionalLogic from '../rule-builder/conditional-logic';
 import DraggableQuestion from './draggable/draggable-question.component';
 import Droppable from './droppable/droppable-container.component';
 import EditableValue from './editable/editable-value.component';
-import { useFormRule } from '../../hooks/useFormRule';
+import { useFormRule } from '@hooks/useFormRule';
 import type { DragEndEvent } from '@dnd-kit/core';
 import type { FormSchema } from '@openmrs/esm-form-engine-lib';
 import type { Schema, Question } from '@types';

@@ -3,7 +3,6 @@ import { ModalHeader, ModalBody, ModalFooter, Button } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { showSnackbar } from '@openmrs/esm-framework';
 import type { Action, Condition, FormRule } from './rule-builder.component';
-import styles from '../modals.scss';
 
 interface DeleteConditionsOrActionsModalProps {
   closeModal: () => void;
@@ -65,9 +64,8 @@ const DeleteConditionsOrActionsModal = ({
   }, [setElement, element, setCurrentRule, t, elementKey, questionLabel, elementId, closeModal]);
 
   return (
-    <div>
+    <>
       <ModalHeader
-        className={styles.modalHeader}
         closeModal={closeModal}
         title={t(
           `delete${elementKey
@@ -101,7 +99,7 @@ const DeleteConditionsOrActionsModal = ({
           </span>
         </Button>
       </ModalFooter>
-    </div>
+    </>
   );
 };
 
