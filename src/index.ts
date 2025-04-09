@@ -1,4 +1,4 @@
-import { defineConfigSchema, getAsyncLifecycle, registerFeatureFlag } from '@openmrs/esm-framework';
+import { defineConfigSchema, getAsyncLifecycle } from '@openmrs/esm-framework';
 import { configSchema } from './config-schema';
 
 const moduleName = '@openmrs/esm-form-builder-app';
@@ -79,10 +79,4 @@ export const deleteConditionsOrActionsModal = getAsyncLifecycle(
 
 export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
-
-  registerFeatureFlag(
-    'validation-rule-builder',
-    'Validation Rule Builder',
-    'Adds a UI for dynamically adding custom form logic to form schemas in the O3 Form Builder without writing JSON code',
-  );
 }

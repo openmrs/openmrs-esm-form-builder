@@ -4,8 +4,8 @@ import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
 import { CopyButton, IconButton } from '@carbon/react';
-import { Draggable, Edit, TrashCan, Settings } from '@carbon/react/icons';
-import { showModal, useFeatureFlag } from '@openmrs/esm-framework';
+import { Draggable, Edit, TrashCan, ColumnDependency } from '@carbon/react/icons';
+import { showModal } from '@openmrs/esm-framework';
 import MarkdownWrapper from '../markdown-wrapper/markdown-wrapper';
 import type { Question, Schema } from '@types';
 import styles from './draggable-question.scss';
@@ -35,7 +35,6 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
 }) => {
   const { t } = useTranslation();
   const defaultEnterDelayInMs = 300;
-  const isValidationRuleBuilder = useFeatureFlag('form-rule-builder');
   const draggableId = `question-${pageIndex}-${sectionIndex}-${questionIndex}`;
 
   const launchEditQuestionModal = useCallback(() => {
@@ -128,18 +127,15 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
         >
           <TrashCan />
         </IconButton>
-        {isValidationRuleBuilder && (
-          <IconButton
-            enterDelayMs={300}
-            hasIconOnly
-            iconDescription={t('addConditionalLogic', 'Add conditional logic')}
-            kind="ghost"
-            onClick={() => handleAddLogic(question.id)}
-            size="md"
-          >
-            <Settings />
-          </IconButton>
-        )}
+        <IconButton
+          enterDelayMs={defaultEnterDelayInMs}
+          label={t('addConditionalLogic', 'Add conditional logic')}
+          kind="ghost"
+          onClick={() => handleAddLogic(question.id)}
+          size="md"
+        >
+          <ColumnDependency />
+        </IconButton>
       </div>
     </div>
   );

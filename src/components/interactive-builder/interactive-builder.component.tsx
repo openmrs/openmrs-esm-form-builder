@@ -1,11 +1,10 @@
 import React, { useCallback, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { useTranslation } from 'react-i18next';
 import { DndContext, KeyboardSensor, MouseSensor, closestCorners, useSensor, useSensors } from '@dnd-kit/core';
 import { Accordion, AccordionItem, Button, IconButton, InlineLoading } from '@carbon/react';
 import { Add, TrashCan, Edit } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
-import { showModal, showSnackbar, useFeatureFlag } from '@openmrs/esm-framework';
+import { showModal, showSnackbar } from '@openmrs/esm-framework';
 import ConditionalLogic from '../rule-builder/conditional-logic';
 import DraggableQuestion from './draggable/draggable-question.component';
 import Droppable from './droppable/droppable-container.component';
@@ -43,7 +42,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   });
   const keyboardSensor = useSensor(KeyboardSensor);
   const sensors = useSensors(mouseSensor, keyboardSensor);
-  const isValidationRuleBuilderEnabled = useFeatureFlag('validation-rule-builder');
   const { t } = useTranslation();
   const { formUuid } = useParams<{ formUuid: string }>();
   const isEditingExistingForm = Boolean(formUuid);
@@ -457,7 +455,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                         schema={schema}
                                         sectionIndex={sectionIndex}
                                       />
-                                      {activeFields.includes(question.id) && isValidationRuleBuilderEnabled && (
+                                      {activeFields.includes(question.id) && (
                                         <ConditionalLogic
                                           question={question}
                                           rules={rules}

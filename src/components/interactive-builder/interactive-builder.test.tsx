@@ -5,6 +5,7 @@ import { showModal } from '@openmrs/esm-framework';
 import InteractiveBuilder from './interactive-builder.component';
 import { type FormSchema } from '@openmrs/esm-form-engine-lib';
 import { type Schema } from '@types';
+import { RuleProvider } from '../provider/rule-provider';
 
 const mockShowModal = jest.mocked(showModal);
 
@@ -109,5 +110,9 @@ function renderInteractiveBuilder(props = {}) {
     validationResponse: [],
   };
 
-  render(<InteractiveBuilder {...defaultProps} {...props} />);
+  render(
+    <RuleProvider>
+      <InteractiveBuilder {...defaultProps} {...props} />
+    </RuleProvider>,
+  );
 }

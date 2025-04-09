@@ -15,14 +15,22 @@ jest.mock('@hooks/useFormRule', () => ({
   },
 }));
 
-describe.skip('RuleBuilder', () => {
+describe('RuleBuilder', () => {
   it('should render the rule builder without crashing', () => {
     renderRuleBuilder();
 
     expect(screen.getByText(/When/i)).toBeInTheDocument();
     expect(screen.getByText(/Then/i)).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: /Select condition/i })).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: /Select an action/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('combobox', {
+        name: /target condition/i,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('combobox', {
+        name: /trigger action/i,
+      }),
+    ).toBeInTheDocument();
   });
 
   it('should display the conditional value dropdown based on selected target condition', async () => {
@@ -31,13 +39,13 @@ describe.skip('RuleBuilder', () => {
     renderRuleBuilder();
 
     // Interact with the target condition dropdown
-    const targetCondition = screen.getByLabelText(/Target condition/i);
+    const targetCondition = screen.getByRole('combobox', {
+      name: /target condition/i,
+    });
     await user.click(targetCondition);
 
-    // Open and select "Equals" from condition dropdown
-    const dropDownButton = screen.getByText(/Select condition/i);
-    await user.click(dropDownButton);
-    await userEvent.click(screen.getByText('Equals'));
+    // Select "Equals" from condition dropdown
+    await userEvent.click(screen.getByText(/^equals/i));
 
     // Verify the target-value dropdown is visible after Selecting "Equals"
     const conditionalValueDropDown = screen.getByTitle(/Target value/i);
@@ -55,8 +63,10 @@ describe.skip('RuleBuilder', () => {
     renderRuleBuilder();
 
     // Select "Fail" action to trigger the error message box
-    await user.click(screen.getByLabelText(/Trigger action/i));
-    await user.click(screen.getByText('Select an action'));
+    const actionSelectDropdown = screen.getByRole('combobox', {
+      name: /trigger action/i,
+    });
+    await user.click(actionSelectDropdown);
     await user.click(screen.getByText('Fail'));
     const errorMessageBox = screen.getByLabelText('error-message');
     expect(errorMessageBox).toBeInTheDocument();
@@ -73,8 +83,11 @@ describe.skip('RuleBuilder', () => {
     renderRuleBuilder();
 
     // Select "Calculate" action to trigger the Calculate Expression Dropdown
-    await user.click(screen.getByLabelText(/Trigger action/i));
-    await user.click(screen.getByText(/Select an action/i));
+    await user.click(
+      screen.getByRole('combobox', {
+        name: /trigger action/i,
+      }),
+    );
     await user.click(screen.getByText(/Calculate/i));
 
     // Verify the "BSA" function is available for calculation logic
@@ -89,8 +102,11 @@ describe.skip('RuleBuilder', () => {
     renderRuleBuilder();
 
     // Select "Array Contains any" target condition
-    await user.click(screen.getByLabelText(/Target condition/i));
-    await user.click(screen.getByText(/Select condition/i));
+    await user.click(
+      screen.getByRole('combobox', {
+        name: /target condition/i,
+      }),
+    );
     const arrContainsCondition = screen.getByText('Contains any');
     expect(arrContainsCondition).toBeInTheDocument();
     await user.click(arrContainsCondition);
@@ -106,13 +122,10 @@ describe.skip('RuleBuilder', () => {
     renderRuleBuilder();
 
     // Test hiding the page field
-    const actionConditionSelect = screen.getByLabelText(/Trigger Action/i);
+    const actionConditionSelect = screen.getByRole('combobox', {
+      name: /trigger action/i,
+    });
     await user.click(actionConditionSelect);
-
-    // Verify the dropdown for selecting an action is present
-    const actionDropdown = screen.getByText(/Select an action/i);
-    expect(actionDropdown).toBeInTheDocument();
-    await user.click(actionDropdown);
 
     // Select and verify the "Hide (page)" action
     const hidePageOption = screen.getByText('Hide (page)');
@@ -125,7 +138,7 @@ describe.skip('RuleBuilder', () => {
 
     // Test hiding the section field
     renderRuleBuilder();
-    await user.click(actionDropdown);
+    await user.click(actionConditionSelect);
 
     // Select and verify the "Hide (section)" action
     const hideSectionOption = screen.getByText('Hide (section)');
@@ -143,11 +156,12 @@ describe.skip('RuleBuilder', () => {
     renderRuleBuilder();
 
     // Interact with the target condition dropdown
-    const targetCondition = screen.getByLabelText(/Target condition/i);
+    const targetCondition = screen.getByRole('combobox', {
+      name: /target condition/i,
+    });
     await user.click(targetCondition);
 
-    // Open and select "is Date Before" from condition dropdown
-    await user.click(screen.getByText(/Select condition/i));
+    // Select "is Date Before" from condition dropdown
     await userEvent.click(screen.getByText('Is Date Before'));
 
     // Verify the Date Picker is visible after Selecting "is Date Before"

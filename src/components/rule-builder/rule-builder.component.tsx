@@ -1259,7 +1259,7 @@ export default RuleBuilder;
 export const ConditionalLogicHelpLink = () => {
   const { t } = useTranslation();
   return (
-    <ConfigurableLink rel="noopener noreferrer" to={helpLink} className={styles.helpLink}>
+    <ConfigurableLink rel="noopener noreferrer" to={helpLink} className={styles.helpLink} target="_blank">
       <span>
         <Help />
       </span>
