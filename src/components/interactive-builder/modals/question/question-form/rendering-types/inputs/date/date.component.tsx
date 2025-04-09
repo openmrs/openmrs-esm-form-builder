@@ -13,18 +13,6 @@ const Date: React.FC = () => {
     date: [{ value: 'calendar', label: t('calendarOnly', 'Calendar only'), defaultChecked: false }],
     time: [{ value: 'timer', label: t('timerOnly', 'Timer only'), defaultChecked: false }],
   };
-
-  const initializeDefaultSelection=useCallback(()=>{
-    if(!formField.datePickerFormat){
-      setFormField((prevField)=>({
-        ...prevField,
-        datePickerFormat:'both'
-      }));
-    }
-  },[formField.datePickerFormat,setFormField]);
-  useEffect(()=>{
-    initializeDefaultSelection();
-  },[initializeDefaultSelection])
   
   const handleDatePickerTypeChange = useCallback(
     (type: DatePickerTypeOption) => {
@@ -37,7 +25,7 @@ const Date: React.FC = () => {
   );
 
   return (
-    <RadioButtonGroup name="datePickerType" legendText={t('datePickerType', 'The type of date picker to show ')}>
+    <RadioButtonGroup name="datePickerType" defaultSelected="both" legendText={t('datePickerType', 'The type of date picker to show ')}>
       {Object.values(datePickerTypeOptions)
         .flat()
         .map((type) => (
