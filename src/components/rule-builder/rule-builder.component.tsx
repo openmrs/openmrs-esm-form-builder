@@ -282,42 +282,42 @@ const RuleBuilder = React.memo(
      * Constructs the appropriate expression for a given calculation type based on provided conditions.
      */
     const getCalculateExpression = (expression: string, conditions?: Array<Condition>) => {
-      const arguements = conditions?.map((condition: Condition) => condition.targetField);
-      const arguementsSchema = `'${arguements.join("', '")}'`;
+      const argumentsInExpression = conditions?.map((condition: Condition) => condition.targetField);
+      const argumentsSchema = `${argumentsInExpression.join(', ')}`;
 
       switch (expression) {
         case 'BMI':
-          return `calcBMI(${arguementsSchema})`;
+          return `calcBMI(${argumentsSchema})`;
         case 'BSA':
-          return `calcBSA(${arguementsSchema})`;
+          return `calcBSA(${argumentsSchema})`;
         case 'Height For Age Zscore':
-          return `calcHeightForAgeZscore(${arguementsSchema})`;
+          return `calcHeightForAgeZscore(${argumentsSchema})`;
         case 'BMI For Age Zscore':
-          return `calcBMIForAgeZscore(${arguementsSchema})`;
+          return `calcBMIForAgeZscore(${argumentsSchema})`;
         case 'Weight For Height Zscore':
-          return `calcWeightForHeightZscore(${arguementsSchema})`;
+          return `calcWeightForHeightZscore(${argumentsSchema})`;
         case 'Expected Delivery Date':
-          return `calcEDD(${arguementsSchema})`;
+          return `calcEDD(${argumentsSchema})`;
         case 'Months On ART':
-          return `calcMonthsOnART(${arguementsSchema})`;
+          return `calcMonthsOnART(${argumentsSchema})`;
         case 'Age Based On Date':
-          return `calcAgeBasedOnDate(${arguementsSchema})`;
+          return `calcAgeBasedOnDate(${argumentsSchema})`;
         case 'Time Difference in days':
-          return `calcTimeDifference(${arguementsSchema}, 'd')`;
+          return `calcTimeDifference(${argumentsSchema}, 'd')`;
         case 'Time Difference in weeks':
-          return `calcTimeDifference(${arguementsSchema}, 'w')`;
+          return `calcTimeDifference(${argumentsSchema}, 'w')`;
         case 'Time Difference in months':
-          return `calcTimeDifference(${arguementsSchema}, 'm')`;
+          return `calcTimeDifference(${argumentsSchema}, 'm')`;
         case 'Time Difference in years':
-          return `calcTimeDifference(${arguementsSchema}, 'y')`;
+          return `calcTimeDifference(${argumentsSchema}, 'y')`;
         case 'Viral Load Status':
-          return `calcViralLoadStatus(${arguements.join(', ')})`;
+          return `calcViralLoadStatus(${argumentsInExpression.join(', ')})`;
         case 'Next Visit Date':
-          return `calcNextVisitDate(${arguementsSchema})`;
+          return `calcNextVisitDate(${argumentsSchema})`;
         case 'Treatment End Date':
-          return `calcTreatmentEndDate(${arguementsSchema})`;
+          return `calcTreatmentEndDate(${argumentsSchema})`;
         case 'Gravida':
-          return `calcGravida(${arguementsSchema})`;
+          return `calcGravida(${argumentsSchema})`;
       }
     };
 

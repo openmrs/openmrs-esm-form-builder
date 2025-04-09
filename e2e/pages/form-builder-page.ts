@@ -65,6 +65,10 @@ export class FormBuilderPage {
   readonly answer = () => this.page.getByRole('menuitem', { name: /tested for covid 19/i });
   readonly questionIdInput = () => this.page.getByRole('textbox', { name: /question id/i });
   readonly questionCreatedMessage = () => this.page.getByText(/new question created/i);
+  readonly dateInput = (fieldName: string) => this.page.getByRole('group', { name: fieldName }).locator('div');
+  readonly dateDayInput = (fieldName: string) => this.page.getByRole('spinbutton', { name: `day, ${fieldName}` });
+  readonly dateMonthInput = (fieldName: string) => this.page.getByRole('spinbutton', { name: `month, ${fieldName}` });
+  readonly dateYearInput = (fieldName: string) => this.page.getByRole('spinbutton', { name: `year, ${fieldName}` });
 
   async gotoFormBuilder() {
     await this.page.goto('form-builder');
