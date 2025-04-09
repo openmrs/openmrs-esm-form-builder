@@ -76,7 +76,7 @@ export const configSchema = {
       Datetime: ['datetime', 'fixed-value'],
       Boolean: ['toggle', 'select', 'radio', 'content-switcher', 'fixed-value'],
       Rule: ['repeating', 'group'],
-      'N/A': ['text', 'textarea'],
+      'N/A': [],
       Complex: ['file'],
     },
   },
