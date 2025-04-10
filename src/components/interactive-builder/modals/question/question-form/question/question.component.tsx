@@ -45,6 +45,35 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
     },
     [setFormField],
   );
+  
+  const handleQuestionTypeChange = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      const newQuestionType = event.target.value;
+      setFormField((prevFormField) => {
+        const hasPreviousRenderingType = prevFormField?.questionOptions?.rendering;
+        if (hasPreviousRenderingType) {
+          const isQuestionTypeObs = newQuestionType === 'obs' ? true : false;
+          if (!isQuestionTypeObs) {
+            const isRenderingTypeValidForQuestionType =
+              questionTypes.includes(newQuestionType as keyof typeof renderTypeOptions) &&
+              renderTypeOptions[newQuestionType].includes(prevFormField.questionOptions.rendering as RenderType);
+            if (!isRenderingTypeValidForQuestionType) {
+              return {
+                ...prevFormField,
+                questionOptions: { ...prevFormField.questionOptions, rendering: null },
+                type: newQuestionType,
+              };
+            }
+          }
+        }
+        return {
+          ...prevFormField,
+          type: newQuestionType,
+        };
+      });
+    },
+    [setFormField],
+  );
 
   const handleQuestionInfoChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,9 +115,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
       />
       <Select
         value={formField?.type ?? 'control'}
-        onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
-          setFormField({ ...formField, type: event.target.value })
-        }
+        onChange={handleQuestionTypeChange}
         id="questionType"
         invalidText={t('typeRequired', 'Type is required')}
         labelText={t('questionType', 'Question type')}
