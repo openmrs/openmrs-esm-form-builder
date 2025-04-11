@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { Page } from '@playwright/test';
-
+import customSchema from '../support/validation-custom-schema.json';
 export class FormBuilderPage {
   constructor(readonly page: Page) {}
 
@@ -65,9 +65,19 @@ export class FormBuilderPage {
   readonly answer = () => this.page.getByRole('menuitem', { name: /tested for covid 19/i });
   readonly questionIdInput = () => this.page.getByRole('textbox', { name: /question id/i });
   readonly questionCreatedMessage = () => this.page.getByText(/new question created/i);
+  readonly dateInput = (fieldName: string) => this.page.getByRole('group', { name: fieldName }).locator('div');
+  readonly dateDayInput = (fieldName: string) => this.page.getByRole('spinbutton', { name: `day, ${fieldName}` });
+  readonly dateMonthInput = (fieldName: string) => this.page.getByRole('spinbutton', { name: `month, ${fieldName}` });
+  readonly dateYearInput = (fieldName: string) => this.page.getByRole('spinbutton', { name: `year, ${fieldName}` });
 
   async gotoFormBuilder() {
     await this.page.goto('form-builder');
+  }
+
+  async formBuilderSetupForRuleBuilder() {
+    await this.createNewFormButton().click();
+    await this.schemaInput().fill(JSON.stringify(customSchema, null, 2));
+    await this.renderChangesButton().click();
   }
 
   async searchForForm(formName: string) {
