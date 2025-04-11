@@ -43,9 +43,19 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
     }
   }, [initialConcept, retainConceptInContextAfterSearch, concept, setConcept]);
 
+  const handleClearSelectedConcept = useCallback(() => {
+    setSelectedConcept(null);
+    setConceptToLookup('');
+    setIsConceptValid(true);
+    if (onClearSelectedConcept) onClearSelectedConcept();
+  }, [onClearSelectedConcept, setIsConceptValid]);
+
   const handleConceptChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => setConceptToLookup(event.target.value),
-    [],
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (event.target.value.trim() === '') handleClearSelectedConcept();
+      else setConceptToLookup(event.target.value);
+    },
+    [handleClearSelectedConcept],
   );
 
   useEffect(() => {
@@ -63,13 +73,6 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
     },
     [onSelectConcept, setIsConceptValid],
   );
-
-  const clearSelectedConcept = useCallback(() => {
-    setSelectedConcept(null);
-    setConceptToLookup('');
-    setIsConceptValid(true);
-    if (onClearSelectedConcept) onClearSelectedConcept();
-  }, [onClearSelectedConcept, setIsConceptValid]);
 
   return (
     <>
@@ -100,7 +103,7 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
       ) : (
         <Search
           id="conceptLookup"
-          onClear={clearSelectedConcept}
+          onClear={handleClearSelectedConcept}
           onChange={handleConceptChange}
           labelText={t('searchForBackingConcept', 'Search for a backing concept')}
           placeholder={t('searchConcept', 'Search using a concept name or UUID')}
