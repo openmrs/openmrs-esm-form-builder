@@ -208,7 +208,7 @@ const SelectAnswers: React.FC = () => {
           kind="error"
           lowContrast
           className={styles.error}
-          title={t('invalidAnswerConcept', 'Invalid Concept Answer Detected')}
+          title={t('invalidAnswerConcept', 'Invalid Answer Concept Detected')}
           subtitle={t('answerConceptValidation', 'One or more selected answer concepts do not exist in the system. ')}
         />
       )}
