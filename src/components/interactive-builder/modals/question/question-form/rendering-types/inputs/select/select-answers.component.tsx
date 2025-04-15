@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Tag, MultiSelect, Stack, InlineNotification } from '@carbon/react';
+import { WarningAltFilled } from '@carbon/react/icons';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
 import { useFormField } from '../../../../form-field-context';
@@ -15,7 +16,7 @@ const SelectAnswers: React.FC = () => {
   const { t } = useTranslation();
   const { formField, concept, setFormField } = useFormField();
   const [addedAnswers, setAddedAnswers] = useState<AnswerItem[]>([]);
-  const [invalidAnswerFound, setInvalidAnswerFound] = useState(false);
+  const [invalidAnswerIds, setInvalidAnswerIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (!concept) {
@@ -131,48 +132,43 @@ const SelectAnswers: React.FC = () => {
     return [...answersFromConceptWithLabelsFromFormField, ...additionalAnswers];
   }, [concept?.answers, formField.questionOptions?.answers]);
 
-  useEffect(() => {
-    if (!concept?.answers?.length) return;
-    const validateAnswers = async () => {
-      if (!answerItems.length) {
-        setInvalidAnswerFound(false);
-        return;
-      }
+  const validateAnswers = useCallback(async () => {
+    if (!answerItems.length) {
+      setInvalidAnswerIds([]);
+      return;
+    }
 
-      const originalAnswersMap = new Map((concept?.answers || []).map((ans) => [ans.uuid, ans.display]));
+    const originalAnswersMap = new Map((concept?.answers || []).map((ans) => [ans.uuid, ans.display]));
 
-      let allValid = true;
-      const uniqueAnswers = Array.from(new Map(answerItems.map((a) => [a.id, a])).values());
+    const invalidIds: string[] = [];
+    const uniqueAnswers = Array.from(new Map(answerItems.map((a) => [a.id, a])).values());
 
-      for (const answer of uniqueAnswers) {
-        if (originalAnswersMap.has(answer.id)) {
-          const expectedName = originalAnswersMap.get(answer.id);
-          if (answer.text !== expectedName) {
-            allValid = false;
-            break;
-          } else {
-            continue;
+    for (const answer of uniqueAnswers) {
+      if (originalAnswersMap.has(answer.id)) {
+        const expectedName = originalAnswersMap.get(answer.id);
+        if (answer.text !== expectedName) {
+          invalidIds.push(answer.id);
+        }
+      } else {
+        const url = `${restBaseUrl}/concept/${answer.id}?v=full`;
+        try {
+          const res = await openmrsFetch(url);
+          if (!(res?.data?.uuid === answer.id && res?.data?.display === answer.text)) {
+            invalidIds.push(answer.id);
           }
-        } else {
-          const url = `${restBaseUrl}/concept/${answer.id}?v=full`;
-          try {
-            const res = await openmrsFetch(url);
-            const isValid = res?.data?.uuid === answer.id && res?.data?.display === answer.text;
-            if (!isValid) {
-              allValid = false;
-              break;
-            }
-          } catch (error) {
-            allValid = false;
-            break;
-          }
+        } catch (error) {
+          invalidIds.push(answer.id);
         }
       }
-      setInvalidAnswerFound(!allValid);
-    };
-
-    validateAnswers();
+    }
+    setInvalidAnswerIds(invalidIds);
   }, [answerItems, concept]);
+
+  useEffect(() => {
+    if (concept?.answers?.length) {
+      validateAnswers();
+    }
+  }, [answerItems, concept, validateAnswers]);
 
   const convertAnswerItemsToString = useCallback((item: AnswerItem) => item.text, []);
 
@@ -197,13 +193,16 @@ const SelectAnswers: React.FC = () => {
           {selectedAnswers.map((answer) => (
             <Tag className={styles.tag} key={answer.id} type={'blue'}>
               {answer.text}
+              {invalidAnswerIds.includes(answer.id) && (
+                <WarningAltFilled className={styles.invalidIcon} title="Invalid Answer Concept" />
+              )}
             </Tag>
           ))}
         </div>
       )}
 
       {/* Display an inline notification if any answer fails validation */}
-      {invalidAnswerFound && (
+      {invalidAnswerIds.length > 0 && (
         <InlineNotification
           kind="error"
           lowContrast
