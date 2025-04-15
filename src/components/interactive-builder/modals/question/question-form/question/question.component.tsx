@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { TextInput, Button, Select, SelectItem, RadioButtonGroup, RadioButton } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import RenderTypeComponent from '../rendering-types/rendering-type.component';
@@ -16,6 +16,7 @@ interface QuestionProps {
 const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
   const { t } = useTranslation();
   const { formField, setFormField } = useFormField();
+  const [isQuestionInfoVisible, setIsQuestionInfoVisible] = useState(!!formField?.questionInfo);
 
   const convertLabelToCamelCase = () => {
     const camelCasedLabel = formField.label
@@ -30,6 +31,30 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
   const isQuestionIdDuplicate = useCallback(() => {
     return checkIfQuestionIdExists(formField.id);
   }, [formField.id, checkIfQuestionIdExists]);
+
+  const handleQuestionInfoToggle = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormField((prevFormField) => {
+        if (e.target.value === 'false') {
+          const { questionInfo, ...updatedFormField } = prevFormField;
+          return updatedFormField;
+        }
+        return prevFormField;
+      });
+      setIsQuestionInfoVisible(e.target.value === 'true');
+    },
+    [setFormField],
+  );
+
+  const handleQuestionInfoChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setFormField((prevFormField) => ({
+        ...prevFormField,
+        questionInfo: event.target.value,
+      }));
+    },
+    [setFormField],
+  );
 
   return (
     <>
@@ -124,7 +149,6 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
             required
           />
           <RadioButtonGroup
-            defaultSelected={formField.required ? 'required' : 'optional'}
             name="isQuestionRequired"
             legendText={t(
               'isQuestionRequiredOrOptional',
@@ -133,14 +157,14 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
           >
             <RadioButton
               id="questionIsNotRequired"
-              defaultChecked={formField.required ? !formField.required : true}
+              checked={formField.required ? !formField.required : true}
               labelText={t('optional', 'Optional')}
               onClick={() => setFormField({ ...formField, required: false })}
               value="optional"
             />
             <RadioButton
               id="questionIsRequired"
-              defaultChecked={formField.required ? formField.required : false}
+              checked={formField.required ? formField.required : false}
               labelText={t('required', 'Required')}
               onClick={() => setFormField({ ...formField, required: true })}
               value="required"
@@ -150,6 +174,37 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
       )}
       {formField.type && <QuestionTypeComponent />}
       {formField.questionOptions?.rendering && <RenderTypeComponent />}
+      <RadioButtonGroup
+        name="isQuestionInfoProvided"
+        legendText={t('isQuestionInfoProvided', 'Would you like to provide additional details about the question?')}
+      >
+        <RadioButton
+          id="questionInfoProvided"
+          checked={!!formField?.questionInfo}
+          labelText={t('yes', 'Yes')}
+          onClick={handleQuestionInfoToggle}
+          value="true"
+        />
+        <RadioButton
+          id="questionInfoNotProvided"
+          checked={!formField?.questionInfo}
+          labelText={t('no', 'No')}
+          onClick={handleQuestionInfoToggle}
+          value="false"
+        />
+      </RadioButtonGroup>
+      {isQuestionInfoVisible && (
+        <TextInput
+          id="questionInfo"
+          labelText={t('questionInfo', 'Additional Question Info')}
+          placeholder={t(
+            'questionInfoPlaceholder',
+            'Enter any relevant info about the question to provide more context.',
+          )}
+          value={formField?.questionInfo}
+          onChange={handleQuestionInfoChange}
+        />
+      )}
     </>
   );
 };

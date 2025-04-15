@@ -114,7 +114,13 @@ const SelectAnswers: React.FC = () => {
       }));
     }
 
-    // Merge concept answers with any additional form field answers
+    const formFieldAnswerLabelsMap = new Map(formFieldAnswers.map((answer) => [answer.concept, answer.label]));
+
+    const answersFromConceptWithLabelsFromFormField = conceptAnswerItems.map((item) => ({
+      id: item.id,
+      text: formFieldAnswerLabelsMap.get(item.id) ?? item.text,
+    }));
+
     const additionalAnswers = formFieldAnswers
       .filter((answer) => !conceptAnswerItems.some((item) => item.id === answer.concept))
       .map((answer) => ({
@@ -122,7 +128,7 @@ const SelectAnswers: React.FC = () => {
         text: answer.label,
       }));
 
-    return [...conceptAnswerItems, ...additionalAnswers];
+    return [...answersFromConceptWithLabelsFromFormField, ...additionalAnswers];
   }, [concept?.answers, formField.questionOptions?.answers]);
 
   const convertAnswerItemsToString = useCallback((item: AnswerItem) => item.text, []);
