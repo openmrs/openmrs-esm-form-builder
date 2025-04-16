@@ -4,7 +4,7 @@ import { WarningAltFilled } from '@carbon/react/icons';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
 import { useFormField } from '../../../../form-field-context';
-import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { fetchConceptById } from '@resources/concept.resource';
 import type { Concept } from '@types';
 import styles from './select-answers.scss';
 interface AnswerItem {
@@ -150,9 +150,8 @@ const SelectAnswers: React.FC = () => {
           invalidIds.push(answer.id);
         }
       } else {
-        const url = `${restBaseUrl}/concept/${answer.id}?v=full`;
         try {
-          const res = await openmrsFetch(url);
+          const res = await fetchConceptById(answer.id);
           if (!(res?.data?.uuid === answer.id && res?.data?.display === answer.text)) {
             invalidIds.push(answer.id);
           }
@@ -191,7 +190,7 @@ const SelectAnswers: React.FC = () => {
       {selectedAnswers.length > 0 && (
         <div>
           {selectedAnswers.map((answer) => (
-            <Tag className={styles.tag} key={answer.id} type={'blue'}>
+            <Tag className={styles.tag} key={answer.id} type={invalidAnswerIds.includes(answer.id) ? 'red' : 'blue'}>
               {answer.text}
               {invalidAnswerIds.includes(answer.id) && (
                 <WarningAltFilled className={styles.invalidIcon} title="Invalid Answer Concept" />
