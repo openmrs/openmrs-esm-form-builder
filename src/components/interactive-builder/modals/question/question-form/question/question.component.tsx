@@ -74,6 +74,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
     },
     [setFormField],
   );
+
   const handleQuestionInfoChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setFormField((prevFormField) => ({
