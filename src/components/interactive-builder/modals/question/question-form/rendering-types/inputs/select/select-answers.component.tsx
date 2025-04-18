@@ -190,11 +190,17 @@ const SelectAnswers: React.FC = () => {
       {selectedAnswers.length > 0 && (
         <div>
           {selectedAnswers.map((answer) => (
-            <Tag className={styles.tag} key={answer.id} type={invalidAnswerIds.includes(answer.id) ? 'red' : 'blue'}>
+            <Tag
+              className={styles.tag}
+              key={answer.id}
+              type={invalidAnswerIds.includes(answer.id) ? 'red' : 'blue'}
+              decorator={
+                invalidAnswerIds.includes(answer.id) ? (
+                  <WarningAltFilled className={styles.invalidIcon} title="Invalid Answer Concept" />
+                ) : undefined
+              }
+            >
               {answer.text}
-              {invalidAnswerIds.includes(answer.id) && (
-                <WarningAltFilled className={styles.invalidIcon} title="Invalid Answer Concept" />
-              )}
             </Tag>
           ))}
         </div>
