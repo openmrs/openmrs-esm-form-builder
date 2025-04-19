@@ -45,7 +45,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
     },
     [setFormField],
   );
-  
+
   const handleQuestionTypeChange = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       const newQuestionType = event.target.value;
