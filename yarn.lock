@@ -3176,7 +3176,7 @@ __metadata:
   resolution: "@openmrs/esm-form-builder-app@workspace:."
   dependencies:
     "@carbon/react": "npm:^1.76.0"
-    "@dnd-kit/core": "npm:^6.1.0"
+    "@dnd-kit/core": "npm:^6.3.1"
     "@dnd-kit/modifiers": "npm:^6.0.1"
     "@dnd-kit/sortable": "npm:^10.0.0"
     "@dnd-kit/utilities": "npm:^3.2.2"

@@ -9,9 +9,10 @@ import { Draggable } from '@carbon/react/icons';
 interface SortableTagProps {
   id: string;
   text: string;
+  onDelete?: () => void;
 }
 
-export const SortableTag: React.FC<SortableTagProps> = ({ id, text }) => {
+export const SortableTag: React.FC<SortableTagProps> = ({ id, text, onDelete }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
   });
@@ -22,10 +23,23 @@ export const SortableTag: React.FC<SortableTagProps> = ({ id, text }) => {
   };
 
   return (
-    <div ref={setNodeRef} style={dynamicStyle} {...attributes} {...listeners} className={styles.sortableTagWrapper}>
-      <Draggable />
+    <div ref={setNodeRef} style={dynamicStyle} className={styles.sortableTagWrapper}>
+      <div {...attributes} {...listeners} className={styles.dragHandle}>
+        <Draggable />
+      </div>
       <Tag className={`${styles.sortableTag} ${isDragging ? styles.dragging : ''}`} type="blue">
         {text}
+        {onDelete && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className={styles.conceptAnswerButton}
+          >
+            X
+          </button>
+        )}
       </Tag>
     </div>
   );

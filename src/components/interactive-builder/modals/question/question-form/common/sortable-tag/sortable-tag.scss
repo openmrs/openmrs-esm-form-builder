@@ -1,5 +1,6 @@
+@use '@carbon/colors';
+
 .sortableTag {
-  cursor: grab;
   transition: transform 250ms ease;
   opacity: 1;
 }
@@ -11,4 +12,16 @@
 .sortableTagWrapper {
   display: flex;
   align-items: center;
+}
+
+.conceptAnswerButton {
+  margin-left: 5px;
+  color: colors.$black;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.dragHandle {
+  cursor: grab;
 }

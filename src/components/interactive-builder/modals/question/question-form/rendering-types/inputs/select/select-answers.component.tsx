@@ -29,14 +29,18 @@ const SelectAnswers: React.FC = () => {
     }
   }, [concept, setAdditionalAnswers]);
 
-  const selectedAnswers = useMemo(
-    () =>
+  const selectedAnswers = useMemo(() => {
+    const allAnswers =
       formField.questionOptions?.answers?.map((answer) => ({
         id: answer.concept,
         text: answer.label,
-      })) ?? [],
-    [formField.questionOptions?.answers],
-  );
+      })) ?? [];
+
+    if (addedAnswers.length === 0) return allAnswers;
+
+    const addedIds = new Set(addedAnswers.map((a) => a.id));
+    return allAnswers.filter((answer) => !addedIds.has(answer.id));
+  }, [formField.questionOptions?.answers, addedAnswers]);
 
   const handleSelectAnswers = useCallback(
     ({ selectedItems }: { selectedItems: Array<AnswerItem> }) => {
@@ -62,21 +66,27 @@ const SelectAnswers: React.FC = () => {
     [setFormField],
   );
 
-  /**
-   * Add a new additional answer to local + context states. Doesn't merge into formField immediately.
-   */
   const handleSelectAdditionalAnswer = useCallback(
     (concept: Concept) => {
       const newAnswer = { id: concept.uuid, text: concept.display };
-      const alreadyInSelected = selectedAnswers.some((ans) => ans.id === newAnswer.id);
-      const alreadyInAdded = addedAnswers.some((ans) => ans.id === newAnswer.id);
-
-      if (!alreadyInSelected && !alreadyInAdded) {
-        setAddedAnswers((prev) => [...prev, newAnswer]);
-        setAdditionalAnswers((prev) => [...prev, newAnswer]);
+      const answerExistsInSelected = selectedAnswers.some((answer) => answer.id === newAnswer.id);
+      const answerExistsInAdded = addedAnswers.some((answer) => answer.id === newAnswer.id);
+      if (!answerExistsInSelected && !answerExistsInAdded) {
+        setAddedAnswers((prevAnswers) => [...prevAnswers, newAnswer]);
+        setFormField((prevFormField) => {
+          const existingAnswers = prevFormField.questionOptions?.answers ?? [];
+          existingAnswers.push({ concept: concept.uuid, label: concept.display });
+          return {
+            ...prevFormField,
+            questionOptions: {
+              ...prevFormField.questionOptions,
+              answers: existingAnswers,
+            },
+          };
+        });
       }
     },
-    [selectedAnswers, addedAnswers, setAdditionalAnswers],
+    [selectedAnswers, addedAnswers, setFormField],
   );
 
   const handleDeleteAdditionalAnswer = useCallback(
@@ -226,7 +236,12 @@ const SelectAnswers: React.FC = () => {
               <SortableContext items={addedAnswers} strategy={verticalListSortingStrategy}>
                 <div>
                   {addedAnswers.map((answer) => (
-                    <SortableTag key={answer.id} id={answer.id} text={answer.text} />
+                    <SortableTag
+                      key={answer.id}
+                      id={answer.id}
+                      text={answer.text}
+                      onDelete={() => handleDeleteAdditionalAnswer(answer.id)}
+                    />
                   ))}
                 </div>
               </SortableContext>
