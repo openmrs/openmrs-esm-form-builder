@@ -110,7 +110,7 @@ describe('Question Component', () => {
     await user.clear(questionInfoInput);
     await user.type(questionInfoInput, 'New question info');
 
-    expect((questionInfoInput as HTMLInputElement).value).toBe('New question info');
+    expect(questionInfoInput).toHaveValue('New question info');
   });
 
   it('should toggle question required status', async () => {
@@ -314,15 +314,13 @@ describe('Question Component', () => {
     });
   });
 
-  it('should handle initial state with questionInfo properly', () => {
+  it('should load question info from the form field object', () => {
     renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
       formField: { ...initialFormField, questionInfo: 'Initial question info' },
     });
 
     expect(screen.getByLabelText(/additional question info/i)).toBeInTheDocument();
-    expect((screen.getByLabelText(/additional question info/i) as HTMLInputElement).value).toBe(
-      'Initial question info',
-    );
+    expect(screen.getByLabelText(/additional question info/i)).toHaveValue('Initial question info');
   });
 
   it('should not show label and required inputs when rendering type is markdown', () => {
