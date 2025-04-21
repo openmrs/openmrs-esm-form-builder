@@ -1,15 +1,10 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Question from './question.component';
 import { FormFieldProvider } from '../../form-field-context';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
-
-jest.mock('react-i18next', () => ({
-  useTranslation: jest.fn(() => ({
-    t: (key, fallback) => fallback || key,
-  })),
-}));
+import { renderingTypes } from '@constants';
 
 const initialFormField: FormField = {
   id: 'testId',
@@ -20,49 +15,45 @@ const initialFormField: FormField = {
   },
 };
 
+const checkIfQuestionIdExists = jest.fn(() => false);
+
 const renderWithFormFieldProvider = (
-  ui: React.ReactElement,
+  component: React.ReactElement,
   { formField = initialFormField, selectedConcept = null } = {},
 ) => {
   return render(
     <FormFieldProvider initialFormField={formField} selectedConcept={selectedConcept}>
-      {ui}
+      {component}
     </FormFieldProvider>,
   );
 };
 
 describe('Question Component', () => {
-  const checkIfQuestionIdExists = jest.fn(() => false);
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   it('should render all required fields', () => {
     renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />);
 
-    expect(screen.getByRole('textbox', { name: /Question ID/i })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /question id/i })).toBeInTheDocument();
 
-    expect(screen.getByLabelText(/Question type/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/question type/i)).toBeInTheDocument();
 
-    expect(screen.getByLabelText(/Rendering type/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/rendering type/i)).toBeInTheDocument();
   });
 
   it('should display the form field id in the question id input', () => {
     renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />);
-    const idInput = screen.getByRole('textbox', { name: /Question ID/i }) as HTMLInputElement;
+    const idInput = screen.getByRole('textbox', { name: /question id/i }) as HTMLInputElement;
     expect(idInput).toHaveValue('testId');
   });
 
   it('should update form field when question id changes', async () => {
     const user = userEvent.setup();
     renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />);
-    const idInput = screen.getByRole('textbox', { name: /Question ID/i });
+    const idInput = screen.getByRole('textbox', { name: /question id/i });
 
     await user.clear(idInput);
     await user.type(idInput, 'newTestId');
 
-    expect((idInput as HTMLInputElement)).toHaveValue('newTestId');
+    expect(idInput).toHaveValue('newTestId');
   });
 
   it('should validate duplicate question ids', () => {
@@ -72,11 +63,11 @@ describe('Question Component', () => {
 
     duplicateCheckFn.mockClear();
 
-    const idInput = screen.getByRole('textbox', { name: /Question ID/i });
+    const idInput = screen.getByRole('textbox', { name: /question id/i });
     idInput.focus();
     idInput.blur();
 
-    expect(screen.getByText(/This question ID already exists/i)).toBeInTheDocument();
+    expect(screen.getByText(/this question id already exists/i)).toBeInTheDocument();
   });
 
   it('should convert label to camel case when button is clicked', async () => {
@@ -85,10 +76,10 @@ describe('Question Component', () => {
       formField: { ...initialFormField, label: 'Test Label For Camel Case' },
     });
 
-    const convertButton = screen.getByText(/Convert label to camel-case/i);
+    const convertButton = screen.getByText(/convert label to camel-case/i);
     await user.click(convertButton);
 
-    const idInput = screen.getByRole('textbox', { name: /Question ID/i }) as HTMLInputElement;
+    const idInput = screen.getByRole('textbox', { name: /question id/i }) as HTMLInputElement;
     expect(idInput).toHaveValue('testLabelForCamelCase');
   });
 
@@ -96,17 +87,17 @@ describe('Question Component', () => {
     const user = userEvent.setup();
     renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />);
 
-    expect(screen.queryByLabelText(/Additional Question Info/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/additional question info/i)).not.toBeInTheDocument();
 
     const yesRadio = screen.getByLabelText(/Yes/i);
     await user.click(yesRadio);
 
-    expect(screen.getByLabelText(/Additional Question Info/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/additional question info/i)).toBeInTheDocument();
 
     const noRadio = screen.getByLabelText(/No/i);
     await user.click(noRadio);
 
-    expect(screen.queryByLabelText(/Additional Question Info/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/additional question info/i)).not.toBeInTheDocument();
   });
 
   it('should update question info when input changes', async () => {
@@ -115,7 +106,7 @@ describe('Question Component', () => {
       formField: { ...initialFormField, questionInfo: 'Initial info' },
     });
 
-    const questionInfoInput = screen.getByLabelText(/Additional Question Info/i);
+    const questionInfoInput = screen.getByLabelText(/additional question info/i);
     await user.clear(questionInfoInput);
     await user.type(questionInfoInput, 'New question info');
 
@@ -126,8 +117,8 @@ describe('Question Component', () => {
     const user = userEvent.setup();
     renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />);
 
-    const optionalRadio = screen.getByLabelText(/Optional/i);
-    const requiredRadio = screen.getByLabelText(/Required/i);
+    const optionalRadio = screen.getByLabelText(/optional/i);
+    const requiredRadio = screen.getByLabelText(/required/i);
 
     expect(optionalRadio).toBeChecked();
     expect(requiredRadio).not.toBeChecked();
@@ -143,17 +134,184 @@ describe('Question Component', () => {
     expect(requiredRadio).not.toBeChecked();
   });
 
-  it('should show appropriate rendering types for the selected question type', async () => {
+  it('should show only date and datetime rendering types for encounterDatetime question type', async () => {
     const user = userEvent.setup();
     renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
       formField: { ...initialFormField, type: 'encounterDatetime' },
     });
 
-    const renderingTypeSelect = screen.getByLabelText(/Rendering type/i);
-
+    const renderingTypeSelect = screen.getByLabelText(/rendering type/i);
     expect(renderingTypeSelect).toBeInTheDocument();
+    expect(screen.getByLabelText(/question type/i)).toHaveValue('encounterDatetime');
 
-    expect(screen.getByLabelText(/Question type/i)).toHaveValue('encounterDatetime');
+    const options = (within(renderingTypeSelect).getAllByRole('option') as HTMLOptionElement[]).filter(
+      (option) => option.value && option.value !== '',
+    );
+
+    expect(options).toHaveLength(2);
+    expect(options[0]).toHaveTextContent('date');
+    expect(options[1]).toHaveTextContent('datetime');
+  });
+
+  it('should show only text and markdown rendering types for control question type', async () => {
+    renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
+      formField: { ...initialFormField, type: 'control' },
+    });
+
+    const renderingTypeSelect = screen.getByLabelText(/rendering type/i);
+    expect(renderingTypeSelect).toBeInTheDocument();
+    expect(screen.getByLabelText(/question type/i)).toHaveValue('control');
+
+    const options = (within(renderingTypeSelect).getAllByRole('option') as HTMLOptionElement[]).filter(
+      (option) => option.value && option.value !== '',
+    );
+
+    expect(options).toHaveLength(2);
+    expect(options[0]).toHaveTextContent('text');
+    expect(options[1]).toHaveTextContent('markdown');
+  });
+
+  it('should show only ui-select-extended rendering type for encounterLocation question type', async () => {
+    renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
+      formField: { ...initialFormField, type: 'encounterLocation' },
+    });
+
+    const renderingTypeSelect = screen.getByLabelText(/rendering type/i);
+    expect(renderingTypeSelect).toBeInTheDocument();
+    expect(screen.getByLabelText(/question type/i)).toHaveValue('encounterLocation');
+
+    const options = (within(renderingTypeSelect).getAllByRole('option') as HTMLOptionElement[]).filter(
+      (option) => option.value && option.value !== '',
+    );
+
+    expect(options).toHaveLength(1);
+    expect(options[0]).toHaveTextContent('ui-select-extended');
+  });
+
+  it('should show only ui-select-extended rendering type for encounterProvider question type', async () => {
+    renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
+      formField: { ...initialFormField, type: 'encounterProvider' },
+    });
+
+    const renderingTypeSelect = screen.getByLabelText(/rendering type/i);
+    expect(renderingTypeSelect).toBeInTheDocument();
+    expect(screen.getByLabelText(/question type/i)).toHaveValue('encounterProvider');
+
+    const options = (within(renderingTypeSelect).getAllByRole('option') as HTMLOptionElement[]).filter(
+      (option) => option.value && option.value !== '',
+    );
+
+    expect(options).toHaveLength(1);
+    expect(options[0]).toHaveTextContent('ui-select-extended');
+  });
+
+  it('should show only ui-select-extended rendering type for encounterRole question type', async () => {
+    renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
+      formField: { ...initialFormField, type: 'encounterRole' },
+    });
+
+    const renderingTypeSelect = screen.getByLabelText(/rendering type/i);
+    expect(renderingTypeSelect).toBeInTheDocument();
+    expect(screen.getByLabelText(/question type/i)).toHaveValue('encounterRole');
+
+    const options = (within(renderingTypeSelect).getAllByRole('option') as HTMLOptionElement[]).filter(
+      (option) => option.value && option.value !== '',
+    );
+
+    expect(options).toHaveLength(1);
+    expect(options[0]).toHaveTextContent('ui-select-extended');
+  });
+
+  it('should show only group and repeating rendering types for obsGroup question type', async () => {
+    renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
+      formField: { ...initialFormField, type: 'obsGroup' },
+    });
+
+    const renderingTypeSelect = screen.getByLabelText(/rendering type/i);
+    expect(renderingTypeSelect).toBeInTheDocument();
+    expect(screen.getByLabelText(/question type/i)).toHaveValue('obsGroup');
+
+    const options = (within(renderingTypeSelect).getAllByRole('option') as HTMLOptionElement[]).filter(
+      (option) => option.value && option.value !== '',
+    );
+
+    expect(options).toHaveLength(2);
+    expect(options[0]).toHaveTextContent('group');
+    expect(options[1]).toHaveTextContent('repeating');
+  });
+
+  it('should show only group and repeating rendering types for testOrder question type', async () => {
+    renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
+      formField: { ...initialFormField, type: 'testOrder' },
+    });
+
+    const renderingTypeSelect = screen.getByLabelText(/rendering type/i);
+    expect(renderingTypeSelect).toBeInTheDocument();
+    expect(screen.getByLabelText(/question type/i)).toHaveValue('testOrder');
+
+    const options = (within(renderingTypeSelect).getAllByRole('option') as HTMLOptionElement[]).filter(
+      (option) => option.value && option.value !== '',
+    );
+
+    expect(options).toHaveLength(2);
+    expect(options[0]).toHaveTextContent('group');
+    expect(options[1]).toHaveTextContent('repeating');
+  });
+
+  it('should show only text rendering type for patientIdentifier question type', async () => {
+    renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
+      formField: { ...initialFormField, type: 'patientIdentifier' },
+    });
+
+    const renderingTypeSelect = screen.getByLabelText(/rendering type/i);
+    expect(renderingTypeSelect).toBeInTheDocument();
+    expect(screen.getByLabelText(/question type/i)).toHaveValue('patientIdentifier');
+
+    const options = (within(renderingTypeSelect).getAllByRole('option') as HTMLOptionElement[]).filter(
+      (option) => option.value && option.value !== '',
+    );
+
+    expect(options).toHaveLength(1);
+    expect(options[0]).toHaveTextContent('text');
+  });
+
+  it('should show only select rendering type for programState question type', async () => {
+    renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
+      formField: { ...initialFormField, type: 'programState' },
+    });
+
+    const renderingTypeSelect = screen.getByLabelText(/rendering type/i);
+    expect(renderingTypeSelect).toBeInTheDocument();
+    expect(screen.getByLabelText(/question type/i)).toHaveValue('programState');
+
+    const options = (within(renderingTypeSelect).getAllByRole('option') as HTMLOptionElement[]).filter(
+      (option) => option.value && option.value !== '',
+    );
+
+    expect(options).toHaveLength(1);
+    expect(options[0]).toHaveTextContent('select');
+  });
+
+  it('should show all rendering types for obs question type', async () => {
+    renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
+      formField: { ...initialFormField, type: 'obs' },
+    });
+
+    const renderingTypeSelect = screen.getByLabelText(/rendering type/i);
+    expect(renderingTypeSelect).toBeInTheDocument();
+    expect(screen.getByLabelText(/question type/i)).toHaveValue('obs');
+
+    const options = (within(renderingTypeSelect).getAllByRole('option') as HTMLOptionElement[]).filter(
+      (option) => option.value && option.value !== '',
+    );
+
+    expect(options).toHaveLength(renderingTypes.length);
+
+    const optionTexts = options.map((option) => option.textContent);
+
+    renderingTypes.forEach((renderType) => {
+      expect(optionTexts).toContain(renderType);
+    });
   });
 
   it('should handle initial state with questionInfo properly', () => {
@@ -161,8 +319,8 @@ describe('Question Component', () => {
       formField: { ...initialFormField, questionInfo: 'Initial question info' },
     });
 
-    expect(screen.getByLabelText(/Additional Question Info/i)).toBeInTheDocument();
-    expect((screen.getByLabelText(/Additional Question Info/i) as HTMLInputElement).value).toBe(
+    expect(screen.getByLabelText(/additional question info/i)).toBeInTheDocument();
+    expect((screen.getByLabelText(/additional question info/i) as HTMLInputElement).value).toBe(
       'Initial question info',
     );
   });
@@ -176,7 +334,7 @@ describe('Question Component', () => {
         },
       },
     });
-    expect(screen.queryByLabelText(/^Label$/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Is this question a required or optional field/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^label$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/is this question a required or optional field/i)).not.toBeInTheDocument();
   });
 });
