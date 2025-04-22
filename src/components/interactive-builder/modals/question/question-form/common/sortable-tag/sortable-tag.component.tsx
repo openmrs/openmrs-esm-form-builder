@@ -27,19 +27,27 @@ export const SortableTag: React.FC<SortableTagProps> = ({ id, text, onDelete }) 
       <div {...attributes} {...listeners} className={styles.dragHandle}>
         <Draggable />
       </div>
-      <Tag className={`${styles.sortableTag} ${isDragging ? styles.dragging : ''}`} type="blue">
+      <Tag
+        className={`${styles.sortableTag} ${isDragging ? styles.dragging : ''}`}
+        type="blue"
+        renderIcon={
+          onDelete
+            ? () => (
+                <button
+                  aria-label="Clear all selected items"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete();
+                  }}
+                  className={styles.conceptAnswerButton}
+                >
+                  X
+                </button>
+              )
+            : undefined
+        }
+      >
         {text}
-        {onDelete && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-            className={styles.conceptAnswerButton}
-          >
-            X
-          </button>
-        )}
       </Tag>
     </div>
   );
