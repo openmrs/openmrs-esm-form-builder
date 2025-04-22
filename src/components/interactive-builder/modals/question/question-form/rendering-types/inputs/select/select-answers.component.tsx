@@ -176,7 +176,7 @@ const SelectAnswers: React.FC = () => {
       {answerItems.length > 0 && (
         <MultiSelect
           className={styles.multiSelect}
-          direction="top"
+          direction="bottom"
           id="selectAnswers"
           items={answerItems}
           itemToString={convertAnswerItemsToString}
