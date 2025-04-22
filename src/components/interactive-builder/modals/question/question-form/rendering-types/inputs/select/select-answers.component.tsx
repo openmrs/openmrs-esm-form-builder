@@ -21,15 +21,14 @@ interface AnswerItem {
 
 const SelectAnswers: React.FC = () => {
   const { t } = useTranslation();
-  const { formField, concept, setFormField, additionalAnswers, setAdditionalAnswers } = useFormField();
+  const { formField, concept, setFormField } = useFormField();
   const [addedAnswers, setAddedAnswers] = useState<AnswerItem[]>([]);
 
   useEffect(() => {
     if (!concept) {
       setAddedAnswers([]);
-      setAdditionalAnswers([]);
     }
-  }, [concept, setAdditionalAnswers]);
+  }, [concept]);
 
   const selectedAnswers = useMemo(() => {
     const allAnswers =
@@ -187,16 +186,9 @@ const SelectAnswers: React.FC = () => {
           const reordered = arrayMove(prev, oldIndex, newIndex);
           return reordered;
         });
-        setAdditionalAnswers((prev) => {
-          const oldIndex = prev.findIndex((ans) => ans.id === active.id);
-          const newIndex = prev.findIndex((ans) => ans.id === over.id);
-          if (oldIndex === -1 || newIndex === -1) return prev;
-          const reordered = arrayMove(prev, oldIndex, newIndex);
-          return reordered;
-        });
       }
     },
-    [setAddedAnswers, setAdditionalAnswers],
+    [setAddedAnswers],
   );
 
   return (

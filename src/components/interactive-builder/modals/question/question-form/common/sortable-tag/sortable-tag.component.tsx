@@ -1,10 +1,12 @@
 import React from 'react';
-import { Tag } from '@carbon/react';
+
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import styles from './sortable-tag.scss';
+import { Tag } from '@carbon/react';
 import { Draggable } from '@carbon/react/icons';
+
+import styles from './sortable-tag.scss';
 
 interface SortableTagProps {
   id: string;
