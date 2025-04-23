@@ -41,7 +41,7 @@ export const configSchema = {
       'textarea',
       'ui-select-extended',
       'toggle',
-      'markdown'
+      'markdown',
     ],
   },
   showSchemaSaveWarning: {
@@ -69,6 +69,7 @@ export const configSchema = {
         'encounter-location',
         'select-concept-answers',
         'encounter-role',
+        'multiCheckbox',
       ],
       Text: ['text', 'textarea', 'fixed-value'],
       Date: ['date', 'fixed-value'],

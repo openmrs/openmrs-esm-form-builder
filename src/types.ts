@@ -62,6 +62,7 @@ export interface Schema {
         value?: string;
         type: string;
         required?: string | boolean | RequiredFieldProps;
+        questionInfo?: string;
         questionOptions: {
           type?: string;
           concept?: string;
@@ -121,6 +122,7 @@ export interface Question {
   questions?: Array<Question>;
   required?: string | boolean | RequiredFieldProps;
   validators?: Array<Record<string, string>>;
+  questionInfo?: string;
 }
 
 export interface QuestionOptions {
