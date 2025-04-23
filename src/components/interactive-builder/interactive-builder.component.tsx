@@ -9,11 +9,9 @@ import {
   useSensor,
   useSensors,
   MouseSensor,
-  KeyboardSensor
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-} from "@dnd-kit/sortable";
+  KeyboardSensor,
+} from '@dnd-kit/core';
+import { SortableContext } from '@dnd-kit/sortable';
 import { Accordion, AccordionItem, Button, IconButton, InlineLoading } from '@carbon/react';
 import { Add, TrashCan, Edit } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
@@ -282,7 +280,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
   const handleDragStart = (event) => {
     setActiveQuestion(event.active.data.current?.question);
-  }
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -290,13 +288,21 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
     const activeId = active.id;
     const overId = over.id;
-    const activeQuestion = active.data.current
-    const overQuestion = over.data.current
+    const activeQuestion = active.data.current;
+    const overQuestion = over.data.current;
 
-    if(activeId === overId) return
+    if (activeId === overId) return;
 
     if (activeQuestion.type === 'question' && overQuestion.type === 'obsQuestion') return;
-    
+
+    if (
+      activeQuestion.type === 'obsQuestion' &&
+      (activeQuestion.question.sectionIndex !== overQuestion.question.sectionIndex ||
+        activeQuestion.question.pageIndex !== overQuestion.question.pageIndex ||
+        activeQuestion.question.questionIndex !== overQuestion.question.questionIndex)
+    )
+      return;
+
     function deleteFromSource(schema, pageIndex, sectionIndex, questionId) {
       if (activeQuestion.type === 'obsQuestion') {
         const newSchema = { ...schema };
@@ -307,32 +313,35 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
         return newSchema;
       }
-      if(activeQuestion.type === 'question') {
+      if (activeQuestion.type === 'question') {
         const newSchema = { ...schema };
         const pages = newSchema.pages;
         pages[pageIndex].sections[sectionIndex].questions.splice(activeQuestion.question.questionIndex, 1);
         return newSchema;
       }
     }
-    
+
     function addToDestination(
       schema: Schema,
       pageIndex: number,
       sectionIndex: number,
       questionId: string | number,
-      newQuestion: Question
+      newQuestion: Question,
     ): Schema {
       if (activeQuestion.type === 'question') {
         const newSchema = { ...schema };
         const questions = newSchema.pages[pageIndex]?.sections[sectionIndex]?.questions;
-        const questionIndex = questions.findIndex(q => q.id === questionId);
+        const questionIndex = questions.findIndex((q) => q.id === questionId);
 
         if (questionIndex === -1) {
-          console.error("Question with given id not found");
+          console.error('Question with given id not found');
           return schema;
         }
 
-        if (activeQuestion.question.pageIndex === overQuestion.question.pageIndex && overQuestion.question.sectionIndex === activeQuestion.question.sectionIndex) {
+        if (
+          activeQuestion.question.pageIndex === overQuestion.question.pageIndex &&
+          overQuestion.question.sectionIndex === activeQuestion.question.sectionIndex
+        ) {
           if (activeQuestion.question.questionIndex > overQuestion.question.questionIndex) {
             questions.splice(questionIndex, 0, newQuestion);
           } else {
@@ -341,55 +350,52 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           }
         } else {
           questions.splice(questionIndex, 0, newQuestion);
-        } 
-           
+        }
+
         return newSchema;
       } else if (activeQuestion.type === 'obsQuestion') {
-        if(overQuestion.type === 'question') {
+        if (overQuestion.type === 'question') {
           const newSchema = { ...schema };
           const pages = newSchema.pages;
-          const targetQuestion =
-            pages[pageIndex].sections[sectionIndex].questions[overQuestion.question.questionIndex];
-
-          // Ensure the `questions` array exists
-          if (!targetQuestion.questions) {
-              targetQuestion.questions = [];
-              targetQuestion.type = 'obsGroup';
-          }
+          const targetQuestion = pages[pageIndex].sections[sectionIndex].questions[overQuestion.question.questionIndex];
 
           // Add the active question
           targetQuestion.questions.unshift(activeQuestion.question.question);
           return newSchema;
         }
-        if(overQuestion.type === 'obsQuestion') {
+        if (overQuestion.type === 'obsQuestion') {
           const newSchema = { ...schema };
           const pages = newSchema.pages;
-          pages[pageIndex].sections[sectionIndex].questions[overQuestion.question.questionIndex].questions.splice(overQuestion.question.subQuestionIndex, 0, activeQuestion.question.question);
+          pages[pageIndex].sections[sectionIndex].questions[overQuestion.question.questionIndex].questions.splice(
+            overQuestion.question.subQuestionIndex,
+            0,
+            activeQuestion.question.question,
+          );
           return newSchema;
         }
       }
     }
 
     const updatedSchema = deleteFromSource(
-      schema, 
-      activeQuestion.question.pageIndex, 
-      activeQuestion.question.sectionIndex, 
-      activeId as string
+      schema,
+      activeQuestion.question.pageIndex,
+      activeQuestion.question.sectionIndex,
+      activeId as string,
     );
 
     onSchemaChange(updatedSchema);
 
     const finalSchema = addToDestination(
-      updatedSchema, 
-      overQuestion.question.pageIndex, 
-      overQuestion.question.sectionIndex, 
-      overId, 
-      activeQuestion.question.question
+      updatedSchema,
+      overQuestion.question.pageIndex,
+      overQuestion.question.sectionIndex,
+      overId,
+      activeQuestion.question.question,
     );
 
     onSchemaChange(finalSchema);
     setActiveQuestion(null);
-  }
+  };
 
   const getAnswerErrors = (answers: Array<Record<string, string>>) => {
     const answerLabels = answers?.map((answer) => answer.label) || [];
@@ -407,30 +413,28 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     return errorField?.errorMessage || '';
   };
 
-  const ObsGroupSubQuestions = ({question, pageIndex, sectionIndex, questionIndex}: SubQuestionProps)=>{
+  const ObsGroupSubQuestions = ({ question, pageIndex, sectionIndex, questionIndex }: SubQuestionProps) => {
     return (
       <div className={styles.obsQuestions}>
-        {
-          question.questions.map((qn, qnIndex)=>{
-            return (
-              <DraggableQuestion
-                handleDuplicateQuestion={duplicateQuestion}
-                key={qn.id}
-                onSchemaChange={onSchemaChange}
-                pageIndex={pageIndex}
-                question={qn}
-                questionCount={question.questions.length}
-                questionIndex={questionIndex}
-                schema={schema}
-                sectionIndex={sectionIndex}
-                subQuestionIndex={qnIndex}
-              />
-            )
-          })
-        }
+        {question.questions.map((qn, qnIndex) => {
+          return (
+            <DraggableQuestion
+              handleDuplicateQuestion={duplicateQuestion}
+              key={qn.id}
+              onSchemaChange={onSchemaChange}
+              pageIndex={pageIndex}
+              question={qn}
+              questionCount={question.questions.length}
+              questionIndex={questionIndex}
+              schema={schema}
+              sectionIndex={sectionIndex}
+              subQuestionIndex={qnIndex}
+            />
+          );
+        })}
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className={styles.container}>
@@ -491,136 +495,130 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       )}
 
       <DndContext
-        collisionDetection={(args) => [
-          ...rectIntersection(args),
-          ...closestCorners(args),
-          ...pointerWithin(args),
-        ]}
+        collisionDetection={(args) => [...rectIntersection(args), ...closestCorners(args), ...pointerWithin(args)]}
         onDragStart={handleDragStart}
         onDragEnd={(event: DragEndEvent) => handleDragEnd(event)}
         sensors={sensors}
       >
         <SortableContext
           items={
-            schema?.pages?.flatMap(page =>
-              page?.sections?.flatMap(section =>
-                section?.questions?.map(qn => qn.id) || []
-              ) || []
+            schema?.pages?.flatMap(
+              (page) => page?.sections?.flatMap((section) => section?.questions?.map((qn) => qn.id) || []) || [],
             ) || []
           }
         >
-        {schema?.pages?.length
-          ? schema.pages.map((page, pageIndex) => (
-              <div className={styles.editableFieldsContainer} key={pageIndex}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <div className={styles.editorContainer}>
-                    <EditableValue
-                      elementType="page"
-                      id="pageNameInput"
-                      value={schema.pages[pageIndex].label}
-                      onSave={(name) => renamePage(name, pageIndex)}
-                    />
+          {schema?.pages?.length
+            ? schema.pages.map((page, pageIndex) => (
+                <div className={styles.editableFieldsContainer} key={pageIndex}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div className={styles.editorContainer}>
+                      <EditableValue
+                        elementType="page"
+                        id="pageNameInput"
+                        value={schema.pages[pageIndex].label}
+                        onSave={(name) => renamePage(name, pageIndex)}
+                      />
+                    </div>
+                    <IconButton
+                      enterDelayMs={300}
+                      kind="ghost"
+                      label={t('deletePage', 'Delete page')}
+                      onClick={() => launchDeletePageModal(pageIndex)}
+                      size="md"
+                    >
+                      <TrashCan />
+                    </IconButton>
                   </div>
-                  <IconButton
-                    enterDelayMs={300}
-                    kind="ghost"
-                    label={t('deletePage', 'Delete page')}
-                    onClick={() => launchDeletePageModal(pageIndex)}
-                    size="md"
-                  >
-                    <TrashCan />
-                  </IconButton>
-                </div>
-                <div>
-                  {page?.sections?.length ? (
-                    <p className={styles.sectionExplainer}>
-                      {t(
-                        'expandSectionExplainer',
-                        'Below are the sections linked to this page. Expand each section to add questions to it.',
-                      )}
-                    </p>
-                  ) : null}
-                  {page?.sections?.length ? (
-                    page.sections?.map((section, sectionIndex) => (
-                      <Accordion key={sectionIndex}>
-                        <AccordionItem title={section.label}>
-                          <>
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                              <div className={styles.editorContainer}>
-                                <h1 className={styles['sectionLabel']}>{section.label}</h1>
+                  <div>
+                    {page?.sections?.length ? (
+                      <p className={styles.sectionExplainer}>
+                        {t(
+                          'expandSectionExplainer',
+                          'Below are the sections linked to this page. Expand each section to add questions to it.',
+                        )}
+                      </p>
+                    ) : null}
+                    {page?.sections?.length ? (
+                      page.sections?.map((section, sectionIndex) => (
+                        <Accordion key={sectionIndex}>
+                          <AccordionItem title={section.label}>
+                            <>
+                              <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <div className={styles.editorContainer}>
+                                  <h1 className={styles['sectionLabel']}>{section.label}</h1>
+                                  <IconButton
+                                    enterDelayMs={300}
+                                    kind="ghost"
+                                    label={t('editSection', 'Edit Section')}
+                                    onClick={() => launchEditSectionModal(pageIndex, sectionIndex)}
+                                    size="md"
+                                  >
+                                    <Edit />
+                                  </IconButton>
+                                </div>
                                 <IconButton
                                   enterDelayMs={300}
                                   kind="ghost"
-                                  label={t('editSection', 'Edit Section')}
-                                  onClick={() => launchEditSectionModal(pageIndex, sectionIndex)}
+                                  label={t('deleteSection', 'Delete section')}
+                                  onClick={() => launchDeleteSectionModal(pageIndex, sectionIndex)}
                                   size="md"
                                 >
-                                  <Edit />
+                                  <TrashCan />
                                 </IconButton>
                               </div>
-                              <IconButton
-                                enterDelayMs={300}
-                                kind="ghost"
-                                label={t('deleteSection', 'Delete section')}
-                                onClick={() => launchDeleteSectionModal(pageIndex, sectionIndex)}
-                                size="md"
-                              >
-                                <TrashCan />
-                              </IconButton>
-                            </div>
-                            <div>
-                              {section.questions?.length ? (
-                                section.questions.map((question, questionIndex) => {
-                                  return (
-                                    <div
-                                      id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
-                                      key={questionIndex}
-                                    >
-                                      <DraggableQuestion
-                                        handleDuplicateQuestion={duplicateQuestion}
-                                        key={question.id}
-                                        onSchemaChange={onSchemaChange}
-                                        pageIndex={pageIndex}
-                                        question={question}
-                                        questionCount={section.questions.length}
-                                        questionIndex={questionIndex}
-                                        schema={schema}
-                                        sectionIndex={sectionIndex}
+                              <div>
+                                {section.questions?.length ? (
+                                  section.questions.map((question, questionIndex) => {
+                                    return (
+                                      <div
+                                        id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
+                                        key={questionIndex}
                                       >
-                                        <ObsGroupSubQuestions
-                                          question={question}
+                                        <DraggableQuestion
+                                          handleDuplicateQuestion={duplicateQuestion}
+                                          key={question.id}
+                                          onSchemaChange={onSchemaChange}
                                           pageIndex={pageIndex}
-                                          sectionIndex={sectionIndex}
+                                          question={question}
+                                          questionCount={section.questions.length}
                                           questionIndex={questionIndex}
-                                        />
-                                      </DraggableQuestion>
-                                      {getValidationError(question) && (
-                                        <div className={styles.validationErrorMessage}>
-                                          {getValidationError(question)}
-                                        </div>
-                                      )}
-                                      {getAnswerErrors(question.questionOptions.answers)?.length ? (
-                                        <div className={styles.answerErrors}>
-                                          <div>Answer Errors</div>
-                                          {getAnswerErrors(question.questionOptions.answers)?.map((error, index) => (
-                                            <div
-                                              className={styles.validationErrorMessage}
-                                              key={index}
-                                            >{`${error.field.label}: ${error.errorMessage}`}</div>
-                                          ))}
-                                        </div>
-                                      ) : null}
-                                    </div>
-                                  );
-                                })
-                              ) : (
-                                <p className={styles.explainer}>
-                                  {t(
-                                    'sectionExplainer',
-                                    'A section will typically contain one or more questions. Click the button below to add a question to this section.',
-                                  )}
-                                </p>
-                              )}
+                                          schema={schema}
+                                          sectionIndex={sectionIndex}
+                                        >
+                                          <ObsGroupSubQuestions
+                                            question={question}
+                                            pageIndex={pageIndex}
+                                            sectionIndex={sectionIndex}
+                                            questionIndex={questionIndex}
+                                          />
+                                        </DraggableQuestion>
+                                        {getValidationError(question) && (
+                                          <div className={styles.validationErrorMessage}>
+                                            {getValidationError(question)}
+                                          </div>
+                                        )}
+                                        {getAnswerErrors(question.questionOptions.answers)?.length ? (
+                                          <div className={styles.answerErrors}>
+                                            <div>Answer Errors</div>
+                                            {getAnswerErrors(question.questionOptions.answers)?.map((error, index) => (
+                                              <div
+                                                className={styles.validationErrorMessage}
+                                                key={index}
+                                              >{`${error.field.label}: ${error.errorMessage}`}</div>
+                                            ))}
+                                          </div>
+                                        ) : null}
+                                      </div>
+                                    );
+                                  })
+                                ) : (
+                                  <p className={styles.explainer}>
+                                    {t(
+                                      'sectionExplainer',
+                                      'A section will typically contain one or more questions. Click the button below to add a question to this section.',
+                                    )}
+                                  </p>
+                                )}
 
                                 <Button
                                   className={styles.addQuestionButton}
