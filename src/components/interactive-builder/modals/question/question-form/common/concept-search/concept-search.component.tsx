@@ -15,6 +15,7 @@ interface ConceptSearchProps {
   onClearSelectedConcept?: () => void;
   onSelectConcept: (concept: Concept) => void;
   retainConceptInContextAfterSearch?: boolean;
+  clearSearchAfterSelection?: boolean;
 }
 
 const ConceptSearch: React.FC<ConceptSearchProps> = ({
@@ -23,6 +24,7 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
   onClearSelectedConcept,
   onSelectConcept,
   retainConceptInContextAfterSearch = false,
+  clearSearchAfterSelection,
 }) => {
   const { t } = useTranslation();
   const [conceptToLookup, setConceptToLookup] = useState('');
@@ -54,16 +56,6 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
     }
   }, [conceptLookupError, conceptNameLookupError, setIsConceptValid]);
 
-  const handleConceptSelect = useCallback(
-    (concept: Concept) => {
-      setConceptToLookup('');
-      setSelectedConcept(concept);
-      onSelectConcept(concept);
-      setIsConceptValid(true);
-    },
-    [onSelectConcept, setIsConceptValid],
-  );
-
   const clearSelectedConcept = useCallback(() => {
     setSelectedConcept(null);
     setConceptToLookup('');
@@ -71,6 +63,19 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
     if (onClearSelectedConcept) onClearSelectedConcept();
   }, [onClearSelectedConcept, setIsConceptValid]);
 
+  const handleConceptSelect = useCallback(
+    (concept: Concept) => {
+      setConceptToLookup('');
+      setSelectedConcept(concept);
+      onSelectConcept(concept);
+      setIsConceptValid(true);
+
+      if (clearSearchAfterSelection) {
+        clearSelectedConcept();
+      }
+    },
+    [onSelectConcept, setIsConceptValid, clearSelectedConcept, clearSearchAfterSelection],
+  );
   return (
     <>
       <FormLabel className={styles.label}>
