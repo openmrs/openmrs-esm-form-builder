@@ -28,6 +28,10 @@
       "component": "newFormModal"
     },
     {
+      "name": "add-form-component-modal",
+      "component": "addFormComponentModal"
+    },
+    {
       "name": "new-page-modal",
       "component": "newPageModal"
     },

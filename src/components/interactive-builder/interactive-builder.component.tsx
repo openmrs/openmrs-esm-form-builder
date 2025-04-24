@@ -78,6 +78,14 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     });
   }, [schema, onSchemaChange]);
 
+  const launchAddFormComponentModal = useCallback(() => {
+    const dispose = showModal('add-form-component-modal', {
+      closeModal: () => dispose(),
+      schema,
+      onSchemaChange,
+    });
+  }, [schema, onSchemaChange]);
+
   const launchDeletePageModal = useCallback(
     (pageIndex: number) => {
       const dipose = showModal('delete-page-modal', {
@@ -534,6 +542,15 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                   iconDescription={t('addSection', 'Add Section')}
                 >
                   {t('addSection', 'Add Section')}
+                </Button>
+                <Button
+                  className={styles.addSectionButton}
+                  kind="ghost"
+                  renderIcon={Add}
+                  onClick={launchAddFormComponentModal}
+                  iconDescription={t('addComponent', 'Add a Component')}
+                >
+                  {t('addComponent', 'Add a Component')}
                 </Button>
               </div>
             ))
