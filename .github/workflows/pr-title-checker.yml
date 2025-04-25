@@ -2,44 +2,24 @@ name: PR Title Checker
 
 on:
   pull_request:
-    branches: ["**"] # ✅ Triggers on all branches
     types: [opened, edited, reopened, synchronize]
-
-permissions:
-  pull-requests: write
 
 jobs:
   check-title:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Check PR title
-        uses: thehanimo/pr-title-checker@v1.4.3
-        id: check
-        continue-on-error: true
+      - name: Check PR Title Format
+        uses: amannn/action-semantic-pull-request@v5
         with:
+          types: |
+            docs
+            test
+            chore
+            fix
+            feat
+            BREAKING
+          requireScope: false
+          headerPattern: "^(?:(?<type>BREAKING|docs|test|chore|fix|feat)(?:\\(.*\\))?:? )?(?:(?<ticket>O3-[0-9]+): )?(?<subject>.*)$"
+          headerPatternCorrespondence: type,ticket,subject
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          pass_on_octokit_error: false
-
-      - name: Add comment to fix PR title
-        if: ${{ steps.check.outcome == 'success' && steps.check.outputs.success != 'true' }}
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          header: 'PR Title Check'
-          recreate: true
-          message: |
-            ### 🚨 PR Title Needs Formatting
-            Please update the title to match the expected format. Examples:
-            - `(fix) O3-123: Fix login issue`
-            - `BREAKING: Major refactor of auth system`
-            - `(docs) Added setup instructions`
-
-      - name: Add comment that PR title is fixed
-        if: ${{ steps.check.outcome == 'success' && steps.check.outputs.success == 'true' }}
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          header: 'PR Title Check'
-          recreate: true
-          message: |
-            ### ✅ PR Title Formatted Correctly
-            The title of this PR is in the correct format. Thank you!
