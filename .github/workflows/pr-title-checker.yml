@@ -17,6 +17,7 @@ jobs:
             chore
             fix
             feat
+            refactor
             BREAKING
           requireScope: false
           headerPattern: "^(?:(?<type>BREAKING|docs|test|chore|fix|feat)(?:\\(.*\\))?:? )?(?:(?<ticket>O3-[0-9]+): )?(?<subject>.*)$"
