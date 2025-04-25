@@ -5,6 +5,9 @@ on:
     branches: ["**"] # ✅ Triggers on all branches
     types: [opened, edited, reopened, synchronize]
 
+permissions:
+  pull-requests: write
+
 jobs:
   check-title:
     runs-on: ubuntu-latest
