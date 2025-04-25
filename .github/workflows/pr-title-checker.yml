@@ -18,19 +18,11 @@ jobs:
             const validPatterns = [
               // Pattern 1: (type) O3-XXXX: Description
               /^\((docs|test|chore|fix|feat|refactor)\)\s+(O3-\d+):\s+.+$/,
-              // Pattern 2: (type) Description
+              // Pattern 2: (type) Description (no ticket)
               /^\((docs|test|chore|fix|feat|refactor)\)\s+[^ ].+$/,
-              // Pattern 3: type: O3-XXXX: Description
-              /^(docs|test|chore|fix|feat|refactor):\s+(O3-\d+):\s+.+$/,
-              // Pattern 4: type: Description
-              /^(docs|test|chore|fix|feat|refactor):\s+[^ ].+$/,
-              // Pattern 5: type O3-XXXX: Description
-              /^(docs|test|chore|fix|feat|refactor)\s+(O3-\d+):\s+.+$/,
-              // Pattern 6: type Description
-              /^(docs|test|chore|fix|feat|refactor)\s+[^ ].+$/,
-              // Pattern 7: BREAKING: O3-XXXX: Description
+              // Pattern 3: BREAKING: O3-XXXX: Description
               /^BREAKING:\s+(O3-\d+):\s+.+$/,
-              // Pattern 8: BREAKING: Description
+              // Pattern 4: BREAKING: Description (no ticket)
               /^BREAKING:\s+[^ ].+$/
             ];
 
@@ -42,23 +34,33 @@ jobs:
               
               With ticket reference:
               - "(feat) O3-1234: Description"
-              - "feat: O3-1234: Description"
-              - "feat O3-1234: Description"
               - "BREAKING: O3-1234: Description"
               
               Without ticket reference:
               - "(feat) Description"
-              - "feat: Description"
-              - "feat Description"
               - "BREAKING: Description"
               
-              Notes:
-              - "O3" must use uppercase letter O (not zero or lowercase)
-              - Ticket numbers must be 4+ digits (O3-1234)
-              - Must include a description after the prefix`);
+              Strict Requirements:
+              1. Types must be in parentheses: (docs), (test), (chore), (fix), (feat), (refactor)
+              2. Only "BREAKING" (uppercase) is allowed without parentheses but must include a colon
+              3. Ticket reference (if present) must be "O3-XXXX" (uppercase O, not zero)
+              4. Ticket reference must be followed by a colon
+              5. No colon after parenthesized type (only after ticket reference)
+              6. Must include a description after the prefix`);
             }
 
-            // Additional strict check for O3 format
+            // Additional strict checks
+            // 1. Check for lowercase types without parentheses
+            if (/^(docs|test|chore|fix|feat|refactor)[^\(]/.test(title)) {
+              core.setFailed('Type prefix must be in parentheses (e.g., "(feat)")');
+            }
+            
+            // 2. Check for BREAKING case
+            if (/^breaking:/i.test(title) && !/^BREAKING:/.test(title)) {
+              core.setFailed('"BREAKING" must be uppercase and followed by colon');
+            }
+            
+            // 3. Check ticket format if present
             const ticketMatch = title.match(/(o3|03|O3)-\d+/);
             if (ticketMatch) {
               const ticketRef = ticketMatch[0];
@@ -69,4 +71,9 @@ jobs:
               } else if (!/:/.test(title.split(ticketRef)[1])) {
                 core.setFailed('Ticket reference must be followed by a colon (O3-1234:)');
               }
+            }
+            
+            // 4. Check for colons in wrong places
+            if (/^\([^)]+\):/.test(title)) {
+              core.setFailed('No colon should appear immediately after parenthesized type');
             }
