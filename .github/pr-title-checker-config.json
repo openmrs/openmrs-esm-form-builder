@@ -1,0 +1,16 @@
+{
+  "LABEL": {
+    "name": "title needs formatting",
+    "color": "E99695"
+  },
+  "CHECKS": {
+    "regexp": "^(\\(docs\\)|\\(test\\)|\\(chore\\)|\\(fix\\)|\\(feat\\))?(\\s)?(O3-[0-9]+:\\s)?[A-Z].*|^BREAKING: [A-Z].*",
+    "regexpFlags": "i",
+    "alwaysPassCI": false
+  },
+  "MESSAGES": {
+    "success": "✅ PR title looks good!",
+    "failure": "🚨 PR title does not follow O3 standards.",
+    "notice": ""
+  }
+}
