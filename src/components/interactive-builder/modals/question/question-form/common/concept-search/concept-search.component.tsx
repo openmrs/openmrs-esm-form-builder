@@ -24,7 +24,7 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
   onClearSelectedConcept,
   onSelectConcept,
   retainConceptInContextAfterSearch = false,
-  clearSearchAfterSelection,
+  clearSearchAfterSelection = false,
 }) => {
   const { t } = useTranslation();
   const [conceptToLookup, setConceptToLookup] = useState('');
