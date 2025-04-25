@@ -20,8 +20,8 @@ jobs:
               /^\((docs|test|chore|fix|feat|refactor)\)\s+(O3-\d+):\s+.+$/,
               // Pattern 2: (type) Description (no ticket)
               /^\((docs|test|chore|fix|feat|refactor)\)\s+[^ ].+$/,
-              // Pattern 3: BREAKING: O3-XXXX: Description
-              /^BREAKING:\s+(O3-\d+):\s+.+$/,
+              // Pattern 3: (BREAKING) O3-XXXX: Description
+              /^\(BREAKING\)\s+(O3-\d+):\s+.+$/,
               // Pattern 4: BREAKING: Description (no ticket)
               /^BREAKING:\s+[^ ].+$/
             ];
@@ -30,50 +30,72 @@ jobs:
             const isValid = validPatterns.some(pattern => pattern.test(title));
             
             if (!isValid) {
-              core.setFailed(`Invalid PR title format. Must follow one of these patterns:
+              let errorMessage = `🚫 Invalid PR title format. Strict requirements:\n\n`;
               
-              With ticket reference:
-              - "(feat) O3-1234: Description"
-              - "BREAKING: O3-1234: Description"
+              // Check for common mistakes
+              if (/^BREAKING\s/i.test(title)) {
+                errorMessage += `• For BREAKING changes with ticket numbers, use "(BREAKING) O3-1234: Description"\n`;
+                errorMessage += `• For BREAKING changes without ticket numbers, use "BREAKING: Description"\n`;
+              } else if (/^\([^)]+\)\s+O3-\d+[^:]/.test(title)) {
+                errorMessage += `• Ticket reference must be followed by a colon (O3-1234: Description)\n`;
+              } else if (/^[^(](docs|test|chore|fix|feat|refactor)/i.test(title)) {
+                errorMessage += `• Type prefix must be in parentheses (e.g., "(feat)")\n`;
+              } else if (/^\([^)]+\):/.test(title)) {
+                errorMessage += `• No colon should appear immediately after parenthesized type\n`;
+              } else {
+                errorMessage += `• Must follow one of these exact patterns:\n\n`;
+                errorMessage += `With ticket reference:\n`;
+                errorMessage += `- "(feat) O3-1234: Description"\n`;
+                errorMessage += `- "(BREAKING) O3-1234: Description"\n\n`;
+                errorMessage += `Without ticket reference:\n`;
+                errorMessage += `- "(feat) Description"\n`;
+                errorMessage += `- "BREAKING: Description"\n\n`;
+              }
               
-              Without ticket reference:
-              - "(feat) Description"
-              - "BREAKING: Description"
+              errorMessage += `🔍 Found these issues in your title: "${title}"\n\n`;
+              errorMessage += `💡 Examples of valid titles:\n`;
+              errorMessage += `• "(fix) O3-4567: Resolve header alignment issue"\n`;
+              errorMessage += `• "(chore) Update dependency packages"\n`;
+              errorMessage += `• "(BREAKING) O3-3191: Move LeftNav into primary navigation app"\n`;
+              errorMessage += `• "BREAKING: Remove deprecated API endpoints"`;
               
-              Strict Requirements:
-              1. Types must be in parentheses: (docs), (test), (chore), (fix), (feat), (refactor)
-              2. Only "BREAKING" (uppercase) is allowed without parentheses but must include a colon
-              3. Ticket reference (if present) must be "O3-XXXX" (uppercase O, not zero)
-              4. Ticket reference must be followed by a colon
-              5. No colon after parenthesized type (only after ticket reference)
-              6. Must include a description after the prefix`);
+              core.setFailed(errorMessage);
             }
 
-            // Additional strict checks
-            // 1. Check for lowercase types without parentheses
-            if (/^(docs|test|chore|fix|feat|refactor)[^\(]/.test(title)) {
-              core.setFailed('Type prefix must be in parentheses (e.g., "(feat)")');
+            // Additional strict validation checks
+            // 1. Validate BREAKING change format
+            if (/BREAKING/i.test(title)) {
+              if (title.includes('O3-')) {
+                if (!/^\(BREAKING\)\s+O3-\d+:\s+.+$/.test(title)) {
+                  core.setFailed(`For BREAKING changes with tickets:\n` +
+                    `• Must use parentheses: "(BREAKING) O3-1234: Description"\n` +
+                    `• Your title: "${title}"`);
+                }
+              } else {
+                if (!/^BREAKING:\s+[^ ].+$/.test(title)) {
+                  core.setFailed(`For BREAKING changes without tickets:\n` +
+                    `• Must use colon: "BREAKING: Description"\n` +
+                    `• Must NOT use parentheses\n` +
+                    `• Your title: "${title}"`);
+                }
+              }
             }
             
-            // 2. Check for BREAKING case
-            if (/^breaking:/i.test(title) && !/^BREAKING:/.test(title)) {
-              core.setFailed('"BREAKING" must be uppercase and followed by colon');
-            }
-            
-            // 3. Check ticket format if present
+            // 2. Check ticket reference format
             const ticketMatch = title.match(/(o3|03|O3)-\d+/);
             if (ticketMatch) {
               const ticketRef = ticketMatch[0];
               if (ticketRef.startsWith('o3')) {
-                core.setFailed('Ticket reference must use uppercase O (O3) not lowercase (o3)');
+                core.setFailed(`Invalid ticket reference:\n` +
+                  `• Must use uppercase O (O3-1234)\n` +
+                  `• Found lowercase: "${ticketRef}"`);
               } else if (ticketRef.startsWith('03')) {
-                core.setFailed('Ticket reference must use uppercase O (O3) not zero (03)');
+                core.setFailed(`Invalid ticket reference:\n` +
+                  `• Must use letter O (O3-1234)\n` +
+                  `• Found zero: "${ticketRef}"`);
               } else if (!/:/.test(title.split(ticketRef)[1])) {
-                core.setFailed('Ticket reference must be followed by a colon (O3-1234:)');
+                core.setFailed(`Missing colon after ticket reference:\n` +
+                  `• Must include colon: "O3-1234: Description"\n` +
+                  `• Your title: "${title}"`);
               }
-            }
-            
-            // 4. Check for colons in wrong places
-            if (/^\([^)]+\):/.test(title)) {
-              core.setFailed('No colon should appear immediately after parenthesized type');
             }
