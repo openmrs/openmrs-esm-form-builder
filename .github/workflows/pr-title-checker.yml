@@ -5,7 +5,7 @@ on:
     types: [opened, edited, reopened, synchronize]
 
 jobs:
-  check-title:
+  semantic-title-check:
     runs-on: ubuntu-latest
     steps:
       - name: Check PR Title Format
@@ -20,7 +20,39 @@ jobs:
             refactor
             BREAKING
           requireScope: false
-          headerPattern: "^(?:(?<type>BREAKING|docs|test|chore|fix|feat)(?:\\(.*\\))?:? )?(?:(?<ticket>O[0-9]+-[0-9]+): )?(?<subject>.*)$"
-          headerPatternCorrespondence: type,ticket,subject
+          headerPattern: "^(?:(?<type>BREAKING|docs|test|chore|fix|feat|refactor)(?:\\(.*\\))?:? )?(?<subject>.*)$"
+          headerPatternCorrespondence: type,subject
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  ticket-format-check:
+    needs: semantic-title-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check O3 Ticket Format
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            // Pattern explanation:
+            // 1. Optional semantic prefix (like "(feat)")
+            // 2. Optional O3 ticket reference (must be O3- followed by digits)
+            // 3. Title content
+            const validPattern = /^(?:\((?:docs|test|chore|fix|feat|refactor)\)|(?:BREAKING|docs|test|chore|fix|feat|refactor):? )?(?:(O3-\d+): )?.*$/;
+            
+            if (!validPattern.test(title)) {
+              core.setFailed(`PR title format is invalid. It must follow one of these patterns:
+              - (type) O3-XXXX: Description
+              - (type) Description
+              - type: O3-XXXX: Description
+              - type: Description
+              - BREAKING: O3-XXXX: Description
+              
+              Where type is one of: docs, test, chore, fix, feat, refactor
+              And O3 must use uppercase letter O (not zero)`);
+            }
+            
+            // Additional check for 03 instead of O3
+            if (/03-\d+/.test(title)) {
+              core.setFailed('Ticket reference must use uppercase O (O3) not zero (03)');
+            }
