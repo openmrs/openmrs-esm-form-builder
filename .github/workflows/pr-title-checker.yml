@@ -20,7 +20,7 @@ jobs:
             refactor
             BREAKING
           requireScope: false
-          headerPattern: "^(?:(?<type>BREAKING|docs|test|chore|fix|feat|refactor)(?:\\(.*\\))?:? )?(?<subject>.*)$"
+          headerPattern: "^(?:(?<type>BREAKING|docs|test|chore|fix|feat|refactor)(?:\\(.*\\))?|(?:\\((?:docs|test|chore|fix|feat|refactor)\\))):? (?<subject>.*)$"
           headerPatternCorrespondence: type,subject
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
