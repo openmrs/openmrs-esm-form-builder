@@ -112,36 +112,36 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
           (prevFormField.questionOptions?.min!=null)?(delete prevFormField.questionOptions.min):null;
           (prevFormField.questionOptions?.max!=null)?(delete prevFormField.questionOptions.max):null;
           break;
-        };
+        }
         case Text: {
           (prevFormField.questionOptions?.minLength!=null)?(delete prevFormField.questionOptions.minLength):null;
           (prevFormField.questionOptions?.maxLength!=null)?(delete prevFormField.questionOptions.maxLength):null;
           break;
-        };
+        }
         case TextArea: {
           (prevFormField.questionOptions?.rows!=null)?(delete prevFormField.questionOptions.rows):null;
           break;
-        };
+        }
         case Toggle: {
           (prevFormField.questionOptions?.toggleOptions!=null)?(delete prevFormField.questionOptions.toggleOptions):null;
           break;
-        };
+        }
         case UiSelectExtended: {
           (prevFormField.questionOptions?.isSearchable!=null)?(delete prevFormField.questionOptions.isSearchable):null;
           break;
-        };
+        }
         case Date: {
           (prevFormField.datePickerFormat!=null)?(delete prevFormField.datePickerFormat):null;
           break;
-        };
+        }
         case Markdown: {
           (prevFormField.value!=null)?(delete prevFormField.value):null;
           break;
-        };
+        }
         case SelectAnswers: {
           (prevFormField.questionOptions?.answers!=null)?(delete prevFormField.questionOptions.answers):null;
           break;
-        };
+        }
       }
     }
       return prevFormField;
@@ -153,11 +153,11 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
         case UiSelectExtended: {
           (!(prevFormField.questionOptions?.isSearchable!=null))?(prevFormField = { ...prevFormField, questionOptions: { ...prevFormField.questionOptions, isSearchable: false }}):null;
           break;
-        };
+        }
         case Date: {
           (!(prevFormField.datePickerFormat!=null))?(prevFormField = {...prevFormField, datePickerFormat: "both" }):null;
           break;
-        };
+        }
       }
     }
     return prevFormField;
@@ -172,35 +172,6 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
         : handleRenderTypePropertiesChange(prevFormField,event.target.value);
       }
       )
-    },
-    [setFormField],
-  );
-
-  const handleQuestionTypeChange = useCallback(
-    (event: React.ChangeEvent<HTMLSelectElement>) => {
-      const newQuestionType = event.target.value;
-      setFormField((prevFormField) => {
-        const hasPreviousRenderingType = prevFormField?.questionOptions?.rendering;
-        if (hasPreviousRenderingType) {
-          const isQuestionTypeObs = newQuestionType === 'obs' ? true : false;
-          if (!isQuestionTypeObs) {
-            const isRenderingTypeValidForQuestionType =
-              questionTypes.includes(newQuestionType as keyof typeof renderTypeOptions) &&
-              renderTypeOptions[newQuestionType].includes(prevFormField.questionOptions.rendering as RenderType);
-            if (!isRenderingTypeValidForQuestionType) {
-              return {
-                ...prevFormField,
-                questionOptions: { ...prevFormField.questionOptions, rendering: null },
-                type: newQuestionType,
-              };
-            }
-          }
-        }
-        return {
-          ...prevFormField,
-          type: newQuestionType,
-        };
-      });
     },
     [setFormField],
   );
