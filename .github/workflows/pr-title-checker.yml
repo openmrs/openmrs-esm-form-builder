@@ -19,7 +19,7 @@ jobs:
             feat
             BREAKING
           requireScope: false
-          headerPattern: "^(?:(?<type>BREAKING|docs|test|chore|fix|feat)(?:\\(.*\\))?:? )?(?:(?<ticket>O3-[0-9]+): )?(?<subject>.*)$"
+          headerPattern: "^(?:(?:(feat|fix|chore|docs|test|refactor|BREAKING):? ?(?:O3-[0-9]+: )?)|\\((feat|fix|chore|docs|test|refactor)\\)) (?:(O3-[0-9]+: )?)?.+$"
           headerPatternCorrespondence: type,ticket,subject
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
