@@ -60,50 +60,6 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
     },
     [setFormField],
   );
-  
-  const handleQuestionTypeChange = useCallback(
-    (event: React.ChangeEvent<HTMLSelectElement>) => {
-      const newQuestionType = event.target.value;
-      setFormField((prevFormField) => {
-        const hasPreviousRenderingType = prevFormField?.questionOptions?.rendering;
-        if (hasPreviousRenderingType) {
-          const isQuestionTypeObs = newQuestionType === 'obs' ? true : false;
-          if (!isQuestionTypeObs) {
-            const isRenderingTypeValidForQuestionType =
-              questionTypes.includes(newQuestionType as keyof typeof renderTypeOptions) &&
-              renderTypeOptions[newQuestionType].includes(prevFormField.questionOptions.rendering as RenderType);
-            if (!isRenderingTypeValidForQuestionType) {
-              prevFormField = removeRenderingTypeSubProperties(prevFormField,null);
-              return {
-                ...prevFormField,
-                questionOptions: { ...prevFormField.questionOptions, rendering: null },
-                type: newQuestionType,
-              };
-            }
-          }
-        }
-        return {
-          ...prevFormField,
-          type: newQuestionType,
-        };
-      });
-    },
-    [setFormField],
-  );
-
-  const handleRenderTypePropertiesChange = useCallback((prevFormField: FormField, newRenderingType) :FormField => {
-    if(prevFormField.questionOptions?.rendering) {
-      prevFormField= removeRenderingTypeSubProperties(prevFormField,newRenderingType);
-    }
-    prevFormField = addDefaultRenderingTypeSubProperties(prevFormField,newRenderingType);
-      return {
-      ...prevFormField,
-      questionOptions: {
-        ...prevFormField.questionOptions,
-        rendering: newRenderingType as RenderType,
-      }
-      }
-  }, []);
 
   const removeRenderingTypeSubProperties = useCallback((prevFormField: FormField,newRenderingType) : FormField=> {
     if(newRenderingType==null || (renderComponentMap[newRenderingType]!=renderComponentMap[prevFormField.questionOptions.rendering])) {
@@ -146,8 +102,38 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
     }
       return prevFormField;
   },[]);
+  
+  const handleQuestionTypeChange = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      const newQuestionType = event.target.value;
+      setFormField((prevFormField) => {
+        const hasPreviousRenderingType = prevFormField?.questionOptions?.rendering;
+        if (hasPreviousRenderingType) {
+          const isQuestionTypeObs = newQuestionType === 'obs' ? true : false;
+          if (!isQuestionTypeObs) {
+            const isRenderingTypeValidForQuestionType =
+              questionTypes.includes(newQuestionType as keyof typeof renderTypeOptions) &&
+              renderTypeOptions[newQuestionType].includes(prevFormField.questionOptions.rendering as RenderType);
+            if (!isRenderingTypeValidForQuestionType) {
+              prevFormField = removeRenderingTypeSubProperties(prevFormField,null);
+              return {
+                ...prevFormField,
+                questionOptions: { ...prevFormField.questionOptions, rendering: null },
+                type: newQuestionType,
+              };
+            }
+          }
+        }
+        return {
+          ...prevFormField,
+          type: newQuestionType,
+        };
+      });
+    },
+    [setFormField,removeRenderingTypeSubProperties],
+  );
 
-  const addDefaultRenderingTypeSubProperties = useCallback((prevFormField: FormField, newRenderingType) : FormField=> {
+const addDefaultRenderingTypeSubProperties = useCallback((prevFormField: FormField, newRenderingType) : FormField=> {
     if(newRenderingType) {
       switch(renderComponentMap[newRenderingType]) {
         case UiSelectExtended: {
@@ -164,16 +150,33 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
 
   },[]);
 
+  const handleRenderTypePropertiesChange = useCallback((prevFormField: FormField, newRenderingType) :FormField => {
+    if(prevFormField.questionOptions?.rendering) {
+      prevFormField= removeRenderingTypeSubProperties(prevFormField,newRenderingType);
+    }
+    prevFormField = addDefaultRenderingTypeSubProperties(prevFormField,newRenderingType);
+      return {
+      ...prevFormField,
+      questionOptions: {
+        ...prevFormField.questionOptions,
+        rendering: newRenderingType as RenderType,
+      }
+      }
+  }, [removeRenderingTypeSubProperties,addDefaultRenderingTypeSubProperties]);
+
   const handleRenderingTypeChange = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => {  
       setFormField((prevFormField)=> {
         return (prevFormField === null)
-        ? { ...prevFormField, questionOptions: { rendering: event.target.value as RenderType } }
+        ? { 
+          ...prevFormField, 
+          questionOptions: { rendering: event.target.value as RenderType }
+         }
         : handleRenderTypePropertiesChange(prevFormField,event.target.value);
       }
       )
     },
-    [setFormField],
+    [setFormField,handleRenderTypePropertiesChange],
   );
 
   const handleQuestionInfoChange = useCallback(
