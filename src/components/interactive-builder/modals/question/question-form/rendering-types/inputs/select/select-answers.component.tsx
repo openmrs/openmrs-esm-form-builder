@@ -113,7 +113,13 @@ const SelectAnswers: React.FC = () => {
       }));
     }
 
-    // Merge concept answers with any additional form field answers
+    const formFieldAnswerLabelsMap = new Map(formFieldAnswers.map((answer) => [answer.concept, answer.label]));
+
+    const answersFromConceptWithLabelsFromFormField = conceptAnswerItems.map((item) => ({
+      id: item.id,
+      text: formFieldAnswerLabelsMap.get(item.id) ?? item.text,
+    }));
+
     const additionalAnswers = formFieldAnswers
       .filter((answer) => !conceptAnswerItems.some((item) => item.id === answer.concept))
       .map((answer) => ({
@@ -121,7 +127,7 @@ const SelectAnswers: React.FC = () => {
         text: answer.label,
       }));
 
-    return [...conceptAnswerItems, ...additionalAnswers];
+    return [...answersFromConceptWithLabelsFromFormField, ...additionalAnswers];
   }, [concept?.answers, formField.questionOptions?.answers]);
 
   const convertAnswerItemsToString = useCallback((item: AnswerItem) => item.text, []);
@@ -131,7 +137,7 @@ const SelectAnswers: React.FC = () => {
       {answerItems.length > 0 && (
         <MultiSelect
           className={styles.multiSelect}
-          direction="top"
+          direction="bottom"
           id="selectAnswers"
           items={answerItems}
           itemToString={convertAnswerItemsToString}
@@ -157,6 +163,7 @@ const SelectAnswers: React.FC = () => {
           <ConceptSearch
             label={t('searchForAnswerConcept', 'Search for a concept to add as an answer')}
             onSelectConcept={handleSelectAdditionalAnswer}
+            clearSearchAfterSelection={true}
           />
           {addedAnswers.length > 0 ? (
             <div>
