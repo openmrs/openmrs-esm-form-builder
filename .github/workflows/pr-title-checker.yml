@@ -20,7 +20,9 @@ jobs:
             refactor
             BREAKING
           requireScope: false
-          headerPattern: ^(\((?<type>docs|test|chore|fix|feat|refactor)\)\s(?:(?<ticket>O3-[0-9]+):\s)?(?<subject>.+)|(^(?<type>BREAKING):\s(?<subject>.+))$
-          headerPatternCorrespondence: type,ticket,subject
+          headerPattern: ^(\((?<type1>docs|test|chore|fix|feat|refactor)\)\s(?:(?<ticket>O3-[0-9]+):\s)?(?<subject1>[^].+)|^(?<type2>BREAKING):\s(?<subject2>.+)$
+          headerPatternCorrespondence: |
+            type1,ticket,subject1
+            type2,,subject2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
