@@ -8,10 +8,25 @@ import { useFormField } from '../../form-field-context';
 import type { FormField, RenderType } from '@openmrs/esm-form-engine-lib';
 import { questionTypes, renderTypeOptions, renderingTypes } from '@constants';
 import styles from './question.scss';
+import { Date, Markdown, Number, SelectAnswers, Text, TextArea, Toggle, UiSelectExtended } from '../rendering-types/inputs';
 
 interface QuestionProps {
   checkIfQuestionIdExists: (idToTest: string) => boolean;
 }
+
+const renderComponentMap: Partial<Record<RenderType, React.FC>> = {
+  number: Number,
+  text: Text,
+  textarea: TextArea,
+  toggle: Toggle,
+  'ui-select-extended': UiSelectExtended,
+  date: Date,
+  datetime: Date,
+  markdown: Markdown,
+  select: SelectAnswers,
+  radio: SelectAnswers,
+  checkbox: SelectAnswers,
+};
 
 const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
   const { t } = useTranslation();
@@ -42,6 +57,121 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
         return prevFormField;
       });
       setIsQuestionInfoVisible(e.target.value === 'true');
+    },
+    [setFormField],
+  );
+  
+  const handleQuestionTypeChange = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      const newQuestionType = event.target.value;
+      setFormField((prevFormField) => {
+        const hasPreviousRenderingType = prevFormField?.questionOptions?.rendering;
+        if (hasPreviousRenderingType) {
+          const isQuestionTypeObs = newQuestionType === 'obs' ? true : false;
+          if (!isQuestionTypeObs) {
+            const isRenderingTypeValidForQuestionType =
+              questionTypes.includes(newQuestionType as keyof typeof renderTypeOptions) &&
+              renderTypeOptions[newQuestionType].includes(prevFormField.questionOptions.rendering as RenderType);
+            if (!isRenderingTypeValidForQuestionType) {
+              prevFormField = removeRenderingTypeSubProperties(prevFormField,null);
+              return {
+                ...prevFormField,
+                questionOptions: { ...prevFormField.questionOptions, rendering: null },
+                type: newQuestionType,
+              };
+            }
+          }
+        }
+        return {
+          ...prevFormField,
+          type: newQuestionType,
+        };
+      });
+    },
+    [setFormField],
+  );
+
+  const handleRenderTypePropertiesChange = useCallback((prevFormField: FormField, newRenderingType) :FormField => {
+    if(prevFormField.questionOptions?.rendering) {
+      prevFormField= removeRenderingTypeSubProperties(prevFormField,newRenderingType);
+    }
+    prevFormField = addDefaultRenderingTypeSubProperties(prevFormField,newRenderingType);
+      return {
+      ...prevFormField,
+      questionOptions: {
+        ...prevFormField.questionOptions,
+        rendering: newRenderingType as RenderType,
+      }
+      }
+  }, []);
+
+  const removeRenderingTypeSubProperties = useCallback((prevFormField: FormField,newRenderingType) : FormField=> {
+    if(newRenderingType==null || (renderComponentMap[newRenderingType]!=renderComponentMap[prevFormField.questionOptions.rendering])) {
+      switch(renderComponentMap[prevFormField.questionOptions.rendering]) {
+        case Number: { 
+          (prevFormField.questionOptions?.min!=null)?(delete prevFormField.questionOptions.min):null;
+          (prevFormField.questionOptions?.max!=null)?(delete prevFormField.questionOptions.max):null;
+          break;
+        };
+        case Text: {
+          (prevFormField.questionOptions?.minLength!=null)?(delete prevFormField.questionOptions.minLength):null;
+          (prevFormField.questionOptions?.maxLength!=null)?(delete prevFormField.questionOptions.maxLength):null;
+          break;
+        };
+        case TextArea: {
+          (prevFormField.questionOptions?.rows!=null)?(delete prevFormField.questionOptions.rows):null;
+          break;
+        };
+        case Toggle: {
+          (prevFormField.questionOptions?.toggleOptions!=null)?(delete prevFormField.questionOptions.toggleOptions):null;
+          break;
+        };
+        case UiSelectExtended: {
+          (prevFormField.questionOptions?.isSearchable!=null)?(delete prevFormField.questionOptions.isSearchable):null;
+          break;
+        };
+        case Date: {
+          (prevFormField.datePickerFormat!=null)?(delete prevFormField.datePickerFormat):null;
+          break;
+        };
+        case Markdown: {
+          (prevFormField.value!=null)?(delete prevFormField.value):null;
+          break;
+        };
+        case SelectAnswers: {
+          (prevFormField.questionOptions?.answers!=null)?(delete prevFormField.questionOptions.answers):null;
+          break;
+        };
+      }
+    }
+      return prevFormField;
+  },[]);
+
+  const addDefaultRenderingTypeSubProperties = useCallback((prevFormField: FormField, newRenderingType) : FormField=> {
+    if(newRenderingType) {
+      switch(renderComponentMap[newRenderingType]) {
+        case UiSelectExtended: {
+          (!(prevFormField.questionOptions?.isSearchable!=null))?(prevFormField = { ...prevFormField, questionOptions: { ...prevFormField.questionOptions, isSearchable: false }}):null;
+          break;
+        };
+        case Date: {
+          (!(prevFormField.datePickerFormat!=null))?(prevFormField = {...prevFormField, datePickerFormat: "both" }):null;
+          break;
+        };
+      }
+    }
+    return prevFormField;
+
+  },[]);
+
+  const handleRenderingTypeChange = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {  
+      setFormField((prevFormField)=> {
+        return (prevFormField === null)
+        ? { ...prevFormField, questionOptions: { rendering: event.target.value as RenderType } }
+        : handleRenderTypePropertiesChange(prevFormField,event.target.value);
+      }
+      )
     },
     [setFormField],
   );
@@ -86,9 +216,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
       />
       <Select
         value={formField?.type ?? 'control'}
-        onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
-          setFormField({ ...formField, type: event.target.value })
-        }
+        onChange={handleQuestionTypeChange}
         id="questionType"
         invalidText={t('typeRequired', 'Type is required')}
         labelText={t('questionType', 'Question type')}
@@ -101,19 +229,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
       </Select>
       <Select
         value={formField?.questionOptions?.rendering}
-        onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
-          const updatedObject: FormField =
-            formField === null
-              ? { ...formField, questionOptions: { rendering: event.target.value as RenderType } }
-              : {
-                  ...formField,
-                  questionOptions: {
-                    ...formField.questionOptions,
-                    rendering: event.target.value as RenderType,
-                  },
-                };
-          setFormField(updatedObject);
-        }}
+        onChange={handleRenderingTypeChange}
         id="renderingType"
         invalidText={t('validRenderingTypeRequired', 'A valid rendering type value is required')}
         labelText={t('renderingType', 'Rendering type')}
@@ -126,7 +242,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
         formField.type !== 'obs' &&
         questionTypes.includes(formField.type as keyof typeof renderTypeOptions)
           ? renderTypeOptions[formField?.type].map((type, key) => (
-              <SelectItem key={`${type}-${key}`} text={type} value={type} />
+              <SelectItem key={${type}-${key}} text={type} value={type} />
             ))
           : renderingTypes.map((type, key) => <SelectItem key={key} text={type} value={type} />)}
       </Select>
