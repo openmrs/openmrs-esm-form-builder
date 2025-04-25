@@ -17,9 +17,17 @@ jobs:
             chore
             fix
             feat
+            refactor
             BREAKING
           requireScope: false
-          headerPattern: "^(?:(?:(feat|fix|chore|docs|test|refactor|BREAKING):? ?(?:O3-[0-9]+: )?)|\\((feat|fix|chore|docs|test|refactor)\\)) (?:(O3-[0-9]+: )?)?.+$"
+          headerPattern: |
+            ^(?:
+              # Either: (type) [O3-ticket]: subject
+              \((?<type>BREAKING|docs|test|chore|fix|feat|refactor)\)\s(?:(?<ticket>O3-[0-9]+):\s)?(?<subject>.+)$
+              |
+              # Or: BREAKING: subject (no parentheses, no ticket)
+              (?<type>BREAKING):\s(?<subject>.+)$
+            )
           headerPatternCorrespondence: type,ticket,subject
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
