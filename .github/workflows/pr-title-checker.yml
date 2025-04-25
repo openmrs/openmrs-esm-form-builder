@@ -5,68 +5,49 @@ on:
     types: [opened, edited, reopened, synchronize]
 
 jobs:
-  semantic-title-check:
+  title-format-check:
     runs-on: ubuntu-latest
     steps:
-      - name: Check PR Title Format
-        uses: amannn/action-semantic-pull-request@v5
-        with:
-          types: |
-            docs
-            test
-            chore
-            fix
-            feat
-            refactor
-            BREAKING
-          requireScope: false
-          headerPattern: "^(?:(?<type>BREAKING|docs|test|chore|fix|feat|refactor)(?:\\(.*\\))?|(?:\\((?:docs|test|chore|fix|feat|refactor)\\))):? (?<subject>.*)$"
-          headerPatternCorrespondence: type,subject
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  ticket-format-check:
-    needs: semantic-title-check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check O3 Ticket Format
+      - name: Validate PR Title Format
         uses: actions/github-script@v6
         with:
           script: |
             const title = context.payload.pull_request.title;
             
-            // First check for any ticket reference (O3, 03, or o3)
+            // Validate type prefix (either (type) or type: or BREAKING:)
+            const typePattern = /^(?:\((docs|test|chore|fix|feat|refactor)\)|(docs|test|chore|fix|feat|refactor):?|(BREAKING):\s+/i;
+            const hasValidType = typePattern.test(title);
+            
+            if (!hasValidType) {
+              core.setFailed(`PR title must start with:
+              - (type) (e.g., "(feat)")
+              - type: (e.g., "feat:")
+              - type (e.g., "feat ")
+              - BREAKING:
+              Where type is one of: docs, test, chore, fix, feat, refactor`);
+            }
+            
+            // Validate O3 ticket format if present
             const ticketPattern = /(O3|o3|03)-\d+/;
             const hasTicketReference = ticketPattern.test(title);
             
             if (hasTicketReference) {
-              // Then verify it's exactly O3 (uppercase)
-              const validO3Pattern = /O3-\d+/;
-              const hasValidO3 = validO3Pattern.test(title);
-              
-              if (!hasValidO3) {
-                // Check which invalid format was used
-                if (/o3-\d+/.test(title)) {
-                  core.setFailed('Ticket reference must use uppercase O (O3) not lowercase (o3)');
-                } else if (/03-\d+/.test(title)) {
-                  core.setFailed('Ticket reference must use uppercase O (O3) not zero (03)');
-                } else {
-                  core.setFailed('Invalid ticket reference format. Must be O3-XXXX where XXXX are digits');
-                }
+              if (/o3-\d+/.test(title)) {
+                core.setFailed('Ticket reference must use uppercase O (O3) not lowercase (o3)');
+              } else if (/03-\d+/.test(title)) {
+                core.setFailed('Ticket reference must use uppercase O (O3) not zero (03)');
+              } else if (!/O3-\d+:/.test(title)) {
+                core.setFailed('Ticket reference must be followed by colon (O3-XXXX:)');
               }
             }
             
-            // Validate overall title pattern (optional ticket reference)
-            const validTitlePattern = /^(?:\((?:docs|test|chore|fix|feat|refactor)\)|(?:BREAKING|docs|test|chore|fix|feat|refactor):? )?(?:(O3-\d+): )?.*$/;
-            
-            if (!validTitlePattern.test(title)) {
-              core.setFailed(`PR title format is invalid. Valid formats:
-              - (type) O3-XXXX: Description
-              - (type) Description
-              - type: O3-XXXX: Description
-              - type: Description
-              - BREAKING: O3-XXXX: Description
-              
-              Where type is one of: docs, test, chore, fix, feat, refactor
-              Ticket reference must use uppercase O (O3)`);
+            // Validate overall structure
+            const validPattern = /^(?:\((docs|test|chore|fix|feat|refactor)\)|(docs|test|chore|fix|feat|refactor):?|(BREAKING):)\s+(?:(O3-\d+):\s+)?[^ ].*$/;
+            if (!validPattern.test(title)) {
+              core.setFailed(`Invalid PR title structure. Valid examples:
+              - (feat) O3-1234: Implement new feature
+              - fix: O3-4567: Resolve issue
+              - chore Update dependencies
+              - BREAKING: O3-7890: Major change
+              - (test) Add unit tests`);
             }
