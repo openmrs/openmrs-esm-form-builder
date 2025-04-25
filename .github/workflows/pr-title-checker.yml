@@ -5,49 +5,68 @@ on:
     types: [opened, edited, reopened, synchronize]
 
 jobs:
-  title-format-check:
+  validate-title:
     runs-on: ubuntu-latest
     steps:
-      - name: Validate PR Title Format
+      - name: Check PR Title Format
         uses: actions/github-script@v6
         with:
           script: |
-            const title = context.payload.pull_request.title;
+            const title = context.payload.pull_request.title.trim();
             
-            // Validate type prefix (either (type) or type: or BREAKING:)
-            const typePattern = /^(?:\((docs|test|chore|fix|feat|refactor)\)|(docs|test|chore|fix|feat|refactor):?|(BREAKING):\s+/i;
-            const hasValidType = typePattern.test(title);
+            // Define valid patterns
+            const validPatterns = [
+              // Pattern 1: (type) O3-XXXX: Description
+              /^\((docs|test|chore|fix|feat|refactor)\)\s+(O3-\d+):\s+.+$/,
+              // Pattern 2: (type) Description
+              /^\((docs|test|chore|fix|feat|refactor)\)\s+[^ ].+$/,
+              // Pattern 3: type: O3-XXXX: Description
+              /^(docs|test|chore|fix|feat|refactor):\s+(O3-\d+):\s+.+$/,
+              // Pattern 4: type: Description
+              /^(docs|test|chore|fix|feat|refactor):\s+[^ ].+$/,
+              // Pattern 5: type O3-XXXX: Description
+              /^(docs|test|chore|fix|feat|refactor)\s+(O3-\d+):\s+.+$/,
+              // Pattern 6: type Description
+              /^(docs|test|chore|fix|feat|refactor)\s+[^ ].+$/,
+              // Pattern 7: BREAKING: O3-XXXX: Description
+              /^BREAKING:\s+(O3-\d+):\s+.+$/,
+              // Pattern 8: BREAKING: Description
+              /^BREAKING:\s+[^ ].+$/
+            ];
+
+            // Check if title matches any valid pattern
+            const isValid = validPatterns.some(pattern => pattern.test(title));
             
-            if (!hasValidType) {
-              core.setFailed(`PR title must start with:
-              - (type) (e.g., "(feat)")
-              - type: (e.g., "feat:")
-              - type (e.g., "feat ")
-              - BREAKING:
-              Where type is one of: docs, test, chore, fix, feat, refactor`);
+            if (!isValid) {
+              core.setFailed(`Invalid PR title format. Must follow one of these patterns:
+              
+              With ticket reference:
+              - "(feat) O3-1234: Description"
+              - "feat: O3-1234: Description"
+              - "feat O3-1234: Description"
+              - "BREAKING: O3-1234: Description"
+              
+              Without ticket reference:
+              - "(feat) Description"
+              - "feat: Description"
+              - "feat Description"
+              - "BREAKING: Description"
+              
+              Notes:
+              - "O3" must use uppercase letter O (not zero or lowercase)
+              - Ticket numbers must be 4+ digits (O3-1234)
+              - Must include a description after the prefix`);
             }
-            
-            // Validate O3 ticket format if present
-            const ticketPattern = /(O3|o3|03)-\d+/;
-            const hasTicketReference = ticketPattern.test(title);
-            
-            if (hasTicketReference) {
-              if (/o3-\d+/.test(title)) {
+
+            // Additional strict check for O3 format
+            const ticketMatch = title.match(/(o3|03|O3)-\d+/);
+            if (ticketMatch) {
+              const ticketRef = ticketMatch[0];
+              if (ticketRef.startsWith('o3')) {
                 core.setFailed('Ticket reference must use uppercase O (O3) not lowercase (o3)');
-              } else if (/03-\d+/.test(title)) {
+              } else if (ticketRef.startsWith('03')) {
                 core.setFailed('Ticket reference must use uppercase O (O3) not zero (03)');
-              } else if (!/O3-\d+:/.test(title)) {
-                core.setFailed('Ticket reference must be followed by colon (O3-XXXX:)');
+              } else if (!/:/.test(title.split(ticketRef)[1])) {
+                core.setFailed('Ticket reference must be followed by a colon (O3-1234:)');
               }
-            }
-            
-            // Validate overall structure
-            const validPattern = /^(?:\((docs|test|chore|fix|feat|refactor)\)|(docs|test|chore|fix|feat|refactor):?|(BREAKING):)\s+(?:(O3-\d+):\s+)?[^ ].*$/;
-            if (!validPattern.test(title)) {
-              core.setFailed(`Invalid PR title structure. Valid examples:
-              - (feat) O3-1234: Implement new feature
-              - fix: O3-4567: Resolve issue
-              - chore Update dependencies
-              - BREAKING: O3-7890: Major change
-              - (test) Add unit tests`);
             }
