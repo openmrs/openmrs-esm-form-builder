@@ -224,6 +224,7 @@ const SelectAnswers: React.FC = () => {
           <ConceptSearch
             label={t('searchForAnswerConcept', 'Search for a concept to add as an answer')}
             onSelectConcept={handleSelectAdditionalAnswer}
+            clearSearchAfterSelection={true}
           />
           {addedAnswers.length > 0 && (
             <DndContext onDragEnd={handleAdditionalDragEnd}>
