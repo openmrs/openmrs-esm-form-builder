@@ -78,14 +78,6 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     });
   }, [schema, onSchemaChange]);
 
-  const launchAddFormComponentModal = useCallback(() => {
-    const dispose = showModal('add-form-component-modal', {
-      closeModal: () => dispose(),
-      schema,
-      onSchemaChange,
-    });
-  }, [schema, onSchemaChange]);
-
   const launchDeletePageModal = useCallback(
     (pageIndex: number) => {
       const dipose = showModal('delete-page-modal', {
@@ -131,6 +123,18 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         closeModal: () => dispose(),
         pageIndex,
         sectionIndex,
+        schema,
+        onSchemaChange,
+      });
+    },
+    [onSchemaChange, schema],
+  );
+
+  const launchAddFormReferenceModal = useCallback(
+    (pageIndex: number) => {
+      const dispose = showModal('add-form-reference-modal', {
+        closeModal: () => dispose(),
+        pageIndex,
         schema,
         onSchemaChange,
       });
@@ -446,6 +450,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                   label={t('editSection', 'Edit Section')}
                                   onClick={() => launchEditSectionModal(pageIndex, sectionIndex)}
                                   size="md"
+                                  disabled={!!section.reference}
                                 >
                                   <Edit />
                                 </IconButton>
@@ -498,6 +503,13 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                     </Droppable>
                                   );
                                 })
+                              ) : section.reference ? (
+                                <p className={styles.explainer}>
+                                  {t(
+                                    'sectionReferenceExplainer',
+                                    'This section is a reference to another form. Modify the referenced form to add questions to this section.',
+                                  )}
+                                </p>
                               ) : (
                                 <p className={styles.explainer}>
                                   {t(
@@ -515,6 +527,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                   launchAddQuestionModal(pageIndex, sectionIndex);
                                 }}
                                 iconDescription={t('addQuestion', 'Add Question')}
+                                disabled={!!section.reference}
                               >
                                 {t('addQuestion', 'Add Question')}
                               </Button>
@@ -547,10 +560,12 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                   className={styles.addSectionButton}
                   kind="ghost"
                   renderIcon={Add}
-                  onClick={launchAddFormComponentModal}
-                  iconDescription={t('addComponent', 'Add a Component')}
+                  onClick={() => {
+                    launchAddFormReferenceModal(pageIndex);
+                  }}
+                  iconDescription={t('addReference', 'Add Reference')}
                 >
-                  {t('addComponent', 'Add a Component')}
+                  {t('addReference', 'Add Reference')}
                 </Button>
               </div>
             ))

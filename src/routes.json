@@ -28,10 +28,6 @@
       "component": "newFormModal"
     },
     {
-      "name": "add-form-component-modal",
-      "component": "addFormComponentModal"
-    },
-    {
       "name": "new-page-modal",
       "component": "newPageModal"
     },
@@ -46,6 +42,10 @@
     {
       "name": "delete-section-modal",
       "component": "deleteSectionModal"
+    },
+    {
+      "name": "add-form-reference-modal",
+      "component": "addFormReferenceModal"
     },
     {
       "name": "question-modal",

@@ -27,11 +27,6 @@ export const newPageModal = getAsyncLifecycle(
   options,
 );
 
-export const addFormComponentModal = getAsyncLifecycle(
-  () => import('./components/interactive-builder/modals/add-form-component/add-form-component.modal'),
-  options,
-);
-
 export const deletePageModal = getAsyncLifecycle(
   () => import('./components/interactive-builder/modals/delete-page/delete-page.modal'),
   options,
@@ -44,6 +39,11 @@ export const newSectionModal = getAsyncLifecycle(
 
 export const deleteSectionModal = getAsyncLifecycle(
   () => import('./components/interactive-builder/modals/delete-section/delete-section.modal'),
+  options,
+);
+
+export const addFormReferenceModal = getAsyncLifecycle(
+  () => import('./components/interactive-builder/modals/add-form-reference/add-form-reference.modal'),
   options,
 );
 
