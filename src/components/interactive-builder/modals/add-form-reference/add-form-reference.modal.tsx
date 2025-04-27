@@ -85,11 +85,18 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
 
   const updateSchema = () => {
     try {
-      if (!schema.referencedForms.some((form) => form.formName === selectedForm.name)) {
-        schema.referencedForms.push({
-          formName: selectedForm.name,
-          alias: selectedForm.name,
-        });
+      if (!schema.referencedForms?.some((form) => form.formName === selectedForm.name)) {
+        schema.referencedForms
+          ? schema.referencedForms.push({
+              formName: selectedForm.name,
+              alias: selectedForm.name,
+            })
+          : (schema.referencedForms = [
+              {
+                formName: selectedForm.name,
+                alias: selectedForm.name,
+              },
+            ]);
       }
       schema.pages[pageIndex].sections.push({
         label: `${selectedSection.label} (This section is added from ${selectedForm.name})`,
