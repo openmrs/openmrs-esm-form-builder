@@ -109,11 +109,11 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
         }
       }
     }
-    if((newRenderingType== null || newRenderingType == 'markdown') && formField.required) {
-      delete formField.required;
+    if((newRenderingType== null || newRenderingType == 'markdown') && prevFormField.required) {
+      delete prevFormField.required;
     }
       return prevFormField;
-  },[formField]);
+  },[]);
 
   const removeQuestionTypeSubProperties = useCallback((prevFormField: FormField, newQuestionType) : FormField=> {
     if(newQuestionType==null || questionComponentMap[newQuestionType]==null || (questionComponentMap[newQuestionType]!=questionComponentMap[prevFormField.type])) {
