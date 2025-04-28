@@ -7,12 +7,21 @@ import RequiredLabel from '../common/required-label/required-label.component';
 import { useFormField } from '../../form-field-context';
 import type { FormField, RenderType } from '@openmrs/esm-form-engine-lib';
 import { questionTypes, renderTypeOptions, renderingTypes } from '@constants';
+import type { QuestionType } from '@types';
 import styles from './question.scss';
 import { Date, Markdown, Number, SelectAnswers, Text, TextArea, Toggle, UiSelectExtended } from '../rendering-types/inputs';
+import { ObsTypeQuestion, ProgramStateTypeQuestion, PatientIdentifierTypeQuestion } from '../question-types/inputs';
 
 interface QuestionProps {
   checkIfQuestionIdExists: (idToTest: string) => boolean;
 }
+
+const questionComponentMap: Partial<Record<QuestionType, React.FC>> = {
+  obs: ObsTypeQuestion,
+  programState: ProgramStateTypeQuestion,
+  patientIdentifier: PatientIdentifierTypeQuestion,
+  obsGroup: ObsTypeQuestion,
+};
 
 const renderComponentMap: Partial<Record<RenderType, React.FC>> = {
   number: Number,
@@ -62,7 +71,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
   );
 
   const removeRenderingTypeSubProperties = useCallback((prevFormField: FormField,newRenderingType) : FormField=> {
-    if(newRenderingType==null || (renderComponentMap[newRenderingType]!=renderComponentMap[prevFormField.questionOptions.rendering])) {
+    if(newRenderingType==null || renderComponentMap[newRenderingType]==null || (renderComponentMap[newRenderingType]!=renderComponentMap[prevFormField.questionOptions.rendering])) {
       switch(renderComponentMap[prevFormField.questionOptions.rendering]) {
         case Number: { 
           (prevFormField.questionOptions?.min!=null)?(delete prevFormField.questionOptions.min):null;
@@ -100,6 +109,32 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
         }
       }
     }
+    if((newRenderingType== null || newRenderingType == 'markdown') && formField.required) {
+      delete formField.required;
+    }
+      return prevFormField;
+  },[formField]);
+
+  const removeQuestionTypeSubProperties = useCallback((prevFormField: FormField, newQuestionType) : FormField=> {
+    if(newQuestionType==null || questionComponentMap[newQuestionType]==null || (questionComponentMap[newQuestionType]!=questionComponentMap[prevFormField.type])) {
+      switch(questionComponentMap[prevFormField.type]) {
+        case ObsTypeQuestion: { 
+          (prevFormField.questionOptions?.concept!=null)?(delete prevFormField.questionOptions.concept):null;
+          (prevFormField.datePickerFormat!=null)?(delete prevFormField.datePickerFormat):null;
+          break;
+        }
+        case ProgramStateTypeQuestion: {
+          (prevFormField.questionOptions?.programUuid!=null)?(delete prevFormField.questionOptions.programUuid):null;
+          (prevFormField.questionOptions?.workflowUuid!=null)?(delete prevFormField.questionOptions.workflowUuid):null;
+          (prevFormField.questionOptions?.answers!=null)?(delete prevFormField.questionOptions.answers):null;
+          break;
+        }
+        case PatientIdentifierTypeQuestion: {
+          (prevFormField.questionOptions?.identifierType!=null)?(delete prevFormField.questionOptions.identifierType):null;
+          break;
+        }
+      }
+    }
       return prevFormField;
   },[]);
   
@@ -124,13 +159,14 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
             }
           }
         }
+        prevFormField = removeQuestionTypeSubProperties(prevFormField,newQuestionType);
         return {
           ...prevFormField,
           type: newQuestionType,
         };
       });
     },
-    [setFormField,removeRenderingTypeSubProperties],
+    [setFormField,removeRenderingTypeSubProperties,removeQuestionTypeSubProperties],
   );
 
 const addDefaultRenderingTypeSubProperties = useCallback((prevFormField: FormField, newRenderingType) : FormField=> {
@@ -144,6 +180,9 @@ const addDefaultRenderingTypeSubProperties = useCallback((prevFormField: FormFie
           (!(prevFormField.datePickerFormat!=null))?(prevFormField = {...prevFormField, datePickerFormat: "both" }):null;
           break;
         }
+      }
+      if(renderComponentMap[newRenderingType]!== 'markdown') {
+        prevFormField = {...prevFormField, required: false };
       }
     }
     return prevFormField;
