@@ -151,6 +151,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
               renderTypeOptions[newQuestionType].includes(prevFormField.questionOptions.rendering as RenderType);
             if (!isRenderingTypeValidForQuestionType) {
               prevFormField = removeRenderingTypeSubProperties(prevFormField,null);
+              prevFormField = removeQuestionTypeSubProperties(prevFormField,newQuestionType);
               return {
                 ...prevFormField,
                 questionOptions: { ...prevFormField.questionOptions, rendering: null },
