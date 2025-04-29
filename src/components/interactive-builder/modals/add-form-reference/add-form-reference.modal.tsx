@@ -1,26 +1,26 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Button,
-  Form,
-  InlineLoading,
+  ModalHeader,
   ModalBody,
   ModalFooter,
-  ModalHeader,
-  Dropdown,
-  InlineNotification,
-  Checkbox,
-  CheckboxGroup,
+  Form,
   FormGroup,
+  Stack,
+  InlineLoading,
+  InlineNotification,
+  Dropdown,
+  CheckboxGroup,
+  Checkbox,
   RadioButtonGroup,
   RadioButton,
-  Stack,
+  Button,
 } from '@carbon/react';
 import { type Form as FormType, type Schema, type Page, type Section, type Question } from '@types';
 import { useForms } from '@hooks/useForms';
 import { useClobdata } from '@hooks/useClobdata';
-import styles from './add-form-reference.scss';
 import { showSnackbar } from '@openmrs/esm-framework';
+import styles from './add-form-reference.scss';
 
 interface AddFormReferenceModalProps {
   closeModal: () => void;
@@ -99,7 +99,7 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
             ]);
       }
       schema.pages[pageIndex].sections.push({
-        label: `${selectedSection.label} (This section is added from ${selectedForm.name})`,
+        label: selectedSection.label,
         isExpanded: 'true',
         questions: [],
         reference: {
@@ -136,15 +136,15 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
             {isLoading ? (
               <InlineLoading description={t('loading', 'Loading...')} />
             ) : error ? (
-              <InlineNotification>{t('errorLoadingForms', 'Error loading Forms')}</InlineNotification>
+              <InlineNotification>{t('errorLoadingForms', 'Error loading forms')}</InlineNotification>
             ) : forms.length === 0 ? (
-              <InlineNotification>{t('noFormsAvailable', 'No Forms Available')}</InlineNotification>
+              <InlineNotification>{t('noFormsAvailable', 'No forms available')}</InlineNotification>
             ) : (
               <FormGroup>
                 <Dropdown
-                  titleText={t('selectForm', 'Select Form')}
+                  titleText={t('selectForm', 'Select form')}
                   id="form-component-dropdown"
-                  label={t('selectForm', 'Select Form')}
+                  label={t('selectForm', 'Select form')}
                   items={forms.map((form) => ({
                     uuid: form.uuid,
                     name: form.name,
@@ -158,14 +158,14 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
             {isLoadingClobdata ? (
               <InlineLoading description={t('loading', 'Loading...')} />
             ) : clobdataError ? (
-              <InlineNotification>{t('errorLoadingForm', 'Error loading Form')}</InlineNotification>
+              <InlineNotification>{t('errorLoadingForm', 'Error loading form')}</InlineNotification>
             ) : pages && pages.length > 0 ? (
               <>
                 <FormGroup>
                   <Dropdown
                     titleText={`${selectedForm.name} ${t('pages', 'Pages')}:`}
                     id="form-Pages-dropdown"
-                    label={t('Page', 'Select Page')}
+                    label={t('Page', 'Select page')}
                     items={pages.map((page) => ({
                       label: page.label,
                       sections: page.sections,
@@ -196,7 +196,7 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
             ) : null}
             {selectedSection ? (
               <FormGroup>
-                <CheckboxGroup legendText={t('selectQuestions', 'Select Questions')}>
+                <CheckboxGroup legendText={t('selectQuestions', 'Select questions')}>
                   {selectedSection.questions.map((question) => (
                     <Checkbox
                       labelText={question.label || question.id}
