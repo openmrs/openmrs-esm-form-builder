@@ -176,7 +176,7 @@ const SelectAnswers: React.FC = () => {
       {answerItems.length > 0 && (
         <MultiSelect
           className={styles.multiSelect}
-          direction="top"
+          direction="bottom"
           id="selectAnswers"
           items={answerItems}
           itemToString={convertAnswerItemsToString}
@@ -218,6 +218,7 @@ const SelectAnswers: React.FC = () => {
           <ConceptSearch
             label={t('searchForAnswerConcept', 'Search for a concept to add as an answer')}
             onSelectConcept={handleSelectAdditionalAnswer}
+            clearSearchAfterSelection={true}
           />
           {addedAnswers.length > 0 ? (
             <div>
