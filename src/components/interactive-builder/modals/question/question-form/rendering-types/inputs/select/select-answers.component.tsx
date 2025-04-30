@@ -138,21 +138,15 @@ const SelectAnswers: React.FC = () => {
       return;
     }
 
-    const originalAnswersMap = new Map((concept?.answers || []).map((ans) => [ans.uuid, ans.display]));
-
+    const originalAnswerIds = new Set((concept?.answers || []).map((ans) => ans.uuid));
     const invalidIds: string[] = [];
     const uniqueAnswers = Array.from(new Map(answerItems.map((a) => [a.id, a])).values());
 
     for (const answer of uniqueAnswers) {
-      if (originalAnswersMap.has(answer.id)) {
-        const expectedName = originalAnswersMap.get(answer.id);
-        if (answer.text !== expectedName) {
-          invalidIds.push(answer.id);
-        }
-      } else {
+      if (!originalAnswerIds.has(answer.id)) {
         try {
           const res = await fetchConceptById(answer.id);
-          if (!(res?.data?.uuid === answer.id && res?.data?.display === answer.text)) {
+          if (!(res?.data?.uuid === answer.id)) {
             invalidIds.push(answer.id);
           }
         } catch (error) {
@@ -160,6 +154,7 @@ const SelectAnswers: React.FC = () => {
         }
       }
     }
+
     setInvalidAnswerIds(invalidIds);
   }, [answerItems, concept]);
 
