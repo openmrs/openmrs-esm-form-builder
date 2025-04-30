@@ -248,7 +248,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         const questionToDuplicate: Question = JSON.parse(JSON.stringify(question));
         questionToDuplicate.id = questionToDuplicate.id + 'Duplicate';
 
-        if (questionId) {
+        if (Number.isInteger(questionId)) {
           schema.pages[pageId].sections[sectionId].questions[questionId].questions.push(questionToDuplicate);
         } else {
           schema.pages[pageId].sections[sectionId].questions.push(questionToDuplicate);
