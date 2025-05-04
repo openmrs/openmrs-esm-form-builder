@@ -99,3 +99,15 @@
     opacity: 0.4;
   }
 }
+
+.copyButton {
+  background-color: transparent;
+
+  &:hover {
+    background-color: colors.$gray-20-hover;
+  }
+
+  &:active {
+    background-color: colors.$gray-40; 
+  }
+}

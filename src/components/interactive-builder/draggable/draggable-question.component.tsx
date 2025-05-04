@@ -137,7 +137,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
         <div className={styles.buttonsContainer}>
           <CopyButton
             align="top"
-            className="cds--btn--sm"
+            className={styles.copyButton}
             feedback={t('duplicated', 'Duplicated') + '!'}
             iconDescription={t('duplicateQuestion', 'Duplicate question')}
             kind="ghost"
