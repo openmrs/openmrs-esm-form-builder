@@ -1,9 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Tag, MultiSelect, Stack } from '@carbon/react';
+
+import { DndContext, type DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
-import ConceptSearch from '../../../common/concept-search/concept-search.component';
+
+import { MultiSelect, Stack } from '@carbon/react';
+
 import { useFormField } from '../../../../form-field-context';
+import ConceptSearch from '../../../common/concept-search/concept-search.component';
+import { SortableTag } from '../../../common/sortable-tag/sortable-tag.component';
+
 import type { Concept } from '@types';
+
 import styles from './select-answers.scss';
 
 interface AnswerItem {
@@ -22,14 +30,18 @@ const SelectAnswers: React.FC = () => {
     }
   }, [concept]);
 
-  const selectedAnswers = useMemo(
-    () =>
+  const selectedAnswers = useMemo(() => {
+    const allAnswers =
       formField.questionOptions?.answers?.map((answer) => ({
         id: answer.concept,
         text: answer.label,
-      })) ?? [],
-    [formField.questionOptions?.answers],
-  );
+      })) ?? [];
+
+    if (addedAnswers.length === 0) return allAnswers;
+
+    const addedIds = new Set(addedAnswers.map((a) => a.id));
+    return allAnswers.filter((answer) => !addedIds.has(answer.id));
+  }, [formField.questionOptions?.answers, addedAnswers]);
 
   const handleSelectAnswers = useCallback(
     ({ selectedItems }: { selectedItems: Array<AnswerItem> }) => {
@@ -132,6 +144,53 @@ const SelectAnswers: React.FC = () => {
 
   const convertAnswerItemsToString = useCallback((item: AnswerItem) => item.text, []);
 
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over) return;
+
+      if (active.id !== over.id) {
+        setFormField((prevFormField) => {
+          const currentAnswers = prevFormField.questionOptions?.answers ?? [];
+          const oldIndex = currentAnswers.findIndex((a) => a.concept === active.id);
+          const newIndex = currentAnswers.findIndex((a) => a.concept === over.id);
+          if (oldIndex === -1 || newIndex === -1) return prevFormField;
+
+          const reordered = arrayMove(currentAnswers, oldIndex, newIndex);
+          return {
+            ...prevFormField,
+            questionOptions: {
+              ...prevFormField.questionOptions,
+              answers: reordered,
+            },
+          };
+        });
+      }
+    },
+    [setFormField],
+  );
+
+  /**
+   * Reordering additional answers by drag & drop
+   */
+  const handleAdditionalDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over) return;
+
+      if (active.id !== over.id) {
+        setAddedAnswers((prev) => {
+          const oldIndex = prev.findIndex((ans) => ans.id === active.id);
+          const newIndex = prev.findIndex((ans) => ans.id === over.id);
+          if (oldIndex === -1 || newIndex === -1) return prev;
+          const reordered = arrayMove(prev, oldIndex, newIndex);
+          return reordered;
+        });
+      }
+    },
+    [setAddedAnswers],
+  );
+
   return (
     <Stack gap={5}>
       {answerItems.length > 0 && (
@@ -149,13 +208,15 @@ const SelectAnswers: React.FC = () => {
       )}
 
       {selectedAnswers.length > 0 && (
-        <div>
-          {selectedAnswers.map((answer) => (
-            <Tag className={styles.tag} key={answer.id} type={'blue'}>
-              {answer.text}
-            </Tag>
-          ))}
-        </div>
+        <DndContext onDragEnd={handleDragEnd}>
+          <SortableContext items={selectedAnswers} strategy={verticalListSortingStrategy}>
+            <div>
+              {selectedAnswers.map((answer) => (
+                <SortableTag key={answer.id} id={answer.id} text={answer.text} />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       {concept && concept.datatype?.name === 'Coded' && (
@@ -165,21 +226,22 @@ const SelectAnswers: React.FC = () => {
             onSelectConcept={handleSelectAdditionalAnswer}
             clearSearchAfterSelection={true}
           />
-          {addedAnswers.length > 0 ? (
-            <div>
-              {addedAnswers.map((answer) => (
-                <Tag className={styles.tag} key={answer.id} type={'blue'}>
-                  {answer.text}
-                  <button
-                    className={styles.conceptAnswerButton}
-                    onClick={() => handleDeleteAdditionalAnswer(answer.id)}
-                  >
-                    X
-                  </button>
-                </Tag>
-              ))}
-            </div>
-          ) : null}{' '}
+          {addedAnswers.length > 0 && (
+            <DndContext onDragEnd={handleAdditionalDragEnd}>
+              <SortableContext items={addedAnswers} strategy={verticalListSortingStrategy}>
+                <div>
+                  {addedAnswers.map((answer) => (
+                    <SortableTag
+                      key={answer.id}
+                      id={answer.id}
+                      text={answer.text}
+                      onDelete={() => handleDeleteAdditionalAnswer(answer.id)}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          )}
         </>
       )}
     </Stack>
