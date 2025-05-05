@@ -140,7 +140,7 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
             ) : forms.length === 0 ? (
               <InlineNotification>{t('noFormsAvailable', 'No forms available')}</InlineNotification>
             ) : (
-              <FormGroup>
+              <FormGroup legendText={''}>
                 <Dropdown
                   titleText={t('selectForm', 'Select form')}
                   id="form-component-dropdown"
@@ -161,7 +161,7 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
               <InlineNotification>{t('errorLoadingForm', 'Error loading form')}</InlineNotification>
             ) : pages && pages.length > 0 ? (
               <>
-                <FormGroup>
+                <FormGroup legendText={''}>
                   <Dropdown
                     titleText={`${selectedForm.name} ${t('pages', 'Pages')}:`}
                     id="form-Pages-dropdown"
@@ -176,13 +176,11 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
                   />
                 </FormGroup>
                 {selectedPage ? (
-                  <FormGroup>
-                    <RadioButtonGroup
-                      legendText={`${selectedPage.label} ${t('sections', 'Sections')}:`}
-                      orientation="vertical"
-                    >
+                  <FormGroup legendText={`${selectedPage.label} ${t('sections', 'Sections')}:`}>
+                    <RadioButtonGroup orientation="vertical" name="radio-button-group">
                       {selectedPage.sections.map((section) => (
                         <RadioButton
+                          key={`${selectedPage.label}-${section.label}`}
                           labelText={section.label}
                           id={`${selectedPage.label}-${section.label}`}
                           value={section.label}
@@ -195,14 +193,14 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
               </>
             ) : null}
             {selectedSection ? (
-              <FormGroup>
-                <CheckboxGroup legendText={t('selectQuestions', 'Select questions')}>
+              <FormGroup legendText={t('selectQuestions', 'Select questions')}>
+                <CheckboxGroup legendText={''}>
                   {selectedSection.questions.map((question) => (
                     <Checkbox
+                      key={question.id}
                       labelText={question.label || question.id}
                       id={`${selectedSection.label}-${question.id}`}
                       value={question.id}
-                      defaultChecked={true}
                       checked={!excludedQuestions.includes(question.id)}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>, { checked }) =>
                         handleExcludedQuestions(question, checked)
