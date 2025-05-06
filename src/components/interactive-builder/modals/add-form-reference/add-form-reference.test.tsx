@@ -156,182 +156,183 @@ describe('AddFormReferenceModal', () => {
 
     expect(screen.getByText(/No forms available/i)).toBeInTheDocument();
   });
-});
 
-it('renders a dropdown with the list of forms', async () => {
-  const user = userEvent.setup();
+  it('renders a dropdown with the list of forms', async () => {
+    const user = userEvent.setup();
 
-  renderAddFormReferenceModal();
+    renderAddFormReferenceModal();
 
-  await waitFor(() => {
-    expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
+    });
+
+    const dropdown = screen.getByRole('combobox', { name: /select form/i });
+    expect(dropdown).toBeInTheDocument();
+
+    user.click(dropdown);
+    expect(await screen.findByText(/Adult HIV Return Visit Form/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Covid 19/i)).toBeInTheDocument();
   });
 
-  const dropdown = screen.getByRole('combobox', { name: /select form/i });
-  expect(dropdown).toBeInTheDocument();
+  it('renders a dropdown with the list of pages', async () => {
+    const user = userEvent.setup();
+    renderAddFormReferenceModal();
+    await waitFor(() => {
+      expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('combobox', { name: /select form/i }));
+    await user.click(await screen.findByText(/Adult HIV Return Visit Form/i));
+    await waitFor(() => {
+      expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
+    });
 
-  user.click(dropdown);
-  expect(await screen.findByText(/Adult HIV Return Visit Form/i)).toBeInTheDocument();
-  expect(await screen.findByText(/Covid 19/i)).toBeInTheDocument();
-});
+    const pageDropdown = screen.getByRole('combobox', { name: /Adult HIV Return Visit Form Pages:/i });
+    expect(pageDropdown).toBeInTheDocument();
 
-it('renders a dropdown with the list of pages', async () => {
-  const user = userEvent.setup();
-  renderAddFormReferenceModal();
-  await waitFor(() => {
-    expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
-  });
-  await user.click(screen.getByRole('combobox', { name: /select form/i }));
-  await user.click(await screen.findByText(/Adult HIV Return Visit Form/i));
-  await waitFor(() => {
-    expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
-  });
-
-  const pageDropdown = screen.getByRole('combobox', { name: /Adult HIV Return Visit Form Pages:/i });
-  expect(pageDropdown).toBeInTheDocument();
-
-  user.click(pageDropdown);
-  expect(await screen.findByText(/Encounter Details/i)).toBeInTheDocument();
-  expect(await screen.findByText(/Pre-Clinic Review/i)).toBeInTheDocument();
-});
-
-it('renders a dropdown with the list of sections', async () => {
-  const user = userEvent.setup();
-  renderAddFormReferenceModal();
-  await waitFor(() => {
-    expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
-  });
-  await user.click(screen.getByRole('combobox', { name: /select form/i }));
-  await user.click(await screen.findByText(/Adult HIV Return Visit Form/i));
-  await waitFor(() => {
-    expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
-  });
-  await user.click(screen.getByRole('combobox', { name: /Adult HIV Return Visit Form Pages:/i }));
-  await user.click(await screen.findByText(/Encounter Details/i));
-
-  const sectionRadioGroup = screen.getByRole('group', { name: /Encounter Details Sections:/i });
-  expect(sectionRadioGroup).toBeInTheDocument();
-
-  expect(await screen.findByLabelText(/Encounter Details/i)).toBeInTheDocument();
-  expect(await screen.findByLabelText(/Patient Details/i)).toBeInTheDocument();
-});
-
-it('renders a checkbox for each question in the selected section', async () => {
-  const user = userEvent.setup();
-  renderAddFormReferenceModal();
-  await waitFor(() => {
-    expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
-  });
-  await user.click(screen.getByRole('combobox', { name: /select form/i }));
-  await user.click(await screen.findByText(/Adult HIV Return Visit Form/i));
-  await waitFor(() => {
-    expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
-  });
-  await user.click(screen.getByRole('combobox', { name: /Adult HIV Return Visit Form Pages:/i }));
-  await user.click(await screen.findByText(/Encounter Details/i));
-  await user.click(screen.getByLabelText(/Encounter Details/i));
-
-  const questionCheckboxGroup = screen.getByRole('group', { name: /Select questions/i });
-  expect(questionCheckboxGroup).toBeInTheDocument();
-
-  const visitDateCheckbox = await screen.findByLabelText(/Visit date:/i);
-  expect(visitDateCheckbox).toBeInTheDocument();
-  expect(visitDateCheckbox).toBeChecked();
-
-  const providerCheckbox = await screen.findByLabelText(/Provider:/i);
-  expect(providerCheckbox).toBeInTheDocument();
-  expect(providerCheckbox).toBeChecked();
-});
-
-it('renders a disabled add when no form/page/section or all questions are unchecked', async () => {
-  const user = userEvent.setup();
-  renderAddFormReferenceModal();
-
-  await waitFor(() => {
-    expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
+    user.click(pageDropdown);
+    expect(await screen.findByText(/Encounter Details/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Pre-Clinic Review/i)).toBeInTheDocument();
   });
 
-  const addButton = screen.getByRole('button', { name: /add/i });
-  expect(addButton).toBeDisabled();
+  it('renders a dropdown with the list of sections', async () => {
+    const user = userEvent.setup();
+    renderAddFormReferenceModal();
+    await waitFor(() => {
+      expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('combobox', { name: /select form/i }));
+    await user.click(await screen.findByText(/Adult HIV Return Visit Form/i));
+    await waitFor(() => {
+      expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('combobox', { name: /Adult HIV Return Visit Form Pages:/i }));
+    await user.click(await screen.findByText(/Encounter Details/i));
 
-  await user.click(screen.getByRole('combobox', { name: /select form/i }));
-  await user.click(await screen.findByText(/Adult HIV Return Visit Form/i));
+    const sectionRadioGroup = screen.getByRole('group', { name: /Encounter Details Sections:/i });
+    expect(sectionRadioGroup).toBeInTheDocument();
 
-  expect(addButton).toBeDisabled();
-
-  await user.click(screen.getByRole('combobox', { name: /Adult HIV Return Visit Form Pages:/i }));
-  await user.click(await screen.findByText(/Encounter Details/i));
-
-  expect(addButton).toBeDisabled();
-
-  await user.click(screen.getByLabelText(/Encounter Details/i));
-
-  expect(addButton).toBeEnabled();
-
-  const visitDateCheckbox = await screen.findByLabelText(/Visit date:/i);
-  const providerCheckbox = await screen.findByLabelText(/Provider:/i);
-
-  await user.click(visitDateCheckbox);
-  await user.click(providerCheckbox);
-  expect(addButton).toBeDisabled();
-
-  await user.click(visitDateCheckbox);
-  expect(addButton).toBeEnabled();
-});
-
-it('calls onSchemaChange when add button is clicked', async () => {
-  const user = userEvent.setup();
-  renderAddFormReferenceModal();
-
-  await waitFor(() => {
-    expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
+    expect(await screen.findByLabelText(/Encounter Details/i)).toBeInTheDocument();
+    expect(await screen.findByLabelText(/Patient Details/i)).toBeInTheDocument();
   });
 
-  await user.click(screen.getByRole('combobox', { name: /select form/i }));
-  await user.click(await screen.findByText(/Adult HIV Return Visit Form/i));
-  await waitFor(() => {
-    expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
+  it('renders a checkbox for each question in the selected section', async () => {
+    const user = userEvent.setup();
+    renderAddFormReferenceModal();
+    await waitFor(() => {
+      expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('combobox', { name: /select form/i }));
+    await user.click(await screen.findByText(/Adult HIV Return Visit Form/i));
+    await waitFor(() => {
+      expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('combobox', { name: /Adult HIV Return Visit Form Pages:/i }));
+    await user.click(await screen.findByText(/Encounter Details/i));
+    await user.click(screen.getByLabelText(/Encounter Details/i));
+
+    const questionCheckboxGroup = screen.getByRole('group', { name: /Select questions/i });
+    expect(questionCheckboxGroup).toBeInTheDocument();
+
+    const visitDateCheckbox = await screen.findByLabelText(/Visit date:/i);
+    expect(visitDateCheckbox).toBeInTheDocument();
+    expect(visitDateCheckbox).toBeChecked();
+
+    const providerCheckbox = await screen.findByLabelText(/Provider:/i);
+    expect(providerCheckbox).toBeInTheDocument();
+    expect(providerCheckbox).toBeChecked();
   });
-  await user.click(screen.getByRole('combobox', { name: /Adult HIV Return Visit Form Pages:/i }));
-  await user.click(await screen.findByText(/Encounter Details/i));
-  await user.click(screen.getByLabelText(/Patient Details/i));
 
-  await waitFor(() => {
-    expect(screen.getByRole('group', { name: /Select questions/i })).toBeInTheDocument();
+  it('renders a disabled add when no form/page/section or all questions are unchecked', async () => {
+    const user = userEvent.setup();
+    renderAddFormReferenceModal();
+
+    await waitFor(() => {
+      expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
+    });
+
+    const addButton = screen.getByRole('button', { name: /add/i });
+    expect(addButton).toBeDisabled();
+
+    await user.click(screen.getByRole('combobox', { name: /select form/i }));
+    await user.click(await screen.findByText(/Adult HIV Return Visit Form/i));
+
+    expect(addButton).toBeDisabled();
+
+    await user.click(screen.getByRole('combobox', { name: /Adult HIV Return Visit Form Pages:/i }));
+    await user.click(await screen.findByText(/Encounter Details/i));
+
+    expect(addButton).toBeDisabled();
+
+    await user.click(screen.getByLabelText(/Encounter Details/i));
+
+    expect(addButton).toBeEnabled();
+
+    const visitDateCheckbox = await screen.findByLabelText(/Visit date:/i);
+    const providerCheckbox = await screen.findByLabelText(/Provider:/i);
+
+    await user.click(visitDateCheckbox);
+    await user.click(providerCheckbox);
+    expect(addButton).toBeDisabled();
+
+    await user.click(visitDateCheckbox);
+    expect(addButton).toBeEnabled();
   });
-  const addButton = screen.getByRole('button', { name: /add/i });
-  expect(addButton).toBeEnabled();
 
-  await user.click(addButton);
+  it('calls onSchemaChange when add button is clicked', async () => {
+    const user = userEvent.setup();
+    renderAddFormReferenceModal();
 
-  expect(mockedOnSchemaChange).toHaveBeenCalledWith({
-    encounterType: '',
-    name: 'Sample Form',
-    processor: 'EncounterFormProcessor',
-    referencedForms: [{ formName: 'Adult HIV Return Visit Form', alias: 'Adult HIV Return Visit Form' }],
-    uuid: '',
-    version: '1.0',
-    pages: [
-      {
-        label: 'Test Page',
-        sections: [
-          {
-            label: 'Patient Details',
-            isExpanded: 'true',
-            questions: [],
-            reference: {
-              form: 'Adult HIV Return Visit Form',
-              page: 'Encounter Details',
-              section: 'Patient Details',
-              excludeQuestions: [],
+    await waitFor(() => {
+      expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('combobox', { name: /select form/i }));
+    await user.click(await screen.findByText(/Adult HIV Return Visit Form/i));
+    await waitFor(() => {
+      expect(screen.queryByText(/loading.../i)).not.toBeInTheDocument();
+    });
+    await user.click(screen.getByRole('combobox', { name: /Adult HIV Return Visit Form Pages:/i }));
+    await user.click(await screen.findByText(/Encounter Details/i));
+    await user.click(screen.getByLabelText(/Patient Details/i));
+
+    await waitFor(() => {
+      expect(screen.getByRole('group', { name: /Select questions/i })).toBeInTheDocument();
+    });
+    const addButton = screen.getByRole('button', { name: /add/i });
+    expect(addButton).toBeEnabled();
+
+    await user.click(addButton);
+
+    expect(mockedOnSchemaChange).toHaveBeenCalledWith({
+      encounterType: '',
+      name: 'Sample Form',
+      processor: 'EncounterFormProcessor',
+      referencedForms: [{ formName: 'Adult HIV Return Visit Form', alias: 'Adult HIV Return Visit Form' }],
+      uuid: '',
+      version: '1.0',
+      pages: [
+        {
+          label: 'Test Page',
+          sections: [
+            {
+              label: 'Patient Details',
+              isExpanded: 'true',
+              questions: [],
+              reference: {
+                form: 'Adult HIV Return Visit Form',
+                page: 'Encounter Details',
+                section: 'Patient Details',
+                excludeQuestions: [],
+              },
             },
-          },
-        ],
-      },
-    ],
+          ],
+        },
+      ],
+    });
+    expect(mockedCloseModal).toHaveBeenCalled();
   });
-  expect(mockedCloseModal).toHaveBeenCalled();
 });
+
 const renderAddFormReferenceModal = () => {
   renderWithSwr(
     <AddFormReferenceModal
