@@ -22,14 +22,15 @@ const SelectAnswers: React.FC = () => {
     }
   }, [concept]);
 
-  const selectedAnswers = useMemo(
-    () =>
+  const selectedAnswers = useMemo(() => {
+    const answers =
       formField.questionOptions?.answers?.map((answer) => ({
         id: answer.concept,
         text: answer.label,
-      })) ?? [],
-    [formField.questionOptions?.answers],
-  );
+      })) ?? [];
+    // Filter out any answers that are in addedAnswers
+    return answers.filter((answer) => !addedAnswers.some((added) => added.id === answer.id));
+  }, [formField.questionOptions?.answers, addedAnswers]);
 
   const handleSelectAnswers = useCallback(
     ({ selectedItems }: { selectedItems: Array<AnswerItem> }) => {
