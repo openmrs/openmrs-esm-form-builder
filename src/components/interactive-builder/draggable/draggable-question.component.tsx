@@ -2,8 +2,8 @@ import React, { useCallback, useState } from 'react';
 import classNames from 'classnames';
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
-import { CopyButton, IconButton } from '@carbon/react';
-import { Draggable, Edit, TrashCan } from '@carbon/react/icons';
+import { IconButton } from '@carbon/react';
+import { Draggable, Edit, TrashCan, Copy } from '@carbon/react/icons';
 import { showModal, ChevronDownIcon, ChevronUpIcon } from '@openmrs/esm-framework';
 import MarkdownWrapper from '../markdown-wrapper/markdown-wrapper';
 import type { Question, Schema } from '@types';
@@ -135,14 +135,15 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           </p>
         </div>
         <div className={styles.buttonsContainer}>
-          <CopyButton
-            align="top"
-            className={styles.copyButton}
-            feedback={t('duplicated', 'Duplicated') + '!'}
-            iconDescription={t('duplicateQuestion', 'Duplicate question')}
+          <IconButton
+            enterDelayMs={defaultEnterDelayInMs}
+            label={t('duplicateQuestion', 'Duplicate question')}
             kind="ghost"
             onClick={handleDuplicate}
-          />
+            size="md"
+          >
+            <Copy />
+          </IconButton>
           <IconButton
             enterDelayMs={defaultEnterDelayInMs}
             label={t('editQuestion', 'Edit question')}
