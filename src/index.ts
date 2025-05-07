@@ -67,6 +67,16 @@ export const deleteFormModal = getAsyncLifecycle(
   options,
 );
 
+export const deleteConditionalLogicModal = getAsyncLifecycle(
+  () => import('./components/rule-builder/delete-conditional-logic.modal'),
+  options,
+);
+
+export const deleteConditionsOrActionsModal = getAsyncLifecycle(
+  () => import('./components/rule-builder/delete-conditions-or-actions.modal'),
+  options,
+);
+
 export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
 }

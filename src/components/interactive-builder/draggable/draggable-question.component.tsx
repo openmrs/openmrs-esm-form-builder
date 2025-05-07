@@ -4,32 +4,34 @@ import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
 import { CopyButton, IconButton } from '@carbon/react';
-import { Draggable, Edit, TrashCan } from '@carbon/react/icons';
+import { Draggable, Edit, TrashCan, ColumnDependency } from '@carbon/react/icons';
 import { showModal } from '@openmrs/esm-framework';
 import MarkdownWrapper from '../markdown-wrapper/markdown-wrapper';
 import type { Question, Schema } from '@types';
 import styles from './draggable-question.scss';
 
 interface DraggableQuestionProps {
-  handleDuplicateQuestion: (question: Question, pageId: number, sectionId: number) => void;
-  onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
   question: Question;
   questionCount: number;
   questionIndex: number;
   schema: Schema;
   sectionIndex: number;
+  handleAddLogic: (fieldId: string) => void;
+  handleDuplicateQuestion: (question: Question, pageId: number, sectionId: number) => void;
+  onSchemaChange: (schema: Schema) => void;
 }
 
 const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
-  handleDuplicateQuestion,
-  onSchemaChange,
   pageIndex,
   question,
   questionCount,
   questionIndex,
   schema,
   sectionIndex,
+  handleDuplicateQuestion,
+  onSchemaChange,
+  handleAddLogic,
 }) => {
   const { t } = useTranslation();
   const defaultEnterDelayInMs = 300;
@@ -124,6 +126,15 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           size="md"
         >
           <TrashCan />
+        </IconButton>
+        <IconButton
+          enterDelayMs={defaultEnterDelayInMs}
+          label={t('addConditionalLogic', 'Add conditional logic')}
+          kind="ghost"
+          onClick={() => handleAddLogic(question.id)}
+          size="md"
+        >
+          <ColumnDependency />
         </IconButton>
       </div>
     </div>
