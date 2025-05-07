@@ -223,7 +223,9 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
 const QuestionModal: React.FC<QuestionModalProps> = (props) => {
   return (
     <>
-      <FormFieldProvider initialFormField={props.formField ?? { type: 'control', questionOptions: undefined, id: '' }}>
+      <FormFieldProvider
+        initialFormField={props.formField ?? { type: 'control', questionOptions: { rendering: 'text' }, id: '' }}
+      >
         <QuestionModalContent {...props} />
       </FormFieldProvider>
     </>

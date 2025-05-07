@@ -87,6 +87,24 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
 
   return (
     <>
+      {formField.questionOptions && formField.questionOptions.rendering !== 'markdown' && (
+        <TextInput
+          id="questionLabel"
+          labelText={
+            <RequiredLabel
+              isRequired={formField?.required && formField?.required === 'true' ? true : false}
+              text={t('questionLabel', 'Label')}
+              t={t}
+            />
+          }
+          placeholder={t('labelPlaceholder', 'e.g. Type of Anaesthesia')}
+          value={formField?.label}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+            setFormField({ ...formField, label: event.target.value })
+          }
+          required
+        />
+      )}
       <TextInput
         id="questionId"
         invalid={!!formField?.id && isQuestionIdDuplicate()}
@@ -159,22 +177,6 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
       </Select>
       {formField.questionOptions && formField.questionOptions.rendering !== 'markdown' && (
         <>
-          <TextInput
-            id="questionLabel"
-            labelText={
-              <RequiredLabel
-                isRequired={formField?.required && formField?.required === 'true' ? true : false}
-                text={t('questionLabel', 'Label')}
-                t={t}
-              />
-            }
-            placeholder={t('labelPlaceholder', 'e.g. Type of Anaesthesia')}
-            value={formField?.label}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-              setFormField({ ...formField, label: event.target.value })
-            }
-            required
-          />
           <RadioButtonGroup
             name="isQuestionRequired"
             legendText={t(
