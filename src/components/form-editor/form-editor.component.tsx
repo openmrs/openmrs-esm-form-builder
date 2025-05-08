@@ -124,7 +124,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
     setStringifiedSchema(JSON.stringify(schema, null, 2));
   }, [schema]);
 
-  const updateSchema = useCallback((updatedSchema: Schema) => {
+  const updateSchema = useCallback((updatedSchema: FormSchema) => {
     setSchema(updatedSchema);
     localStorage.setItem('formJSON', JSON.stringify(updatedSchema));
   }, []);
@@ -184,17 +184,14 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                       {
                         concept: 'another-system-defined-concept-uuid',
                         label: 'Choice 1',
-                        conceptMappings: [],
                       },
                       {
                         concept: 'yet-another-system-defined-concept-uuid',
                         label: 'Choice 2',
-                        conceptMappings: [],
                       },
                       {
                         concept: 'yet-one-more-system-defined-concept-uuid',
                         label: 'Choice 3',
-                        conceptMappings: [],
                       },
                     ],
                   },
