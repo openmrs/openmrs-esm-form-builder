@@ -176,8 +176,12 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
                   />
                 </FormGroup>
                 {selectedPage ? (
-                  <FormGroup legendText={`${selectedPage.label} ${t('sections', 'Sections')}:`}>
-                    <RadioButtonGroup orientation="vertical" name="radio-button-group">
+                  <FormGroup legendText={''}>
+                    <RadioButtonGroup
+                      orientation="vertical"
+                      name="radio-button-group"
+                      legendText={`${selectedPage.label} ${t('sections', 'Sections')}:`}
+                    >
                       {selectedPage.sections.map((section) => (
                         <RadioButton
                           key={`${selectedPage.label}-${section.label}`}
@@ -193,8 +197,8 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
               </>
             ) : null}
             {selectedSection ? (
-              <FormGroup legendText={t('selectQuestions', 'Select questions')}>
-                <CheckboxGroup legendText={''}>
+              <FormGroup legendText={''}>
+                <CheckboxGroup legendText={t('selectQuestions', 'Select questions')}>
                   {selectedSection.questions.map((question) => (
                     <Checkbox
                       key={question.id}
