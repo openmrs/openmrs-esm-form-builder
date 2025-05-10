@@ -40,7 +40,12 @@ const DeleteQuestionModal: React.FC<DeleteQuestionModal> = ({
     });
   };
 
-  const deleteQuestion = (pageIndex: number, sectionIndex: number, questionIndex: number, subQuestionIndex?: number) => {
+  const deleteQuestion = (
+    pageIndex: number,
+    sectionIndex: number,
+    questionIndex: number,
+    subQuestionIndex?: number,
+  ) => {
     try {
       if (subQuestionIndex !== undefined && subQuestionIndex !== null) {
         schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questions?.splice(subQuestionIndex, 1);

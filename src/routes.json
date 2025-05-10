@@ -44,6 +44,10 @@
       "component": "deleteSectionModal"
     },
     {
+      "name": "add-form-reference-modal",
+      "component": "addFormReferenceModal"
+    },
+    {
       "name": "question-modal",
       "component": "questionModal"
     },

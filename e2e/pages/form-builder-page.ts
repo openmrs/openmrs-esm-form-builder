@@ -47,6 +47,11 @@ export class FormBuilderPage {
   readonly editSectionNameInput = () => this.page.locator('#sectionNameInput');
   readonly deleteSectionButton = () => this.page.getByRole('button', { name: /delete section/i });
   readonly sectionCreatedMessage = () => this.page.getByText(/new section created/i);
+  readonly addReferenceButton = () => this.page.getByRole('button', { name: /add reference/i });
+  readonly selectFormDropdown = () => this.page.getByRole('combobox', { name: /Select form/i });
+  readonly selectFormPageDropdown = () => this.page.getByRole('combobox', { name: /pages:$/i });
+  readonly selectQuestionsCheckbox = () => this.page.getByRole('group', { name: /Select questions/i });
+  readonly addButton = () => this.page.getByRole('button', { name: /^add$/i });
   readonly addQuestionButton = () => this.page.getByRole('button', { name: /add question/i });
   readonly editQuestionButton = () => this.page.getByRole('button', { name: /edit question/i });
   readonly duplicateQuestionButton = () => this.page.getByRole('button', { name: /duplicate question/i });

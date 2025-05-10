@@ -112,8 +112,9 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
   const saveQuestion = () => {
     try {
       if (formFieldProp) {
-        if(subQuestionIndex !== undefined && subQuestionIndex !== null) {
-          schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questions[subQuestionIndex] = formField;
+        if (subQuestionIndex !== undefined && subQuestionIndex !== null) {
+          schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questions[subQuestionIndex] =
+            formField;
         } else {
           schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] = formField;
         }

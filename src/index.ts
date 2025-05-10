@@ -42,6 +42,11 @@ export const deleteSectionModal = getAsyncLifecycle(
   options,
 );
 
+export const addFormReferenceModal = getAsyncLifecycle(
+  () => import('./components/interactive-builder/modals/add-form-reference/add-form-reference.modal'),
+  options,
+);
+
 export const questionModal = getAsyncLifecycle(
   () => import('./components/interactive-builder/modals/question/question.modal'),
   options,
