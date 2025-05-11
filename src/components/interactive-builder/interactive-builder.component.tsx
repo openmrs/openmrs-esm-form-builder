@@ -564,6 +564,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                     label={t('editSection', 'Edit Section')}
                                     onClick={() => launchEditSectionModal(pageIndex, sectionIndex)}
                                     size="md"
+                                    disabled={!!section.reference}
                                   >
                                     <Edit />
                                   </IconButton>
@@ -640,6 +641,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                     launchAddQuestionModal(pageIndex, sectionIndex);
                                   }}
                                   iconDescription={t('addQuestion', 'Add Question')}
+                                  disabled={!!section.reference}
                                 >
                                   {t('addQuestion', 'Add Question')}
                                 </Button>
@@ -667,6 +669,17 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                     iconDescription={t('addSection', 'Add Section')}
                   >
                     {t('addSection', 'Add Section')}
+                  </Button>
+                  <Button
+                    className={styles.addSectionButton}
+                    kind="ghost"
+                    renderIcon={Add}
+                    onClick={() => {
+                      launchAddFormReferenceModal(pageIndex);
+                    }}
+                    iconDescription={t('addReference', 'Add Reference')}
+                  >
+                    {t('addReference', 'Add Reference')}
                   </Button>
                 </div>
               ))
