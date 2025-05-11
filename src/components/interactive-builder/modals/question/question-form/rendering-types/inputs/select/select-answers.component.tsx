@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Tag, MultiSelect, Stack } from '@carbon/react';
+import { Tag, MultiSelect, Stack, InlineNotification } from '@carbon/react';
+import { WarningAltFilled } from '@carbon/react/icons';
 import { useTranslation } from 'react-i18next';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
 import { useFormField } from '../../../../form-field-context';
+import { fetchConceptById } from '@resources/concept.resource';
 import type { Concept } from '@types';
 import styles from './select-answers.scss';
 
@@ -15,6 +17,7 @@ const SelectAnswers: React.FC = () => {
   const { t } = useTranslation();
   const { formField, concept, setFormField } = useFormField();
   const [addedAnswers, setAddedAnswers] = useState<AnswerItem[]>([]);
+  const [invalidAnswerIds, setInvalidAnswerIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (!concept) {
@@ -22,14 +25,15 @@ const SelectAnswers: React.FC = () => {
     }
   }, [concept]);
 
-  const selectedAnswers = useMemo(
-    () =>
+  const selectedAnswers = useMemo(() => {
+    const answers =
       formField.questionOptions?.answers?.map((answer) => ({
         id: answer.concept,
         text: answer.label,
-      })) ?? [],
-    [formField.questionOptions?.answers],
-  );
+      })) ?? [];
+    // Filter out any answers that are in addedAnswers
+    return answers.filter((answer) => !addedAnswers.some((added) => added.id === answer.id));
+  }, [formField.questionOptions?.answers, addedAnswers]);
 
   const handleSelectAnswers = useCallback(
     ({ selectedItems }: { selectedItems: Array<AnswerItem> }) => {
@@ -130,6 +134,38 @@ const SelectAnswers: React.FC = () => {
     return [...answersFromConceptWithLabelsFromFormField, ...additionalAnswers];
   }, [concept?.answers, formField.questionOptions?.answers]);
 
+  const validateAnswers = useCallback(async () => {
+    if (!answerItems.length) {
+      setInvalidAnswerIds([]);
+      return;
+    }
+
+    const originalAnswerIds = new Set((concept?.answers || []).map((ans) => ans.uuid));
+    const invalidIds: string[] = [];
+    const uniqueAnswers = Array.from(new Map(answerItems.map((a) => [a.id, a])).values());
+
+    for (const answer of uniqueAnswers) {
+      if (!originalAnswerIds.has(answer.id)) {
+        try {
+          const res = await fetchConceptById(answer.id);
+          if (!(res?.data?.uuid === answer.id)) {
+            invalidIds.push(answer.id);
+          }
+        } catch (error) {
+          invalidIds.push(answer.id);
+        }
+      }
+    }
+
+    setInvalidAnswerIds(invalidIds);
+  }, [answerItems, concept]);
+
+  useEffect(() => {
+    if (concept?.answers?.length) {
+      validateAnswers();
+    }
+  }, [answerItems, concept, validateAnswers]);
+
   const convertAnswerItemsToString = useCallback((item: AnswerItem) => item.text, []);
 
   return (
@@ -151,11 +187,27 @@ const SelectAnswers: React.FC = () => {
       {selectedAnswers.length > 0 && (
         <div>
           {selectedAnswers.map((answer) => (
-            <Tag className={styles.tag} key={answer.id} type={'blue'}>
+            <Tag
+              className={styles.tag}
+              key={answer.id}
+              type={invalidAnswerIds.includes(answer.id) ? 'red' : 'blue'}
+              renderIcon={invalidAnswerIds.includes(answer.id) ? WarningAltFilled : undefined}
+            >
               {answer.text}
             </Tag>
           ))}
         </div>
+      )}
+
+      {/* Display an inline notification if any answer fails validation */}
+      {invalidAnswerIds.length > 0 && (
+        <InlineNotification
+          kind="error"
+          lowContrast
+          className={styles.error}
+          title={t('invalidAnswerConcept', 'Invalid Answer Concept Detected')}
+          subtitle={t('answerConceptValidation', 'One or more selected answer concepts do not exist in the system. ')}
+        />
       )}
 
       {concept && concept.datatype?.name === 'Coded' && (
