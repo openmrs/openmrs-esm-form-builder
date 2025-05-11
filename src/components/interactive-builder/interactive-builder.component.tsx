@@ -624,6 +624,13 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                       </div>
                                     );
                                   })
+                                ) : section.reference ? (
+                                  <p className={styles.explainer}>
+                                    {t(
+                                      'sectionReferenceExplainer',
+                                      'This section is a reference to another form. Modify the referenced form to add questions to this section.',
+                                    )}
+                                  </p>
                                 ) : (
                                   <p className={styles.explainer}>
                                     {t(

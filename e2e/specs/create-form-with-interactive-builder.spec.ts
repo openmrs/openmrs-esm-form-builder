@@ -1,8 +1,15 @@
 import { test } from '../core';
 import { expect } from '@playwright/test';
-import { deleteForm } from '../commands/form-operations';
+import { addFormResources, createForm, createValueReference, deleteForm } from '../commands/form-operations';
 import { FormBuilderPage } from '../pages';
+import { type Form } from '@types';
 
+let form: Form = null;
+test.beforeEach(async ({ api }) => {
+  form = await createForm(api, true);
+  const valueReference = await createValueReference(api);
+  await addFormResources(api, valueReference, form.uuid);
+});
 let formUuid = '';
 const formDetails = {
   name: 'Covid-19 Screening',
@@ -263,5 +270,8 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
 test.afterEach(async ({ api }) => {
   if (formUuid) {
     await deleteForm(api, formUuid);
+  }
+  if (form) {
+    await deleteForm(api, form.uuid);
   }
 });
