@@ -27,6 +27,8 @@ interface AddFormReferenceModalProps {
   pageIndex: number;
   schema: Schema;
   onSchemaChange: (schema: Schema) => void;
+  mode?: string;
+  sectionIndex?: number;
 }
 
 const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
@@ -34,6 +36,8 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
   pageIndex,
   schema,
   onSchemaChange,
+  mode,
+  sectionIndex,
 }) => {
   const { t } = useTranslation();
   const [selectedForm, setSelectedForm] = useState<FormType>(null);
@@ -85,6 +89,17 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
 
   const updateSchema = () => {
     try {
+      if (mode === 'edit' && sectionIndex !== undefined) {
+        schema.pages[pageIndex].sections[sectionIndex].reference.excludeQuestions = excludedQuestions;
+        onSchemaChange({ ...schema });
+        showSnackbar({
+          title: t('success', 'Success!'),
+          kind: 'success',
+          isLowContrast: true,
+          subtitle: t('questionsUpdated', 'Questions updated'),
+        });
+        return;
+      }
       if (!schema.referencedForms?.some((form) => form.formName === selectedForm.name)) {
         schema.referencedForms
           ? schema.referencedForms.push({
@@ -126,6 +141,32 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
       }
     }
   };
+  useEffect(() => {
+    if (mode !== 'edit' || sectionIndex === undefined || !forms) return;
+
+    const sectionRef = schema.pages[pageIndex].sections[sectionIndex].reference;
+    const form = forms.find((f) => f.name === sectionRef.form);
+    if (form) {
+      setSelectedForm(form);
+    }
+  }, [mode, sectionIndex, forms, schema, pageIndex]);
+
+  useEffect(() => {
+    if (mode !== 'edit' || !selectedForm || !clobdata || sectionIndex === undefined) return;
+
+    const sectionRef = schema.pages[pageIndex].sections[sectionIndex].reference;
+
+    const page = clobdata.pages.find((p) => p.label === sectionRef.page);
+    if (page) {
+      setSelectedPage(page);
+
+      const section = page.sections.find((s) => s.label === sectionRef.section);
+      if (section) {
+        setSelectedSection(section);
+      }
+      setExcludedQuestions(sectionRef.excludeQuestions);
+    }
+  }, [mode, selectedForm, clobdata, schema, pageIndex, sectionIndex]);
 
   return (
     <>
@@ -139,8 +180,8 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
               <InlineNotification>{t('errorLoadingForms', 'Error loading forms')}</InlineNotification>
             ) : forms.length === 0 ? (
               <InlineNotification>{t('noFormsAvailable', 'No forms available')}</InlineNotification>
-            ) : (
-              <FormGroup legendText={''}>
+            ) : !mode ? (
+              <FormGroup legendText={''} display={mode === 'edit' ? 'hidden' : 'inline'}>
                 <Dropdown
                   titleText={t('selectForm', 'Select form')}
                   id="form-component-dropdown"
@@ -154,12 +195,12 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
                   onChange={selectForm}
                 />
               </FormGroup>
-            )}
+            ) : null}
             {isLoadingClobdata ? (
               <InlineLoading description={t('loading', 'Loading...')} />
             ) : clobdataError ? (
               <InlineNotification>{t('errorLoadingForm', 'Error loading form')}</InlineNotification>
-            ) : pages && pages.length > 0 ? (
+            ) : pages && pages.length > 0 && !mode ? (
               <>
                 <FormGroup legendText={''}>
                   <Dropdown
@@ -233,7 +274,7 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
             excludedQuestions.length === selectedSection.questions.length
           }
         >
-          <span>{t('add', 'Add')}</span>
+          <span>{mode === 'edit' ? t('update', 'Update') : t('add', 'Add')}</span>
         </Button>
       </ModalFooter>
     </>

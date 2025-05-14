@@ -149,12 +149,14 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   );
 
   const launchAddFormReferenceModal = useCallback(
-    (pageIndex: number) => {
+    (pageIndex: number, mode?: string, sectionIndex?: number) => {
       const dispose = showModal('add-form-reference-modal', {
         closeModal: () => dispose(),
         pageIndex,
         schema,
         onSchemaChange,
+        mode,
+        sectionIndex,
       });
     },
     [onSchemaChange, schema],
@@ -562,9 +564,12 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                     enterDelayMs={300}
                                     kind="ghost"
                                     label={t('editSection', 'Edit Section')}
-                                    onClick={() => launchEditSectionModal(pageIndex, sectionIndex)}
+                                    onClick={() =>
+                                      section.reference
+                                        ? launchAddFormReferenceModal(pageIndex, 'edit', sectionIndex)
+                                        : launchEditSectionModal(pageIndex, sectionIndex)
+                                    }
                                     size="md"
-                                    disabled={!!section.reference}
                                   >
                                     <Edit />
                                   </IconButton>
