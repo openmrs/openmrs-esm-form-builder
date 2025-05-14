@@ -217,6 +217,7 @@
   "SectionDeleted": "Section deleted",
   "sectionEdited": "Section edited",
   "sectionExplainer": "A section will typically contain one or more questions. Click the button below to add a question to this section.",
+  "sectionReferenceExplainer": "This section is a reference to another form. Modify the referenced form to add questions to this section.",
   "sectionRenamed": "Section renamed",
   "sections": "Sections",
   "select": "Select",

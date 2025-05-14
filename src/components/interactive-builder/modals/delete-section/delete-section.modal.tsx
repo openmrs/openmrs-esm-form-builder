@@ -23,7 +23,13 @@ const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
 
   const deleteSection = (pageIndex: number, sectionIndex: number) => {
     try {
+      const refFormAlias = schema.pages[pageIndex].sections[sectionIndex].reference?.form;
+
       schema.pages[pageIndex].sections.splice(sectionIndex, 1);
+
+      if (refFormAlias) {
+        schema = removeUnusedReferencedForm(schema, refFormAlias);
+      }
 
       onSchemaChange({ ...schema });
 
@@ -43,6 +49,24 @@ const DeleteSectionModal: React.FC<DeleteSectionModal> = ({
       }
     }
   };
+
+  function removeUnusedReferencedForm(schema: Schema, targetFormName: String) {
+    let formUsedElsewhere = false;
+    for (let page of schema.pages) {
+      for (let section of page.sections) {
+        if (section.reference && section.reference.form === targetFormName) {
+          formUsedElsewhere = true;
+          break;
+        }
+      }
+      if (formUsedElsewhere) break;
+    }
+    if (!formUsedElsewhere) {
+      schema.referencedForms = schema.referencedForms.filter((ref) => ref.alias !== targetFormName);
+    }
+
+    return schema;
+  }
 
   return (
     <>

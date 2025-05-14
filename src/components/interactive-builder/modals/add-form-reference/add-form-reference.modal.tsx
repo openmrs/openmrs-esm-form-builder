@@ -16,10 +16,10 @@ import {
   RadioButton,
   Button,
 } from '@carbon/react';
-import { type Form as FormType, type Schema, type Page, type Section, type Question } from '@types';
+import { showSnackbar } from '@openmrs/esm-framework';
 import { useForms } from '@hooks/useForms';
 import { useClobdata } from '@hooks/useClobdata';
-import { showSnackbar } from '@openmrs/esm-framework';
+import { type Form as FormType, type Schema, type Page, type Section, type Question } from '@types';
 import styles from './add-form-reference.scss';
 
 interface AddFormReferenceModalProps {
