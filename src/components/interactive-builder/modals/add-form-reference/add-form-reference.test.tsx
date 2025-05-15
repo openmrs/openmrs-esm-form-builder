@@ -124,6 +124,7 @@ const schema: Schema = {
     },
   ],
 };
+
 describe('AddFormReferenceModal', () => {
   beforeEach(() => {
     mockedOpenmrsFetch.mockImplementation((url: string): OpenmrsFetchResponse => {

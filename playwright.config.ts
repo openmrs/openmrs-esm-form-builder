@@ -15,6 +15,7 @@ const config: PlaywrightTestConfig = {
   retries: 0,
   reporter: process.env.CI ? [['junit', { outputFile: 'results.xml' }], ['html']] : [['html']],
   globalSetup: require.resolve('./e2e/core/global-setup'),
+  outputDir: '../e2e/test-results',
   use: {
     baseURL: `${process.env.E2E_BASE_URL}/spa/`,
     locale: 'en-US',
