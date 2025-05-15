@@ -6,6 +6,7 @@ import type {
   ReferencedForm,
   RenderType,
   RequiredFieldProps,
+  FormReference,
 } from '@openmrs/esm-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
 import type { questionTypes } from '@constants';
@@ -56,6 +57,7 @@ export interface Schema {
     sections: Array<{
       label: string;
       isExpanded: string;
+      reference?: FormReference;
       questions: Array<{
         id: string;
         label?: string;

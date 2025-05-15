@@ -1,8 +1,15 @@
 import { test } from '../core';
 import { expect } from '@playwright/test';
-import { deleteForm } from '../commands/form-operations';
+import { addFormResources, createForm, createValueReference, deleteForm } from '../commands/form-operations';
 import { FormBuilderPage } from '../pages';
+import { type Form } from '@types';
 
+let form: Form = null;
+test.beforeEach(async ({ api }) => {
+  form = await createForm(api, true);
+  const valueReference = await createValueReference(api);
+  await addFormResources(api, valueReference, form.uuid);
+});
 let formUuid = '';
 const formDetails = {
   name: 'Covid-19 Screening',
@@ -196,6 +203,91 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
     expect(JSON.parse(clipboardContent)).toEqual(formDetails);
   });
 
+  await test.step('And then I click on the`add reference` button', async () => {
+    await formBuilderPage.addReferenceButton().click();
+  });
+
+  await test.step('And then I select the form to be referenced', async () => {
+    await formBuilderPage.selectFormDropdown().click();
+    await formBuilderPage.page.getByRole('option', { name: 'A sample test form ' }).click();
+  });
+
+  await test.step('And then I select the page to be referenced', async () => {
+    await formBuilderPage.selectFormPageDropdown().click();
+    await formBuilderPage.page.getByRole('option', { name: 'ui select test' }).click();
+  });
+
+  await test.step('And then I select the section to be referenced', async () => {
+    await formBuilderPage.page
+      .getByRole('group', { name: /Sections:$/i })
+      .locator('span')
+      .nth(0)
+      .click();
+  });
+
+  await test.step('And then I click on `add`', async () => {
+    await expect(formBuilderPage.addButton()).toBeEnabled();
+    await formBuilderPage.addButton().click();
+    await expect(formBuilderPage.page.getByText(/Component added/i)).toBeVisible();
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await formBuilderPage.page.getByRole('button', { name: /Copy schema/i }).click();
+    const handle = await page.evaluateHandle(() => navigator.clipboard.readText());
+    const clipboardContent = await handle.jsonValue();
+    expect(JSON.parse(clipboardContent)).toEqual({
+      ...formDetails,
+      referencedForms: [
+        {
+          formName: expect.stringMatching(/^A sample test form \d+$/),
+          alias: expect.stringMatching(/^A sample test form \d+$/),
+        },
+      ],
+      pages: [
+        {
+          label: 'Screening',
+          sections: [
+            {
+              label: 'Testing history',
+              isExpanded: 'true',
+              questions: [
+                {
+                  type: 'obs',
+                  questionOptions: {
+                    rendering: 'radio',
+                    concept: '89c5bc03-8ce2-40d8-a77d-20b5a62a1ca1',
+                    answers: [
+                      {
+                        concept: '1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                        label: 'No',
+                      },
+                      {
+                        concept: '1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                        label: 'Yes',
+                      },
+                    ],
+                  },
+                  id: 'everTestedForCovid19',
+                  label: 'Have you been ever been tested for COVID-19?',
+                  required: true,
+                },
+              ],
+            },
+            {
+              label: 'Visit Details',
+              isExpanded: 'true',
+              questions: [],
+              reference: {
+                form: expect.stringMatching(/^A sample test form \d+$/),
+                page: 'UI Select Test',
+                section: 'Visit Details',
+                excludeQuestions: [],
+              },
+            },
+          ],
+        },
+      ],
+    });
+  });
+
   await test.step('Then I click the `Save Form` button', async () => {
     await formBuilderPage.saveFormButton().click();
   });
@@ -235,5 +327,8 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
 test.afterEach(async ({ api }) => {
   if (formUuid) {
     await deleteForm(api, formUuid);
+  }
+  if (form) {
+    await deleteForm(api, form.uuid);
   }
 });

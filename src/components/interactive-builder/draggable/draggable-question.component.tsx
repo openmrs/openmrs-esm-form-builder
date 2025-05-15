@@ -39,7 +39,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   const [isCollapsed, setIsCollapsed] = useState(true);
   const toggleCollapse = () => {
     if (question.questions) {
-      setIsCollapsed(!isCollapsed)
+      setIsCollapsed(!isCollapsed);
     }
   };
 
@@ -72,7 +72,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   const { attributes, listeners, setNodeRef, active, isDragging, over, isOver } = useSortable({
     id: question.id,
     data: {
-      type: (subQuestionIndex === null) || (subQuestionIndex === undefined)  ? 'question' : 'obsQuestion',
+      type: subQuestionIndex === null || subQuestionIndex === undefined ? 'question' : 'obsQuestion',
       question: {
         handleDuplicateQuestion: handleDuplicateQuestion,
         onSchemaChange: onSchemaChange,
@@ -83,7 +83,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
         questionIndex: questionIndex,
         subQuestionIndex: subQuestionIndex !== null ? subQuestionIndex : null,
         schema: schema,
-      }
+      },
     },
     disabled: questionCount <= 1 && (subQuestionIndex === undefined || subQuestionIndex === null),
   });
@@ -162,7 +162,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           >
             <TrashCan />
           </IconButton>
-          {(question?.questions && question?.questions.length > 0) && (
+          {question?.questions && question?.questions.length > 0 && (
             <span className={styles.collapseIconWrapper}>
               {isCollapsed ? (
                 <ChevronDownIcon className={styles.collapseIcon} aria-label="Expand" />
@@ -180,9 +180,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
             [styles.accordionContainer]: !isCollapsed,
           })}
         >
-          <SortableContext items={question.questions.map(qn => qn.id)}>
-            {children}
-          </SortableContext>
+          <SortableContext items={question.questions.map((qn) => qn.id)}>{children}</SortableContext>
         </div>
       )}
     </div>
