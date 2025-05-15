@@ -37,10 +37,12 @@ const SelectAnswers: React.FC = () => {
 
   const handleSelectAnswers = useCallback(
     ({ selectedItems }: { selectedItems: Array<AnswerItem> }) => {
-      const mappedAnswers = selectedItems.map((answer) => ({
-        concept: answer.id,
-        label: answer.text,
-      }));
+      const mappedAnswers = selectedItems
+        .filter((answer) => answer.id !== 'select-all')
+        .map((answer) => ({
+          concept: answer.id,
+          label: answer.text,
+        }));
 
       setFormField((prevField) => {
         const currentAnswers = prevField.questionOptions?.answers || [];
@@ -131,7 +133,15 @@ const SelectAnswers: React.FC = () => {
         text: answer.label,
       }));
 
-    return [...answersFromConceptWithLabelsFromFormField, ...additionalAnswers];
+    return [
+      ...answersFromConceptWithLabelsFromFormField,
+      ...additionalAnswers,
+      {
+        id: 'select-all',
+        text: 'Select all options',
+        isSelectAll: true,
+      },
+    ];
   }, [concept?.answers, formField.questionOptions?.answers]);
 
   const validateAnswers = useCallback(async () => {
@@ -142,7 +152,10 @@ const SelectAnswers: React.FC = () => {
 
     const originalAnswerIds = new Set((concept?.answers || []).map((ans) => ans.uuid));
     const invalidIds: string[] = [];
-    const uniqueAnswers = Array.from(new Map(answerItems.map((a) => [a.id, a])).values());
+    // Filter out the 'select-all' option before validation
+    const uniqueAnswers = Array.from(
+      new Map(answerItems.filter((a) => a.id !== 'select-all').map((a) => [a.id, a])).values(),
+    );
 
     for (const answer of uniqueAnswers) {
       if (!originalAnswerIds.has(answer.id)) {
