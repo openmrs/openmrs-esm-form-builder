@@ -202,7 +202,7 @@ const SelectAnswers: React.FC = () => {
 
   return (
     <Stack gap={5}>
-      {answerItems.length > 0 && (
+      {answerItems.length > 1 && (
         <MultiSelect
           className={styles.multiSelect}
           direction="bottom"
