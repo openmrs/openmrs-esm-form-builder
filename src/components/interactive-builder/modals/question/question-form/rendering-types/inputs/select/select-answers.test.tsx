@@ -68,7 +68,7 @@ describe('Select answers component', () => {
     ).toBeInTheDocument();
   });
 
-  it('lets user select answers provided by concept', async () => {
+  it('shows answers provided by concept as selected initially', async () => {
     const user = userEvent.setup();
     renderComponent();
     const answersMenu = screen.getByRole('combobox', {
@@ -77,16 +77,20 @@ describe('Select answers component', () => {
     expect(answersMenu).toBeInTheDocument();
 
     await user.click(answersMenu);
-    const answerOption1 = screen.getByRole('option', { name: /answer 1/i });
+    const answerOption1 = screen.getByRole('checkbox', {
+      name: /answer 1/i,
+    });
     expect(answerOption1).toBeInTheDocument();
-    expect(screen.getByText(/answer 2/i)).toBeInTheDocument();
-    await user.click(answerOption1);
+    expect(
+      screen.getByRole('checkbox', {
+        name: /answer 2/i,
+      }),
+    ).toBeInTheDocument();
 
     expect(screen.getByTitle(/answer 1/i)).toBeInTheDocument();
+    expect(screen.getByTitle(/answer 2/i)).toBeInTheDocument();
     expect(
-      screen.getByRole('combobox', {
-        name: /select answers to display/i,
-      }),
+      screen.getByText(/total items selected: 2 answer 1answer 2,to clear selection, press delete or backspace/i),
     ).toBeInTheDocument();
   });
 
