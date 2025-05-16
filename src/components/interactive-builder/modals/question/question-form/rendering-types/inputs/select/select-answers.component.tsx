@@ -19,11 +19,30 @@ const SelectAnswers: React.FC = () => {
   const [addedAnswers, setAddedAnswers] = useState<AnswerItem[]>([]);
   const [invalidAnswerIds, setInvalidAnswerIds] = useState<string[]>([]);
 
+  // Reset the additionally selected answers when the concept changes
   useEffect(() => {
     if (!concept) {
       setAddedAnswers([]);
     }
   }, [concept]);
+
+  // Initialize the selected answers to be the concept's answers
+  useEffect(() => {
+    if (concept?.answers?.length && !formField.questionOptions?.answers?.length) {
+      const initialAnswers = concept.answers.map((answer) => ({
+        concept: answer.uuid,
+        label: answer.display,
+      }));
+
+      setFormField((prevField) => ({
+        ...prevField,
+        questionOptions: {
+          ...prevField.questionOptions,
+          answers: initialAnswers,
+        },
+      }));
+    }
+  }, [concept, formField.questionOptions?.answers, setFormField]);
 
   const selectedAnswers = useMemo(() => {
     const answers =
