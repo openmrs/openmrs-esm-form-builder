@@ -2,8 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { Tag, MultiSelect, Stack, InlineNotification } from '@carbon/react';
-import { WarningAltFilled } from '@carbon/react/icons';
+import { MultiSelect, Stack, InlineNotification } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 
 import { useFormField } from '../../../../form-field-context';
@@ -243,7 +242,12 @@ const SelectAnswers: React.FC = () => {
           <SortableContext items={selectedAnswers} strategy={verticalListSortingStrategy}>
             <div>
               {selectedAnswers.map((answer) => (
-                <SortableTag key={answer.id} id={answer.id} text={answer.text} />
+                <SortableTag
+                  key={answer.id}
+                  id={answer.id}
+                  text={answer.text}
+                  isInvalid={invalidAnswerIds.includes(answer.id)}
+                />
               ))}
             </div>
           </SortableContext>

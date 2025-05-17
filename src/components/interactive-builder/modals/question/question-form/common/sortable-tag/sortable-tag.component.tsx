@@ -3,8 +3,9 @@ import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import { Tag } from '@carbon/react';
-import { Draggable } from '@carbon/react/icons';
+import { IconButton } from '@carbon/react';
+import { Draggable, WarningAltFilled } from '@carbon/react/icons';
+import { useTranslation } from 'react-i18next';
 
 import styles from './sortable-tag.scss';
 
@@ -12,9 +13,11 @@ interface SortableTagProps {
   id: string;
   text: string;
   onDelete?: () => void;
+  isInvalid?: boolean;
 }
 
-export const SortableTag: React.FC<SortableTagProps> = ({ id, text, onDelete }) => {
+export const SortableTag: React.FC<SortableTagProps> = ({ id, text, onDelete, isInvalid }) => {
+  const { t } = useTranslation();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
   });
@@ -25,32 +28,41 @@ export const SortableTag: React.FC<SortableTagProps> = ({ id, text, onDelete }) 
   };
 
   return (
-    <div ref={setNodeRef} style={dynamicStyle} className={styles.sortableTagWrapper}>
-      <div {...attributes} {...listeners} className={styles.dragHandle}>
-        <Draggable />
+    <div
+      ref={setNodeRef}
+      style={dynamicStyle}
+      className={`${styles.sortableTagWrapper} ${isDragging ? styles.dragContainerWhenDragging : ''}`}
+    >
+      <div className={styles.leftContent}>
+        <div {...attributes} {...listeners} className={styles.dragHandle}>
+          <IconButton className={styles.dragIcon} kind="ghost" size="md" label={t('dragToReorder', 'Drag to reorder')}>
+            <Draggable />
+          </IconButton>
+        </div>
+        <span
+          className={`${styles.sortableTag} ${isDragging ? styles.dragging : ''} ${isInvalid ? styles.invalid : ''}`}
+        >
+          {text}
+        </span>
       </div>
-      <Tag
-        className={`${styles.sortableTag} ${isDragging ? styles.dragging : ''}`}
-        type="blue"
-        renderIcon={
-          onDelete
-            ? () => (
-                <button
-                  aria-label="Clear all selected items"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete();
-                  }}
-                  className={styles.conceptAnswerButton}
-                >
-                  X
-                </button>
-              )
-            : undefined
-        }
-      >
-        {text}
-      </Tag>
+      <div>
+        {onDelete &&
+          (isInvalid ? (
+            <WarningAltFilled className={styles.warningIcon} />
+          ) : (
+            <button
+              aria-label="Clear all selected items"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+              className={styles.conceptAnswerButton}
+            >
+              X
+            </button>
+          ))}
+        {isInvalid && <WarningAltFilled className={styles.invalidIcon} aria-label="Invalid answer" size={16} />}
+      </div>
     </div>
   );
 };
