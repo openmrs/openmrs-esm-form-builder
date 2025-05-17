@@ -2,10 +2,10 @@ import React from 'react';
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useTranslation } from 'react-i18next';
 
 import { IconButton } from '@carbon/react';
 import { Draggable, WarningAltFilled } from '@carbon/react/icons';
-import { useTranslation } from 'react-i18next';
 
 import styles from './sortable-tag.scss';
 
@@ -46,22 +46,20 @@ export const SortableTag: React.FC<SortableTagProps> = ({ id, text, onDelete, is
         </span>
       </div>
       <div>
-        {onDelete &&
-          (isInvalid ? (
-            <WarningAltFilled className={styles.warningIcon} />
-          ) : (
-            <button
-              aria-label="Clear all selected items"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
-              }}
-              className={styles.conceptAnswerButton}
-            >
-              X
-            </button>
-          ))}
-        {isInvalid && <WarningAltFilled className={styles.invalidIcon} aria-label="Invalid answer" size={16} />}
+        {onDelete ? (
+          <button
+            aria-label="Clear all selected items"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className={styles.conceptAnswerButton}
+          >
+            X
+          </button>
+        ) : (
+          isInvalid && <WarningAltFilled className={styles.invalidIcon} aria-label="Invalid answer" size={16} />
+        )}
       </div>
     </div>
   );

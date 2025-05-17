@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import SelectAnswers from './select-answers.component';
 import { useConceptId } from '@hooks/useConceptId';
 import { useConceptLookup } from '@hooks/useConceptLookup';
@@ -81,8 +81,11 @@ describe('Select answers component', () => {
     expect(answerOption1).toBeInTheDocument();
     expect(screen.getByText(/answer 2/i)).toBeInTheDocument();
     await user.click(answerOption1);
+    const option = screen.getByRole('option', {
+      name: /answer 1/i,
+    });
+    expect(within(option).getByText(/answer 1/i)).toBeInTheDocument();
 
-    expect(screen.getByTitle(/answer 1/i)).toBeInTheDocument();
     expect(
       screen.getByRole('combobox', {
         name: /select answers to display/i,
@@ -114,11 +117,10 @@ describe('Select answers component', () => {
     await user.click(additionalAnswerOption1);
 
     expect(screen.getByText(/concept 2/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', {
-        name: /x/i,
-      }),
-    ).toBeInTheDocument();
+
+    screen.getByRole('button', {
+      name: /clear search input/i,
+    });
   });
 });
 
