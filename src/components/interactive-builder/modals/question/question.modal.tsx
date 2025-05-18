@@ -26,6 +26,7 @@ interface QuestionModalProps {
   pageIndex: number;
   sectionIndex: number;
   questionIndex: number;
+  subQuestionIndex?: number;
   resetIndices: () => void;
 }
 
@@ -41,6 +42,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
   pageIndex,
   sectionIndex,
   questionIndex,
+  subQuestionIndex,
   onSchemaChange,
 }) => {
   const { t } = useTranslation();
@@ -110,7 +112,12 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
   const saveQuestion = () => {
     try {
       if (formFieldProp) {
-        schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] = formField;
+        if (subQuestionIndex !== undefined && subQuestionIndex !== null) {
+          schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questions[subQuestionIndex] =
+            formField;
+        } else {
+          schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] = formField;
+        }
       } else {
         schema.pages[pageIndex]?.sections?.[sectionIndex]?.questions?.push(formField);
       }
@@ -151,9 +158,8 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
   return (
     <>
       <ModalHeader
-        className={styles.modalHeader}
-        title={formFieldProp ? t('editQuestion', 'Edit question') : t('createNewQuestion', 'Create a new question')}
         closeModal={closeModal}
+        title={formFieldProp ? t('editQuestion', 'Edit question') : t('createNewQuestion', 'Create a new question')}
       />
       <Form className={styles.form} onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
@@ -224,7 +230,9 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
 const QuestionModal: React.FC<QuestionModalProps> = (props) => {
   return (
     <>
-      <FormFieldProvider initialFormField={props.formField ?? { type: 'control', questionOptions: undefined, id: '' }}>
+      <FormFieldProvider
+        initialFormField={props.formField ?? { type: 'control', questionOptions: { rendering: 'text' }, id: '' }}
+      >
         <QuestionModalContent {...props} />
       </FormFieldProvider>
     </>

@@ -85,7 +85,7 @@ describe('Select answers component', () => {
     expect(screen.getByTitle(/answer 1/i)).toBeInTheDocument();
     expect(
       screen.getByRole('combobox', {
-        name: /select answers to display total items selected: 1,to clear selection, press delete or backspace/i,
+        name: /select answers to display/i,
       }),
     ).toBeInTheDocument();
   });
@@ -105,16 +105,18 @@ describe('Select answers component', () => {
     const additionalAnswerOption1 = screen.getByRole('menuitem', {
       name: /concept 2/i,
     });
+    expect(
+      screen.getByRole('button', {
+        name: /clear search input/i,
+      }),
+    ).toBeInTheDocument();
     expect(additionalAnswerOption1).toBeInTheDocument();
     await user.click(additionalAnswerOption1);
 
-    expect(screen.getByTitle(/concept 2/i)).toBeInTheDocument();
-    expect(
-      screen.getByText(/total items selected: 1,to clear selection, press delete or backspace/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/concept 2/i)).toBeInTheDocument();
     expect(
       screen.getByRole('button', {
-        name: /clear all selected items/i,
+        name: /x/i,
       }),
     ).toBeInTheDocument();
   });

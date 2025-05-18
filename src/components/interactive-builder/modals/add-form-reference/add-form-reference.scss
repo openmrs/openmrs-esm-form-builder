@@ -1,0 +1,10 @@
+@use '@carbon/layout';
+
+.modalBody {
+  min-height: 350px;
+  overflow-y: hidden;
+}
+
+.form {
+  overflow-y: scroll;
+}

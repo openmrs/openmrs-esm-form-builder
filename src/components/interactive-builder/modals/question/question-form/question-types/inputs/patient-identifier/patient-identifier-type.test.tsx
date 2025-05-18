@@ -1,11 +1,11 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
-import PatientIdentifierTypeQuestion from './patient-identifier-type-question.component';
-import { FormFieldProvider } from '../../../../form-field-context';
-import { usePatientIdentifierTypes } from '@hooks/usePatientIdentifierTypes';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
 import type { PatientIdentifierType } from '@types';
+import { FormFieldProvider } from '../../../../form-field-context';
+import { usePatientIdentifierTypes } from '@hooks/usePatientIdentifierTypes';
+import PatientIdentifierTypeQuestion from './patient-identifier-type-question.component';
 
 const mockSetFormField = jest.fn();
 const formField: FormField = {
@@ -55,7 +55,7 @@ describe('PatientIdentifierTypeQuestion', () => {
     ).toBeInTheDocument();
     await user.click(menuBox);
     expect(
-      screen.getByRole('listbox', {
+      screen.getByRole('combobox', {
         name: /choose an item/i,
       }),
     ).toBeInTheDocument();

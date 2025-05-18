@@ -6,6 +6,7 @@ import type {
   ReferencedForm,
   RenderType,
   RequiredFieldProps,
+  FormReference,
 } from '@openmrs/esm-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
 import type { questionTypes } from '@constants';
@@ -56,6 +57,7 @@ export interface Schema {
     sections: Array<{
       label: string;
       isExpanded: string;
+      reference?: FormReference;
       questions: Array<{
         id: string;
         label?: string;
@@ -72,6 +74,7 @@ export interface Schema {
           min?: string;
           conceptMappings?: Array<Record<string, string>>;
         };
+        questions?: Array<Question>;
         validators?: Array<Record<string, string>>;
       }>;
     }>;
@@ -136,13 +139,13 @@ export interface QuestionOptions {
   calculate?: {
     calculateExpression: string;
   };
-  rows?: string;
+  rows?: number;
   orderSettingUuid?: string;
   orderType?: string;
   identifierType?: string;
-  selectableOrders?: Array<Answer>;
+  selectableOrders?: Array<Record<any, any>>;
   weekList?: [];
-  showComment?: string;
+  showComment?: boolean;
   showDate?: string;
   programUuid?: string;
   workflowUuid?: string;

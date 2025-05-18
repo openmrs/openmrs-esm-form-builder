@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Button, Form, FormGroup, ModalBody, ModalFooter, ModalHeader, TextInput, Checkbox } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import type { Schema } from '@types';
-import styles from '../modals.scss';
 
 interface SectionModalProps {
   closeModal: () => void;
@@ -78,9 +77,8 @@ const SectionModal: React.FC<SectionModalProps> = ({
   return (
     <>
       <ModalHeader
-        className={styles.modalHeader}
-        title={modalType === 'edit' ? t('editSection', 'Edit section') : t('createNewSection', 'Create a new section')}
         closeModal={closeModal}
+        title={modalType === 'edit' ? t('editSection', 'Edit section') : t('createNewSection', 'Create a new section')}
       />
       <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
