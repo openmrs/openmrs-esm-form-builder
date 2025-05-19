@@ -44,3 +44,14 @@
   display: flex;
   align-items: center;
 }
+
+.invalid {
+  background-color: $warning-background;
+  color: $danger;
+  font-weight: bold;
+}
+
+.invalidIcon {
+  color: $danger;
+}
+
