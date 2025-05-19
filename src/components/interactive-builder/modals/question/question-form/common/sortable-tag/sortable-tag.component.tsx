@@ -40,7 +40,10 @@ export const SortableTag: React.FC<SortableTagProps> = ({ id, text, onDelete, is
           </IconButton>
         </div>
         <span
-          className={`${styles.sortableTag} ${isDragging ? styles.dragging : ''} ${isInvalid ? styles.invalid : ''}`}
+className={classNames(styles.sortableTag, {
+            [styles.dragging]: isDragging,
+            [styles.invalid]: isInvalid
+          })}
         >
           {text}
         </span>
