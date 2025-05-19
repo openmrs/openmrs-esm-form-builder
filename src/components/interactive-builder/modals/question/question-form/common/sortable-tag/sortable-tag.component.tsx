@@ -35,7 +35,7 @@ export const SortableTag: React.FC<SortableTagProps> = ({ id, text, onDelete, is
     >
       <div className={styles.leftContent}>
         <div {...attributes} {...listeners} className={styles.dragHandle}>
-          <IconButton className={styles.dragIcon} kind="ghost" size="md" label={t('dragToReorder', 'Drag to reorder')}>
+          <IconButton kind="ghost" size="md" label={t('dragToReorder', 'Drag to reorder')}>
             <Draggable />
           </IconButton>
         </div>
