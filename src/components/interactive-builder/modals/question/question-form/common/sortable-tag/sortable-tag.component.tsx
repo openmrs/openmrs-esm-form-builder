@@ -1,12 +1,10 @@
 import React from 'react';
-
+import classNames from 'classnames';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
-
 import { IconButton } from '@carbon/react';
-import { Draggable, WarningAltFilled } from '@carbon/react/icons';
-
+import { Draggable, WarningAltFilled, TrashCan } from '@carbon/react/icons';
 import styles from './sortable-tag.scss';
 
 interface SortableTagProps {
@@ -31,7 +29,9 @@ export const SortableTag: React.FC<SortableTagProps> = ({ id, text, onDelete, is
     <div
       ref={setNodeRef}
       style={dynamicStyle}
-      className={`${styles.sortableTagWrapper} ${isDragging ? styles.dragContainerWhenDragging : ''}`}
+      className={classNames(styles.sortableTagWrapper, {
+        [styles.dragContainerWhenDragging]: isDragging,
+      })}
     >
       <div className={styles.leftContent}>
         <div {...attributes} {...listeners} className={styles.dragHandle}>
@@ -40,29 +40,27 @@ export const SortableTag: React.FC<SortableTagProps> = ({ id, text, onDelete, is
           </IconButton>
         </div>
         <span
-className={classNames(styles.sortableTag, {
+          className={classNames(styles.sortableTag, {
             [styles.dragging]: isDragging,
-            [styles.invalid]: isInvalid
+            [styles.invalid]: isInvalid,
           })}
         >
           {text}
         </span>
       </div>
       <div>
-        {onDelete ? (
-          <button
-            aria-label="Clear all selected items"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-            className={styles.conceptAnswerButton}
+        {onDelete && (
+          <IconButton
+            enterDelayMs={300}
+            label={t('deleteAnswer', 'Delete answer')}
+            kind="ghost"
+            onClick={onDelete}
+            size="md"
           >
-            X
-          </button>
-        ) : (
-          isInvalid && <WarningAltFilled className={styles.invalidIcon} aria-label="Invalid answer" size={16} />
+            <TrashCan />
+          </IconButton>
         )}
+        {isInvalid && <WarningAltFilled className={styles.invalidIcon} aria-label="Invalid answer" size={16} />}
       </div>
     </div>
   );

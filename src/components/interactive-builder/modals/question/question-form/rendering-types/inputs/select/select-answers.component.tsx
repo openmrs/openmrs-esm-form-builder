@@ -1,18 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-
+import { InlineNotification, MultiSelect, Stack } from '@carbon/react';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useTranslation } from 'react-i18next';
-
-import { InlineNotification, MultiSelect, Stack } from '@carbon/react';
-
 import { fetchConceptById } from '@resources/concept.resource';
 import type { Concept } from '@types';
-
 import { useFormField } from '../../../../form-field-context';
 import ConceptSearch from '../../../common/concept-search/concept-search.component';
 import { SortableTag } from '../../../common/sortable-tag/sortable-tag.component';
-
 import styles from './select-answers.scss';
 
 interface AnswerItem {
