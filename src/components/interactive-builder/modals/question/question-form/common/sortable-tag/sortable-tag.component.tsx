@@ -31,6 +31,8 @@ export const SortableTag: React.FC<SortableTagProps> = ({ id, text, onDelete, is
       style={dynamicStyle}
       className={classNames(styles.sortableTagWrapper, {
         [styles.dragContainerWhenDragging]: isDragging,
+
+        [styles.invalid]: isInvalid,
       })}
     >
       <div className={styles.leftContent}>
@@ -42,7 +44,6 @@ export const SortableTag: React.FC<SortableTagProps> = ({ id, text, onDelete, is
         <span
           className={classNames(styles.sortableTag, {
             [styles.dragging]: isDragging,
-            [styles.invalid]: isInvalid,
           })}
         >
           {text}

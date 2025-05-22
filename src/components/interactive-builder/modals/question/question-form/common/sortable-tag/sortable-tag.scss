@@ -1,8 +1,6 @@
 @use '@carbon/colors';
 @use '@carbon/layout';
 @use '@openmrs/esm-styleguide/src/vars' as *;
-$spacing-02: 8px;
-$spacing-04: 16px;
 
 .sortableTag {
   transition: transform 250ms ease;
@@ -18,7 +16,7 @@ $spacing-04: 16px;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 0 $spacing-04 0 $spacing-02;
+  padding: 0 layout.$spacing-04 0 layout.$spacing-02;
 }
 
 .dragContainerWhenDragging {
