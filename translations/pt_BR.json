@@ -37,6 +37,7 @@
   "datePickerType": "O tipo de selecionador de data a ser exibido",
   "decimalsNotAllowed": "Esse conceito não permite decimais",
   "delete": "Excluir",
+  "deleteAnswer": "Delete answer",
   "deleteForm": "Excluir formulário",
   "deleteFormConfirmation": "Tem certeza de que deseja excluir este formulário?",
   "deletePage": "Excluir página",

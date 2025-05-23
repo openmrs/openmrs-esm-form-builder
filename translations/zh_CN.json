@@ -37,6 +37,7 @@
   "datePickerType": "要显示的日期拾取器类型",
   "decimalsNotAllowed": "这个概念不允许小数",
   "delete": "删除",
+  "deleteAnswer": "Delete answer",
   "deleteForm": "删除表单",
   "deleteFormConfirmation": "你确定要删除这个表单吗？",
   "deletePage": "删除页面",

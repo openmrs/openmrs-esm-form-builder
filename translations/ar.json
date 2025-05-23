@@ -37,6 +37,7 @@
   "datePickerType": "The type of date picker to show ",
   "decimalsNotAllowed": "This concept does not allow decimals",
   "delete": "Delete",
+  "deleteAnswer": "Delete answer",
   "deleteForm": "Delete form",
   "deleteFormConfirmation": "Are you sure you want to delete this form?",
   "deletePage": "Delete page",
