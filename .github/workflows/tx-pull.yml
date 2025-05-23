@@ -23,6 +23,7 @@ jobs:
           token: ${{ secrets.TRANSIFEX_TOKEN }}
           args: pull --force --all
       - name: 🔄 Create PR if necessary
+        id: cpr
         uses: peter-evans/create-pull-request@v7
         with:
           commit-message: '(chore) Update translations from Transifex'
