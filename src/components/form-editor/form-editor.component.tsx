@@ -65,7 +65,7 @@ const ErrorNotification = ({ error, title }: ErrorProps) => {
 const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   const defaultEnterDelayInMs = 300;
   const { formUuid } = useParams<{ formUuid: string }>();
-  const { blockRenderingWithErrors, dataTypeToRenderingMap } = useConfig<ConfigObject>();
+  const { blockRenderingWithErrors, dataTypeToRenderingMap, enableRDESection } = useConfig<ConfigObject>();
   const isNewSchema = !formUuid;
   const [schema, setSchema] = useState<Schema>();
   const { form, formError, isLoadingForm } = useForm(formUuid);
@@ -142,7 +142,86 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
     }
   };
 
+  const buildRdeSection = () => ({
+    label: 'Encounter Details',
+    isExpanded: 'false',
+    questions: [
+      {
+        id: 'encounterDateTime',
+        label: 'Encounter Date & Time',
+        type: 'encounterDateTime',
+        questionOptions: {
+          rendering: 'date',
+          concept: 'a-system-defined-concept-uuid',
+        },
+      },
+      {
+        id: 'encounterProvider',
+        label: 'Encounter Provider',
+        type: 'encounterProvider',
+        questionOptions: {
+          rendering: 'ui-select-extended',
+          concept: 'a-system-defined-concept-uuid',
+        },
+      },
+    ],
+  });
+
   const inputDummySchema = useCallback(() => {
+    const sections = [];
+
+    // Conditionally insert RDE section
+    if (enableRDESection) {
+      sections.push(buildRdeSection());
+    }
+
+    sections.push(
+      {
+        label: 'A Section',
+        isExpanded: 'true',
+        questions: [
+          {
+            id: 'sampleQuestion',
+            label: 'A Question of type obs that renders a text input',
+            type: 'obs',
+            questionOptions: {
+              rendering: 'text',
+              concept: 'a-system-defined-concept-uuid',
+            },
+          },
+        ],
+      },
+      {
+        label: 'Another Section',
+        isExpanded: 'true',
+        questions: [
+          {
+            id: 'anotherSampleQuestion',
+            label: 'Another Question of type obs whose answers get rendered as radio inputs',
+            type: 'obs',
+            questionOptions: {
+              rendering: 'radio',
+              concept: 'system-defined-concept-uuid',
+              answers: [
+                {
+                  concept: 'another-system-defined-concept-uuid',
+                  label: 'Choice 1',
+                },
+                {
+                  concept: 'yet-another-system-defined-concept-uuid',
+                  label: 'Choice 2',
+                },
+                {
+                  concept: 'yet-one-more-system-defined-concept-uuid',
+                  label: 'Choice 3',
+                },
+              ],
+            },
+          },
+        ],
+      },
+    );
+
     const dummySchema: FormSchema = {
       encounterType: '',
       name: 'Sample Form',
@@ -153,59 +232,14 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
       pages: [
         {
           label: 'First Page',
-          sections: [
-            {
-              label: 'A Section',
-              isExpanded: 'true',
-              questions: [
-                {
-                  id: 'sampleQuestion',
-                  label: 'A Question of type obs that renders a text input',
-                  type: 'obs',
-                  questionOptions: {
-                    rendering: 'text',
-                    concept: 'a-system-defined-concept-uuid',
-                  },
-                },
-              ],
-            },
-            {
-              label: 'Another Section',
-              isExpanded: 'true',
-              questions: [
-                {
-                  id: 'anotherSampleQuestion',
-                  label: 'Another Question of type obs whose answers get rendered as radio inputs',
-                  type: 'obs',
-                  questionOptions: {
-                    rendering: 'radio',
-                    concept: 'system-defined-concept-uuid',
-                    answers: [
-                      {
-                        concept: 'another-system-defined-concept-uuid',
-                        label: 'Choice 1',
-                      },
-                      {
-                        concept: 'yet-another-system-defined-concept-uuid',
-                        label: 'Choice 2',
-                      },
-                      {
-                        concept: 'yet-one-more-system-defined-concept-uuid',
-                        label: 'Choice 3',
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          ],
+          sections: sections,
         },
       ],
     };
 
     setStringifiedSchema(JSON.stringify(dummySchema, null, 2));
     updateSchema({ ...dummySchema });
-  }, [updateSchema]);
+  }, [updateSchema, enableRDESection]);
 
   const renderSchemaChanges = useCallback(() => {
     resetErrorMessage();

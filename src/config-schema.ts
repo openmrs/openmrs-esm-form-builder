@@ -90,6 +90,11 @@ export const configSchema = {
     _default: false,
     _description: 'Whether to enable form validation',
   },
+  enableRDESection: {
+    _type: Type.Boolean,
+    _default: false,
+    _description: 'Whether to enable the RDE section in the form builder',
+  },
 };
 
 export interface ConfigObject {
@@ -99,4 +104,5 @@ export interface ConfigObject {
   dataTypeToRenderingMap: Record<string, Array<string>>;
   enableFormValidation: boolean;
   blockRenderingWithErrors: boolean;
+  enableRDESection: boolean;
 }
