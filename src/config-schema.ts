@@ -93,7 +93,8 @@ export const configSchema = {
   enableRDESection: {
     _type: Type.Boolean,
     _default: false,
-    _description: 'Whether to enable the RDE section in the form builder',
+    _description:
+      'Whether to add an Encounter Details section for retrospective data entry, which includes encounter date/time and provider fields',
   },
 };
 
