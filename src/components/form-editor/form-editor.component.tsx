@@ -152,7 +152,6 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
         type: 'encounterDateTime',
         questionOptions: {
           rendering: 'date',
-          concept: 'a-system-defined-concept-uuid',
         },
       },
       {
@@ -161,7 +160,6 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
         type: 'encounterProvider',
         questionOptions: {
           rendering: 'ui-select-extended',
-          concept: 'a-system-defined-concept-uuid',
         },
       },
     ],
