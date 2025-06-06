@@ -19,6 +19,9 @@ export const configSchema = {
       'testOrder',
       'programState',
     ],
+    _elements: {
+      _type: Type.String,
+    },
   },
   fieldTypes: {
     _type: Type.Array,
@@ -43,6 +46,9 @@ export const configSchema = {
       'toggle',
       'markdown',
     ],
+    _elements: {
+      _type: Type.String,
+    },
   },
   showSchemaSaveWarning: {
     _type: Type.Boolean,
@@ -50,11 +56,19 @@ export const configSchema = {
     _description: 'Whether to show a warning about possibly losing data in the forms dashboard',
   },
   dataTypeToRenderingMap: {
-    _description: 'A map used to match concept datatypes to rendering types',
-    _type: Type.Object,
-    _default: {
-      Numeric: ['number', 'fixed-value'],
-      Coded: [
+    Numeric: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: ['number', 'fixed-value'],
+    },
+    Coded: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: [
         'select',
         'checkbox',
         'checkbox-searchable',
@@ -71,13 +85,55 @@ export const configSchema = {
         'encounter-role',
         'multiCheckbox',
       ],
-      Text: ['text', 'textarea', 'fixed-value'],
-      Date: ['date', 'fixed-value'],
-      Datetime: ['datetime', 'fixed-value'],
-      Boolean: ['toggle', 'select', 'radio', 'content-switcher', 'fixed-value'],
-      Rule: ['repeating', 'group'],
-      'N/A': [],
-      Complex: ['file'],
+    },
+    Text: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: ['text', 'textarea', 'fixed-value'],
+    },
+    Date: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: ['date', 'fixed-value'],
+    },
+    Datetime: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: ['datetime', 'fixed-value'],
+    },
+    Boolean: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: ['toggle', 'select', 'radio', 'content-switcher', 'fixed-value'],
+    },
+    Rule: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: ['repeating', 'group'],
+    },
+    'N/A': {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: [],
+    },
+    Complex: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: ['file'],
     },
   },
   enableFormValidation: {
