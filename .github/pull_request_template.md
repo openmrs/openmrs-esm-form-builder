@@ -16,3 +16,32 @@
 
 ## Other
 <!-- Anything not covered above -->
+
+```js
+name: PR Title Checker
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+jobs:
+  check-title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR Title Format
+        uses: amannn/action-semantic-pull-request@v5
+        with:
+          types: |
+            docs
+            test
+            chore
+            fix
+            feat
+            refactor
+            BREAKING
+          requireScope: false
+          headerPattern: "^(?:(?<type>BREAKING|docs|test|chore|fix|feat)(?:\\(.*\\))?:? )?(?:(?<ticket>O3-[0-9]+): )?(?<subject>.*)$"
+          headerPatternCorrespondence: type,ticket,subject
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
