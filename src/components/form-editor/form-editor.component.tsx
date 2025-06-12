@@ -4,6 +4,7 @@ import {
   Button,
   Column,
   CopyButton,
+  Dropdown,
   FileUploader,
   Grid,
   IconButton,
@@ -24,6 +25,7 @@ import AuditDetails from '../audit-details/audit-details.component';
 import FormRenderer from '../form-renderer/form-renderer.component';
 import Header from '../header/header.component';
 import InteractiveBuilder from '../interactive-builder/interactive-builder.component';
+import TranslationBuilder from '../translation-builder/translation-builder.component';
 import SchemaEditor from '../schema-editor/schema-editor.component';
 import ValidationMessage from '../validation-info/validation-info.component';
 import { handleFormValidation } from '@resources/form-validator.resource';
@@ -80,8 +82,19 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   const [errors, setErrors] = useState<Array<MarkerProps>>([]);
   const [validationOn, setValidationOn] = useState(false);
   const [invalidJsonErrorMessage, setInvalidJsonErrorMessage] = useState('');
+  const languageOptions = ['English (en)', 'French (fr)', 'Spanish (es)', 'German (de)'];
+  const [selectedLanguage, setSelectedLanguage] = useState(languageOptions[0]);
+  const [shouldMergeTranslation, setShouldMergeTranslation] = useState(false);
+  const [renderLangCode, setRenderLangCode] = useState<string | null>(null);
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
+
+  const getLangCode = () => selectedLanguage.match(/\((.*?)\)/)?.[1] ?? selectedLanguage;
+  const [selectedLangCode, setSelectedLangCode] = useState(getLangCode());
+  const langCodeForPreview = useMemo(
+    () => (shouldMergeTranslation ? renderLangCode : null),
+    [shouldMergeTranslation, renderLangCode],
+  );
 
   const resetErrorMessage = useCallback(() => {
     setInvalidJsonErrorMessage('');
@@ -221,18 +234,64 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
       }
     }
   }, [stringifiedSchema, updateSchema, resetErrorMessage]);
+  const mergedSchemaForPreview = useMemo(() => {
+    if (!schema) return schema;
+    if (!shouldMergeTranslation) return schema;
 
+    if (schema.translations && schema.translations[langCodeForPreview]) {
+      const merged = JSON.parse(JSON.stringify(schema));
+      const translations = schema.translations[langCodeForPreview];
+      if (merged.pages) {
+        merged.pages = merged.pages.map((page: any) => {
+          if (translations[page.label]) {
+            page.label = translations[page.label];
+          }
+          if (page.sections) {
+            page.sections = page.sections.map((section: any) => {
+              if (translations[section.label]) {
+                section.label = translations[section.label];
+              }
+              if (section.questions) {
+                section.questions = section.questions.map((question: any) => {
+                  if (translations[question.label]) {
+                    question.label = translations[question.label];
+                  }
+                  if (question.questions) {
+                    question.questions = question.questions.map((subQuestion: any) => {
+                      if (translations[subQuestion.label]) {
+                        subQuestion.label = translations[subQuestion.label];
+                      }
+                      return subQuestion;
+                    });
+                  }
+                  return question;
+                });
+              }
+              return section;
+            });
+          }
+          return page;
+        });
+      }
+      return merged;
+    }
+    return schema;
+  }, [schema, shouldMergeTranslation, langCodeForPreview]);
   const handleRenderSchemaChanges = useCallback(() => {
     if (errors.length && blockRenderingWithErrors) {
       setValidationOn(true);
       return;
-    } else if (errors.length && !blockRenderingWithErrors) {
+    }
+
+    setShouldMergeTranslation(true);
+    setRenderLangCode(selectedLangCode);
+    if (errors.length && !blockRenderingWithErrors) {
       setValidationOn(true);
       renderSchemaChanges();
     } else {
       renderSchemaChanges();
     }
-  }, [blockRenderingWithErrors, errors.length, renderSchemaChanges]);
+  }, [blockRenderingWithErrors, errors.length, renderSchemaChanges, selectedLangCode]);
 
   const handleSchemaImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files[0];
@@ -292,6 +351,19 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
             <div className={styles.heading}>
               <span className={styles.tabHeading}>{t('schemaEditor', 'Schema editor')}</span>
               <div className={styles.topBtns}>
+                <Dropdown
+                  id="target-language"
+                  items={languageOptions}
+                  itemToString={(item) => (item ? item : '')}
+                  label="Select language"
+                  titleText=""
+                  selectedItem={selectedLanguage}
+                  onChange={({ selectedItem }) => {
+                    setSelectedLanguage(selectedItem);
+                    const langCode = selectedItem.match(/\((.*?)\)/)?.[1] ?? selectedItem;
+                    setSelectedLangCode(langCode);
+                  }}
+                />
                 {!schema ? (
                   <FileUploader
                     onChange={handleSchemaImport}
@@ -392,11 +464,12 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
             <TabList aria-label="Form previews">
               <Tab>{t('preview', 'Preview')}</Tab>
               <Tab>{t('interactiveBuilder', 'Interactive Builder')}</Tab>
+              <Tab>{t('translationBuilder', 'Translation Builder')}</Tab>
               {form && <Tab>{t('auditDetails', 'Audit Details')}</Tab>}
             </TabList>
             <TabPanels>
               <TabPanel>
-                <FormRenderer schema={schema} isLoading={isLoadingFormOrSchema} />
+                <FormRenderer schema={mergedSchemaForPreview || schema} isLoading={isLoadingFormOrSchema} />
               </TabPanel>
               <TabPanel>
                 <InteractiveBuilder
@@ -405,6 +478,9 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                   isLoading={isLoadingFormOrSchema}
                   validationResponse={validationResponse}
                 />
+              </TabPanel>
+              <TabPanel>
+                <TranslationBuilder formSchema={schema} onUpdateSchema={updateSchema} />
               </TabPanel>
               <TabPanel>{form && <AuditDetails form={form} key={form.uuid} />}</TabPanel>
             </TabPanels>

@@ -1,0 +1,106 @@
+.translationBuilderContainer {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  height: 95vh;
+}
+
+.title {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.languageSelector {
+  .languageSelector {
+    white-space: nowrap;
+    display: inline-block;
+  }
+}
+
+.translationEditor {
+  margin-top: 1rem;
+}
+
+.translationRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  /* Align text from the top so multiline doesn’t shift icons. */
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #fff;
+  /* optional divider line */
+
+  .translationKey {
+    /* 
+      Give a fixed width so all keys line up.
+      Adjust the width as needed for your UI.
+    */
+    flex: 0 0 250px;
+    font-size: 0.9rem;
+    word-wrap: break-word;
+    /* if you have very long strings */
+  }
+
+  .inlineControls {
+    flex: 1 1 auto;
+    /* the edit area grows */
+    display: flex;
+    align-items: center;
+    /* vertically align icon + text */
+    gap: 0.5rem;
+  }
+}
+
+.translationKey {
+  padding: 1rem;
+}
+
+.translatedKey {
+  color: blue;
+  margin-left: 20px;
+  padding: 1rem;
+}
+
+.addNewStringContainer {
+  margin: 1rem 0;
+}
+
+.saveButton {
+  margin-top: 1rem;
+}
+
+.translationBuilderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.translationBuilderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .cds--tabs {
+    flex-grow: 1;
+  }
+}
+
+.languageTools {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.languagePath {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  .language {
+    font-weight: 600;
+  }
+
+  .arrow {
+    font-size: 1rem;
+  }
+}
