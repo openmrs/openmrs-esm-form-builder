@@ -23,30 +23,21 @@
 .translationRow {
   display: grid;
   grid-template-columns: 1fr 1fr auto;
-  /* Align text from the top so multiline doesn’t shift icons. */
   margin-bottom: 1rem;
   padding: 0.5rem 0;
   border-bottom: 1px solid #e0e0e0;
   background-color: #fff;
-  /* optional divider line */
 
   .translationKey {
-    /* 
-      Give a fixed width so all keys line up.
-      Adjust the width as needed for your UI.
-    */
     flex: 0 0 250px;
     font-size: 0.9rem;
     word-wrap: break-word;
-    /* if you have very long strings */
   }
 
   .inlineControls {
     flex: 1 1 auto;
-    /* the edit area grows */
     display: flex;
     align-items: center;
-    /* vertically align icon + text */
     gap: 0.5rem;
   }
 }
