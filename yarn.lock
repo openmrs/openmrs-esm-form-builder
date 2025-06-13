@@ -1409,7 +1409,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@carbon/react@npm:^1.76.0, @carbon/react@npm:^1.83.0":
+"@carbon/react@npm:^1.83.0":
   version: 1.83.0
   resolution: "@carbon/react@npm:1.83.0"
   dependencies:
@@ -3451,17 +3451,17 @@ __metadata:
   linkType: hard
 
 "@openmrs/esm-patient-common-lib@npm:next":
-  version: 10.2.1-pre.7850
-  resolution: "@openmrs/esm-patient-common-lib@npm:10.2.1-pre.7850"
+  version: 10.2.1-pre.7876
+  resolution: "@openmrs/esm-patient-common-lib@npm:10.2.1-pre.7876"
   dependencies:
-    "@carbon/react": "npm:^1.76.0"
+    "@carbon/react": "npm:^1.83.0"
     lodash-es: "npm:^4.17.21"
     uuid: "npm:^8.3.2"
   peerDependencies:
     "@openmrs/esm-framework": 6.x
     react: 18.x
     single-spa: 6.x
-  checksum: 10/ec11ece315ffc0e8241e9695014e38765ba03b030a37e6248e1645fb107e317f4d3fd3bd9c3195936250f9c913011fa2416206ac82eea075175d56ed01d883ec
+  checksum: 10/b08f824791d2426d089df700ffdcd228996e43907746772891d7b3f06a5678c9019e32d1c98496363d4053895d80edffd8b1c041f74e50955f90322464f60d81
   languageName: node
   linkType: hard
 
