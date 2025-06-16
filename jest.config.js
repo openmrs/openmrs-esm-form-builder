@@ -2,9 +2,9 @@
 module.exports = {
   clearMocks: true,
   transform: {
-    '^.+\\.tsx?$': ['@swc/jest'],
+    '^.+\\.[jt]sx?$': ['@swc/jest'],
   },
-  transformIgnorePatterns: ['/node_modules/(?!@openmrs)'],
+  transformIgnorePatterns: ['/node_modules/(?!@openmrs|.+\\.pnp\\.[^\\/]+$)'],
   moduleDirectories: ['node_modules', '__mocks__', 'tools', 'src', __dirname],
   moduleNameMapper: {
     '^@resources/(.*)$': '<rootDir>/src/resources/$1',
