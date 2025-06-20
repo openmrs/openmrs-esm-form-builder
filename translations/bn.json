@@ -37,6 +37,7 @@
   "datePickerType": "The type of date picker to show ",
   "decimalsNotAllowed": "This concept does not allow decimals",
   "delete": "ডিলিট",
+  "deleteAnswer": "Delete answer",
   "deleteForm": "ফরম ডিলিট করুন",
   "deleteFormConfirmation": "আপনি কি নিশ্চিত আপনি ফরম ডিলিট করতে চান?",
   "deletePage": "পৃষ্ঠা ডিলিট করুন",

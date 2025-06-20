@@ -1,0 +1,56 @@
+@use '@carbon/colors';
+@use '@carbon/layout';
+@use '@openmrs/esm-styleguide/src/vars' as *;
+
+.sortableTag {
+  transition: transform 250ms ease;
+  opacity: 1;
+}
+
+.sortableTag.dragging {
+  opacity: 0.5;
+}
+
+.sortableTagWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 layout.$spacing-04 0 layout.$spacing-02;
+}
+
+.dragContainerWhenDragging {
+  @extend .sortableTagWrapper;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  background-color: rgba(255, 255, 255, 0.552);
+  transform: scale(0.75);
+  z-index: 10;
+  border: 1px solid colors.$gray-20;
+}
+
+.conceptAnswerButton {
+  margin-left: 5px;
+  color: colors.$black;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.dragHandle {
+  cursor: grab;
+}
+
+.leftContent {
+  display: flex;
+  align-items: center;
+}
+
+.invalid {
+  background-color: $warning-background;
+  color: $danger;
+  font-weight: bold;
+}
+
+.invalidIcon {
+  color: $danger;
+}
