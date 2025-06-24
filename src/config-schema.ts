@@ -5,6 +5,9 @@ import type { QuestionType } from '@types';
 export const configSchema = {
   questionTypes: {
     _type: Type.Array,
+    _elements: {
+      _type: Type.String,
+    },
     _description: 'Provides information that the processor uses to render a field',
     _default: [
       'control',
@@ -19,12 +22,12 @@ export const configSchema = {
       'testOrder',
       'programState',
     ],
-    _elements: {
-      _type: Type.String,
-    },
   },
   fieldTypes: {
     _type: Type.Array,
+    _elements: {
+      _type: Type.String,
+    },
     _description:
       'An array of available field types. A question can have only one field type, and the field type determines how the question is rendered.',
     _default: [
@@ -46,14 +49,11 @@ export const configSchema = {
       'toggle',
       'markdown',
     ],
-    _elements: {
-      _type: Type.String,
-    },
   },
   showSchemaSaveWarning: {
     _type: Type.Boolean,
-    _default: true,
     _description: 'Whether to show a warning about possibly losing data in the forms dashboard',
+    _default: true,
   },
   dataTypeToRenderingMap: {
     Numeric: {
@@ -138,13 +138,13 @@ export const configSchema = {
   },
   enableFormValidation: {
     _type: Type.Boolean,
-    _default: false,
     _description: 'Whether to enable form validation',
+    _default: false,
   },
   blockRenderingWithErrors: {
     _type: Type.Boolean,
-    _default: false,
     _description: 'Whether to enable form validation',
+    _default: false,
   },
 };
 
