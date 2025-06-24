@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import {
-  Button,
   InlineLoading,
   InlineNotification,
   IconButton,
@@ -11,68 +11,33 @@ import {
   Dropdown,
   ComposedModal,
 } from '@carbon/react';
-import { TrashCan, Add, Download, Edit } from '@carbon/react/icons';
-import { useParams } from 'react-router-dom';
-import styles from './translation-builder.module.scss';
-import { showSnackbar } from '@openmrs/esm-framework';
+import { Download, Edit, ArrowRight } from '@carbon/react/icons';
+import { useLanguageOptions } from '@hooks/getLanguageOptionsFromSession';
 import EditTranslationModal from './edit-translation.modal';
+import { extractTranslatableStrings } from '../../utils/extractTranslatableStrings';
 
+import styles from './translation-builder.module.scss';
 interface TranslationBuilderProps {
   formSchema: any;
   onUpdateSchema: (updatedSchema: any) => void;
 }
 
-function extractTranslatableStrings(form: any): Record<string, string> {
-  const result: Record<string, string> = {};
-  if (form.pages) {
-    form.pages.forEach((page: any) => {
-      if (page.label) result[page.label] = page.label;
-      if (page.sections) {
-        page.sections.forEach((section: any) => {
-          if (section.label) result[section.label] = section.label;
-          if (section.questions) {
-            section.questions.forEach((question: any) => {
-              if (question.label) result[question.label] = question.label;
-              if (question.questions) {
-                question.questions.forEach((subQuestion: any) => {
-                  if (subQuestion.label) result[subQuestion.label] = subQuestion.label;
-                  subQuestion.questionOptions?.answers?.forEach((answer: any) => {
-                    if (answer.label) result[answer.label] = answer.label;
-                  });
-                });
-              }
-              question.questionOptions?.answers?.forEach((answer: any) => {
-                if (answer.label) result[answer.label] = answer.label;
-              });
-            });
-          }
-        });
-      }
-    });
-  }
-  return result;
-}
-
 const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onUpdateSchema }) => {
   const { t } = useTranslation();
   const { formId } = useParams<{ formId: string }>();
-
-  const languageOptions = ['French (fr)', 'Spanish (es)', 'German (de)'];
-  const [selectedLanguage, setSelectedLanguage] = useState(languageOptions[0]);
+  const languageOptions = useLanguageOptions();
+  const [selectedLanguageCode, setSelectedLanguageCode] = useState(() => languageOptions[0]?.code ?? 'en');
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [isModalOpen, setModalOpen] = useState(false);
 
-  const getLangCode = useCallback(() => {
-    return selectedLanguage.match(/\((.*?)\)/)?.[1] ?? selectedLanguage;
-  }, [selectedLanguage]);
+  const langCode = selectedLanguageCode;
 
   useEffect(() => {
     if (!formSchema) return;
 
-    const langCode = getLangCode();
     const schemaTranslations = formSchema.translations?.[langCode];
 
     if (schemaTranslations) {
@@ -81,7 +46,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
       const fallbackStrings = extractTranslatableStrings(formSchema);
       setTranslations(fallbackStrings);
     }
-  }, [formSchema, getLangCode]);
+  }, [formSchema, langCode]);
 
   const handleUpdateValue = (key: string, newValue: string) => {
     const updatedTranslations = { ...translations, [key]: newValue };
@@ -92,7 +57,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
       if (!updatedSchema.translations) {
         updatedSchema.translations = {};
       }
-      updatedSchema.translations[getLangCode()] = updatedTranslations;
+      updatedSchema.translations[langCode] = updatedTranslations;
       onUpdateSchema(updatedSchema);
     }
   };
@@ -129,20 +94,24 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
         <div className={styles.languageTools}>
           <div className={styles.languagePath}>
             <span className={styles.language}>English (en)</span>
-            <span className={styles.arrow}>→</span>
+            <ArrowRight className={styles.arrow} />
           </div>
 
           <Dropdown
             id="target-language"
             items={languageOptions}
-            itemToString={(item) => (item ? item : '')}
-            label="Select language"
+            itemToString={(item) => item?.label ?? ''}
+            label={t('selectLanguage', 'Select language')}
             titleText=""
-            selectedItem={selectedLanguage}
-            onChange={({ selectedItem }) => setSelectedLanguage(selectedItem)}
+            selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
+            onChange={({ selectedItem }) => {
+              if (selectedItem) setSelectedLanguageCode(selectedItem.code);
+            }}
           />
 
-          <Button hasIconOnly kind="ghost" renderIcon={Download} iconDescription="Download" tooltipAlignment="end" />
+          <IconButton kind="ghost" label={t('downloadTranslation', 'Download translation')} size="md">
+            <Download />
+          </IconButton>
         </div>
       </div>
 
@@ -155,8 +124,8 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
           {Object.entries(translations).length > 0 ? (
             Object.entries(translations).map(([key, value]) => (
               <div key={key} className={styles.translationRow}>
-                <strong className={styles.translationKey}>{key}</strong>
-                <strong className={styles.translatedKey}>{value}</strong>
+                <div className={styles.translationKey}>{key}</div>
+                <div className={styles.translatedKey}>{value}</div>
                 <div className={styles.inlineControls}>
                   <IconButton
                     kind="ghost"

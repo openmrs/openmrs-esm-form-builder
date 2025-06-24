@@ -1,3 +1,6 @@
+@use '@carbon/layout';
+@use '@openmrs/esm-styleguide/src/vars' as *;
+
 .translationBuilderContainer {
   overflow-y: scroll;
   overflow-x: hidden;
@@ -6,7 +9,7 @@
 
 .title {
   font-size: 1.25rem;
-  margin-bottom: 1rem;
+  margin-bottom: layout.$spacing-05;
 }
 
 .languageSelector {
@@ -17,14 +20,14 @@
 }
 
 .translationEditor {
-  margin-top: 1rem;
+  margin-top: layout.$spacing-05;
 }
 
 .translationRow {
   display: grid;
   grid-template-columns: 1fr 1fr auto;
-  margin-bottom: 1rem;
-  padding: 0.5rem 0;
+  margin-bottom: layout.$spacing-05;
+  padding: layout.$spacing-03 0;
   border-bottom: 1px solid #e0e0e0;
   background-color: #fff;
 
@@ -38,26 +41,26 @@
     flex: 1 1 auto;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: layout.$spacing-03;
   }
 }
 
 .translationKey {
-  padding: 1rem;
+  padding: layout.$spacing-05;
 }
 
 .translatedKey {
-  color: blue;
+  color: $color-blue-60-2;
   margin-left: 20px;
-  padding: 1rem;
+  padding: layout.$spacing-05;
 }
 
 .addNewStringContainer {
-  margin: 1rem 0;
+  margin: layout.$spacing-05 0;
 }
 
 .saveButton {
-  margin-top: 1rem;
+  margin-top: layout.$spacing-05;
 }
 
 .translationBuilderHeader {
@@ -85,13 +88,9 @@
 .languagePath {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: layout.$spacing-02;
 
   .language {
     font-weight: 600;
-  }
-
-  .arrow {
-    font-size: 1rem;
   }
 }

@@ -25,12 +25,14 @@ import AuditDetails from '../audit-details/audit-details.component';
 import FormRenderer from '../form-renderer/form-renderer.component';
 import Header from '../header/header.component';
 import InteractiveBuilder from '../interactive-builder/interactive-builder.component';
+import { mergeTranslatedSchema } from '../../utils/mergeTranslatedSchema';
 import TranslationBuilder from '../translation-builder/translation-builder.component';
 import SchemaEditor from '../schema-editor/schema-editor.component';
 import ValidationMessage from '../validation-info/validation-info.component';
 import { handleFormValidation } from '@resources/form-validator.resource';
 import { useClobdata } from '@hooks/useClobdata';
 import { useForm } from '@hooks/useForm';
+import { useLanguageOptions } from '@hooks/getLanguageOptionsFromSession';
 import type { IMarker } from 'react-ace';
 import type { FormSchema } from '@openmrs/esm-form-engine-lib';
 import type { Schema } from '@types';
@@ -82,15 +84,13 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   const [errors, setErrors] = useState<Array<MarkerProps>>([]);
   const [validationOn, setValidationOn] = useState(false);
   const [invalidJsonErrorMessage, setInvalidJsonErrorMessage] = useState('');
-  const languageOptions = ['English (en)', 'French (fr)', 'Spanish (es)', 'German (de)'];
-  const [selectedLanguage, setSelectedLanguage] = useState(languageOptions[0]);
+  const languageOptions = useLanguageOptions();
+  const [selectedLanguageCode, setSelectedLanguageCode] = useState(() => languageOptions[0]?.code ?? 'en');
   const [shouldMergeTranslation, setShouldMergeTranslation] = useState(false);
   const [renderLangCode, setRenderLangCode] = useState<string | null>(null);
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
-  const getLangCode = () => selectedLanguage.match(/\((.*?)\)/)?.[1] ?? selectedLanguage;
-  const [selectedLangCode, setSelectedLangCode] = useState(getLangCode());
   const langCodeForPreview = useMemo(
     () => (shouldMergeTranslation ? renderLangCode : null),
     [shouldMergeTranslation, renderLangCode],
@@ -234,49 +234,12 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
       }
     }
   }, [stringifiedSchema, updateSchema, resetErrorMessage]);
-  const mergedSchemaForPreview = useMemo(() => {
-    if (!schema) return schema;
+  const translatedSchema = useMemo(() => {
+    if (!schema) return null;
     if (!shouldMergeTranslation) return schema;
-
-    if (schema.translations && schema.translations[langCodeForPreview]) {
-      const merged = JSON.parse(JSON.stringify(schema));
-      const translations = schema.translations[langCodeForPreview];
-      if (merged.pages) {
-        merged.pages = merged.pages.map((page: any) => {
-          if (translations[page.label]) {
-            page.label = translations[page.label];
-          }
-          if (page.sections) {
-            page.sections = page.sections.map((section: any) => {
-              if (translations[section.label]) {
-                section.label = translations[section.label];
-              }
-              if (section.questions) {
-                section.questions = section.questions.map((question: any) => {
-                  if (translations[question.label]) {
-                    question.label = translations[question.label];
-                  }
-                  if (question.questions) {
-                    question.questions = question.questions.map((subQuestion: any) => {
-                      if (translations[subQuestion.label]) {
-                        subQuestion.label = translations[subQuestion.label];
-                      }
-                      return subQuestion;
-                    });
-                  }
-                  return question;
-                });
-              }
-              return section;
-            });
-          }
-          return page;
-        });
-      }
-      return merged;
-    }
-    return schema;
+    return mergeTranslatedSchema(schema, langCodeForPreview);
   }, [schema, shouldMergeTranslation, langCodeForPreview]);
+
   const handleRenderSchemaChanges = useCallback(() => {
     if (errors.length && blockRenderingWithErrors) {
       setValidationOn(true);
@@ -284,14 +247,14 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
     }
 
     setShouldMergeTranslation(true);
-    setRenderLangCode(selectedLangCode);
+    setRenderLangCode(selectedLanguageCode);
     if (errors.length && !blockRenderingWithErrors) {
       setValidationOn(true);
       renderSchemaChanges();
     } else {
       renderSchemaChanges();
     }
-  }, [blockRenderingWithErrors, errors.length, renderSchemaChanges, selectedLangCode]);
+  }, [blockRenderingWithErrors, errors.length, renderSchemaChanges, selectedLanguageCode]);
 
   const handleSchemaImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files[0];
@@ -354,16 +317,15 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                 <Dropdown
                   id="target-language"
                   items={languageOptions}
-                  itemToString={(item) => (item ? item : '')}
+                  itemToString={(item) => item?.label ?? ''}
                   label="Select language"
                   titleText=""
-                  selectedItem={selectedLanguage}
+                  selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
                   onChange={({ selectedItem }) => {
-                    setSelectedLanguage(selectedItem);
-                    const langCode = selectedItem.match(/\((.*?)\)/)?.[1] ?? selectedItem;
-                    setSelectedLangCode(langCode);
+                    if (selectedItem) setSelectedLanguageCode(selectedItem.code);
                   }}
                 />
+
                 {!schema ? (
                   <FileUploader
                     onChange={handleSchemaImport}
@@ -469,7 +431,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
             </TabList>
             <TabPanels>
               <TabPanel>
-                <FormRenderer schema={mergedSchemaForPreview || schema} isLoading={isLoadingFormOrSchema} />
+                <FormRenderer schema={translatedSchema} isLoading={isLoadingFormOrSchema} />
               </TabPanel>
               <TabPanel>
                 <InteractiveBuilder
