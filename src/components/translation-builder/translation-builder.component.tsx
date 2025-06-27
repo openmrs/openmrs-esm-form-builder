@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InlineLoading, InlineNotification, IconButton, Tabs, Tab, TabList, Dropdown } from '@carbon/react';
 import { Download, Edit, ArrowRight } from '@carbon/react/icons';
@@ -35,19 +35,39 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     }
   }, [formSchema, langCode]);
 
-  const handleUpdateValue = (key: string, newValue: string) => {
-    const updatedTranslations = { ...translations, [key]: newValue };
-    setTranslations(updatedTranslations);
+  const handleUpdateValue = useCallback(
+    (key: string, newValue: string) => {
+      const updatedTranslations = { ...translations, [key]: newValue };
+      setTranslations(updatedTranslations);
 
-    if (formSchema) {
-      const updatedSchema = { ...formSchema };
-      if (!updatedSchema.translations) {
-        updatedSchema.translations = {};
+      if (formSchema) {
+        const updatedSchema = { ...formSchema };
+        if (!updatedSchema.translations) {
+          updatedSchema.translations = {};
+        }
+        updatedSchema.translations[langCode] = updatedTranslations;
+        onUpdateSchema(updatedSchema);
       }
-      updatedSchema.translations[langCode] = updatedTranslations;
-      onUpdateSchema(updatedSchema);
-    }
-  };
+    },
+    [formSchema, langCode, onUpdateSchema, translations],
+  );
+
+  const handleEditClick = useCallback(
+    (editingKey: string) => {
+      const dispose = showModal('edit-translation-modal', {
+        onClose: () => dispose(),
+        originalKey: editingKey,
+        initialValue: translations[editingKey],
+        onSave: (newValue: string) => {
+          const updated = { ...translations, [editingKey]: newValue };
+          setTranslations(updated);
+          handleUpdateValue(editingKey, newValue);
+          dispose();
+        },
+      });
+    },
+    [translations, handleUpdateValue],
+  );
 
   return (
     <div className={styles.translationBuilderContainer}>
@@ -100,18 +120,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
                     kind="ghost"
                     label={t('editString', 'Edit string')}
                     onClick={() => {
-                      const editingKey = key;
-                      const dispose = showModal('edit-translation-modal', {
-                        onClose: () => dispose(),
-                        originalKey: editingKey,
-                        initialValue: translations[editingKey],
-                        onSave: (newValue: string) => {
-                          const updated = { ...translations, [editingKey]: newValue };
-                          setTranslations(updated);
-                          handleUpdateValue(editingKey, newValue);
-                          dispose();
-                        },
-                      });
+                      handleEditClick(key);
                     }}
                     size="md"
                     className={styles.deleteButton}
