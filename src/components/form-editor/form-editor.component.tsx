@@ -25,11 +25,11 @@ import AuditDetails from '../audit-details/audit-details.component';
 import FormRenderer from '../form-renderer/form-renderer.component';
 import Header from '../header/header.component';
 import InteractiveBuilder from '../interactive-builder/interactive-builder.component';
-import { mergeTranslatedSchema } from '../../utils/mergeTranslatedSchema';
 import TranslationBuilder from '../translation-builder/translation-builder.component';
 import SchemaEditor from '../schema-editor/schema-editor.component';
 import ValidationMessage from '../validation-info/validation-info.component';
 import { handleFormValidation } from '@resources/form-validator.resource';
+import { mergeTranslatedSchema } from '../../utils/translationSchemaUtils';
 import { useClobdata } from '@hooks/useClobdata';
 import { useForm } from '@hooks/useForm';
 import { useLanguageOptions } from '@hooks/getLanguageOptionsFromSession';
@@ -234,6 +234,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
       }
     }
   }, [stringifiedSchema, updateSchema, resetErrorMessage]);
+
   const translatedSchema = useMemo(() => {
     if (!schema) return null;
     if (!shouldMergeTranslation) return schema;
@@ -318,7 +319,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                   id="target-language"
                   items={languageOptions}
                   itemToString={(item) => item?.label ?? ''}
-                  label="Select language"
+                  label={t('selectLanguage', 'Select language')}
                   titleText=""
                   selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
                   onChange={({ selectedItem }) => {

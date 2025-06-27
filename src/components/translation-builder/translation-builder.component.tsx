@@ -1,22 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
-import {
-  InlineLoading,
-  InlineNotification,
-  IconButton,
-  Tabs,
-  Tab,
-  TabList,
-  Dropdown,
-  ComposedModal,
-} from '@carbon/react';
+import { InlineLoading, InlineNotification, IconButton, Tabs, Tab, TabList, Dropdown } from '@carbon/react';
 import { Download, Edit, ArrowRight } from '@carbon/react/icons';
+import { showModal } from '@openmrs/esm-framework';
 import { useLanguageOptions } from '@hooks/getLanguageOptionsFromSession';
-import EditTranslationModal from './edit-translation.modal';
-import { extractTranslatableStrings } from '../../utils/extractTranslatableStrings';
-
+import { extractTranslatableStrings } from '../../utils/translationSchemaUtils';
 import styles from './translation-builder.module.scss';
+
 interface TranslationBuilderProps {
   formSchema: any;
   onUpdateSchema: (updatedSchema: any) => void;
@@ -24,22 +14,19 @@ interface TranslationBuilderProps {
 
 const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onUpdateSchema }) => {
   const { t } = useTranslation();
-  const { formId } = useParams<{ formId: string }>();
   const languageOptions = useLanguageOptions();
   const [selectedLanguageCode, setSelectedLanguageCode] = useState(() => languageOptions[0]?.code ?? 'en');
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [editingKey, setEditingKey] = useState<string | null>(null);
-  const [isModalOpen, setModalOpen] = useState(false);
 
   const langCode = selectedLanguageCode;
 
   useEffect(() => {
     if (!formSchema) return;
+    const translationsMap = formSchema.translations as Record<string, Record<string, string>> | undefined;
 
-    const schemaTranslations = formSchema.translations?.[langCode];
-
+    const schemaTranslations = translationsMap?.[langCode];
     if (schemaTranslations) {
       setTranslations(schemaTranslations);
     } else {
@@ -62,24 +49,6 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     }
   };
 
-  const openEditModal = (key: string) => {
-    setEditingKey(key);
-    setModalOpen(true);
-  };
-
-  const closeEditModal = () => {
-    setEditingKey(null);
-    setModalOpen(false);
-  };
-
-  const handleSaveEdit = (newValue: string) => {
-    if (editingKey) {
-      const updated = { ...translations, [editingKey]: newValue };
-      setTranslations(updated);
-      handleUpdateValue(editingKey, newValue);
-    }
-    closeEditModal();
-  };
   return (
     <div className={styles.translationBuilderContainer}>
       <div className={styles.translationBuilderHeader}>
@@ -130,7 +99,20 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
                   <IconButton
                     kind="ghost"
                     label={t('editString', 'Edit string')}
-                    onClick={() => openEditModal(key)}
+                    onClick={() => {
+                      const editingKey = key;
+                      const dispose = showModal('edit-translation-modal', {
+                        onClose: () => dispose(),
+                        originalKey: editingKey,
+                        initialValue: translations[editingKey],
+                        onSave: (newValue: string) => {
+                          const updated = { ...translations, [editingKey]: newValue };
+                          setTranslations(updated);
+                          handleUpdateValue(editingKey, newValue);
+                          dispose();
+                        },
+                      });
+                    }}
                     size="md"
                     className={styles.deleteButton}
                   >
@@ -143,17 +125,6 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
             <p className={styles.noTranslations}>{t('noTranslations', 'No translatable strings found.')}</p>
           )}
         </div>
-      )}
-
-      {isModalOpen && editingKey && (
-        <ComposedModal open onClose={closeEditModal} size="sm">
-          <EditTranslationModal
-            closeModal={closeEditModal}
-            originalKey={editingKey}
-            initialValue={translations[editingKey]}
-            onSave={handleSaveEdit}
-          />
-        </ComposedModal>
       )}
     </div>
   );

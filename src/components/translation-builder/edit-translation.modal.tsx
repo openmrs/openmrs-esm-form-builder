@@ -3,24 +3,19 @@ import { useTranslation } from 'react-i18next';
 import { Button, ModalBody, ModalHeader, ModalFooter, TextInput } from '@carbon/react';
 
 interface EditTranslationModalProps {
-  closeModal: () => void;
+  onClose: () => void;
   originalKey: string;
   initialValue: string;
   onSave: (newValue: string) => void;
 }
 
-const EditTranslationModal: React.FC<EditTranslationModalProps> = ({
-  closeModal,
-  originalKey,
-  initialValue,
-  onSave,
-}) => {
+const EditTranslationModal: React.FC<EditTranslationModalProps> = ({ onClose, originalKey, initialValue, onSave }) => {
   const { t } = useTranslation();
   const [newValue, setNewValue] = useState(initialValue);
 
   return (
     <>
-      <ModalHeader closeModal={closeModal} title={t('editTranslationTitle', 'Edit Translation')} />
+      <ModalHeader closeModal={onClose} title={t('editTranslationTitle', 'Edit Translation')} />
       <ModalBody>
         <p>
           {t('editingFor', 'Editing translation for:')} <strong>{originalKey}</strong>
@@ -33,7 +28,7 @@ const EditTranslationModal: React.FC<EditTranslationModalProps> = ({
         />
       </ModalBody>
       <ModalFooter>
-        <Button kind="secondary" onClick={closeModal}>
+        <Button kind="secondary" onClick={onClose}>
           {t('cancel', 'Cancel')}
         </Button>
         <Button

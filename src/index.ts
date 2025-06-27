@@ -72,6 +72,11 @@ export const deleteFormModal = getAsyncLifecycle(
   options,
 );
 
+export const editTranslationModal = getAsyncLifecycle(
+  () => import('./components/translation-builder/edit-translation.modal'),
+  options,
+);
+
 export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
 }

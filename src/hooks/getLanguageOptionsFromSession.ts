@@ -1,12 +1,5 @@
 import { useSession } from '@openmrs/esm-framework';
-
-/**
- * Capitalizes the first letter of a string.
- */
-function capitalizeFirstLetter(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
+import { capitalize } from 'lodash-es';
 /**
  * Hook to get readable language options from OpenMRS session.
  * Example output: [{ label: "English (en)", code: "en" }, { label: "French (fr)", code: "fr" }]
@@ -30,7 +23,7 @@ export function useLanguageOptions(): { label: string; code: string }[] {
   return localeCodes.map((code) => {
     const label = displayNames.of(code) || code;
     return {
-      label: `${capitalizeFirstLetter(label)} (${code})`,
+      label: `${capitalize(label)} (${code})`,
       code,
     };
   });
