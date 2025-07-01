@@ -96,7 +96,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
       <div className={styles.translationBuilderHeader}>
         <Tabs>
           <TabList aria-label="Form previews">
-            x<Tab>{t('all', 'All')}</Tab>
+            <Tab>{t('all', 'All')}</Tab>
             <Tab>{t('translated', 'Translated')}</Tab>
             <Tab>{t('untranslated', 'Untranslated')}</Tab>
           </TabList>
