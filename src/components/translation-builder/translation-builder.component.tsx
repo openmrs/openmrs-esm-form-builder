@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InlineLoading, InlineNotification, IconButton, Tabs, Tab, TabList, Dropdown } from '@carbon/react';
 import { Download, Edit, ArrowRight } from '@carbon/react/icons';
@@ -68,13 +68,35 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     },
     [translations, handleUpdateValue],
   );
+  const downloadableTranslationResource = useMemo(() => {
+    if (!formSchema || !formSchema.translations) {
+      return null;
+    }
+    const translationsForLang = formSchema.translations[langCode] || {};
+    const translationResource = {
+      uuid: formSchema.uuid || 'undefined-uuid',
+      form: formSchema.name,
+      description: `${langCode.toUpperCase()} Translations for '${formSchema.name}'`,
+      language: langCode,
+      translations: translationsForLang,
+    };
+    return new Blob([JSON.stringify(translationResource, null, 2)], { type: 'application/json' });
+  }, [formSchema, langCode]);
+
+  const translationFilename = useMemo(() => {
+    return `${formSchema?.name}_translations_${langCode}.json`;
+  }, [formSchema, langCode]);
+
+  const translationResourceUrl = useMemo(() => {
+    return downloadableTranslationResource ? URL.createObjectURL(downloadableTranslationResource) : '#';
+  }, [downloadableTranslationResource]);
 
   return (
     <div className={styles.translationBuilderContainer}>
       <div className={styles.translationBuilderHeader}>
         <Tabs>
           <TabList aria-label="Form previews">
-            <Tab>{t('all', 'All')}</Tab>
+            x<Tab>{t('all', 'All')}</Tab>
             <Tab>{t('translated', 'Translated')}</Tab>
             <Tab>{t('untranslated', 'Untranslated')}</Tab>
           </TabList>
@@ -97,10 +119,11 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
               if (selectedItem) setSelectedLanguageCode(selectedItem.code);
             }}
           />
-
-          <IconButton kind="ghost" label={t('downloadTranslation', 'Download translation')} size="md">
-            <Download />
-          </IconButton>
+          <a download={translationFilename} href={translationResourceUrl}>
+            <IconButton kind="ghost" label={t('downloadTranslation', 'Download translation')} size="md">
+              <Download />
+            </IconButton>
+          </a>
         </div>
       </div>
 
