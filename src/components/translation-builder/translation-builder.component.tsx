@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InlineLoading, InlineNotification, IconButton, Tabs, Tab, TabList, Dropdown } from '@carbon/react';
 import { Download, Edit, ArrowRight } from '@carbon/react/icons';
@@ -19,6 +19,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'all' | 'translated' | 'untranslated'>('all');
 
   const langCode = selectedLanguageCode;
 
@@ -69,10 +70,35 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     [translations, handleUpdateValue],
   );
 
+  const fallbackStrings = useMemo(() => {
+    return formSchema ? extractTranslatableStrings(formSchema) : {};
+  }, [formSchema]);
+
+  const isTranslated = (key: string, value: string | undefined | null) => {
+    const fallback = fallbackStrings[key] ?? '';
+    return value != null && value.trim() !== '' && value.trim() !== fallback.trim();
+  };
+
+  const filteredTranslations = Object.entries(translations).filter(([key, value]) => {
+    if (activeTab === 'translated') {
+      return isTranslated(key, value);
+    }
+    if (activeTab === 'untranslated') {
+      return !isTranslated(key, value);
+    }
+    return true;
+  });
+
   return (
     <div className={styles.translationBuilderContainer}>
       <div className={styles.translationBuilderHeader}>
-        <Tabs>
+        <Tabs
+          onChange={({ selectedIndex }) => {
+            if (selectedIndex === 0) setActiveTab('all');
+            if (selectedIndex === 1) setActiveTab('translated');
+            if (selectedIndex === 2) setActiveTab('untranslated');
+          }}
+        >
           <TabList aria-label="Form previews">
             <Tab>{t('all', 'All')}</Tab>
             <Tab>{t('translated', 'Translated')}</Tab>
@@ -110,8 +136,8 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
         <InlineNotification kind="error" title={t('error', 'Error')} subtitle={error} lowContrast />
       ) : (
         <div className={styles.translationEditor}>
-          {Object.entries(translations).length > 0 ? (
-            Object.entries(translations).map(([key, value]) => (
+          {filteredTranslations.length > 0 ? (
+            filteredTranslations.map(([key, value]) => (
               <div key={key} className={styles.translationRow}>
                 <div className={styles.translationKey}>{key}</div>
                 <div className={styles.translatedKey}>{value}</div>
@@ -131,7 +157,18 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
               </div>
             ))
           ) : (
-            <p className={styles.noTranslations}>{t('noTranslations', 'No translatable strings found.')}</p>
+            <InlineNotification
+              kind="info"
+              subtitle={
+                activeTab === 'translated'
+                  ? t('noTranslatedStrings', 'No strings are translated yet.')
+                  : activeTab === 'untranslated'
+                    ? t('noUntranslatedStrings', 'All strings are translated.')
+                    : t('noTranslations', 'No translatable strings found.')
+              }
+              hideCloseButton
+              lowContrast
+            />
           )}
         </div>
       )}
