@@ -315,18 +315,6 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
             <div className={styles.heading}>
               <span className={styles.tabHeading}>{t('schemaEditor', 'Schema editor')}</span>
               <div className={styles.topBtns}>
-                <Dropdown
-                  id="target-language"
-                  items={languageOptions}
-                  itemToString={(item) => item?.label ?? ''}
-                  label={t('selectLanguage', 'Select language')}
-                  titleText=""
-                  selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
-                  onChange={({ selectedItem }) => {
-                    if (selectedItem) setSelectedLanguageCode(selectedItem.code);
-                  }}
-                />
-
                 {!schema ? (
                   <FileUploader
                     onChange={handleSchemaImport}
@@ -348,6 +336,17 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                     {t('inputDummySchema', 'Input dummy schema')}
                   </Button>
                 ) : null}
+                <Dropdown
+                  id="target-language"
+                  items={languageOptions}
+                  itemToString={(item) => item?.label ?? ''}
+                  label={t('selectLanguage', 'Select language')}
+                  titleText={t('previewFormIn', 'Preview form in')}
+                  selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
+                  onChange={({ selectedItem }) => {
+                    if (selectedItem) setSelectedLanguageCode(selectedItem.code);
+                  }}
+                />
                 <Button kind="ghost" onClick={handleRenderSchemaChanges} disabled={invalidJsonErrorMessage}>
                   <span>{t('renderChanges', 'Render changes')}</span>
                 </Button>
