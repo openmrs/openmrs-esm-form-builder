@@ -107,3 +107,16 @@ button {
   display: flex;
   align-items: center;
 }
+
+.dropdownContainer {
+  display: flex;
+  align-items: center;
+  :global(.cds--label) {
+    margin-bottom: 0 !important;
+  }
+}
+
+.dropdownLabel {
+  margin-right: 0.25rem;
+  white-space: nowrap;
+}
