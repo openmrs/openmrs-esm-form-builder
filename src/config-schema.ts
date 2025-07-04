@@ -56,6 +56,7 @@ export const configSchema = {
     _default: true,
   },
   dataTypeToRenderingMap: {
+    _type: Type.Object,
     _description: 'A map used to match concept datatypes to rendering types',
     _default: {
       Numeric: ['number', 'fixed-value'],
@@ -146,7 +147,7 @@ export const configSchema = {
   },
   blockRenderingWithErrors: {
     _type: Type.Boolean,
-    _description: 'Whether to enable form validation',
+    _description: 'Whether to block form rendering when there are validation errors',
     _default: false,
   },
 };
