@@ -337,20 +337,19 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                   </Button>
                 ) : null}
                 <div className={styles.dropdownContainer}>
-                  <span className={classNames('cds--label', styles.dropdownLabel)}>
-                    {t('previewFormIn', 'Preview form in')}
-                  </span>
                   <Dropdown
                     id="target-language"
                     items={languageOptions}
                     itemToString={(item) => item?.label ?? ''}
                     label={t('selectLanguage', 'Select language')}
-                    titleText=""
-                    selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
                     onChange={({ selectedItem }) => {
                       if (selectedItem) setSelectedLanguageCode(selectedItem.code);
                     }}
+                    titleText={t('previewFormIn', 'Preview form in')}
+                    selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
+                    type="inline"
                   />
+                  
                 </div>
                 <Button kind="ghost" onClick={handleRenderSchemaChanges} disabled={invalidJsonErrorMessage}>
                   <span>{t('renderChanges', 'Render changes')}</span>
