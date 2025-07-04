@@ -164,6 +164,7 @@
   "patientIdentifierTypeHelperText": "Les champs de type identifiant patient doivent être liés à un type d’identifiant patient.",
   "pleaseTryAgain": "Veuillez réessayer SVP.",
   "preview": "Aperçu",
+  "previewFormIn": "Preview form in",
   "problemLoadingPreview": "Un problème est survenu lors du chargement de l’aperçu du schéma.",
   "program": "Programme",
   "programState": "Etat du programme",

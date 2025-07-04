@@ -164,6 +164,7 @@
   "patientIdentifierTypeHelperText": "I campi del tipo di identificativo paziente devono essere collegati a un tipo di identificativo paziente",
   "pleaseTryAgain": "Per favore riprova.",
   "preview": "Anteprima",
+  "previewFormIn": "Preview form in",
   "problemLoadingPreview": "Si è verificato un problema nel caricamento dell'anteprima dello schema",
   "program": "Programma",
   "programState": "Stato del programma",
