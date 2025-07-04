@@ -164,6 +164,7 @@
   "patientIdentifierTypeHelperText": "患者标识符类型字段必须链接到患者标识符类型",
   "pleaseTryAgain": "请重试。",
   "preview": "预览",
+  "previewFormIn": "Preview form in",
   "problemLoadingPreview": "加载模式预览时出现问题",
   "program": "项目",
   "programState": "项目状态",

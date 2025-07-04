@@ -164,6 +164,7 @@
   "patientIdentifierTypeHelperText": "Los campos de tipo de identificador de paciente deben estar vinculados a un tipo de identificador de paciente",
   "pleaseTryAgain": "Por favor intente nuevamente.",
   "preview": "Vista previa",
+  "previewFormIn": "Preview form in",
   "problemLoadingPreview": "Hubo un problema al cargar la vista previa del esquema",
   "program": "Programa",
   "programState": "Estado de programa",

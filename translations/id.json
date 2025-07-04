@@ -164,6 +164,7 @@
   "patientIdentifierTypeHelperText": "Bidang tipe identifikasi pasien harus terkait dengan tipe identifikasi pasien",
   "pleaseTryAgain": "Silakan coba lagi.",
   "preview": "Pratinjau",
+  "previewFormIn": "Preview form in",
   "problemLoadingPreview": "Ada masalah memuat pratinjau skema",
   "program": "Program",
   "programState": "Status program",
