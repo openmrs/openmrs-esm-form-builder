@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InlineLoading, InlineNotification, IconButton, Tabs, Tab, TabList, Dropdown } from '@carbon/react';
 import { Download, Edit, ArrowRight } from '@carbon/react/icons';
@@ -19,6 +19,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const langCode = selectedLanguageCode;
 
@@ -68,6 +69,52 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     },
     [translations, handleUpdateValue],
   );
+  const downloadableTranslationResource = useMemo(() => {
+    if (!formSchema) return null;
+
+    const schemaTranslations = formSchema.translations?.[langCode];
+
+    if (langCode === 'en') {
+      const fallbackStrings = extractTranslatableStrings(formSchema);
+      return new Blob(
+        [
+          JSON.stringify(
+            {
+              uuid: formSchema.uuid || 'undefined-uuid',
+              form: formSchema.name,
+              description: `EN Translations for '${formSchema.name}'`,
+              language: langCode,
+              translations: fallbackStrings,
+            },
+            null,
+            2,
+          ),
+        ],
+        { type: 'application/json' },
+      );
+    }
+
+    if (schemaTranslations) {
+      return new Blob(
+        [
+          JSON.stringify(
+            {
+              uuid: formSchema.uuid || 'undefined-uuid',
+              form: formSchema.name,
+              description: `${langCode.toUpperCase()} Translations for '${formSchema.name}'`,
+              language: langCode,
+              translations: schemaTranslations,
+            },
+            null,
+            2,
+          ),
+        ],
+        { type: 'application/json' },
+      );
+    }
+
+    return null;
+  }, [formSchema, langCode]);
 
   return (
     <div className={styles.translationBuilderContainer}>
@@ -97,8 +144,28 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
               if (selectedItem) setSelectedLanguageCode(selectedItem.code);
             }}
           />
-
-          <IconButton kind="ghost" label={t('downloadTranslation', 'Download translation')} size="md">
+          <IconButton
+            kind="ghost"
+            label={t('downloadTranslation', 'Download translation')}
+            size="md"
+            onClick={() => {
+              setDownloadError(null);
+              if (!downloadableTranslationResource) {
+                if (langCode !== 'en') {
+                  setDownloadError(t('noTranslationForLang', 'No translations found for selected language.'));
+                }
+                return;
+              }
+              const url = URL.createObjectURL(downloadableTranslationResource);
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = `${formSchema?.name}_translations_${langCode}.json`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+            }}
+          >
             <Download />
           </IconButton>
         </div>
@@ -109,31 +176,43 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
       ) : error ? (
         <InlineNotification kind="error" title={t('error', 'Error')} subtitle={error} lowContrast />
       ) : (
-        <div className={styles.translationEditor}>
-          {Object.entries(translations).length > 0 ? (
-            Object.entries(translations).map(([key, value]) => (
-              <div key={key} className={styles.translationRow}>
-                <div className={styles.translationKey}>{key}</div>
-                <div className={styles.translatedKey}>{value}</div>
-                <div className={styles.inlineControls}>
-                  <IconButton
-                    kind="ghost"
-                    label={t('editString', 'Edit string')}
-                    onClick={() => {
-                      handleEditClick(key);
-                    }}
-                    size="md"
-                    className={styles.deleteButton}
-                  >
-                    <Edit />
-                  </IconButton>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className={styles.noTranslations}>{t('noTranslations', 'No translatable strings found.')}</p>
+        <>
+          {downloadError && (
+            <InlineNotification
+              className={styles.downloadError}
+              kind="error"
+              title={t('error', 'Error')}
+              subtitle={downloadError}
+              lowContrast
+              onClose={() => setDownloadError(null)}
+            />
           )}
-        </div>
+          <div className={styles.translationEditor}>
+            {Object.entries(translations).length > 0 ? (
+              Object.entries(translations).map(([key, value]) => (
+                <div key={key} className={styles.translationRow}>
+                  <div className={styles.translationKey}>{key}</div>
+                  <div className={styles.translatedKey}>{value}</div>
+                  <div className={styles.inlineControls}>
+                    <IconButton
+                      kind="ghost"
+                      label={t('editString', 'Edit string')}
+                      onClick={() => {
+                        handleEditClick(key);
+                      }}
+                      size="md"
+                      className={styles.deleteButton}
+                    >
+                      <Edit />
+                    </IconButton>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className={styles.noTranslations}>{t('noTranslations', 'No translatable strings found.')}</p>
+            )}
+          </div>
+        </>
       )}
     </div>
   );
