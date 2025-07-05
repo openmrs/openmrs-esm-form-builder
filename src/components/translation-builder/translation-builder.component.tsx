@@ -70,16 +70,16 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     [translations, handleUpdateValue],
   );
 
-  const fallbackStrings = useMemo(() => {
+  const fallbackStrings: Record<string, string> = useMemo(() => {
     return formSchema ? extractTranslatableStrings(formSchema) : {};
   }, [formSchema]);
 
-  const isTranslated = (key: string, value: string | undefined | null) => {
+  const isTranslated: (key: string, value: string | undefined | null) => boolean = (key, value) => {
     const fallback = fallbackStrings[key] ?? '';
     return value != null && value.trim() !== '' && value.trim() !== fallback.trim();
   };
 
-  const filteredTranslations = Object.entries(translations).filter(([key, value]) => {
+  const filteredTranslations: Array<[string, string]> = Object.entries(translations).filter(([key, value]) => {
     if (activeTab === 'translated') {
       return isTranslated(key, value);
     }
