@@ -107,3 +107,11 @@ button {
   display: flex;
   align-items: center;
 }
+
+.dropdown {
+  grid-gap: 0 !important;
+
+  :global(.cds--label) {
+    white-space: nowrap;
+  }
+}
