@@ -104,6 +104,25 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     return true;
   });
 
+  const handleDownloadTranslation = useCallback(() => {
+    setDownloadError(null);
+    if (!downloadableTranslationResource) {
+      if (langCode !== 'en') {
+        setDownloadError(t('noTranslationForLang', 'No translations found for selected language.'));
+      }
+      return;
+    }
+
+    const url = URL.createObjectURL(downloadableTranslationResource);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${formSchema?.name}_translations_${langCode}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [downloadableTranslationResource, langCode, formSchema?.name, t]);
+
   return (
     <div className={styles.translationBuilderContainer}>
       <div className={styles.translationBuilderHeader}>
@@ -143,23 +162,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
             kind="ghost"
             label={t('downloadTranslation', 'Download translation')}
             size="md"
-            onClick={() => {
-              setDownloadError(null);
-              if (!downloadableTranslationResource) {
-                if (langCode !== 'en') {
-                  setDownloadError(t('noTranslationForLang', 'No translations found for selected language.'));
-                }
-                return;
-              }
-              const url = URL.createObjectURL(downloadableTranslationResource);
-              const link = document.createElement('a');
-              link.href = url;
-              link.download = `${formSchema?.name}_translations_${langCode}.json`;
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              URL.revokeObjectURL(url);
-            }}
+            onClick={handleDownloadTranslation}
           >
             <Download />
           </IconButton>
