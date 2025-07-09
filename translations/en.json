@@ -166,6 +166,7 @@
   "patientIdentifierTypeHelperText": "Patient identifier type fields must be linked to a patient identifier type",
   "pleaseTryAgain": "Please try again.",
   "preview": "Preview",
+  "previewFormIn": "Preview form in",
   "problemLoadingPreview": "There was a problem loading the schema preview",
   "program": "Program",
   "programState": "Program state",

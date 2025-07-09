@@ -20,27 +20,25 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'all' | 'translated' | 'untranslated'>('all');
 
   const langCode = selectedLanguageCode;
+
+  const fallbackStrings = useMemo(() => {
+    return formSchema ? extractTranslatableStrings(formSchema) : {};
+  }, [formSchema]);
 
   useEffect(() => {
     if (!formSchema) return;
     const translationsMap = formSchema.translations as Record<string, Record<string, string>> | undefined;
-
     const schemaTranslations = translationsMap?.[langCode];
-    if (schemaTranslations) {
-      setTranslations(schemaTranslations);
-    } else {
-      const fallbackStrings = extractTranslatableStrings(formSchema);
-      setTranslations(fallbackStrings);
-    }
-  }, [formSchema, langCode]);
+    setTranslations(schemaTranslations ?? fallbackStrings);
+  }, [formSchema, langCode, fallbackStrings]);
 
   const handleUpdateValue = useCallback(
     (key: string, newValue: string) => {
       const updatedTranslations = { ...translations, [key]: newValue };
       setTranslations(updatedTranslations);
-
       if (formSchema) {
         const updatedSchema = { ...formSchema };
         if (!updatedSchema.translations) {
@@ -69,57 +67,53 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     },
     [translations, handleUpdateValue],
   );
+
   const downloadableTranslationResource = useMemo(() => {
     if (!formSchema) return null;
-
     const schemaTranslations = formSchema.translations?.[langCode];
+    const translationsToExport = langCode === 'en' ? fallbackStrings : schemaTranslations;
 
-    if (langCode === 'en') {
-      const fallbackStrings = extractTranslatableStrings(formSchema);
-      return new Blob(
-        [
-          JSON.stringify(
-            {
-              uuid: formSchema.uuid || 'undefined-uuid',
-              form: formSchema.name,
-              description: `EN Translations for '${formSchema.name}'`,
-              language: langCode,
-              translations: fallbackStrings,
-            },
-            null,
-            2,
-          ),
-        ],
-        { type: 'application/json' },
-      );
-    }
+    if (!translationsToExport) return null;
 
-    if (schemaTranslations) {
-      return new Blob(
-        [
-          JSON.stringify(
-            {
-              uuid: formSchema.uuid || 'undefined-uuid',
-              form: formSchema.name,
-              description: `${langCode.toUpperCase()} Translations for '${formSchema.name}'`,
-              language: langCode,
-              translations: schemaTranslations,
-            },
-            null,
-            2,
-          ),
-        ],
-        { type: 'application/json' },
-      );
-    }
+    return new Blob(
+      [
+        JSON.stringify(
+          {
+            uuid: formSchema.uuid || 'undefined-uuid',
+            form: formSchema.name,
+            description: `${langCode.toUpperCase()} Translations for '${formSchema.name}'`,
+            language: langCode,
+            translations: translationsToExport,
+          },
+          null,
+          2,
+        ),
+      ],
+      { type: 'application/json' },
+    );
+  }, [formSchema, langCode, fallbackStrings]);
 
-    return null;
-  }, [formSchema, langCode]);
+  const isTranslated = (key: string, value: string | undefined | null): boolean => {
+    const fallback = fallbackStrings[key] ?? '';
+    return value != null && value.trim() !== '' && value.trim() !== fallback.trim();
+  };
+
+  const filteredTranslations = Object.entries(translations).filter(([key, value]) => {
+    if (activeTab === 'translated') return isTranslated(key, value);
+    if (activeTab === 'untranslated') return !isTranslated(key, value);
+    return true;
+  });
 
   return (
     <div className={styles.translationBuilderContainer}>
       <div className={styles.translationBuilderHeader}>
-        <Tabs>
+        <Tabs
+          onChange={({ selectedIndex }) => {
+            if (selectedIndex === 0) setActiveTab('all');
+            if (selectedIndex === 1) setActiveTab('translated');
+            if (selectedIndex === 2) setActiveTab('untranslated');
+          }}
+        >
           <TabList aria-label="Form previews">
             <Tab>{t('all', 'All')}</Tab>
             <Tab>{t('translated', 'Translated')}</Tab>
@@ -144,6 +138,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
               if (selectedItem) setSelectedLanguageCode(selectedItem.code);
             }}
           />
+
           <IconButton
             kind="ghost"
             label={t('downloadTranslation', 'Download translation')}
@@ -187,9 +182,10 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
               onClose={() => setDownloadError(null)}
             />
           )}
+
           <div className={styles.translationEditor}>
-            {Object.entries(translations).length > 0 ? (
-              Object.entries(translations).map(([key, value]) => (
+            {filteredTranslations.length > 0 ? (
+              filteredTranslations.map(([key, value]) => (
                 <div key={key} className={styles.translationRow}>
                   <div className={styles.translationKey}>{key}</div>
                   <div className={styles.translatedKey}>{value}</div>
@@ -197,9 +193,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
                     <IconButton
                       kind="ghost"
                       label={t('editString', 'Edit string')}
-                      onClick={() => {
-                        handleEditClick(key);
-                      }}
+                      onClick={() => handleEditClick(key)}
                       size="md"
                       className={styles.deleteButton}
                     >
@@ -209,7 +203,18 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
                 </div>
               ))
             ) : (
-              <p className={styles.noTranslations}>{t('noTranslations', 'No translatable strings found.')}</p>
+              <InlineNotification
+                kind="info"
+                subtitle={
+                  activeTab === 'translated'
+                    ? t('noTranslatedStrings', 'No strings are translated yet.')
+                    : activeTab === 'untranslated'
+                      ? t('noUntranslatedStrings', 'All strings are translated.')
+                      : t('noTranslations', 'No translatable strings found.')
+                }
+                hideCloseButton
+                lowContrast
+              />
             )}
           </div>
         </>
