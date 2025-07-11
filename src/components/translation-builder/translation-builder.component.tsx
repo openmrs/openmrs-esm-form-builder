@@ -19,28 +19,26 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'translated' | 'untranslated'>('all');
 
   const langCode = selectedLanguageCode;
 
+  const fallbackStrings = useMemo(() => {
+    return formSchema ? extractTranslatableStrings(formSchema) : {};
+  }, [formSchema]);
+
   useEffect(() => {
     if (!formSchema) return;
     const translationsMap = formSchema.translations as Record<string, Record<string, string>> | undefined;
-
     const schemaTranslations = translationsMap?.[langCode];
-    if (schemaTranslations) {
-      setTranslations(schemaTranslations);
-    } else {
-      const fallbackStrings = extractTranslatableStrings(formSchema);
-      setTranslations(fallbackStrings);
-    }
-  }, [formSchema, langCode]);
+    setTranslations(schemaTranslations ?? fallbackStrings);
+  }, [formSchema, langCode, fallbackStrings]);
 
   const handleUpdateValue = useCallback(
     (key: string, newValue: string) => {
       const updatedTranslations = { ...translations, [key]: newValue };
       setTranslations(updatedTranslations);
-
       if (formSchema) {
         const updatedSchema = { ...formSchema };
         if (!updatedSchema.translations) {
@@ -70,24 +68,60 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     [translations, handleUpdateValue],
   );
 
-  const fallbackStrings: Record<string, string> = useMemo(() => {
-    return formSchema ? extractTranslatableStrings(formSchema) : {};
-  }, [formSchema]);
+  const downloadableTranslationResource = useMemo(() => {
+    if (!formSchema) return null;
+    const schemaTranslations = formSchema.translations?.[langCode];
+    const translationsToExport = langCode === 'en' ? fallbackStrings : schemaTranslations;
 
-  const isTranslated: (key: string, value: string | undefined | null) => boolean = (key, value) => {
+    if (!translationsToExport) return null;
+
+    return new Blob(
+      [
+        JSON.stringify(
+          {
+            uuid: formSchema.uuid || '',
+            form: formSchema.name,
+            description: `${langCode.toUpperCase()} Translations for '${formSchema.name}'`,
+            language: langCode,
+            translations: translationsToExport,
+          },
+          null,
+          2,
+        ),
+      ],
+      { type: 'application/json' },
+    );
+  }, [formSchema, langCode, fallbackStrings]);
+
+  const isTranslated = (key: string, value: string | undefined | null): boolean => {
     const fallback = fallbackStrings[key] ?? '';
     return value != null && value.trim() !== '' && value.trim() !== fallback.trim();
   };
 
-  const filteredTranslations: Array<[string, string]> = Object.entries(translations).filter(([key, value]) => {
-    if (activeTab === 'translated') {
-      return isTranslated(key, value);
-    }
-    if (activeTab === 'untranslated') {
-      return !isTranslated(key, value);
-    }
+  const filteredTranslations = Object.entries(translations).filter(([key, value]) => {
+    if (activeTab === 'translated') return isTranslated(key, value);
+    if (activeTab === 'untranslated') return !isTranslated(key, value);
     return true;
   });
+
+  const handleDownloadTranslation = useCallback(() => {
+    setDownloadError(null);
+    if (!downloadableTranslationResource) {
+      if (langCode !== 'en') {
+        setDownloadError(t('noTranslationForLang', 'No translations found for selected language.'));
+      }
+      return;
+    }
+
+    const url = URL.createObjectURL(downloadableTranslationResource);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${formSchema?.name}_translations_${langCode}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [downloadableTranslationResource, langCode, formSchema?.name, t]);
 
   return (
     <div className={styles.translationBuilderContainer}>
@@ -124,7 +158,12 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
             }}
           />
 
-          <IconButton kind="ghost" label={t('downloadTranslation', 'Download translation')} size="md">
+          <IconButton
+            kind="ghost"
+            label={t('downloadTranslation', 'Download translation')}
+            size="md"
+            onClick={handleDownloadTranslation}
+          >
             <Download />
           </IconButton>
         </div>
@@ -135,42 +174,53 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
       ) : error ? (
         <InlineNotification kind="error" title={t('error', 'Error')} subtitle={error} lowContrast />
       ) : (
-        <div className={styles.translationEditor}>
-          {filteredTranslations.length > 0 ? (
-            filteredTranslations.map(([key, value]) => (
-              <div key={key} className={styles.translationRow}>
-                <div className={styles.translationKey}>{key}</div>
-                <div className={styles.translatedKey}>{value}</div>
-                <div className={styles.inlineControls}>
-                  <IconButton
-                    kind="ghost"
-                    label={t('editString', 'Edit string')}
-                    onClick={() => {
-                      handleEditClick(key);
-                    }}
-                    size="md"
-                    className={styles.deleteButton}
-                  >
-                    <Edit />
-                  </IconButton>
-                </div>
-              </div>
-            ))
-          ) : (
+        <>
+          {downloadError && (
             <InlineNotification
-              kind="info"
-              subtitle={
-                activeTab === 'translated'
-                  ? t('noTranslatedStrings', 'No strings are translated yet.')
-                  : activeTab === 'untranslated'
-                    ? t('noUntranslatedStrings', 'All strings are translated.')
-                    : t('noTranslations', 'No translatable strings found.')
-              }
-              hideCloseButton
+              className={styles.downloadError}
+              kind="error"
+              title={t('error', 'Error')}
+              subtitle={downloadError}
               lowContrast
+              onClose={() => setDownloadError(null)}
             />
           )}
-        </div>
+
+          <div className={styles.translationEditor}>
+            {filteredTranslations.length > 0 ? (
+              filteredTranslations.map(([key, value]) => (
+                <div key={key} className={styles.translationRow}>
+                  <div className={styles.translationKey}>{key}</div>
+                  <div className={styles.translatedKey}>{value}</div>
+                  <div className={styles.inlineControls}>
+                    <IconButton
+                      kind="ghost"
+                      label={t('editString', 'Edit string')}
+                      onClick={() => handleEditClick(key)}
+                      size="md"
+                      className={styles.deleteButton}
+                    >
+                      <Edit />
+                    </IconButton>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <InlineNotification
+                kind="info"
+                subtitle={
+                  activeTab === 'translated'
+                    ? t('noTranslatedStrings', 'No strings are translated yet.')
+                    : activeTab === 'untranslated'
+                      ? t('noUntranslatedStrings', 'All strings are translated.')
+                      : t('noTranslations', 'No translatable strings found.')
+                }
+                hideCloseButton
+                lowContrast
+              />
+            )}
+          </div>
+        </>
       )}
     </div>
   );
