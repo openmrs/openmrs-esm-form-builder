@@ -79,7 +79,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
       [
         JSON.stringify(
           {
-            uuid: formSchema.uuid || 'undefined-uuid',
+            uuid: formSchema.uuid || '',
             form: formSchema.name,
             description: `${langCode.toUpperCase()} Translations for '${formSchema.name}'`,
             language: langCode,
