@@ -150,6 +150,7 @@
   "noMatchingFormsToDisplay": "No matching forms to display",
   "noSchemaLoaded": "სქემა ჩატვირთული არაა",
   "noTranslatedStrings": "No strings are translated yet.",
+  "noTranslationForLang": "No translations found for selected language.",
   "noTranslations": "No translatable strings found.",
   "notSearchable": "ძებნადი არაა",
   "noUntranslatedStrings": "All strings are translated.",
