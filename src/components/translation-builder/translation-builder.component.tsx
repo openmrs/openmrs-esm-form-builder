@@ -21,6 +21,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const [error, setError] = useState<string | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'translated' | 'untranslated'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const langCode = selectedLanguageCode;
 
@@ -99,9 +100,11 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   };
 
   const filteredTranslations = Object.entries(translations).filter(([key, value]) => {
-    if (activeTab === 'translated') return isTranslated(key, value);
-    if (activeTab === 'untranslated') return !isTranslated(key, value);
-    return true;
+    if (activeTab === 'translated' && !isTranslated(key, value)) return false;
+    if (activeTab === 'untranslated' && isTranslated(key, value)) return false;
+
+    const lowerQuery = searchQuery.toLowerCase();
+    return key.toLowerCase().includes(lowerQuery) || (value ?? '').toLowerCase().includes(lowerQuery);
   });
 
   const handleDownloadTranslation = useCallback(() => {
@@ -185,6 +188,16 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
               onClose={() => setDownloadError(null)}
             />
           )}
+
+          <div className={styles.searchBox}>
+            <input
+              type="text"
+              placeholder={t('searchTranslationKeys', 'Search Translation Keys...')}
+              className={styles.searchInput}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
 
           <div className={styles.translationEditor}>
             {filteredTranslations.length > 0 ? (
