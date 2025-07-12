@@ -5,6 +5,9 @@ import type { QuestionType } from '@types';
 export const configSchema = {
   questionTypes: {
     _type: Type.Array,
+    _elements: {
+      _type: Type.String,
+    },
     _description: 'Provides information that the processor uses to render a field',
     _default: [
       'control',
@@ -22,6 +25,9 @@ export const configSchema = {
   },
   fieldTypes: {
     _type: Type.Array,
+    _elements: {
+      _type: Type.String,
+    },
     _description:
       'An array of available field types. A question can have only one field type, and the field type determines how the question is rendered.',
     _default: [
@@ -46,12 +52,12 @@ export const configSchema = {
   },
   showSchemaSaveWarning: {
     _type: Type.Boolean,
-    _default: true,
     _description: 'Whether to show a warning about possibly losing data in the forms dashboard',
+    _default: true,
   },
   dataTypeToRenderingMap: {
-    _description: 'A map used to match concept datatypes to rendering types',
     _type: Type.Object,
+    _description: 'A map used to match concept datatypes to rendering types',
     _default: {
       Numeric: ['number', 'fixed-value'],
       Coded: [
@@ -79,16 +85,70 @@ export const configSchema = {
       'N/A': [],
       Complex: ['file'],
     },
+    Numeric: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+    },
+    Coded: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+    },
+    Text: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+    },
+    Date: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+    },
+    Datetime: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+    },
+    Boolean: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+    },
+    Rule: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+    },
+    'N/A': {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+    },
+    Complex: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+    },
   },
   enableFormValidation: {
     _type: Type.Boolean,
-    _default: false,
     _description: 'Whether to enable form validation',
+    _default: false,
   },
   blockRenderingWithErrors: {
     _type: Type.Boolean,
+    _description: 'Whether to block form rendering when there are validation errors',
     _default: false,
-    _description: 'Whether to enable form validation',
   },
 };
 
