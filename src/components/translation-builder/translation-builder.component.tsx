@@ -22,6 +22,14 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'translated' | 'untranslated'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
   const langCode = selectedLanguageCode;
 
@@ -94,18 +102,23 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     );
   }, [formSchema, langCode, fallbackStrings]);
 
-  const isTranslated = (key: string, value: string | undefined | null): boolean => {
-    const fallback = fallbackStrings[key] ?? '';
-    return value != null && value.trim() !== '' && value.trim() !== fallback.trim();
-  };
+  const isTranslated = useCallback(
+    (key: string, value: string | undefined | null): boolean => {
+      const fallback = fallbackStrings[key] ?? '';
+      return value != null && value.trim() !== '' && value.trim() !== fallback.trim();
+    },
+    [fallbackStrings],
+  );
 
-  const filteredTranslations = Object.entries(translations).filter(([key, value]) => {
-    if (activeTab === 'translated' && !isTranslated(key, value)) return false;
-    if (activeTab === 'untranslated' && isTranslated(key, value)) return false;
+  const filteredTranslations = useMemo(() => {
+    return Object.entries(translations).filter(([key, value]) => {
+      if (activeTab === 'translated' && !isTranslated(key, value)) return false;
+      if (activeTab === 'untranslated' && isTranslated(key, value)) return false;
 
-    const lowerQuery = searchQuery.toLowerCase();
-    return key.toLowerCase().includes(lowerQuery) || (value ?? '').toLowerCase().includes(lowerQuery);
-  });
+      const lowerQuery = debouncedQuery.toLowerCase();
+      return key.toLowerCase().includes(lowerQuery) || (value ?? '').toLowerCase().includes(lowerQuery);
+    });
+  }, [translations, activeTab, debouncedQuery, isTranslated]);
 
   const handleDownloadTranslation = useCallback(() => {
     setDownloadError(null);
