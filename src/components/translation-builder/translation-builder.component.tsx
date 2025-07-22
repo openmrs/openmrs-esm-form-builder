@@ -4,6 +4,8 @@ import { InlineLoading, InlineNotification, IconButton, Tabs, Tab, TabList, Drop
 import { Download, Edit, ArrowRight } from '@carbon/react/icons';
 import { showModal } from '@openmrs/esm-framework';
 import { useLanguageOptions } from '@hooks/getLanguageOptionsFromSession';
+import { useBackendTranslations } from '@hooks/useBackendTranslations';
+
 import { extractTranslatableStrings } from '../../utils/translationSchemaUtils';
 import styles from './translation-builder.module.scss';
 
@@ -36,13 +38,41 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const fallbackStrings = useMemo(() => {
     return formSchema ? extractTranslatableStrings(formSchema) : {};
   }, [formSchema]);
+  const { backendTranslations, isLoadingTranslations, backendTranslationError } = useBackendTranslations(
+    formSchema?.uuid,
+    langCode,
+  );
 
   useEffect(() => {
     if (!formSchema) return;
-    const translationsMap = formSchema.translations as Record<string, Record<string, string>> | undefined;
-    const schemaTranslations = translationsMap?.[langCode];
-    setTranslations(schemaTranslations ?? fallbackStrings);
-  }, [formSchema, langCode, fallbackStrings]);
+
+    if (langCode === 'en') {
+      setTranslations(fallbackStrings);
+      return;
+    }
+
+    if (isLoadingTranslations) return;
+
+    const mergedTranslations = Object.entries(fallbackStrings).reduce(
+      (acc, [key, fallbackValue]) => {
+        acc[key] = backendTranslations?.[key] ?? fallbackValue;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
+
+    setTranslations(mergedTranslations);
+
+    const updatedSchema = {
+      ...formSchema,
+      translations: {
+        ...(formSchema.translations || {}),
+        [langCode]: mergedTranslations,
+      },
+    };
+
+    onUpdateSchema(updatedSchema);
+  }, [formSchema, langCode, fallbackStrings, backendTranslations, isLoadingTranslations, onUpdateSchema]);
 
   const handleUpdateValue = useCallback(
     (key: string, newValue: string) => {
