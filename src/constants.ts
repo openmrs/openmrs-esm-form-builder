@@ -9,6 +9,7 @@ export const questionTypes = [
   'obs',
   'obsGroup',
   'patientIdentifier',
+  'personAttribute',
   'testOrder',
   'programState',
 ] as const;
@@ -43,7 +44,7 @@ export const renderingTypes: Array<RenderType> = [
   'select-concept-answers',
 ];
 
-export const renderTypeOptions: Record<Exclude<QuestionType, 'obs'>, Array<RenderType>> = {
+export const renderTypeOptions: Record<Exclude<QuestionType, 'obs' | 'personAttribute'>, Array<RenderType>> = {
   control: ['text', 'markdown'],
   encounterDatetime: ['date', 'datetime'],
   encounterLocation: ['ui-select-extended'],

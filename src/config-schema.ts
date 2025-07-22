@@ -1,60 +1,88 @@
-import { Type } from '@openmrs/esm-framework';
+import { Type, validators } from '@openmrs/esm-framework';
 import { type RenderType } from '@openmrs/esm-form-engine-lib';
 import type { QuestionType } from '@types';
+
+const allowedQuestionTypes: Array<QuestionType> = [
+  'control',
+  'encounterDatetime',
+  'encounterLocation',
+  'encounterProvider',
+  'encounterRole',
+  'obs',
+  'obsGroup',
+  'patientIdentifier',
+  'personAttribute',
+  'testOrder',
+  'programState',
+];
+
+const allowedFieldTypes: Array<RenderType> = [
+  'checkbox',
+  'checkbox-searchable',
+  'content-switcher',
+  'date',
+  'datetime',
+  'drug',
+  'encounter-location',
+  'encounter-provider',
+  'encounter-role',
+  'fixed-value',
+  'file',
+  'group',
+  'number',
+  'problem',
+  'radio',
+  'repeating',
+  'select',
+  'text',
+  'textarea',
+  'toggle',
+  'ui-select-extended',
+  'workspace-launcher',
+  'markdown',
+  'extension-widget',
+  'select-concept-answers',
+];
 
 export const configSchema = {
   questionTypes: {
     _type: Type.Array,
+    _elements: {
+      _type: Type.String,
+    },
     _description: 'Provides information that the processor uses to render a field',
-    _default: [
-      'control',
-      'encounterDatetime',
-      'encounterLocation',
-      'encounterProvider',
-      'encounterRole',
-      'obs',
-      'obsGroup',
-      'patientIdentifier',
-      'personAttribute',
-      'testOrder',
-      'programState',
-    ],
+    _default: allowedQuestionTypes,
+    _validators: [validators.oneOf(allowedQuestionTypes)],
   },
   fieldTypes: {
     _type: Type.Array,
+    _elements: {
+      _type: Type.String,
+    },
     _description:
       'An array of available field types. A question can have only one field type, and the field type determines how the question is rendered.',
-    _default: [
-      'date',
-      'drug',
-      'field-set',
-      'file',
-      'group',
-      'checkbox',
-      'checkbox-searchable',
-      'number',
-      'problem',
-      'radio',
-      'repeating',
-      'select',
-      'text',
-      'textarea',
-      'ui-select-extended',
-      'toggle',
-      'markdown',
-    ],
+    _default: allowedFieldTypes,
+    _validators: [validators.oneOf(allowedFieldTypes)],
   },
   showSchemaSaveWarning: {
     _type: Type.Boolean,
-    _default: true,
     _description: 'Whether to show a warning about possibly losing data in the forms dashboard',
+    _default: true,
   },
   dataTypeToRenderingMap: {
-    _description: 'A map used to match concept datatypes to rendering types',
-    _type: Type.Object,
-    _default: {
-      Numeric: ['number', 'fixed-value'],
-      Coded: [
+    Numeric: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: ['number', 'fixed-value'],
+    },
+    Coded: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: [
         'select',
         'checkbox',
         'checkbox-searchable',
@@ -71,24 +99,66 @@ export const configSchema = {
         'encounter-role',
         'multiCheckbox',
       ],
-      Text: ['text', 'textarea', 'fixed-value'],
-      Date: ['date', 'fixed-value'],
-      Datetime: ['datetime', 'fixed-value'],
-      Boolean: ['toggle', 'select', 'radio', 'content-switcher', 'fixed-value'],
-      Rule: ['repeating', 'group'],
-      'N/A': [],
-      Complex: ['file'],
+    },
+    Text: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: ['text', 'textarea', 'fixed-value'],
+    },
+    Date: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: ['date', 'fixed-value'],
+    },
+    Datetime: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: ['datetime', 'fixed-value'],
+    },
+    Boolean: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: ['toggle', 'select', 'radio', 'content-switcher', 'fixed-value'],
+    },
+    Rule: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: ['repeating', 'group'],
+    },
+    'N/A': {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: [],
+    },
+    Complex: {
+      _type: Type.Array,
+      _elements: {
+        _type: Type.String,
+      },
+      _default: ['file'],
     },
   },
   enableFormValidation: {
     _type: Type.Boolean,
-    _default: false,
     _description: 'Whether to enable form validation',
+    _default: false,
   },
   blockRenderingWithErrors: {
     _type: Type.Boolean,
+    _description: 'Whether to block form rendering when there are validation errors',
     _default: false,
-    _description: 'Whether to enable form validation',
   },
 };
 
