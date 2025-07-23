@@ -1,0 +1,112 @@
+@use '@carbon/layout';
+@use '@openmrs/esm-styleguide/src/vars' as *;
+
+.translationBuilderContainer {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  height: 95vh;
+}
+
+.title {
+  font-size: 1.25rem;
+  margin-bottom: layout.$spacing-05;
+}
+
+.languageSelector {
+  .languageSelector {
+    white-space: nowrap;
+    display: inline-block;
+  }
+}
+
+.translationEditor {
+  margin-top: layout.$spacing-05;
+}
+
+.translationRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  margin-bottom: layout.$spacing-05;
+  padding: layout.$spacing-03 0;
+  border-bottom: 1px solid $ui-03;
+  background-color: #fff;
+
+  .translationKey {
+    flex: 0 0 250px;
+    font-size: 0.9rem;
+    word-wrap: break-word;
+  }
+
+  .inlineControls {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    gap: layout.$spacing-03;
+  }
+}
+
+.translationKey {
+  padding: layout.$spacing-05;
+}
+
+.translatedKey {
+  color: $color-blue-60-2;
+  margin-left: 20px;
+  padding: layout.$spacing-05;
+}
+
+.addNewStringContainer {
+  margin: layout.$spacing-05 0;
+}
+
+.saveButton {
+  margin-top: layout.$spacing-05;
+}
+
+.translationBuilderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.translationBuilderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .cds--tabs {
+    flex-grow: 1;
+  }
+}
+
+.languageTools {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.languagePath {
+  display: flex;
+  align-items: center;
+  gap: layout.$spacing-02;
+
+  .language {
+    font-weight: 600;
+  }
+}
+
+.downloadError {
+  margin-top: layout.$spacing-05;
+}
+
+.searchBox {
+  margin-top: layout.$spacing-05;
+  display: flex;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: 1px solid $color-gray-30;
+  font-size: 0.875rem;
+}
