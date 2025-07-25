@@ -1,36 +1,33 @@
-import useSWR from 'swr';
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 
-interface ClobData {
-  translations: Record<string, string>;
-}
+export async function fetchBackendTranslations(
+  formUuid: string,
+  langCode: string,
+  fallbackStrings: Record<string, string>,
+): Promise<Record<string, string>> {
+  try {
+    const formUrl = `${restBaseUrl}/form/${formUuid}?v=full`;
+    const formResponse = await openmrsFetch(formUrl);
+    const form = formResponse?.data;
 
-export function useBackendTranslations(formUuid: string | undefined, langCode: string) {
-  const shouldFetch = !!formUuid && langCode !== 'en';
+    const translationResource = form?.resources?.find((r: any) => r.name?.endsWith(`translations_${langCode}`));
 
-  const { data, error, isLoading } = useSWR<ClobData>(
-    shouldFetch ? `${restBaseUrl}/form/${formUuid}?v=full` : null,
-    async (formUrl) => {
-      const formResponse = await openmrsFetch(formUrl);
-      const form = formResponse?.data;
+    if (!translationResource?.valueReference) return fallbackStrings;
 
-      if (!form?.resources?.length) return { translations: {} };
+    const clobUrl = `${restBaseUrl}/clobdata/${translationResource.valueReference}`;
+    const clobResponse = await openmrsFetch(clobUrl);
+    const backendTranslations: Record<string, string> = clobResponse?.data?.translations ?? {};
 
-      const translationResource = form.resources.find((r: any) => r.name?.endsWith(`translations_${langCode}`));
-
-      if (!translationResource?.valueReference) return { translations: {} };
-
-      const clobUrl = `${restBaseUrl}/clobdata/${translationResource.valueReference}`;
-      const clobResponse = await openmrsFetch(clobUrl);
-      const clobData = clobResponse?.data;
-
-      return clobData ?? { translations: {} };
-    },
-  );
-
-  return {
-    backendTranslations: data?.translations ?? {},
-    backendTranslationError: error,
-    isLoadingTranslations: isLoading,
-  };
+    // Merge only existing keys
+    return Object.entries(fallbackStrings).reduce(
+      (acc, [key, value]) => {
+        acc[key] = backendTranslations[key] ?? value;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
+  } catch (error) {
+    console.error('Error fetching backend translations:', error);
+    return fallbackStrings;
+  }
 }

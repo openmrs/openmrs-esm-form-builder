@@ -2,10 +2,10 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InlineLoading, InlineNotification, IconButton, Tabs, Tab, TabList, Dropdown } from '@carbon/react';
 import { Download, Edit, ArrowRight } from '@carbon/react/icons';
+import { useParams } from 'react-router-dom';
 import { showModal } from '@openmrs/esm-framework';
 import { useLanguageOptions } from '@hooks/getLanguageOptionsFromSession';
-import { useBackendTranslations } from '@hooks/useBackendTranslations';
-
+import { fetchBackendTranslations } from '@hooks/useBackendTranslations';
 import { extractTranslatableStrings } from '../../utils/translationSchemaUtils';
 import styles from './translation-builder.module.scss';
 
@@ -25,7 +25,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const [activeTab, setActiveTab] = useState<'all' | 'translated' | 'untranslated'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
-
+  const { formUuid } = useParams<{ formUuid?: string }>();
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedQuery(searchQuery);
@@ -38,41 +38,6 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const fallbackStrings = useMemo(() => {
     return formSchema ? extractTranslatableStrings(formSchema) : {};
   }, [formSchema]);
-  const { backendTranslations, isLoadingTranslations, backendTranslationError } = useBackendTranslations(
-    formSchema?.uuid,
-    langCode,
-  );
-
-  useEffect(() => {
-    if (!formSchema) return;
-
-    if (langCode === 'en') {
-      setTranslations(fallbackStrings);
-      return;
-    }
-
-    if (isLoadingTranslations) return;
-
-    const mergedTranslations = Object.entries(fallbackStrings).reduce(
-      (acc, [key, fallbackValue]) => {
-        acc[key] = backendTranslations?.[key] ?? fallbackValue;
-        return acc;
-      },
-      {} as Record<string, string>,
-    );
-
-    setTranslations(mergedTranslations);
-
-    const updatedSchema = {
-      ...formSchema,
-      translations: {
-        ...(formSchema.translations || {}),
-        [langCode]: mergedTranslations,
-      },
-    };
-
-    onUpdateSchema(updatedSchema);
-  }, [formSchema, langCode, fallbackStrings, backendTranslations, isLoadingTranslations, onUpdateSchema]);
 
   const handleUpdateValue = useCallback(
     (key: string, newValue: string) => {
@@ -139,6 +104,39 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     },
     [fallbackStrings],
   );
+  useEffect(() => {
+    if (selectedLanguageCode === 'en' && formSchema) {
+      setTranslations(fallbackStrings);
+    }
+  }, [selectedLanguageCode, formSchema, fallbackStrings]);
+
+  const languageChanger = async (newLangCode: string) => {
+    setSelectedLanguageCode(newLangCode);
+    if (!formSchema || newLangCode === 'en') {
+      setTranslations(fallbackStrings);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const merged = await fetchBackendTranslations(formUuid, newLangCode, fallbackStrings);
+      setTranslations(merged);
+
+      const updatedSchema = {
+        ...formSchema,
+        translations: {
+          ...(formSchema.translations || {}),
+          [newLangCode]: merged,
+        },
+      };
+
+      onUpdateSchema(updatedSchema);
+    } catch (err) {
+      setError('Failed to load backend translations.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredTranslations = useMemo(() => {
     return Object.entries(translations).filter(([key, value]) => {
@@ -200,7 +198,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
             titleText=""
             selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
             onChange={({ selectedItem }) => {
-              if (selectedItem) setSelectedLanguageCode(selectedItem.code);
+              if (selectedItem) languageChanger(selectedItem.code);
             }}
           />
 
