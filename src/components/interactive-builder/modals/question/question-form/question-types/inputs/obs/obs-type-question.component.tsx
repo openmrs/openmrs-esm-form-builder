@@ -106,6 +106,22 @@ const ObsTypeQuestion: React.FC = () => {
     return [];
   }, [concept]);
 
+  const conceptMeta = useMemo(() => {
+    const extendedConcept = concept as any;
+    if (extendedConcept) {
+      return {
+        class: extendedConcept.conceptClass?.display || '',
+        datatype: extendedConcept.datatype?.display || '',
+        nameUuid: extendedConcept.uuid || '',
+      };
+    }
+    return {
+      class: '',
+      datatype: '',
+      nameUuid: '',
+    };
+  }, [concept]);
+
   const hasSameAsMappings = conceptMappings.some((mapping) => mapping.relationship === 'SAME-AS');
 
   return (
@@ -123,6 +139,34 @@ const ObsTypeQuestion: React.FC = () => {
           lowContrast
           title={t('decimalsNotAllowed', 'This concept does not allow decimals')}
         />
+      )}
+
+      {Object.values(conceptMeta).some((value) => value) && (
+        <FormGroup>
+          <FormLabel className={styles.label}>{t('attributes', 'Attributes')}</FormLabel>
+          <table className={styles.tableStriped}>
+            <thead>
+              <tr>
+                <th>{t('attributes', 'Attributes')}</th>
+                <th>{t('value', 'Value')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{t('class', 'Class')}</td>
+                <td>{conceptMeta.class}</td>
+              </tr>
+              <tr>
+                <td>{t('datatype', 'Data Type')}</td>
+                <td>{conceptMeta.datatype}</td>
+              </tr>
+              <tr>
+                <td>{t('externalId', 'External ID')}</td>
+                <td>{conceptMeta.nameUuid}</td>
+              </tr>
+            </tbody>
+          </table>
+        </FormGroup>
       )}
 
       {conceptMappings.length > 0 && (
