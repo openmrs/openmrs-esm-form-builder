@@ -6,6 +6,10 @@ import { useFormField } from '../../../../form-field-context';
 import type { Concept, ConceptMapping, DatePickerType } from '@types';
 import styles from './obs-type-question.scss';
 
+interface ExtendedConcept extends Concept {
+  conceptClass?: { display?: string };
+}
+
 const ObsTypeQuestion: React.FC = () => {
   const { t } = useTranslation();
   const { formField, setFormField, concept, setConcept } = useFormField();
@@ -107,18 +111,12 @@ const ObsTypeQuestion: React.FC = () => {
   }, [concept]);
 
   const conceptMeta = useMemo(() => {
-    const extendedConcept = concept as any;
-    if (extendedConcept) {
-      return {
-        class: extendedConcept.conceptClass?.display || '',
-        datatype: extendedConcept.datatype?.display || '',
-        nameUuid: extendedConcept.uuid || '',
-      };
-    }
+    const extendedConcept = concept as ExtendedConcept;
+
     return {
-      class: '',
-      datatype: '',
-      nameUuid: '',
+      class: extendedConcept?.conceptClass?.display || '',
+      datatype: extendedConcept?.datatype?.display || '',
+      nameUuid: extendedConcept?.uuid || '',
     };
   }, [concept]);
 
