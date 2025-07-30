@@ -104,6 +104,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     },
     [fallbackStrings],
   );
+
   useEffect(() => {
     if (selectedLanguageCode === 'en' && formSchema) {
       setTranslations(fallbackStrings);
