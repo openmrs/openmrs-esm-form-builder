@@ -2,8 +2,10 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InlineLoading, InlineNotification, IconButton, Tabs, Tab, TabList, Dropdown } from '@carbon/react';
 import { Download, Edit, ArrowRight } from '@carbon/react/icons';
+import { useParams } from 'react-router-dom';
 import { showModal } from '@openmrs/esm-framework';
 import { useLanguageOptions } from '@hooks/getLanguageOptionsFromSession';
+import { fetchBackendTranslations } from '@hooks/useBackendTranslations';
 import { extractTranslatableStrings } from '../../utils/translationSchemaUtils';
 import styles from './translation-builder.module.scss';
 
@@ -23,7 +25,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const [activeTab, setActiveTab] = useState<'all' | 'translated' | 'untranslated'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
-
+  const { formUuid } = useParams<{ formUuid?: string }>();
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedQuery(searchQuery);
@@ -36,13 +38,6 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const fallbackStrings = useMemo(() => {
     return formSchema ? extractTranslatableStrings(formSchema) : {};
   }, [formSchema]);
-
-  useEffect(() => {
-    if (!formSchema) return;
-    const translationsMap = formSchema.translations as Record<string, Record<string, string>> | undefined;
-    const schemaTranslations = translationsMap?.[langCode];
-    setTranslations(schemaTranslations ?? fallbackStrings);
-  }, [formSchema, langCode, fallbackStrings]);
 
   const handleUpdateValue = useCallback(
     (key: string, newValue: string) => {
@@ -110,6 +105,40 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     [fallbackStrings],
   );
 
+  useEffect(() => {
+    if (selectedLanguageCode === 'en' && formSchema) {
+      setTranslations(fallbackStrings);
+    }
+  }, [selectedLanguageCode, formSchema, fallbackStrings]);
+
+  const languageChanger = async (newLangCode: string) => {
+    setSelectedLanguageCode(newLangCode);
+    if (!formSchema || newLangCode === 'en') {
+      setTranslations(fallbackStrings);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const merged = await fetchBackendTranslations(formUuid, newLangCode, fallbackStrings);
+      setTranslations(merged);
+
+      const updatedSchema = {
+        ...formSchema,
+        translations: {
+          ...(formSchema.translations || {}),
+          [newLangCode]: merged,
+        },
+      };
+
+      onUpdateSchema(updatedSchema);
+    } catch (err) {
+      setError('Failed to load backend translations.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredTranslations = useMemo(() => {
     return Object.entries(translations).filter(([key, value]) => {
       if (activeTab === 'translated' && !isTranslated(key, value)) return false;
@@ -170,7 +199,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
             titleText=""
             selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
             onChange={({ selectedItem }) => {
-              if (selectedItem) setSelectedLanguageCode(selectedItem.code);
+              if (selectedItem) languageChanger(selectedItem.code);
             }}
           />
 
