@@ -1,10 +1,13 @@
+# Workflow to automatically check and update OpenMRS dependencies
+# Runs hourly and can be triggered manually
+
+name: 'Check for OpenMRS Dependency Updates'
+
 on:
   workflow_dispatch:
   schedule:
-    # every hour
-    - cron: '30 * * * *'
-
-name: 'Check for OpenMRS Dependency Updates'
+    # Runs every 4 hours
+    - cron: '0 */4 * * *'
 
 jobs:
   check-for-updates:
@@ -68,6 +71,7 @@ jobs:
             > This PR was automatically generated and will be automatically merged if checks pass.
           branch: 'chore/update-openmrs-deps'
           author: 'OpenMRS Bot <infrastructure@openmrs.org>'
+          committer: 'OpenMRS Bot <infrastructure@openmrs.org>'
           token: ${{ secrets.OMRS_BOT_GH_TOKEN }}
           labels: |
             dependencies
