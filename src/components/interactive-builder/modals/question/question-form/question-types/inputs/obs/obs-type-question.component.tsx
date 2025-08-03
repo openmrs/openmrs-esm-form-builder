@@ -6,10 +6,6 @@ import { useFormField } from '../../../../form-field-context';
 import type { Concept, ConceptMapping, DatePickerType } from '@types';
 import styles from './obs-type-question.scss';
 
-interface ExtendedConcept extends Concept {
-  conceptClass?: { display?: string };
-}
-
 const ObsTypeQuestion: React.FC = () => {
   const { t } = useTranslation();
   const { formField, setFormField, concept, setConcept } = useFormField();
@@ -110,16 +106,6 @@ const ObsTypeQuestion: React.FC = () => {
     return [];
   }, [concept]);
 
-  const conceptMeta = useMemo(() => {
-    const extendedConcept = concept as ExtendedConcept;
-
-    return {
-      class: extendedConcept?.conceptClass?.display || '',
-      datatype: extendedConcept?.datatype?.display || '',
-      nameUuid: extendedConcept?.uuid || '',
-    };
-  }, [concept]);
-
   const hasSameAsMappings = conceptMappings.some((mapping) => mapping.relationship === 'SAME-AS');
 
   return (
@@ -139,7 +125,7 @@ const ObsTypeQuestion: React.FC = () => {
         />
       )}
 
-      {Object.values(conceptMeta).some((value) => value) && (
+      {(concept?.conceptClass?.display || concept?.datatype?.display || concept?.uuid) && (
         <FormGroup>
           <FormLabel className={styles.label}>{t('attributes', 'Attributes')}</FormLabel>
           <table className={styles.tableStriped}>
@@ -152,15 +138,15 @@ const ObsTypeQuestion: React.FC = () => {
             <tbody>
               <tr>
                 <td>{t('class', 'Class')}</td>
-                <td>{conceptMeta.class}</td>
+                <td>{concept?.conceptClass?.display || ''}</td>
               </tr>
               <tr>
                 <td>{t('datatype', 'Data Type')}</td>
-                <td>{conceptMeta.datatype}</td>
+                <td>{concept?.datatype?.display || ''}</td>
               </tr>
               <tr>
-                <td>{t('externalId', 'External ID')}</td>
-                <td>{conceptMeta.nameUuid}</td>
+                <td>{t('conceptId', 'Concept ID')}</td>
+                <td>{concept?.uuid || ''}</td>
               </tr>
             </tbody>
           </table>
