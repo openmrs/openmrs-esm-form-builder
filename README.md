@@ -1,6 +1,6 @@
 # OpenMRS ESM Form Builder App
 
-👋 New to O3? Be sure to review the ![OpenMRS 3 Frontend Developer Documentation.](https://openmrs.atlassian.net/wiki/spaces/docs/pages/507576352/O3+Developer+Docs?atlOrigin=eyJpIjoiNWY5YjQ2OGI1ZDhhNGYxZWE2Mzk1YzBmNDJhZTQ0ZDkiLCJwIjoiYyJ9) 🧑‍🏫
+👋 New to O3? Be sure to review the ![OpenMRS 3 Frontend Developer Documentation.](https://openmrs.atlassian.net/wiki/x/IABBHg) 🧑‍🏫
 
 ![OpenMRS CI](https://github.com/openmrs/openmrs-esm-form-builder/actions/workflows/node.js.yml/badge.svg)
 
@@ -97,7 +97,7 @@ Then, in a separate terminal, run:
 yarn test-e2e --headed
 ```
 
-Read the [E2E testing guide](https://openmrs.atlassian.net/wiki/spaces/docs/pages/150962731/Testing+Frontend+Modules+O3#End-to-end-testing-with-Playwright) to learn more about End-to-End tests in this project.
+Read the [E2E testing guide](https://openmrs.atlassian.net/wiki/x/K4L-C) to learn more about End-to-End tests in this project.
 
 #### Troubleshooting
 
