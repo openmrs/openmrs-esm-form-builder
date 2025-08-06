@@ -125,6 +125,34 @@ const ObsTypeQuestion: React.FC = () => {
         />
       )}
 
+      {(concept?.conceptClass?.display || concept?.datatype?.display || concept?.uuid) && (
+        <FormGroup>
+          <FormLabel className={styles.label}>{t('attributes', 'Attributes')}</FormLabel>
+          <table className={styles.tableStriped}>
+            <thead>
+              <tr>
+                <th>{t('attributes', 'Attributes')}</th>
+                <th>{t('value', 'Value')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{t('class', 'Class')}</td>
+                <td>{concept?.conceptClass?.display || ''}</td>
+              </tr>
+              <tr>
+                <td>{t('datatype', 'Data Type')}</td>
+                <td>{concept?.datatype?.display || ''}</td>
+              </tr>
+              <tr>
+                <td>{t('conceptId', 'Concept ID')}</td>
+                <td>{concept?.uuid || ''}</td>
+              </tr>
+            </tbody>
+          </table>
+        </FormGroup>
+      )}
+
       {conceptMappings.length > 0 && (
         <FormGroup>
           <FormLabel className={styles.label}>{t('mappings', 'Mappings')}</FormLabel>
