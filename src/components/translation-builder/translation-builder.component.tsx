@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InlineLoading, InlineNotification, IconButton, Tabs, Tab, TabList, Dropdown } from '@carbon/react';
-import { Download, Edit, ArrowRight } from '@carbon/react/icons';
+import { Download, Edit, ArrowRight, Upload } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
-import { showModal } from '@openmrs/esm-framework';
+import { showModal, showSnackbar } from '@openmrs/esm-framework';
 import { useLanguageOptions } from '@hooks/getLanguageOptionsFromSession';
 import { fetchBackendTranslations } from '@hooks/useBackendTranslations';
 import { extractTranslatableStrings } from '../../utils/translationSchemaUtils';
 import styles from './translation-builder.module.scss';
-
+import { uploadBackendTranslations } from '@hooks/uploadBackendTranslations';
 interface TranslationBuilderProps {
   formSchema: any;
   onUpdateSchema: (updatedSchema: any) => void;
@@ -168,6 +168,40 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     URL.revokeObjectURL(url);
   }, [downloadableTranslationResource, langCode, formSchema?.name, t]);
 
+  const handleUploadTranslationFromSchema = useCallback(async () => {
+    if (!formSchema) return;
+
+    const schemaTranslations = formSchema.translations?.[langCode];
+    const translationsToUpload = langCode === 'en' ? fallbackStrings : schemaTranslations;
+
+    if (!translationsToUpload) {
+      setError(t('noTranslationForLang', 'No translations found for selected language.'));
+      showSnackbar({
+        title: t('noTranslations', 'No translatable strings found.'),
+        kind: 'error',
+        subtitle: t('noTranslationFileToUpload', `No translations found for ${langCode} to upload`),
+      });
+      return;
+    }
+
+    try {
+      await uploadBackendTranslations(formUuid, langCode, formSchema.name, translationsToUpload);
+      showSnackbar({
+        title: 'Translations Uploaded',
+        kind: 'success',
+        subtitle: `Translation file for ${langCode} uploaded successfully.`,
+      });
+    } catch (err: any) {
+      setError(t('uploadFailed', 'Failed to upload translations.'));
+      showSnackbar({
+        title: t('uploadFailed', 'Upload Failed'),
+        kind: 'error',
+        subtitle: t('translationFileUploadFail', `Failed to upload translation file`),
+      });
+      console.error(err);
+    }
+  }, [formSchema, langCode, fallbackStrings, formUuid, t]);
+
   return (
     <div className={styles.translationBuilderContainer}>
       <div className={styles.translationBuilderHeader}>
@@ -210,6 +244,14 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
             onClick={handleDownloadTranslation}
           >
             <Download />
+          </IconButton>
+          <IconButton
+            kind="ghost"
+            label={t('uploadTranslation', 'Upload translation')}
+            size="md"
+            onClick={handleUploadTranslationFromSchema}
+          >
+            <Upload />
           </IconButton>
         </div>
       </div>
