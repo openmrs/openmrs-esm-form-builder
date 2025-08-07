@@ -6,9 +6,10 @@ import { useParams } from 'react-router-dom';
 import { showModal, showSnackbar } from '@openmrs/esm-framework';
 import { useLanguageOptions } from '@hooks/getLanguageOptionsFromSession';
 import { fetchBackendTranslations } from '@hooks/useBackendTranslations';
+import { uploadBackendTranslations } from '@hooks/uploadBackendTranslations';
 import { extractTranslatableStrings } from '../../utils/translationSchemaUtils';
 import styles from './translation-builder.module.scss';
-import { uploadBackendTranslations } from '@hooks/uploadBackendTranslations';
+
 interface TranslationBuilderProps {
   formSchema: any;
   onUpdateSchema: (updatedSchema: any) => void;
