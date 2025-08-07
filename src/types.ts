@@ -167,6 +167,7 @@ export interface Concept {
   display: string;
   mappings: Array<Mapping>;
   datatype: OpenmrsResource;
+  conceptClass?: { display?: string };
   answers?: Array<ConceptAnswer>;
   allowDecimal?: boolean;
 }
