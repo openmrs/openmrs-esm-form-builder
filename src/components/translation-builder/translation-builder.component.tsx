@@ -5,8 +5,9 @@ import { Download, Edit, ArrowRight, Upload } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { showModal, showSnackbar } from '@openmrs/esm-framework';
 import { useLanguageOptions } from '@hooks/getLanguageOptionsFromSession';
-import { fetchBackendTranslations } from '@hooks/useBackendTranslations';
 import { uploadBackendTranslations } from '@hooks/uploadBackendTranslations';
+import { fetchBackendTranslations } from '@hooks/useBackendTranslations';
+
 import { extractTranslatableStrings } from '../../utils/translationSchemaUtils';
 import styles from './translation-builder.module.scss';
 
