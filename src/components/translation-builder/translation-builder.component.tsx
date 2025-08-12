@@ -22,6 +22,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const [selectedLanguageCode, setSelectedLanguageCode] = useState(() => languageOptions[0]?.code ?? 'en');
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [translationsUploading, setTranslationsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'translated' | 'untranslated'>('all');
@@ -181,17 +182,23 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
       showSnackbar({
         title: t('noTranslations', 'No translatable strings found.'),
         kind: 'error',
-        subtitle: t('noTranslationFileToUpload', `No translations found for ${langCode} to upload`),
+        subtitle: t('noTranslationFileToUpload', `No translations found for {{languageCode}} to upload`, {
+          languageCode: langCode,
+        }),
       });
       return;
     }
 
     try {
+      setTranslationsUploading(true);
       await uploadBackendTranslations(formUuid, langCode, formSchema.name, translationsToUpload);
+      setTranslationsUploading(false);
       showSnackbar({
         title: 'Translations Uploaded',
         kind: 'success',
-        subtitle: `Translation file for ${langCode} uploaded successfully.`,
+        subtitle: t('translationsUploaded', `Translation file for ${langCode} uploaded successfully.`, {
+          languageCode: langCode,
+        }),
       });
     } catch (err: any) {
       setError(t('uploadFailed', 'Failed to upload translations.'));
@@ -207,54 +214,46 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   return (
     <div className={styles.translationBuilderContainer}>
       <div className={styles.translationBuilderHeader}>
-        <Tabs
-          onChange={({ selectedIndex }) => {
-            if (selectedIndex === 0) setActiveTab('all');
-            if (selectedIndex === 1) setActiveTab('translated');
-            if (selectedIndex === 2) setActiveTab('untranslated');
-          }}
-        >
-          <TabList aria-label="Form previews">
-            <Tab>{t('all', 'All')}</Tab>
-            <Tab>{t('translated', 'Translated')}</Tab>
-            <Tab>{t('untranslated', 'Untranslated')}</Tab>
-          </TabList>
-        </Tabs>
-
         <div className={styles.languageTools}>
           <div className={styles.languagePath}>
             <span className={styles.language}>English (en)</span>
             <ArrowRight className={styles.arrow} />
+            <Dropdown
+              id="target-language"
+              items={languageOptions}
+              itemToString={(item) => item?.label ?? ''}
+              titleText=""
+              selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
+              onChange={({ selectedItem }) => selectedItem && languageChanger(selectedItem.code)}
+            />
           </div>
 
-          <Dropdown
-            id="target-language"
-            items={languageOptions}
-            itemToString={(item) => item?.label ?? ''}
-            label={t('selectLanguage', 'Select language')}
-            titleText=""
-            selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
-            onChange={({ selectedItem }) => {
-              if (selectedItem) languageChanger(selectedItem.code);
-            }}
-          />
+          <div className={styles.translationActions}>
+            <button className={styles.linkButton} onClick={handleDownloadTranslation}>
+              {t('downloadTranslation', 'Download translation')}
+              <Download size={16} />
+            </button>
+            <button className={styles.linkButton} onClick={handleUploadTranslationFromSchema}>
+              {t('uploadTranslation', 'Upload translation')}
+              {!translationsUploading ? <Upload size={16} /> : <InlineLoading />}
+            </button>
+          </div>
+        </div>
 
-          <IconButton
-            kind="ghost"
-            label={t('downloadTranslation', 'Download translation')}
-            size="md"
-            onClick={handleDownloadTranslation}
+        <div className={styles.translationTabs}>
+          <Tabs
+            onChange={({ selectedIndex }) => {
+              if (selectedIndex === 0) setActiveTab('all');
+              if (selectedIndex === 1) setActiveTab('translated');
+              if (selectedIndex === 2) setActiveTab('untranslated');
+            }}
           >
-            <Download />
-          </IconButton>
-          <IconButton
-            kind="ghost"
-            label={t('uploadTranslation', 'Upload translation')}
-            size="md"
-            onClick={handleUploadTranslationFromSchema}
-          >
-            <Upload />
-          </IconButton>
+            <TabList aria-label="Translation filter">
+              <Tab>{t('all', 'All')}</Tab>
+              <Tab>{t('translated', 'Translated')}</Tab>
+              <Tab>{t('untranslated', 'Untranslated')}</Tab>
+            </TabList>
+          </Tabs>
         </div>
       </div>
 

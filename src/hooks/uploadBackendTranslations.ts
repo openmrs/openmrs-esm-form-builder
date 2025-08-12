@@ -13,11 +13,18 @@ export async function uploadBackendTranslations(
     const resourceName = `${formName}_translations_${langCode}`;
     const existingResource = form?.resources?.find((r: any) => r.name === resourceName);
 
-    if (existingResource?.valueReference) {
-      await openmrsFetch(`${restBaseUrl}/clobdata/${existingResource.valueReference}`, {
+    if (existingResource) {
+      await openmrsFetch(`${restBaseUrl}/form/${formUuid}/resource/${existingResource.uuid}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
       });
+
+      if (existingResource.valueReference) {
+        await openmrsFetch(`${restBaseUrl}/clobdata/${existingResource.valueReference}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     const translationBlob = new Blob([JSON.stringify({ translations })], { type: 'application/json' });
@@ -32,30 +39,14 @@ export async function uploadBackendTranslations(
     const newClobdataUuid = await clobResponse.text();
     if (!newClobdataUuid) throw new Error('Failed to create new clobdata');
 
-    if (!existingResource) {
-      await openmrsFetch(`${restBaseUrl}/form/${formUuid}/resource`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: resourceName,
-          valueReference: newClobdataUuid,
-        }),
-      });
-    } else {
-      await openmrsFetch(`${restBaseUrl}/form/${formUuid}/resource/${existingResource.uuid}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      await openmrsFetch(`${restBaseUrl}/form/${formUuid}/resource`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: resourceName,
-          valueReference: newClobdataUuid,
-        }),
-      });
-    }
+    await openmrsFetch(`${restBaseUrl}/form/${formUuid}/resource`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: resourceName,
+        valueReference: newClobdataUuid,
+      }),
+    });
   } catch (error) {
     console.error('Error uploading backend translations:', error);
     throw error;
