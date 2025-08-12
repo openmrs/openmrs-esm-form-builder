@@ -182,9 +182,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
       showSnackbar({
         title: t('noTranslations', 'No translatable strings found.'),
         kind: 'error',
-        subtitle: t('noTranslationFileToUpload', `No translations found for {{languageCode}} to upload`, {
-          languageCode: langCode,
-        }),
+        subtitle: t('noTranslationFileToUpload', `No translations found for the selected language to upload`),
       });
       return;
     }
@@ -194,14 +192,12 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
       await uploadBackendTranslations(formUuid, langCode, formSchema.name, translationsToUpload);
       setTranslationsUploading(false);
       showSnackbar({
-        title: 'Translations Uploaded',
+        title: t('translationsUploaded', 'Translations Uploaded.'),
         kind: 'success',
-        subtitle: t('translationsUploaded', `Translation file for ${langCode} uploaded successfully.`, {
-          languageCode: langCode,
-        }),
+        subtitle: t('translationsUploadedSuccessfully', `Translation file uploaded successfully.`),
       });
     } catch (err: any) {
-      setError(t('uploadFailed', 'Failed to upload translations.'));
+      setError(t('translationFileUploadFail', 'Failed to upload translation file.'));
       showSnackbar({
         title: t('uploadFailed', 'Upload Failed'),
         kind: 'error',
