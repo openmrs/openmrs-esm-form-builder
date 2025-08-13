@@ -186,11 +186,9 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
       });
       return;
     }
-
+    setTranslationsUploading(true);
     try {
-      setTranslationsUploading(true);
       await uploadBackendTranslations(formUuid, langCode, formSchema.name, translationsToUpload);
-      setTranslationsUploading(false);
       showSnackbar({
         title: t('translationsUploaded', 'Translations Uploaded.'),
         kind: 'success',
@@ -204,6 +202,8 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
         subtitle: t('translationFileUploadFail', `Failed to upload translation file`),
       });
       console.error(err);
+    } finally {
+      setTranslationsUploading(false);
     }
   }, [formSchema, langCode, fallbackStrings, formUuid, t]);
 
@@ -229,7 +229,11 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
               {t('downloadTranslation', 'Download translation')}
               <Download size={16} />
             </button>
-            <button className={styles.linkButton} onClick={handleUploadTranslationFromSchema}>
+            <button
+              className={styles.linkButton}
+              onClick={handleUploadTranslationFromSchema}
+              disabled={translationsUploading}
+            >
               {t('uploadTranslation', 'Upload translation')}
               {!translationsUploading ? <Upload size={16} /> : <InlineLoading />}
             </button>

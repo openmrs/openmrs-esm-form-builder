@@ -1,4 +1,5 @@
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import type { Resource } from '@types';
 
 export async function uploadBackendTranslations(
   formUuid: string,
@@ -11,7 +12,7 @@ export async function uploadBackendTranslations(
     const form = formResponse?.data;
 
     const resourceName = `${formName}_translations_${langCode}`;
-    const existingResource = form?.resources?.find((r: any) => r.name === resourceName);
+    const existingResource = form?.resources?.find((r: Resource) => r.name === resourceName);
 
     if (existingResource) {
       await openmrsFetch(`${restBaseUrl}/form/${formUuid}/resource/${existingResource.uuid}`, {
