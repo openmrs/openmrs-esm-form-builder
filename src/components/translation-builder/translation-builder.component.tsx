@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InlineLoading, InlineNotification, IconButton, Tabs, Tab, TabList, Dropdown } from '@carbon/react';
-import { Download, Edit, ArrowRight } from '@carbon/react/icons';
+import { Download, Edit, ArrowRight, Upload } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
-import { showModal } from '@openmrs/esm-framework';
+import { showModal, showSnackbar } from '@openmrs/esm-framework';
 import { useLanguageOptions } from '@hooks/getLanguageOptionsFromSession';
+import { uploadBackendTranslations } from '@hooks/uploadBackendTranslations';
 import { fetchBackendTranslations } from '@hooks/useBackendTranslations';
+
 import { extractTranslatableStrings } from '../../utils/translationSchemaUtils';
 import styles from './translation-builder.module.scss';
 
@@ -20,6 +22,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const [selectedLanguageCode, setSelectedLanguageCode] = useState(() => languageOptions[0]?.code ?? 'en');
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [translationsUploading, setTranslationsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'translated' | 'untranslated'>('all');
@@ -168,49 +171,89 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     URL.revokeObjectURL(url);
   }, [downloadableTranslationResource, langCode, formSchema?.name, t]);
 
+  const handleUploadTranslationFromSchema = useCallback(async () => {
+    if (!formSchema) return;
+
+    const schemaTranslations = formSchema.translations?.[langCode];
+    const translationsToUpload = langCode === 'en' ? fallbackStrings : schemaTranslations;
+
+    if (!translationsToUpload) {
+      setError(t('noTranslationForLang', 'No translations found for selected language.'));
+      showSnackbar({
+        title: t('noTranslations', 'No translatable strings found.'),
+        kind: 'error',
+        subtitle: t('noTranslationFileToUpload', `No translations found for the selected language to upload`),
+      });
+      return;
+    }
+    setTranslationsUploading(true);
+    try {
+      await uploadBackendTranslations(formUuid, langCode, formSchema.name, translationsToUpload);
+      showSnackbar({
+        title: t('translationsUploaded', 'Translations Uploaded.'),
+        kind: 'success',
+        subtitle: t('translationsUploadedSuccessfully', `Translation file uploaded successfully.`),
+      });
+    } catch (err: any) {
+      setError(t('translationFileUploadFail', 'Failed to upload translation file.'));
+      showSnackbar({
+        title: t('uploadFailed', 'Upload Failed'),
+        kind: 'error',
+        subtitle: t('translationFileUploadFail', `Failed to upload translation file`),
+      });
+      console.error(err);
+    } finally {
+      setTranslationsUploading(false);
+    }
+  }, [formSchema, langCode, fallbackStrings, formUuid, t]);
+
   return (
     <div className={styles.translationBuilderContainer}>
       <div className={styles.translationBuilderHeader}>
-        <Tabs
-          onChange={({ selectedIndex }) => {
-            if (selectedIndex === 0) setActiveTab('all');
-            if (selectedIndex === 1) setActiveTab('translated');
-            if (selectedIndex === 2) setActiveTab('untranslated');
-          }}
-        >
-          <TabList aria-label="Form previews">
-            <Tab>{t('all', 'All')}</Tab>
-            <Tab>{t('translated', 'Translated')}</Tab>
-            <Tab>{t('untranslated', 'Untranslated')}</Tab>
-          </TabList>
-        </Tabs>
-
         <div className={styles.languageTools}>
           <div className={styles.languagePath}>
             <span className={styles.language}>English (en)</span>
             <ArrowRight className={styles.arrow} />
+            <Dropdown
+              id="target-language"
+              items={languageOptions}
+              itemToString={(item) => item?.label ?? ''}
+              titleText=""
+              selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
+              onChange={({ selectedItem }) => selectedItem && languageChanger(selectedItem.code)}
+            />
           </div>
 
-          <Dropdown
-            id="target-language"
-            items={languageOptions}
-            itemToString={(item) => item?.label ?? ''}
-            label={t('selectLanguage', 'Select language')}
-            titleText=""
-            selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
-            onChange={({ selectedItem }) => {
-              if (selectedItem) languageChanger(selectedItem.code);
-            }}
-          />
+          <div className={styles.translationActions}>
+            <button className={styles.linkButton} onClick={handleDownloadTranslation}>
+              {t('downloadTranslation', 'Download translation')}
+              <Download size={16} />
+            </button>
+            <button
+              className={styles.linkButton}
+              onClick={handleUploadTranslationFromSchema}
+              disabled={translationsUploading}
+            >
+              {t('uploadTranslation', 'Upload translation')}
+              {!translationsUploading ? <Upload size={16} /> : <InlineLoading />}
+            </button>
+          </div>
+        </div>
 
-          <IconButton
-            kind="ghost"
-            label={t('downloadTranslation', 'Download translation')}
-            size="md"
-            onClick={handleDownloadTranslation}
+        <div className={styles.translationTabs}>
+          <Tabs
+            onChange={({ selectedIndex }) => {
+              if (selectedIndex === 0) setActiveTab('all');
+              if (selectedIndex === 1) setActiveTab('translated');
+              if (selectedIndex === 2) setActiveTab('untranslated');
+            }}
           >
-            <Download />
-          </IconButton>
+            <TabList aria-label="Translation filter">
+              <Tab>{t('all', 'All')}</Tab>
+              <Tab>{t('translated', 'Translated')}</Tab>
+              <Tab>{t('untranslated', 'Untranslated')}</Tab>
+            </TabList>
+          </Tabs>
         </div>
       </div>
 
