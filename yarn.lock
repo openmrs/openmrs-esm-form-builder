@@ -3353,8 +3353,8 @@ __metadata:
   linkType: soft
 
 "@openmrs/esm-form-engine-lib@npm:next":
-  version: 3.1.5-pre.2052
-  resolution: "@openmrs/esm-form-engine-lib@npm:3.1.5-pre.2052"
+  version: 3.1.5-pre.2055
+  resolution: "@openmrs/esm-form-engine-lib@npm:3.1.5-pre.2055"
   dependencies:
     "@carbon/react": "npm:^1.83.0"
     classnames: "npm:^2.5.1"
@@ -3372,7 +3372,7 @@ __metadata:
     react: 18.x
     react-i18next: 11.x
     swr: 2.x
-  checksum: 10/1c78cac4a9bdc1430f487b48c715453582f7bdcca5c89b15396c8c0ba91d63a6e873677c8b21460c6e7be15008c10e63e4c1005df72c54a39888c367222ed63b
+  checksum: 10/fcf5a0d66aef899521ca406b7a59bc751f982a9b5562615d9017b6aff2ddbec0cf4bc2e48324470aa4f1d1f070d35b0b56b2582af5802339c73f2ea46c59ac82
   languageName: node
   linkType: hard
 
@@ -3451,8 +3451,8 @@ __metadata:
   linkType: hard
 
 "@openmrs/esm-patient-common-lib@npm:next":
-  version: 11.1.1-pre.8526
-  resolution: "@openmrs/esm-patient-common-lib@npm:11.1.1-pre.8526"
+  version: 11.1.1-pre.8533
+  resolution: "@openmrs/esm-patient-common-lib@npm:11.1.1-pre.8533"
   dependencies:
     "@carbon/react": "npm:^1.83.0"
     lodash-es: "npm:^4.17.21"
@@ -3461,7 +3461,7 @@ __metadata:
     "@openmrs/esm-framework": 6.x
     react: 18.x
     single-spa: 6.x
-  checksum: 10/70111ca47e7186fd34b608cb28dfe769375a8901bdc14393bd62e2b61499ab8c48bd78e80eb369073a6ff0d069314621a874489ec5e96954d4a93abd55d3d551
+  checksum: 10/8a1ba12e1c166b8017d5f531aa354ff271030a509daededb34ae11e1295540bcfb5e019ce585426206fc12d2f8b71bbbb3907e80a3dc384854170a33af2fa400
   languageName: node
   linkType: hard
 
