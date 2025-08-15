@@ -63,4 +63,36 @@ test.describe('Translation Builder Workflows', () => {
       await expect(translationPanel.getByPlaceholder(/search translation keys/i)).toBeVisible();
     });
   });
+
+  test('Workflow 2: Language Selection and Switching', async ({ page }) => {
+    const formBuilderPage = new FormBuilderPage(page);
+
+    await test.step('Navigate to form builder and open translation builder', async () => {
+      await formBuilderPage.gotoFormBuilder();
+      await formBuilderPage.searchForForm(formDetails.name);
+      await formBuilderPage.page.getByRole('row', { name: formDetails.name }).getByLabel('Edit Schema').first().click();
+      await formBuilderPage.translationBuilderTab().click();
+      await expect(formBuilderPage.downloadTranslationButton()).toBeVisible();
+    });
+
+    await test.step('Verify language dropdown is present and functional', async () => {
+      const languageDropdown = formBuilderPage.languageDropdown();
+      await expect(languageDropdown).toBeVisible();
+      await expect(languageDropdown).toBeEnabled();
+    });
+
+    await test.step('Open language dropdown and verify available languages', async () => {
+      await formBuilderPage.languageDropdown().click();
+
+      const dropdownMenu = formBuilderPage.translationBuilderPanel().locator('.cds--list-box__menu');
+      await expect(dropdownMenu).toBeVisible();
+
+      const languageOptions = dropdownMenu.getByRole('option');
+      const optionCount = await languageOptions.count();
+      expect(optionCount).toBeGreaterThan(0);
+
+      await expect(dropdownMenu.getByRole('option', { name: 'English (en)' })).toBeVisible();
+      await expect(languageOptions.nth(1)).toBeVisible();
+    });
+  });
 });

@@ -72,7 +72,9 @@ export class FormBuilderPage {
   readonly questionCreatedMessage = () => this.page.getByText(/new question created/i);
 
   readonly translationBuilderTab = () => this.page.getByRole('tab', { name: /translation builder/i });
-  readonly languageDropdown = () => this.page.getByRole('combobox', { name: 'target-language' });
+  readonly translationBuilderPanel = () =>
+    this.page.getByRole('tabpanel').filter({ has: this.page.getByRole('button', { name: /upload translation/i }) });
+  readonly languageDropdown = () => this.translationBuilderPanel().locator('#target-language');
   readonly downloadTranslationButton = () => this.page.getByRole('button', { name: /download translation/i });
   readonly uploadTranslationButton = () => this.page.getByRole('button', { name: /upload translation/i });
   readonly translationSearchInput = () => this.page.getByPlaceholder(/search translation keys/i);
