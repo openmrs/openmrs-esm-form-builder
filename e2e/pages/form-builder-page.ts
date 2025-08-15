@@ -71,6 +71,20 @@ export class FormBuilderPage {
   readonly questionIdInput = () => this.page.getByRole('textbox', { name: /question id/i });
   readonly questionCreatedMessage = () => this.page.getByText(/new question created/i);
 
+  readonly translationBuilderTab = () => this.page.getByRole('tab', { name: /translation builder/i });
+  readonly languageDropdown = () => this.page.getByRole('combobox', { name: 'target-language' });
+  readonly downloadTranslationButton = () => this.page.getByRole('button', { name: /download translation/i });
+  readonly uploadTranslationButton = () => this.page.getByRole('button', { name: /upload translation/i });
+  readonly translationSearchInput = () => this.page.getByPlaceholder(/search translation keys/i);
+  readonly allTranslationsTab = () => this.page.getByRole('tab', { name: 'All' });
+  readonly translatedTab = () => this.page.getByRole('tab', { name: 'Translated' });
+  readonly untranslatedTab = () => this.page.getByRole('tab', { name: 'Untranslated' });
+  readonly editTranslationButton = (index: number = 0) =>
+    this.page.locator('[data-testid="edit-translation-button"]').nth(index);
+  readonly translationModal = () => this.page.getByRole('dialog');
+  readonly translationValueInput = () => this.page.getByLabel(/translation value/i);
+  readonly saveTranslationButton = () => this.page.getByRole('button', { name: /save/i });
+
   async gotoFormBuilder() {
     await this.page.goto('form-builder');
   }
