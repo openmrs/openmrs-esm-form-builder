@@ -3353,8 +3353,8 @@ __metadata:
   linkType: soft
 
 "@openmrs/esm-form-engine-lib@npm:next":
-  version: 3.1.5-pre.2059
-  resolution: "@openmrs/esm-form-engine-lib@npm:3.1.5-pre.2059"
+  version: 3.1.5-pre.2063
+  resolution: "@openmrs/esm-form-engine-lib@npm:3.1.5-pre.2063"
   dependencies:
     "@carbon/react": "npm:^1.83.0"
     classnames: "npm:^2.5.1"
@@ -3366,13 +3366,12 @@ __metadata:
     react-webcam: "npm:^7.2.0"
   peerDependencies:
     "@openmrs/esm-framework": 7.x
-    "@openmrs/esm-patient-common-lib": 10.x
     dayjs: 1.x
     i18next: 23.x
     react: 18.x
     react-i18next: 11.x
     swr: 2.x
-  checksum: 10/16c95917b542c08ab9b302392e9a63540ed66aada8e0caecc75f75692892c01a7e50bef949642fb278ecffaf0ef9b16dda927b3e555cf734a80a710b0be57c47
+  checksum: 10/fe66516b667e17e157db1d7d01679e527203d87c3ffa8706a89964fb9850c8e3d576bbbd537776a16e8dadc4d041e13185e5f12425f1a88a9034b49ffdd82ced
   languageName: node
   linkType: hard
 
