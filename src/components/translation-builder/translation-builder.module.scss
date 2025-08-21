@@ -66,13 +66,11 @@
 .translationBuilderHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
 }
 
 .translationBuilderHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
 
   .cds--tabs {
     flex-grow: 1;
@@ -109,4 +107,49 @@
   padding: 0.5rem 1rem;
   border: 1px solid $color-gray-30;
   font-size: 0.875rem;
+}
+
+.downloadTranslation,
+.saveTranslations {
+  display: flex;
+  color: $color-blue-60-2;
+}
+
+.translationBuilderHeader {
+  display: flex;
+  flex-direction: column;
+  gap: layout.$spacing-05;
+}
+
+.languageTools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.languagePath {
+  display: flex;
+  align-items: center;
+  gap: layout.$spacing-03;
+
+  .language {
+    font-weight: 600;
+  }
+}
+
+.translationActions {
+  display: flex;
+  align-items: center;
+  gap: layout.$spacing-05;
+}
+
+.linkButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  color: $color-blue-60-2;
+  cursor: pointer;
 }
