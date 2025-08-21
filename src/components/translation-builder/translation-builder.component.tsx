@@ -287,9 +287,18 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
           <div className={styles.translationEditor}>
             {filteredTranslations.length > 0 ? (
               filteredTranslations.map(([key, value]) => (
-                <div key={key} className={styles.translationRow}>
-                  <div className={styles.translationKey}>{key}</div>
-                  <div className={styles.translatedKey}>{value}</div>
+                <div
+                  key={key}
+                  className={styles.translationRow}
+                  data-testid="translation-entry"
+                  data-status="untranslated"
+                >
+                  <div className={styles.translationKey} data-testid="translation-key">
+                    {key}
+                  </div>
+                  <div className={styles.translatedKey} data-testid="translation-value">
+                    {value}
+                  </div>
                   <div className={styles.inlineControls}>
                     <IconButton
                       kind="ghost"
@@ -297,6 +306,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
                       onClick={() => handleEditClick(key)}
                       size="md"
                       className={styles.deleteButton}
+                      data-testid="edit-translation-button"
                     >
                       <Edit />
                     </IconButton>

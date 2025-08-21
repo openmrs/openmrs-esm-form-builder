@@ -73,20 +73,28 @@ export class FormBuilderPage {
 
   readonly translationBuilderTab = () => this.page.getByRole('tab', { name: /translation builder/i });
   readonly translationBuilderPanel = () =>
-    this.page.getByRole('tabpanel').filter({ has: this.page.getByRole('button', { name: /upload translation/i }) });
+    this.page
+      .getByRole('tabpanel')
+      .filter({ has: this.page.getByRole('button', { name: /upload translation/i }) })
+      .first();
   readonly languageDropdown = () => this.translationBuilderPanel().locator('#target-language');
-  readonly downloadTranslationButton = () => this.page.getByRole('button', { name: /download translation/i });
-  readonly uploadTranslationButton = () => this.page.getByRole('button', { name: /upload translation/i });
+  readonly downloadTranslationButton = () =>
+    this.translationBuilderPanel().getByRole('button', { name: /download translation/i });
+  readonly uploadTranslationButton = () =>
+    this.translationBuilderPanel().getByRole('button', { name: /upload translation/i });
   readonly translationSearchInput = () => this.page.getByPlaceholder(/search translation keys/i);
-  readonly allTranslationsTab = () => this.page.getByRole('tab', { name: 'All' });
-  readonly translatedTab = () => this.page.getByRole('tab', { name: 'Translated' });
-  readonly untranslatedTab = () => this.page.getByRole('tab', { name: 'Untranslated' });
+  readonly translationTabsList = () =>
+    this.translationBuilderPanel().getByRole('tablist', { name: 'Translation filter' });
+  readonly allTranslationsTab = () => this.translationTabsList().getByRole('tab', { name: 'All', exact: true });
+  readonly translatedTab = () => this.translationTabsList().getByRole('tab', { name: 'Translated', exact: true });
+  readonly untranslatedTab = () => this.translationTabsList().getByRole('tab', { name: 'Untranslated', exact: true });
   readonly editTranslationButton = (index: number = 0) =>
     this.page.locator('[data-testid="edit-translation-button"]').nth(index);
   readonly translationModal = () => this.page.getByRole('dialog');
-  readonly translationValueInput = () => this.page.getByLabel(/translation value/i);
-  readonly saveTranslationButton = () => this.page.getByRole('button', { name: /save/i });
-
+  translationValueInput() {
+    return this.page.getByTestId('translation-value-input');
+  }
+  readonly saveTranslationButton = () => this.translationModal().getByRole('button', { name: 'Save' });
   async gotoFormBuilder() {
     await this.page.goto('form-builder');
   }
