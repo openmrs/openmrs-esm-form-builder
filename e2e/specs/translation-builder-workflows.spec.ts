@@ -26,21 +26,21 @@ test.describe('Translation Builder Workflows', () => {
   test('Manage translations: switch languages, filter, and search', async ({ page }) => {
     const formBuilderPage = new FormBuilderPage(page);
 
-    await test.step('Open a form in the translation builder', async () => {
+    await test.step('When i open a form in the translation builder', async () => {
       await formBuilderPage.gotoFormBuilder();
       await formBuilderPage.searchForForm(formDetails.name);
       await formBuilderPage.page.getByRole('row', { name: formDetails.name }).getByLabel('Edit Schema').first().click();
       await formBuilderPage.translationBuilderTab().click();
     });
 
-    await test.step('Switch between languages', async () => {
+    await test.step('And i switch between languages', async () => {
       await formBuilderPage.languageDropdown().click();
       const dropdownMenu = formBuilderPage.translationBuilderPanel().locator('.cds--list-box__menu');
       await expect(dropdownMenu).toBeVisible();
       await expect(dropdownMenu.getByRole('option', { name: 'English (en)' })).toBeVisible();
     });
 
-    await test.step('Filter translations using tabs', async () => {
+    await test.step('And i filter translations using tabs', async () => {
       await formBuilderPage.allTranslationsTab().click();
       await expect(formBuilderPage.allTranslationsTab()).toHaveAttribute('aria-selected', 'true');
 
@@ -52,7 +52,7 @@ test.describe('Translation Builder Workflows', () => {
       await expect(page.locator('[data-status="untranslated"]').first()).toBeVisible();
     });
 
-    await test.step('Search for a translation string', async () => {
+    await test.step('And i search for a translation string', async () => {
       const searchInput = formBuilderPage.translationSearchInput();
       await searchInput.fill('Visit Details');
       await expect(searchInput).toHaveValue('Visit Details');
@@ -73,7 +73,7 @@ test.describe('Translation Builder Workflows', () => {
       await formBuilderPage.translationBuilderTab().click();
     });
 
-    await test.step('Edit a translation string and save it', async () => {
+    await test.step('And i edit a translation string and save it', async () => {
       await formBuilderPage.editTranslationButton(0).click();
       const translationInput = formBuilderPage.translationValueInput();
       await translationInput.fill('Test Translation Updated');
