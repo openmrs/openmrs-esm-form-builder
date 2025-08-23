@@ -26,21 +26,21 @@ test.describe('Translation Builder Workflows', () => {
   test('Manage translations: switch languages, filter, and search', async ({ page }) => {
     const formBuilderPage = new FormBuilderPage(page);
 
-    await test.step('When i open a form in the translation builder', async () => {
+    await test.step('When I open a form in the translation builder', async () => {
       await formBuilderPage.gotoFormBuilder();
       await formBuilderPage.searchForForm(formDetails.name);
       await formBuilderPage.page.getByRole('row', { name: formDetails.name }).getByLabel('Edit Schema').first().click();
       await formBuilderPage.translationBuilderTab().click();
     });
 
-    await test.step('And i switch between languages', async () => {
+    await test.step('And I switch between languages', async () => {
       await formBuilderPage.languageDropdown().click();
       const dropdownMenu = formBuilderPage.translationBuilderPanel().locator('.cds--list-box__menu');
       await expect(dropdownMenu).toBeVisible();
       await expect(dropdownMenu.getByRole('option', { name: 'English (en)' })).toBeVisible();
     });
 
-    await test.step('And i filter translations using tabs', async () => {
+    await test.step('And I filter translations using tabs', async () => {
       await formBuilderPage.allTranslationsTab().click();
       await expect(formBuilderPage.allTranslationsTab()).toHaveAttribute('aria-selected', 'true');
 
@@ -52,7 +52,7 @@ test.describe('Translation Builder Workflows', () => {
       await expect(page.locator('[data-status="untranslated"]').first()).toBeVisible();
     });
 
-    await test.step('And i search for a translation string', async () => {
+    await test.step('And I search for a translation string', async () => {
       const searchInput = formBuilderPage.translationSearchInput();
       await searchInput.fill('Visit Details');
       await expect(searchInput).toHaveValue('Visit Details');
@@ -66,20 +66,62 @@ test.describe('Translation Builder Workflows', () => {
   test('Edit and update an individual translation', async ({ page }) => {
     const formBuilderPage = new FormBuilderPage(page);
 
-    await test.step('When I open a form in the translation builder', async () => {
+    await test.step('When I open a form in the Translation Builder', async () => {
       await formBuilderPage.gotoFormBuilder();
       await formBuilderPage.searchForForm(formDetails.name);
       await formBuilderPage.page.getByRole('row', { name: formDetails.name }).getByLabel('Edit Schema').first().click();
       await formBuilderPage.translationBuilderTab().click();
     });
 
-    await test.step('And i edit a translation string and save it', async () => {
+    await test.step('And I edit a Translation string and save it', async () => {
       await formBuilderPage.editTranslationButton(0).click();
       const translationInput = formBuilderPage.translationValueInput();
       await translationInput.fill('Test Translation Updated');
       await formBuilderPage.saveTranslationButton().click();
       await expect(formBuilderPage.translationModal()).toBeHidden();
       await expect(formBuilderPage.editTranslationButton(0)).toBeEnabled();
+    });
+  });
+  test('Download a Translation file from a form', async ({ page }) => {
+    const formBuilderPage = new FormBuilderPage(page);
+
+    await test.step('When I open a form in the Translation Builder', async () => {
+      await formBuilderPage.gotoFormBuilder();
+      await formBuilderPage.searchForForm(formDetails.name);
+      await formBuilderPage.page.getByRole('row', { name: formDetails.name }).getByLabel('Edit Schema').first().click();
+      await formBuilderPage.translationBuilderTab().click();
+    });
+
+    await test.step('And I download the Translation file', async () => {
+      const downloadButton = formBuilderPage.downloadTranslationButton();
+      const [download] = await Promise.all([
+        formBuilderPage.page.waitForEvent('download', { timeout: 15000 }),
+        downloadButton.click(),
+      ]);
+      expect(download.suggestedFilename()).toMatch(/\.json$/);
+    });
+  });
+
+  test('Upload a Translation file to backend', async ({ page }) => {
+    const formBuilderPage = new FormBuilderPage(page);
+
+    await test.step('When I open a form in the translation builder', async () => {
+      await formBuilderPage.gotoFormBuilder();
+      await formBuilderPage.searchForForm(formDetails.name);
+      await formBuilderPage.page.getByRole('row', { name: formDetails.name }).getByLabel('Edit Schema').first().click();
+
+      await formBuilderPage.translationBuilderTab().click();
+    });
+
+    await test.step('And I upload a translation file', async () => {
+      const uploadButton = formBuilderPage.uploadTranslationButton();
+      await expect(uploadButton).toBeEnabled();
+      await expect(uploadButton).toBeVisible();
+      await expect(formBuilderPage.translationBuilderPanel()).toBeVisible();
+
+      await uploadButton.click();
+      await expect(formBuilderPage.page.getByText(/Translations Uploaded./i)).toBeVisible();
+      await expect(formBuilderPage.page.getByText(/Translation file uploaded successfully/i)).toBeVisible();
     });
   });
 
