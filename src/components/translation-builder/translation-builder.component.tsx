@@ -223,21 +223,22 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
               onChange={({ selectedItem }) => selectedItem && languageChanger(selectedItem.code)}
             />
           </div>
-
-          <div className={styles.translationActions}>
-            <button className={styles.linkButton} onClick={handleDownloadTranslation}>
-              {t('downloadTranslation', 'Download translation')}
-              <Download size={16} />
-            </button>
-            <button
-              className={styles.linkButton}
-              onClick={handleUploadTranslationFromSchema}
-              disabled={translationsUploading}
-            >
-              {t('uploadTranslation', 'Upload translation')}
-              {!translationsUploading ? <Upload size={16} /> : <InlineLoading />}
-            </button>
-          </div>
+          {formSchema ? (
+            <div className={styles.translationActions}>
+              <button className={styles.linkButton} onClick={handleDownloadTranslation}>
+                {t('downloadTranslation', 'Download translation')}
+                <Download size={16} />
+              </button>
+              <button
+                className={styles.linkButton}
+                onClick={handleUploadTranslationFromSchema}
+                disabled={translationsUploading}
+              >
+                {t('uploadTranslation', 'Upload translation')}
+                {!translationsUploading ? <Upload size={16} /> : <InlineLoading />}
+              </button>
+            </div>
+          ) : null}
         </div>
 
         <div className={styles.translationTabs}>
