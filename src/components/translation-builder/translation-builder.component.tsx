@@ -65,15 +65,11 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
         ...prev,
         [selectedLanguageCode]: updated,
       }));
-      onUpdateSchema({
-        ...formSchema,
-        translations: {
-          ...(formSchema.translations || {}),
-          [selectedLanguageCode]: updated,
-        },
-      });
+
+      // Removed the onUpdateSchema call from here
+      // The schema should only be updated on user-initiated actions
     }
-  }, [formSchema, fallbackStrings, selectedLanguageCode, onUpdateSchema, translations]);
+  }, [formSchema, fallbackStrings, selectedLanguageCode, translations]);
 
   const handleUpdateValue = useCallback(
     (key: string, newValue: string) => {
