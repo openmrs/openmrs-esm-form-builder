@@ -19,7 +19,6 @@ test.describe('Translation Builder', () => {
     const valueReference = await createValueReference(api);
     await addFormResources(api, valueReference, formUuid);
   });
-
   test('Manage translations: switch languages, filter, and search', async ({ page }) => {
     const formBuilderPage = new FormBuilderPage(page);
 
@@ -27,38 +26,67 @@ test.describe('Translation Builder', () => {
       await formBuilderPage.gotoFormBuilder();
       await formBuilderPage.searchForForm(formDetails.name);
       await formBuilderPage.page.getByRole('row', { name: formDetails.name }).getByLabel('Edit Schema').first().click();
-    });
-
-    await test.step('And then I go to the translation builder', async () => {
       await formBuilderPage.translationBuilderTab().click();
     });
 
-    await test.step('And I switch between languages', async () => {
+    await test.step('When I open the language dropdown', async () => {
       await formBuilderPage.languageDropdown().click();
+    });
+
+    await test.step('Then I should see the language list', async () => {
       const dropdownMenu = formBuilderPage.translationBuilderPanel().locator('.cds--list-box__menu');
       await expect(dropdownMenu).toBeVisible();
+    });
+
+    await test.step('And I should see "English (en)" in the language list', async () => {
       await expect(formBuilderPage.page.getByRole('option', { name: 'English (en)' })).toBeVisible();
     });
 
-    await test.step('And I filter translations using tabs', async () => {
+    await test.step('When I select the "All" translations tab', async () => {
       await formBuilderPage.allTranslationsTab().click();
+    });
+
+    await test.step('Then the "All" translations tab should be selected', async () => {
       await expect(formBuilderPage.allTranslationsTab()).toHaveAttribute('aria-selected', 'true');
+    });
 
+    await test.step('When I select the "Translated" translations tab', async () => {
       await formBuilderPage.translatedTab().click();
-      await expect(page.locator('[data-status="translated"]')).toHaveCount(0);
+    });
 
+    await test.step('Then I should see 0 "translated" entries', async () => {
+      await expect(page.locator('[data-status="translated"]')).toHaveCount(0);
+    });
+
+    await test.step('When I select the "Untranslated" translations tab', async () => {
       await formBuilderPage.untranslatedTab().click();
+    });
+
+    await test.step('Then the "Untranslated" translations tab should be selected', async () => {
       await expect(formBuilderPage.untranslatedTab()).toHaveAttribute('aria-selected', 'true');
+    });
+
+    await test.step('And I should see at least 1 "untranslated" entry', async () => {
       await expect(page.locator('[data-status="untranslated"]').first()).toBeVisible();
     });
 
-    await test.step('And I search for a translation string', async () => {
+    await test.step('When I search translations for "Visit Details"', async () => {
       const searchInput = formBuilderPage.translationSearchInput();
       await searchInput.fill('Visit Details');
-      await expect(searchInput).toHaveValue('Visit Details');
+    });
 
+    await test.step('Then the translation search input should contain "Visit Details"', async () => {
+      const searchInput = formBuilderPage.translationSearchInput();
+      await expect(searchInput).toHaveValue('Visit Details');
+    });
+
+    await test.step('And I should see at least 1 translation result', async () => {
       const results = page.locator('[data-testid="translation-entry"]');
       await expect(results).not.toHaveCount(0);
+    });
+
+    await test.step('And the first translation result should be visible', async () => {
+      const results = page.locator('[data-testid="translation-entry"]');
       await expect(results.first()).toBeVisible();
     });
   });
