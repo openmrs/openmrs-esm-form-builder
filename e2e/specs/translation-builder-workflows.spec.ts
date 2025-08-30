@@ -125,17 +125,17 @@ test.describe('Translation Builder', () => {
   test('Download a translation file from a form', async ({ page }) => {
     const formBuilderPage = new FormBuilderPage(page);
 
-    await test.step('When I open a form in the translation Builder', async () => {
+    await test.step('Given I have opened a form in the Form Builder', async () => {
       await formBuilderPage.gotoFormBuilder();
       await formBuilderPage.searchForForm(formDetails.name);
       await formBuilderPage.page.getByRole('row', { name: formDetails.name }).getByLabel('Edit Schema').first().click();
     });
 
-    await test.step('And then I go to the translation builder', async () => {
+    await test.step('When I navigate to the Translation Builder', async () => {
       await formBuilderPage.translationBuilderTab().click();
     });
 
-    await test.step('And I download the translation file', async () => {
+    await test.step('Then I should be able to download the translation file', async () => {
       const downloadButton = formBuilderPage.downloadTranslationButton();
       const [download] = await Promise.all([
         formBuilderPage.page.waitForEvent('download', { timeout: 15000 }),
@@ -148,17 +148,17 @@ test.describe('Translation Builder', () => {
   test('Upload a translation file to backend', async ({ page }) => {
     const formBuilderPage = new FormBuilderPage(page);
 
-    await test.step('When I open a form in the translation builder', async () => {
+    await test.step('Given I have opened a form in the Form Builder', async () => {
       await formBuilderPage.gotoFormBuilder();
       await formBuilderPage.searchForForm(formDetails.name);
       await formBuilderPage.page.getByRole('row', { name: formDetails.name }).getByLabel('Edit Schema').first().click();
     });
 
-    await test.step('And then I go to the translation builder', async () => {
+    await test.step('When I navigate to the Translation Builder', async () => {
       await formBuilderPage.translationBuilderTab().click();
     });
 
-    await test.step('And I upload a translation file', async () => {
+    await test.step('Then I should be able to upload a translation file successfully', async () => {
       const uploadButton = formBuilderPage.uploadTranslationButton();
       await expect(uploadButton).toBeEnabled();
       await expect(uploadButton).toBeVisible();
