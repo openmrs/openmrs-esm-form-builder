@@ -160,14 +160,13 @@ jobs:
 
   deploy_form_builder:
     runs-on: ubuntu-latest
-
     needs: pre_release
-
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'push' }} && github.repository_owner == 'openmrs'
 
     steps:
       - name: 🚀 Trigger RefApp Build
         uses: fjogeleit/http-request-action@v1
+        continue-on-error: true
         with:
           url: https://ci.openmrs.org/rest/api/latest/queue/O3-BF
           method: "POST"
