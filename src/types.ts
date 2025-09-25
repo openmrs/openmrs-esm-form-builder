@@ -143,10 +143,13 @@ export interface QuestionOptions {
   orderSettingUuid?: string;
   orderType?: string;
   identifierType?: string;
-  selectableOrders?: Array<{
-    concept: string;
-    label: string;
-  }>;
+  selectableOrders?: Array<
+    | {
+        concept: string;
+        label: string;
+      }
+    | Record<string, any>
+  >;
   weekList?: [];
   showComment?: boolean;
   showDate?: string;
