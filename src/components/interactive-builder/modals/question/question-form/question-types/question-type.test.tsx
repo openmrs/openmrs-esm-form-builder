@@ -43,6 +43,15 @@ describe('RenderingType Component', () => {
     expect(programStateComponent).toBeInTheDocument();
   });
 
+  it('renders the test order component for question type testOrder', () => {
+    formField.type = 'testOrder';
+    renderQuestionTypeComponent();
+
+    const testOrderComponent = screen.getByText(/selectable orders/i);
+
+    expect(testOrderComponent).toBeInTheDocument();
+  });
+
   it('prints error to console if component cannot be found for type', () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     formField.type = 'control';
