@@ -25,6 +25,7 @@ const EditTranslationModal: React.FC<EditTranslationModalProps> = ({ onClose, or
           labelText={t('translationValue', 'Translated Value')}
           value={newValue}
           onChange={(e) => setNewValue(e.target.value)}
+          data-testid="translation-value-input"
         />
       </ModalBody>
       <ModalFooter>
