@@ -1,5 +1,10 @@
 import React from 'react';
-import { ObsTypeQuestion, ProgramStateTypeQuestion, PatientIdentifierTypeQuestion } from './inputs';
+import {
+  ObsTypeQuestion,
+  ProgramStateTypeQuestion,
+  PatientIdentifierTypeQuestion,
+  TestOrderTypeQuestion,
+} from './inputs';
 import { useFormField } from '../../form-field-context';
 import type { QuestionType } from '@types';
 
@@ -8,6 +13,7 @@ const componentMap: Partial<Record<QuestionType, React.FC>> = {
   programState: ProgramStateTypeQuestion,
   patientIdentifier: PatientIdentifierTypeQuestion,
   obsGroup: ObsTypeQuestion,
+  testOrder: TestOrderTypeQuestion,
 };
 
 const QuestionTypeComponent: React.FC = () => {

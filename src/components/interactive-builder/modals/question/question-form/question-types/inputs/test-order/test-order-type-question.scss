@@ -1,0 +1,46 @@
+@use '@carbon/colors';
+@use '@carbon/layout';
+
+.testOrderContainer {
+  display: flex;
+  flex-direction: column;
+  gap: layout.$spacing-05;
+}
+
+.selectableOrderItem {
+  border: 1px solid colors.$gray-20;
+  border-radius: layout.$spacing-02;
+  padding: layout.$spacing-05;
+  background-color: colors.$gray-10;
+}
+
+.orderFields {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: layout.$spacing-05;
+  align-items: end;
+}
+
+.conceptField {
+  min-width: 0;
+}
+
+.removeButton {
+  min-width: auto;
+  padding: layout.$spacing-03;
+}
+
+.addButton {
+  align-self: flex-start;
+}
+
+@media (max-width: 768px) {
+  .orderFields {
+    grid-template-columns: 1fr;
+    gap: layout.$spacing-03;
+  }
+
+  .removeButton {
+    justify-self: flex-start;
+  }
+}
