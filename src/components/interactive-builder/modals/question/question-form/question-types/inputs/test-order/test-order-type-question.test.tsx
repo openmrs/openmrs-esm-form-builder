@@ -42,9 +42,6 @@ jest.mock('../../../../form-field-context', () => ({
 }));
 
 describe('TestOrderTypeQuestion', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
 
   it('renders the component correctly', () => {
     renderTestOrderComponent();
