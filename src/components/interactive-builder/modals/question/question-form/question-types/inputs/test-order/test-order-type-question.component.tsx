@@ -81,12 +81,10 @@ const TestOrderTypeQuestion: React.FC = () => {
 
   return (
     <div className={styles.testOrderContainer}>
-      <FormGroup legendText={t('concept', 'Concept')}>
-        <ConceptSearch
-          defaultConcept={formField.questionOptions?.concept}
-          onSelectConcept={(concept) => handleConceptChange(concept.uuid)}
-        />
-      </FormGroup>
+      <ConceptSearch
+        defaultConcept={formField.questionOptions?.concept}
+        onSelectConcept={(concept) => handleConceptChange(concept.uuid)}
+      />
 
       <FormGroup legendText={t('selectableOrders', 'Selectable Orders')}>
         <Stack gap={4}>
