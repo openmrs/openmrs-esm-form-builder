@@ -1,5 +1,6 @@
 @use '@carbon/colors';
 @use '@carbon/layout';
+@use '@carbon/layout/scss/spacing' as spacing;
 
 .testOrderContainer {
   display: flex;
@@ -17,8 +18,8 @@
 .orderFields {
   display: grid;
   grid-template-columns: 2fr 1fr auto;
-  gap: layout.$spacing-05;
-  align-items: end;
+  gap: spacing.$spacing-05;
+  align-items: start;
 }
 
 .conceptField {
