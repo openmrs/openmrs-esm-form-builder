@@ -28,7 +28,6 @@
   "close": "Close",
   "code": "Code",
   "componentadded": "Component added",
-  "concept": "Concept",
   "conceptDoesNotExist": "The linked concept '{{conceptName}}' does not exist in your dictionary",
   "conceptId": "Concept ID",
   "conceptSearchHelpText": "Can't find a concept?",
