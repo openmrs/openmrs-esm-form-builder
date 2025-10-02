@@ -3,29 +3,25 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import TestOrderTypeQuestion from './test-order-type-question.component';
 import { FormFieldProvider } from '../../../../form-field-context';
+import { useConceptId } from '@hooks/useConceptId';
+import { useConceptLookup } from '@hooks/useConceptLookup';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
 
-// Mock the ConceptSearch component
-jest.mock('../../../common/concept-search/concept-search.component', () => {
-  return function MockConceptSearch({
-    defaultConcept,
-    onSelectConcept,
-  }: {
-    defaultConcept?: string;
-    onSelectConcept: (concept: { uuid: string; name: string }) => void;
-  }) {
-    return (
-      <input
-        data-testid="concept-search"
-        defaultValue={defaultConcept}
-        onChange={(e) => onSelectConcept({ uuid: e.target.value, name: e.target.value })}
-        placeholder="Search for a concept"
-      />
-    );
-  };
-});
+const mockUseConceptLookup = jest.mocked(useConceptLookup);
+jest.mock('@hooks/useConceptLookup', () => ({
+  ...jest.requireActual('@hooks/useConceptLookup'),
+  useConceptLookup: jest.fn(),
+}));
+
+const mockUseConceptId = jest.mocked(useConceptId);
+jest.mock('@hooks/useConceptId', () => ({
+  ...jest.requireActual('@hooks/useConceptId'),
+  useConceptId: jest.fn(),
+}));
 
 const mockSetFormField = jest.fn();
+const mockSetConcept = jest.fn();
+const mockSetIsConceptValid = jest.fn();
 const formField: FormField = {
   id: 'test-order-1',
   type: 'testOrder',
@@ -38,14 +34,33 @@ const formField: FormField = {
 
 jest.mock('../../../../form-field-context', () => ({
   ...jest.requireActual('../../../../form-field-context'),
-  useFormField: () => ({ formField, setFormField: mockSetFormField }),
+  useFormField: () => ({
+    formField,
+    setFormField: mockSetFormField,
+    setConcept: mockSetConcept,
+    setIsConceptValid: mockSetIsConceptValid,
+  }),
 }));
 
 describe('TestOrderTypeQuestion', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUseConceptLookup.mockReturnValue({ concepts: [], conceptLookupError: null, isLoadingConcepts: false });
+    mockUseConceptId.mockReturnValue({
+      concept: null,
+      conceptName: null,
+      conceptNameLookupError: null,
+      isLoadingConcept: false,
+    });
+    mockSetFormField.mockClear();
+    mockSetConcept.mockClear();
+    mockSetIsConceptValid.mockClear();
+  });
+
   it('renders the component correctly', () => {
     renderTestOrderComponent();
 
-    expect(screen.getByText('Concept')).toBeInTheDocument();
+    expect(screen.getByRole('searchbox', { name: /search for a backing concept/i })).toBeInTheDocument();
     expect(screen.getByText('Selectable Orders')).toBeInTheDocument();
     expect(screen.getByText('Add selectable order')).toBeInTheDocument();
   });
@@ -54,24 +69,43 @@ describe('TestOrderTypeQuestion', () => {
     const user = userEvent.setup();
     renderTestOrderComponent();
 
-    const conceptInput = screen.getByTestId('concept-search');
+    const conceptInput = screen.getByRole('searchbox', { name: /search for a backing concept/i });
     await user.clear(conceptInput);
-    await user.type(conceptInput, 'new-concept-uuid');
+    await user.type(conceptInput, 'test-concept');
 
-    // Should be called for each character typed
-    expect(mockSetFormField).toHaveBeenCalled();
-    // Check that the last call has the complete string
-    const lastCall = mockSetFormField.mock.calls[mockSetFormField.mock.calls.length - 1];
-    const updateFn = lastCall[0];
-    const resultState = updateFn(formField);
+    // Verify that typing in the search box triggers the debounced lookup
+    // The actual concept selection happens via clicking on search results
+    expect(conceptInput).toHaveValue('test-concept');
+  });
 
-    expect(resultState).toEqual({
-      ...formField,
-      questionOptions: {
-        ...formField.questionOptions,
-        concept: 'new-concept-uuid',
-      },
+  it('handles concept selection correctly', async () => {
+    const user = userEvent.setup();
+
+    // Mock the concept lookup to return results
+    mockUseConceptLookup.mockReturnValue({
+      concepts: [
+        {
+          uuid: 'test-concept-uuid',
+          display: 'Test Concept',
+          mappings: [],
+          datatype: { uuid: 'text-uuid', display: 'Text' },
+        },
+      ],
+      conceptLookupError: null,
+      isLoadingConcepts: false,
     });
+
+    renderTestOrderComponent();
+
+    const conceptInput = screen.getByRole('searchbox', { name: /search for a backing concept/i });
+    await user.type(conceptInput, 'test-concept');
+
+    // Wait for the concept result to appear and click it
+    const conceptResult = await screen.findByRole('menuitem');
+    await user.click(conceptResult);
+
+    // Verify that the form field was updated
+    expect(mockSetFormField).toHaveBeenCalled();
   });
 
   it('adds a new selectable order', async () => {
