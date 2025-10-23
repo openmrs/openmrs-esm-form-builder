@@ -11,6 +11,7 @@ config.overrides.resolve = {
     '@resources': path.resolve(__dirname, 'src/resources/'),
     '@tools': path.resolve(__dirname, 'tools/'),
     '@constants$': path.resolve(__dirname, 'src/constants.ts'),
+    '@utils': path.resolve(__dirname, 'src/utils/'),
   },
 };
 module.exports = config;

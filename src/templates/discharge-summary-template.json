@@ -1,0 +1,451 @@
+{
+  "name": "Discharge Summary",
+  "pages": [
+    {
+      "label": "Patient Admission Information",
+      "sections": [
+        {
+          "label": "Admission Details",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Date of Admission",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "date",
+                "concept": "1640AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+              },
+              "id": "admissionDate",
+              "required": "true"
+            },
+            {
+              "label": "Time of Admission",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "1641AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+              },
+              "id": "admissionTime"
+            },
+            {
+              "label": "Admitting Department",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "1642AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+              },
+              "id": "admittingDepartment",
+              "required": "true"
+            },
+            {
+              "label": "Reason for Admission",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "160433AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rows": 4
+              },
+              "id": "reasonForAdmission",
+              "required": "true",
+              "questionInfo": "Provide a brief description of why the patient was admitted"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Clinical Information",
+      "sections": [
+        {
+          "label": "Diagnoses",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Principal Diagnosis",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "159947AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rows": 3
+              },
+              "id": "principalDiagnosis",
+              "required": "true",
+              "questionInfo": "Primary condition established after study to be chiefly responsible for admission"
+            },
+            {
+              "label": "Secondary Diagnoses",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "159948AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rows": 4
+              },
+              "id": "secondaryDiagnoses",
+              "questionInfo": "Other conditions that coexisted at admission or developed subsequently"
+            },
+            {
+              "label": "Comorbidities",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "162747AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rows": 3
+              },
+              "id": "comorbidities",
+              "questionInfo": "Pre-existing medical conditions"
+            }
+          ]
+        },
+        {
+          "label": "Hospital Course",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Clinical Summary",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "162749AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rows": 6
+              },
+              "id": "clinicalSummary",
+              "required": "true",
+              "questionInfo": "Brief narrative of the patient's hospital stay including significant events"
+            },
+            {
+              "label": "Procedures Performed",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "1651AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rows": 4
+              },
+              "id": "proceduresPerformed",
+              "questionInfo": "List all procedures, surgeries, or interventions performed during hospitalization"
+            },
+            {
+              "label": "Significant Findings",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "162750AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rows": 4
+              },
+              "id": "significantFindings",
+              "questionInfo": "Important test results, imaging findings, or clinical observations"
+            },
+            {
+              "label": "Complications",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "162751AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rows": 3
+              },
+              "id": "complications",
+              "questionInfo": "Any adverse events or complications during hospital stay"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Discharge Information",
+      "sections": [
+        {
+          "label": "Discharge Details",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Date of Discharge",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "date",
+                "concept": "159752AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+              },
+              "id": "dischargeDate",
+              "required": "true"
+            },
+            {
+              "label": "Time of Discharge",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "159753AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+              },
+              "id": "dischargeTime"
+            },
+            {
+              "label": "Discharge Disposition",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "select",
+                "concept": "159640AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "answers": [
+                  {
+                    "concept": "160116AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Home"
+                  },
+                  {
+                    "concept": "159642AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Transfer to another facility"
+                  },
+                  {
+                    "concept": "160034AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Transfer to nursing home"
+                  },
+                  {
+                    "concept": "160037AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Transfer to rehabilitation facility"
+                  },
+                  {
+                    "concept": "159641AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Left against medical advice"
+                  },
+                  {
+                    "concept": "160432AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Deceased"
+                  },
+                  {
+                    "concept": "5622AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Other"
+                  }
+                ]
+              },
+              "id": "dischargeDisposition",
+              "required": "true"
+            },
+            {
+              "label": "Discharge Condition",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "select",
+                "concept": "162752AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "answers": [
+                  {
+                    "concept": "162753AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Improved"
+                  },
+                  {
+                    "concept": "162754AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Stable"
+                  },
+                  {
+                    "concept": "162755AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Deteriorated"
+                  },
+                  {
+                    "concept": "162756AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Critical"
+                  }
+                ]
+              },
+              "id": "dischargeCondition",
+              "required": "true"
+            }
+          ]
+        },
+        {
+          "label": "Medications",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Discharge Medications",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "162757AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rows": 6
+              },
+              "id": "dischargeMedications",
+              "required": "true",
+              "questionInfo": "List all medications patient should continue after discharge (include dosage, frequency, duration)"
+            },
+            {
+              "label": "Medications Discontinued",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "162758AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rows": 3
+              },
+              "id": "medicationsDiscontinued",
+              "questionInfo": "Medications stopped during hospitalization"
+            },
+            {
+              "label": "Medication Allergies/Adverse Reactions",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "121764AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rows": 3
+              },
+              "id": "medicationAllergies",
+              "questionInfo": "Document any medication allergies or adverse reactions"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Post-Discharge Care",
+      "sections": [
+        {
+          "label": "Follow-up Care",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Follow-up Instructions",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "162759AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rows": 5
+              },
+              "id": "followUpInstructions",
+              "required": "true",
+              "questionInfo": "Detailed instructions for patient care after discharge"
+            },
+            {
+              "label": "Follow-up Appointment Date",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "date",
+                "concept": "5096AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+              },
+              "id": "followUpDate"
+            },
+            {
+              "label": "Follow-up Provider/Clinic",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "162760AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+              },
+              "id": "followUpProvider",
+              "questionInfo": "Name and contact of provider/clinic for follow-up"
+            },
+            {
+              "label": "Dietary Restrictions",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "162761AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rows": 3
+              },
+              "id": "dietaryRestrictions",
+              "questionInfo": "Special diet instructions or restrictions"
+            },
+            {
+              "label": "Activity Restrictions",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "162762AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rows": 3
+              },
+              "id": "activityRestrictions",
+              "questionInfo": "Physical activity limitations or restrictions"
+            },
+            {
+              "label": "Warning Signs",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "162763AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rows": 4
+              },
+              "id": "warningSigns",
+              "required": "true",
+              "questionInfo": "Symptoms or signs that require immediate medical attention"
+            }
+          ]
+        },
+        {
+          "label": "Patient Education",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Patient Education Provided",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "162764AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rows": 4
+              },
+              "id": "patientEducation",
+              "questionInfo": "Topics covered during patient education (disease management, medication use, etc.)"
+            },
+            {
+              "label": "Patient Understanding Confirmed",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "radio",
+                "concept": "162765AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "answers": [
+                  {
+                    "concept": "1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "Yes"
+                  },
+                  {
+                    "concept": "1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                    "label": "No"
+                  }
+                ]
+              },
+              "id": "patientUnderstanding",
+              "questionInfo": "Confirm patient/family demonstrates understanding of discharge instructions"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Provider Information",
+      "sections": [
+        {
+          "label": "Provider Details",
+          "isExpanded": "true",
+          "questions": [
+            {
+              "label": "Discharging Physician Name",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "162766AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+              },
+              "id": "dischargingPhysician",
+              "required": "true"
+            },
+            {
+              "label": "Attending Physician Name",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "text",
+                "concept": "162767AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+              },
+              "id": "attendingPhysician"
+            },
+            {
+              "label": "Additional Notes",
+              "type": "obs",
+              "questionOptions": {
+                "rendering": "textarea",
+                "concept": "162768AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                "rows": 4
+              },
+              "id": "additionalNotes",
+              "questionInfo": "Any additional information relevant to patient care"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "processor": "EncounterFormProcessor",
+  "uuid": "discharge-summary-form-v1",
+  "encounterType": "",
+  "referencedForms": [],
+  "version": "1.0",
+  "description": "Comprehensive discharge summary form for documenting patient hospital stay and post-discharge care instructions"
+}

@@ -1,19 +1,34 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Form, FormGroup, ModalBody, ModalFooter, ModalHeader, Stack, TextInput } from '@carbon/react';
+import {
+  Button,
+  Form,
+  FormGroup,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  Stack,
+  TextInput,
+  Select,
+  SelectItem,
+  Tile,
+} from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
+import { formTemplates } from '@utils/form-templates';
 import type { Schema } from '@types';
 
 interface NewFormModalProps {
   schema: Schema;
   onSchemaChange: (schema: Schema) => void;
   closeModal: () => void;
+  initialTemplate?: string;
 }
 
-const NewFormModal: React.FC<NewFormModalProps> = ({ schema, onSchemaChange, closeModal }) => {
+const NewFormModal: React.FC<NewFormModalProps> = ({ schema, onSchemaChange, closeModal, initialTemplate }) => {
   const { t } = useTranslation();
   const [formName, setFormName] = useState('');
   const [formDescription, setFormDescription] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState(initialTemplate || 'blank');
 
   const updateSchema = (updates: Partial<Schema>) => {
     try {
@@ -39,10 +54,24 @@ const NewFormModal: React.FC<NewFormModalProps> = ({ schema, onSchemaChange, clo
 
   const handleCreateForm = () => {
     if (formName) {
-      updateSchema({
-        name: formName,
-        description: formDescription,
-      });
+      if (selectedTemplate === 'blank') {
+        // Create blank form
+        updateSchema({
+          name: formName,
+          description: formDescription,
+        });
+      } else {
+        // Use selected template
+        const template = formTemplates.find((t) => t.id === selectedTemplate);
+        if (template) {
+          const templateSchema = JSON.parse(JSON.stringify(template.schema)); // Deep clone
+          updateSchema({
+            ...templateSchema,
+            name: formName,
+            description: formDescription || template.description,
+          });
+        }
+      }
 
       closeModal();
     }
@@ -54,6 +83,40 @@ const NewFormModal: React.FC<NewFormModalProps> = ({ schema, onSchemaChange, clo
       <Form onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
           <Stack gap={5}>
+            <FormGroup legendText={''}>
+              <Select
+                id="formTemplate"
+                labelText={t('selectTemplate', 'Select a template')}
+                value={selectedTemplate}
+                onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
+                  const templateId = event.target.value;
+                  setSelectedTemplate(templateId);
+
+                  // Auto-fill form details when template is selected
+                  if (templateId !== 'blank') {
+                    const template = formTemplates.find((t) => t.id === templateId);
+                    if (template && !formName) {
+                      setFormName(template.name);
+                      setFormDescription(template.description);
+                    }
+                  }
+                }}
+              >
+                <SelectItem value="blank" text={t('blankForm', 'Blank Form')} />
+                {formTemplates.map((template) => (
+                  <SelectItem key={template.id} value={template.id} text={template.name} />
+                ))}
+              </Select>
+            </FormGroup>
+
+            {selectedTemplate !== 'blank' && (
+              <Tile style={{ marginTop: '0.5rem', backgroundColor: '#f4f4f4' }}>
+                <p style={{ fontSize: '0.875rem', color: '#525252' }}>
+                  {formTemplates.find((t) => t.id === selectedTemplate)?.description}
+                </p>
+              </Tile>
+            )}
+
             <FormGroup legendText={''}>
               <TextInput
                 id="formName"
