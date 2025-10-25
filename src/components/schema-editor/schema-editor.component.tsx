@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AceEditor from 'react-ace';
-import 'ace-builds/webpack-resolver';
+import 'ace-builds/src-noconflict/mode-json';
+import 'ace-builds/src-noconflict/theme-textmate';
 import { addCompleter } from 'ace-builds/src-noconflict/ext-language_tools';
 import type { IMarker } from 'react-ace';
 import { useTranslation } from 'react-i18next';
@@ -39,6 +40,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     Array<{ name: string; type: string; path: string }>
   >([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [annotations, setAnnotations] = useState<Array<any>>([]);
 
   // Enable autocompletion in the schema
   const generateAutocompleteSuggestions = useCallback(() => {
@@ -160,9 +162,29 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
           };
         });
 
+        const errorAnnotations = validate.errors.map((error) => {
+          const schemaPath = error.schemaPath.replace(/^#\//, '');
+          const lineNumber = traverse(schemaPath);
+          const pathSegments = error.instancePath.split('.');
+          const errorPropertyName = pathSegments[pathSegments.length - 1];
+          const message =
+            error.keyword === 'type' || error.keyword === 'enum'
+              ? `${errorPropertyName.charAt(0).toUpperCase() + errorPropertyName.slice(1)} ${error.message}`
+              : `${error.message.charAt(0).toUpperCase() + error.message.slice(1)}`;
+
+          return {
+            row: lineNumber,
+            column: 0,
+            text: message,
+            type: 'error',
+          };
+        });
+
         setErrors(errorMarkers);
+        setAnnotations(errorAnnotations);
       } else {
         setErrors([]);
+        setAnnotations([]);
       }
     } catch (error) {
       console.error('Error parsing or validating JSON:', error);
@@ -246,6 +268,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
           tabSize: 2,
         }}
         markers={errors}
+        annotations={annotations}
       />
     </div>
   );
