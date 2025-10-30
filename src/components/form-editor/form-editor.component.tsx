@@ -18,7 +18,8 @@ import {
 } from '@carbon/react';
 import { ArrowLeft, Maximize, Minimize, Download } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
-import { type TFunction, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import { type TFunction } from 'i18next';
 import { ConfigurableLink, showModal, useConfig } from '@openmrs/esm-framework';
 import ActionButtons from '../action-buttons/action-buttons.component';
 import AuditDetails from '../audit-details/audit-details.component';

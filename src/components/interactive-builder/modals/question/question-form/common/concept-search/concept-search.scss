@@ -6,6 +6,10 @@
   margin-bottom: layout.$spacing-02;
 }
 
+.searchContainer {
+  position: relative;
+}
+
 .error {
   width: 100%;
   max-width: unset;
@@ -27,15 +31,28 @@
 }
 
 .conceptList {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
   background: colors.$white-0;
   max-height: 14rem;
   overflow-y: auto;
   border: 1px solid colors.$gray-20;
   border-top: none;
+  z-index: 1000;
 }
 
 .conceptList li:hover {
   background-color: colors.$gray-20;
+}
+
+.dropdownContainer {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
 }
 
 .emptyResults {

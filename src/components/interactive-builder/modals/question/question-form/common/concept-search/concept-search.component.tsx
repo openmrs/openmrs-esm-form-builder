@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Search, InlineLoading, Layer, Tile, FormLabel, InlineNotification } from '@carbon/react';
-import { type TFunction, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { ArrowUpRight } from '@carbon/react/icons';
 import { useConceptId } from '@hooks/useConceptId';
 import { useConceptLookup } from '@hooks/useConceptLookup';
@@ -10,7 +10,7 @@ import styles from './concept-search.scss';
 import { useFormField } from '../../../form-field-context';
 
 interface ConceptSearchProps {
-  label?: TFunction;
+  label?: string;
   defaultConcept?: string;
   onClearSelectedConcept?: () => void;
   onSelectConcept: (concept: Concept) => void;
@@ -100,69 +100,78 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
           }
         />
       )}
-      {isLoadingConcept ? (
-        <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />
-      ) : (
-        <Search
-          id="conceptLookup"
-          onClear={clearSelectedConcept}
-          onChange={handleConceptChange}
-          labelText={t('searchForBackingConcept', 'Search for a backing concept')}
-          placeholder={t('searchConcept', 'Search using a concept name or UUID')}
-          required
-          size="md"
-          value={(() => {
-            if (conceptToLookup) {
-              return conceptToLookup;
-            }
-            if (selectedConcept) {
-              return selectedConcept.display;
-            }
-            if (conceptName) {
-              return conceptName;
-            }
-            return '';
-          })()}
-        />
-      )}
-      {(() => {
-        if (!conceptToLookup) return null;
-        if (isLoadingConcepts)
-          return <InlineLoading className={styles.loader} description={t('searching', 'Searching') + '...'} />;
-        if (concepts?.length && !isLoadingConcepts) {
+      <div className={styles.searchContainer}>
+        {isLoadingConcept ? (
+          <InlineLoading className={styles.loader} description={t('loading', 'Loading...')} />
+        ) : (
+          <Search
+            id="conceptLookup"
+            onClear={clearSelectedConcept}
+            onChange={handleConceptChange}
+            labelText={t('searchForBackingConcept', 'Search for a backing concept')}
+            placeholder={t('searchConcept', 'Search using a concept name or UUID')}
+            required
+            size="md"
+            value={(() => {
+              if (conceptToLookup) {
+                return conceptToLookup;
+              }
+              if (selectedConcept) {
+                return selectedConcept.display;
+              }
+              if (conceptName) {
+                return conceptName;
+              }
+              return '';
+            })()}
+          />
+        )}
+        {(() => {
+          if (!conceptToLookup) return null;
+          if (isLoadingConcepts)
+            return <InlineLoading className={styles.loader} description={t('searching', 'Searching') + '...'} />;
+          if (concepts?.length && !isLoadingConcepts) {
+            return (
+              <ul className={styles.conceptList}>
+                {concepts?.map((concept, index) => (
+                  <li
+                    role="menuitem"
+                    className={styles.concept}
+                    key={index}
+                    onClick={() => handleConceptSelect(concept)}
+                  >
+                    {concept.display}
+                  </li>
+                ))}
+              </ul>
+            );
+          }
           return (
-            <ul className={styles.conceptList}>
-              {concepts?.map((concept, index) => (
-                <li role="menuitem" className={styles.concept} key={index} onClick={() => handleConceptSelect(concept)}>
-                  {concept.display}
-                </li>
-              ))}
-            </ul>
-          );
-        }
-        return (
-          <Layer>
-            <Tile className={styles.emptyResults}>
-              <span>
-                {t('noMatchingConcepts', 'No concepts were found that match')}{' '}
-                <strong>"{debouncedConceptToLookup}".</strong>
-              </span>
-            </Tile>
-            <div className={styles.oclLauncherBanner}>
-              <p className={styles.bodyShort01}>{t('conceptSearchHelpText', "Can't find a concept?")}</p>
-              <a
-                className={styles.oclLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                href={'https://app.openconceptlab.org/'}
-              >
-                {t('searchInOCL', 'Search in OCL')}
-                <ArrowUpRight size={16} />
-              </a>
+            <div className={styles.dropdownContainer}>
+              <Layer>
+                <Tile className={styles.emptyResults}>
+                  <span>
+                    {t('noMatchingConcepts', 'No concepts were found that match')}{' '}
+                    <strong>"{debouncedConceptToLookup}".</strong>
+                  </span>
+                </Tile>
+                <div className={styles.oclLauncherBanner}>
+                  <p className={styles.bodyShort01}>{t('conceptSearchHelpText', "Can't find a concept?")}</p>
+                  <a
+                    className={styles.oclLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={'https://app.openconceptlab.org/'}
+                  >
+                    {t('searchInOCL', 'Search in OCL')}
+                    <ArrowUpRight size={16} />
+                  </a>
+                </div>
+              </Layer>
             </div>
-          </Layer>
-        );
-      })()}
+          );
+        })()}
+      </div>
     </>
   );
 };
