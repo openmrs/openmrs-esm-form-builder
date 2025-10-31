@@ -2,13 +2,14 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
-import type { Question, Schema } from '@types';
+import type { FormField } from '@openmrs/esm-form-engine-lib';
+import type { Schema } from '@types';
 
 interface DeleteQuestionModal {
   closeModal: () => void;
   onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
-  question: Question;
+  question: FormField;
   questionIndex: number;
   schema: Schema;
   sectionIndex: number;
