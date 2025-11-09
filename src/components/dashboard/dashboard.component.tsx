@@ -139,7 +139,6 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
   const ImportButton = () => {
     return (
       <IconButton
-        align="center"
         enterDelayMs={defaultEnterDelayInMs}
         label={t('import', 'Import')}
         kind="ghost"
