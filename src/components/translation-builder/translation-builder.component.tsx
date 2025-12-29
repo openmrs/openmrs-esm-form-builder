@@ -16,6 +16,9 @@ interface TranslationBuilderProps {
   onUpdateSchema: (updatedSchema: any) => void;
 }
 
+// ------------------- helper -------------------
+const safeTestId = (key: string) => `translation-row-${key.replace(/\./g, '-')}`;
+
 const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onUpdateSchema }) => {
   const { t } = useTranslation();
   const languageOptions = useLanguageOptions();
@@ -44,18 +47,20 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
 
   const handleUpdateValue = useCallback(
     (key: string, newValue: string) => {
-      const updatedTranslations = { ...translations, [key]: newValue };
-      setTranslations(updatedTranslations);
-      if (formSchema) {
-        const updatedSchema = { ...formSchema };
-        if (!updatedSchema.translations) {
-          updatedSchema.translations = {};
+      setTranslations((prevTranslations) => {
+        const updatedTranslations = { ...prevTranslations, [key]: newValue };
+        if (formSchema) {
+          const updatedSchema = { ...formSchema };
+          if (!updatedSchema.translations) {
+            updatedSchema.translations = {};
+          }
+          updatedSchema.translations[langCode] = updatedTranslations;
+          onUpdateSchema(updatedSchema);
         }
-        updatedSchema.translations[langCode] = updatedTranslations;
-        onUpdateSchema(updatedSchema);
-      }
+        return updatedTranslations;
+      });
     },
-    [formSchema, langCode, onUpdateSchema, translations],
+    [formSchema, langCode, onUpdateSchema],
   );
 
   const handleEditClick = useCallback(
@@ -143,7 +148,8 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   };
 
   const filteredTranslations = useMemo(() => {
-    return Object.entries(translations).filter(([key, value]) => {
+    const safeTranslations = translations || {};
+    return Object.entries(safeTranslations).filter(([key, value]) => {
       if (activeTab === 'translated' && !isTranslated(key, value)) return false;
       if (activeTab === 'untranslated' && isTranslated(key, value)) return false;
 
@@ -287,7 +293,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
           <div className={styles.translationEditor}>
             {filteredTranslations.length > 0 ? (
               filteredTranslations.map(([key, value]) => (
-                <div key={key} className={styles.translationRow}>
+                <div key={key} data-testid={safeTestId(key)} className={styles.translationRow}>
                   <div className={styles.translationKey}>{key}</div>
                   <div className={styles.translatedKey}>{value}</div>
                   <div className={styles.inlineControls}>
