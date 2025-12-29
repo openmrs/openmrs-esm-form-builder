@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Search, InlineLoading, Layer, Tile, FormLabel, InlineNotification } from '@carbon/react';
-import { type TFunction, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { ArrowUpRight } from '@carbon/react/icons';
 import { useConceptId } from '@hooks/useConceptId';
 import { useConceptLookup } from '@hooks/useConceptLookup';
@@ -10,7 +10,7 @@ import styles from './concept-search.scss';
 import { useFormField } from '../../../form-field-context';
 
 interface ConceptSearchProps {
-  label?: TFunction;
+  label?: string;
   defaultConcept?: string;
   onClearSelectedConcept?: () => void;
   onSelectConcept: (concept: Concept) => void;

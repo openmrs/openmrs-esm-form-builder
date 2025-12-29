@@ -7,7 +7,7 @@ import { handleFormValidation } from '@resources/form-validator.resource';
 import { publishForm, unpublishForm } from '@resources/forms.resource';
 import { useForm } from '@hooks/useForm';
 import type { IMarker } from 'react-ace';
-import type { TFunction } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import type { ConfigObject } from '../../config-schema';
 import type { Schema } from '@types';
 import styles from './action-buttons.scss';
