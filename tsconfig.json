@@ -17,6 +17,7 @@
     ],
     "module": "esnext",
     "moduleResolution": "node",
+    "ignoreDeprecations":"5.0",
     "noEmit": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
