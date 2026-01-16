@@ -71,7 +71,6 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@openmrs/esm-framework": "next",
-    "@openmrs/esm-patient-common-lib": "next",
     "@openmrs/esm-styleguide": "next",
     "@playwright/test": "^1.50.1",
     "@swc/cli": "^0.1.65",
