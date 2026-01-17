@@ -159,6 +159,8 @@ export interface QuestionOptions {
     labelTrue: string;
     labelFalse: string;
   };
+  buttonLabel?: string; // Text to display on the button for workspace-launcher rendering type
+  workspaceName?: string; // Name of the workspace to launch for workspace-launcher rendering type
 }
 
 export interface Answer {
