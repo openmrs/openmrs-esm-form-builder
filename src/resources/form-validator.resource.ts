@@ -1,5 +1,6 @@
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
-import type { Question, Schema } from '@types';
+import type { FormField } from '@openmrs/esm-form-engine-lib';
+import type { Schema } from '@types';
 import type { ConfigObject } from '../config-schema';
 
 interface Field {
@@ -32,7 +33,7 @@ export const handleFormValidation = async (
     const asyncTasks: Array<Promise<void>> = [];
 
     parsedForm.pages?.forEach((page) =>
-      page.sections?.forEach((section: { questions: Array<Question> }) =>
+      page.sections?.forEach((section: { questions: Array<FormField> }) =>
         section.questions?.forEach((question) => {
           asyncTasks.push(
             handleQuestionValidation(question, errors, configObject, warnings),
