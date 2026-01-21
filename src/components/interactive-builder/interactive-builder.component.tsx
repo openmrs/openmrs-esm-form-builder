@@ -19,8 +19,8 @@ import { showModal, showSnackbar } from '@openmrs/esm-framework';
 import DraggableQuestion from './draggable/draggable-question.component';
 import EditableValue from './editable/editable-value.component';
 import type { DragEndEvent } from '@dnd-kit/core';
-import type { FormSchema } from '@openmrs/esm-form-engine-lib';
-import type { Schema, Question } from '@types';
+import type { FormSchema, FormField } from '@openmrs/esm-form-engine-lib';
+import type { Schema } from '@types';
 import styles from './interactive-builder.scss';
 
 interface ValidationError {
@@ -37,7 +37,7 @@ interface InteractiveBuilderProps {
 }
 
 interface SubQuestionProps {
-  question: Question;
+  question: FormField;
   pageIndex: number;
   sectionIndex: number;
   questionIndex: number;
@@ -257,9 +257,9 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   );
 
   const duplicateQuestion = useCallback(
-    (question: Question, pageId: number, sectionId: number, questionId?: number) => {
+    (question: FormField, pageId: number, sectionId: number, questionId?: number) => {
       try {
-        const questionToDuplicate: Question = JSON.parse(JSON.stringify(question));
+        const questionToDuplicate: FormField = JSON.parse(JSON.stringify(question));
         questionToDuplicate.id = questionToDuplicate.id + 'Duplicate';
 
         if (Number.isInteger(questionId)) {
@@ -340,7 +340,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
       pageIndex: number,
       sectionIndex: number,
       questionId: string | number,
-      newQuestion: Question,
+      newQuestion: FormField,
     ): Schema {
       if (activeQuestion.type === 'question') {
         const newSchema = { ...schema };
@@ -419,7 +419,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     return errors || [];
   };
 
-  const getValidationError = (question: Question) => {
+  const getValidationError = (question: FormField) => {
     const errorField: ValidationError = validationResponse.find(
       (error) =>
         error.field.label === question.label && error.field.id === question.id && error.field.type === question.type,

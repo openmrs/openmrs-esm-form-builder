@@ -6,14 +6,15 @@ import { IconButton } from '@carbon/react';
 import { Draggable, Edit, TrashCan, Copy } from '@carbon/react/icons';
 import { showModal, ChevronDownIcon, ChevronUpIcon } from '@openmrs/esm-framework';
 import MarkdownWrapper from '../markdown-wrapper/markdown-wrapper';
-import type { Question, Schema } from '@types';
+import type { FormField } from '@openmrs/esm-form-engine-lib';
+import type { Schema } from '@types';
 import styles from './draggable-question.scss';
 
 interface DraggableQuestionProps {
-  handleDuplicateQuestion: (question: Question, pageId: number, sectionId: number, questionId?: number) => void;
+  handleDuplicateQuestion: (question: FormField, pageId: number, sectionId: number, questionId?: number) => void;
   onSchemaChange: (schema: Schema) => void;
   pageIndex: number;
-  question: Question;
+  question: FormField;
   questionCount: number;
   questionIndex: number;
   schema: Schema;
