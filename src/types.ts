@@ -1,15 +1,12 @@
 import type { OpenmrsResource } from '@openmrs/esm-framework';
-import type {
-  OpenmrsFormResource,
-  FormField,
-  ProgramState,
-  ReferencedForm,
-  RenderType,
-  RequiredFieldProps,
-  FormReference,
-} from '@openmrs/esm-form-engine-lib';
+import type { FormSchema, ProgramState } from '@openmrs/esm-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
 import type { questionTypes } from '@constants';
+
+// Extend FormSchema to include description property
+export interface FormBuilderSchema extends FormSchema {
+  description?: string;
+}
 
 export interface Form {
   uuid: string;
@@ -50,115 +47,12 @@ export type QuestionType = (typeof questionTypes)[number];
 
 export type DatePickerType = 'both' | 'calendar' | 'timer';
 
-export interface Schema {
-  name: string;
-  pages: Array<{
-    label: string;
-    sections: Array<{
-      label: string;
-      isExpanded: string;
-      reference?: FormReference;
-      questions: Array<{
-        id: string;
-        label?: string;
-        value?: string;
-        type: string;
-        required?: string | boolean | RequiredFieldProps;
-        questionInfo?: string;
-        questionOptions: {
-          type?: string;
-          concept?: string;
-          answers?: Array<Record<string, string>>;
-          rendering: RenderType;
-          max?: string;
-          min?: string;
-          conceptMappings?: Array<Record<string, string>>;
-        };
-        questions?: Array<Question>;
-        validators?: Array<Record<string, string>>;
-      }>;
-    }>;
-  }>;
-  processor: string;
-  uuid: string;
-  encounterType: string;
-  referencedForms: Array<ReferencedForm>;
-  version?: string;
-  description?: string;
-  encounter?: string | OpenmrsEncounter;
-  allowUnspecifiedAll?: boolean;
-  defaultPage?: string;
-  readonly?: string | boolean;
-  inlineRendering?: 'single-line' | 'multiline' | 'automatic';
-  markdown?: unknown;
-  postSubmissionActions?: Array<{ actionId: string; config?: Record<string, unknown> }>;
-  formOptions?: {
-    usePreviousValueDisabled: boolean;
-  };
-  translations?: Record<string, string>;
-}
+// Using extended FormBuilderSchema instead of FormSchema
+export type Schema = FormBuilderSchema;
 
 export interface SchemaContextType {
   schema: Schema;
   setSchema: (schema: Schema) => void;
-}
-
-export interface Page {
-  label: string;
-  sections: Array<Section>;
-}
-
-export interface Section {
-  label: string;
-  questions: Array<Question>;
-  isExpanded: string | boolean;
-}
-
-export interface Question {
-  id: string;
-  label?: string;
-  value?: any;
-  type: string;
-  questionOptions: QuestionOptions;
-  datePickerFormat?: DatePickerType;
-  questions?: Array<Question>;
-  required?: string | boolean | RequiredFieldProps;
-  validators?: Array<Record<string, string>>;
-  questionInfo?: string;
-}
-
-export interface QuestionOptions {
-  rendering: RenderType;
-  answers?: Array<Record<string, string>>;
-  concept?: string;
-  conceptMappings?: Array<ConceptMapping>;
-  max?: string;
-  min?: string;
-  isSearchable?: boolean;
-  attributeType?: string;
-  calculate?: {
-    calculateExpression: string;
-  };
-  rows?: number;
-  orderSettingUuid?: string;
-  orderType?: string;
-  identifierType?: string;
-  selectableOrders?: Array<
-    | {
-        concept: string;
-        label: string;
-      }
-    | Record<string, any>
-  >;
-  weekList?: [];
-  showComment?: boolean;
-  showDate?: string;
-  programUuid?: string;
-  workflowUuid?: string;
-  toggleOptions?: {
-    labelTrue: string;
-    labelFalse: string;
-  };
 }
 
 export interface Answer {
@@ -206,54 +100,6 @@ export interface PersonAttributeType {
     display: string;
     answers: Array<ConceptAnswer>;
   };
-}
-
-export interface OpenmrsEncounter {
-  uuid?: string;
-  encounterDatetime?: string | Date;
-  patient?: OpenmrsResource | string;
-  location?: OpenmrsResource | string;
-  encounterType?: OpenmrsResource | string;
-  obs?: Array<OpenmrsObs>;
-  orders?: Array<OpenmrsResource>;
-  voided?: boolean;
-  visit?: OpenmrsResource | string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  encounterProviders?: Array<Record<string, any>>;
-  form?: OpenmrsFormResource;
-}
-
-export type SessionMode = 'edit' | 'enter' | 'view' | 'embedded-view';
-
-export interface PostSubmissionAction {
-  applyAction(
-    formSession: {
-      patient: fhir.Patient;
-      encounters: Array<OpenmrsEncounter>;
-      sessionMode: SessionMode;
-    },
-    config?: Record<string, unknown>,
-    enabled?: string,
-  ): void;
-}
-
-export interface OpenmrsObs extends OpenmrsResource {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  concept?: any;
-  obsDatetime?: string | Date;
-  obsGroup?: OpenmrsObs;
-  groupMembers?: Array<OpenmrsObs>;
-  comment?: string;
-  location?: OpenmrsResource;
-  order?: OpenmrsResource;
-  encounter?: OpenmrsResource;
-  voided?: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value?: any;
-  formFieldPath?: string;
-  formFieldNamespace?: string;
-  status?: string;
-  interpretation?: string;
 }
 
 export interface Program {
