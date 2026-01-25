@@ -30,6 +30,7 @@
       "@tools/*": ["./tools/*"],
       "@constants": ["./src/constants"],
       "@resources/*": ["./src/resources/*"],
+      "@utils/*": ["./src/utils/*"],
       "@openmrs/*": ["./node_modules/@openmrs/*"]
     }
   },
