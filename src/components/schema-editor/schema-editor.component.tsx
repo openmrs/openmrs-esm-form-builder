@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AceEditor from 'react-ace';
+import ace from 'ace-builds';
 import 'ace-builds/webpack-resolver';
 import { addCompleter } from 'ace-builds/src-noconflict/ext-language_tools';
 import type { IMarker } from 'react-ace';
@@ -10,6 +11,13 @@ import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
 import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
 import styles from './schema-editor.scss';
+
+// Configure Ace Editor to use CDN for production builds
+// This ensures workers and themes load correctly in deployed environments
+ace.config.set('basePath', 'https://cdn.jsdelivr.net/npm/ace-builds@1.36.3/src-noconflict/');
+ace.config.set('modePath', 'https://cdn.jsdelivr.net/npm/ace-builds@1.36.3/src-noconflict/');
+ace.config.set('themePath', 'https://cdn.jsdelivr.net/npm/ace-builds@1.36.3/src-noconflict/');
+ace.config.set('workerPath', 'https://cdn.jsdelivr.net/npm/ace-builds@1.36.3/src-noconflict/');
 
 interface MarkerProps extends IMarker {
   text: string;
