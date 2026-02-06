@@ -4,10 +4,20 @@ interface SelectionState {
   pageIndex: number | null;
   sectionIndex: number | null;
   questionIndex: number | null;
+  label?: string;
+  kind?: 'page' | 'section' | 'question';
+  source?: 'editor' | 'builder';
 }
 
 interface SelectionContextType extends SelectionState {
-  setSelection: (page: number | null, section?: number | null, question?: number | null) => void;
+  setSelection: (
+    page: number | null,
+    section?: number | null,
+    question?: number | null,
+    label?: string,
+    kind?: 'page' | 'section' | 'question',
+    source?: 'editor' | 'builder',
+  ) => void;
 }
 
 const SelectionContext = createContext<SelectionContextType | undefined>(undefined);
@@ -20,10 +30,15 @@ export const SelectionProvider: React.FC<{ children: ReactNode }> = ({ children 
   });
 
   const setSelection = useCallback(
-    (pageIndex: number | null, sectionIndex: number | null = null, questionIndex: number | null = null) => {
-      setSelectionState({ pageIndex, sectionIndex, questionIndex });
-      // eslint-disable-next-line no-console
-      console.log('Context Selection Updated:', { pageIndex, sectionIndex, questionIndex });
+    (
+      pageIndex: number | null,
+      sectionIndex: number | null = null,
+      questionIndex: number | null = null,
+      label?: string,
+      kind?: 'page' | 'section' | 'question',
+      source?: 'editor' | 'builder',
+    ) => {
+      setSelectionState({ pageIndex, sectionIndex, questionIndex, label, kind, source });
     },
     [],
   );

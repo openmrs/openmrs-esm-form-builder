@@ -11,6 +11,7 @@ import debounce from 'lodash-es/debounce';
 import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
 import styles from './schema-editor.scss';
 import { useSelection } from '../../context/selection-context';
+import { findLineForIndices, getSchemaCursorInfo } from '../../utils/schema-navigation';
 
 interface MarkerProps extends IMarker {
   text: string;
@@ -36,13 +37,29 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
 }) => {
   const { schema, schemaProperties } = useStandardFormSchema();
   const { t } = useTranslation();
-  const { setSelection } = useSelection();
+  const { setSelection, ...selection } = useSelection();
   const [autocompleteSuggestions, setAutocompleteSuggestions] = useState<
     Array<{ name: string; type: string; path: string }>
   >([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   // Ref to the underlying Ace editor instance so we can read the cursor position
   const aceRef = useRef<any | null>(null);
+
+  // Scroll to selection when it comes from the builder
+  useEffect(() => {
+    if (selection.source === 'builder' && aceRef.current) {
+      const { pageIndex, sectionIndex, questionIndex } = selection;
+      // We pass the full text from the editor instance
+      const text = aceRef.current.getValue();
+
+      const line = findLineForIndices(text, pageIndex, sectionIndex, questionIndex);
+
+      if (line >= 0) {
+        aceRef.current.gotoLine(line + 1, 0, true);
+        aceRef.current.scrollToLine(line + 1, true, true, function () {});
+      }
+    }
+  }, [selection]);
 
   // Enable autocompletion in the schema
   const generateAutocompleteSuggestions = useCallback(() => {
@@ -210,15 +227,12 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
           const info = getSchemaCursorInfo(editor.getValue(), cursor.row, cursor.column);
 
           if (!info) {
-            // If we couldn't map the cursor to a page/section/question,
-            // just log that fact (useful while iterating on the algorithm).
-            // eslint-disable-next-line no-console
-            console.log('Cursor not inside page/section/question', cursor);
             return;
           }
 
           const { kind, pageIndex, sectionIndex, questionIndex } = info;
-          setSelection(pageIndex, sectionIndex, questionIndex);
+
+          setSelection(pageIndex, sectionIndex, questionIndex, undefined, kind, 'editor');
         } catch (e) {
           // If anything goes wrong (malformed JSON, unexpected structure),
           // we log it instead of blowing up the editor.
@@ -305,241 +319,3 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
 };
 
 export default SchemaEditor;
-
-type Frame = {
-  type: 'object' | 'array';
-  key: string | null;
-  index: number | null;
-};
-
-type CursorKind = 'page' | 'section' | 'question';
-
-interface SchemaCursorInfo {
-  kind: CursorKind;
-  pageIndex: number | null;
-  sectionIndex: number | null;
-  questionIndex: number | null;
-}
-
-/**
- * Given the full JSON text and a cursor position (row, column),
- * walk the JSON structure and infer the nearest enclosing page/section/question indices.
- *
- * This works on the textual JSON (using braces/arrays and property keys),
- * assuming it follows the OpenMRS form schema structure: pages -> sections -> questions.
- */
-function getSchemaCursorInfo(text: string, row: number, column: number): SchemaCursorInfo | null {
-  if (!text) {
-    return null;
-  }
-
-  // Split into lines so we can convert (row, column) into a single
-  // character offset into the string.
-  const lines = text.split('\n');
-  if (row < 0 || row >= lines.length) {
-    return null;
-  }
-
-  // Clamp the column so we don't go past the end of the line.
-  const safeColumn = Math.min(column, lines[row].length);
-
-  // Compute the absolute offset by summing all previous line lengths
-  // (plus one per newline), then adding the column on the current line.
-  let offset = 0;
-  for (let r = 0; r < row; r++) {
-    // +1 for the newline character
-    offset += lines[r].length + 1;
-  }
-  offset += safeColumn;
-
-  // This stack tracks the current nesting as we scan through the JSON:
-  // - Each '{' pushes an "object" frame.
-  // - Each '[' pushes an "array" frame, with its associated key (e.g. "pages").
-  // - Each ',' inside an array increments that array's `index` (which element).
-  const stack: Frame[] = [];
-  let inString = false;
-  let escape = false;
-  let currentKey: string | null = null;
-
-  // Push a new object frame, remembering which key it belongs to (if any).
-  const pushObject = () => {
-    stack.push({ type: 'object', key: currentKey, index: null });
-    currentKey = null;
-  };
-
-  // Push a new array frame; `key` is the property name this array belongs to
-  // (e.g. "pages", "sections", or "questions").
-  const pushArray = (key: string | null) => {
-    stack.push({ type: 'array', key, index: 0 });
-    currentKey = null;
-  };
-
-  // Scan character by character up to the cursor offset, updating the stack
-  // as we encounter strings, objects, arrays, and commas.
-  for (let i = 0; i <= offset && i < text.length; i++) {
-    const ch = text[i];
-
-    if (escape) {
-      escape = false;
-      continue;
-    }
-
-    if (inString) {
-      if (ch === '\\') {
-        escape = true;
-      } else if (ch === '"') {
-        inString = false;
-      }
-      continue;
-    }
-
-    if (ch === '"') {
-      // We hit the start of a JSON string. We now parse the full string
-      // so we can tell if it's a *property key* (i.e. followed by a colon).
-      inString = true;
-      let j = i + 1;
-      let str = '';
-      let localEscape = false;
-      for (; j < text.length; j++) {
-        const c2 = text[j];
-        if (localEscape) {
-          str += c2;
-          localEscape = false;
-          continue;
-        }
-        if (c2 === '\\') {
-          localEscape = true;
-          continue;
-        }
-        if (c2 === '"') {
-          break;
-        }
-        str += c2;
-      }
-      inString = false;
-
-      // Look ahead to see if this string is followed by a colon -> it's a key.
-      let k = j + 1;
-      while (k < text.length && /\s/.test(text[k])) {
-        k++;
-      }
-      if (text[k] === ':') {
-        currentKey = str;
-      }
-      i = j;
-      continue;
-    }
-
-    if (ch === '{') {
-      pushObject();
-    } else if (ch === '}') {
-      // Pop until we remove the last object.
-      while (stack.length && stack[stack.length - 1].type !== 'object') {
-        stack.pop();
-      }
-      if (stack.length) {
-        stack.pop();
-      }
-      currentKey = null;
-    } else if (ch === '[') {
-      pushArray(currentKey);
-    } else if (ch === ']') {
-      // Pop until we remove the last array.
-      while (stack.length && stack[stack.length - 1].type !== 'array') {
-        stack.pop();
-      }
-      if (stack.length) {
-        stack.pop();
-      }
-      currentKey = null;
-    } else if (ch === ',') {
-      // Between elements: if we're inside an array, advance its index
-      // so that the next element has index+1.
-      const top = stack[stack.length - 1];
-      if (top && top.type === 'array' && top.index !== null) {
-        top.index += 1;
-      }
-      currentKey = null;
-    } else if (!/\s/.test(ch) && ch !== ':') {
-      // Other structural characters/values we don't care about for structure.
-      continue;
-    }
-  }
-
-  // From the stack, extract the "current" indices for pages/sections/questions.
-  let pageIndex: number | null = null;
-  let sectionIndex: number | null = null;
-  let questionIndex: number | null = null;
-
-  stack.forEach((frame) => {
-    if (frame.type === 'array' && frame.index !== null) {
-      if (frame.key === 'pages') {
-        pageIndex = frame.index;
-      } else if (frame.key === 'sections') {
-        sectionIndex = frame.index;
-      } else if (frame.key === 'questions') {
-        questionIndex = frame.index;
-      }
-    }
-  });
-
-  /**
-   * Helper: walk the stack from the innermost frame outward and find
-   * the nearest object whose *parent* array has the given key.
-   *
-   * Example:
-   *   pages[1].sections[2].questions[3]
-   * If the cursor is in that question object, scanning backwards we will
-   * find an object frame whose parent array frame has key === 'questions',
-   * and we return that parent array's `index` (here, 3).
-   */
-  const findNearestByArrayKey = (arrayKey: 'questions' | 'sections' | 'pages') => {
-    for (let i = stack.length - 1; i >= 0; i--) {
-      if (stack[i].type !== 'object') {
-        continue;
-      }
-      for (let j = i - 1; j >= 0; j--) {
-        const parent = stack[j];
-        if (parent.type === 'array' && parent.key === arrayKey && parent.index !== null) {
-          return parent.index;
-        }
-      }
-    }
-    return null;
-  };
-
-  // Prefer nearest question, then section, then page.
-  // This matches your requirement: first try to identify a question,
-  // if not found then a section, and finally a page.
-  const qIdx = findNearestByArrayKey('questions');
-  if (qIdx !== null) {
-    return {
-      kind: 'question',
-      pageIndex,
-      sectionIndex,
-      questionIndex: qIdx,
-    };
-  }
-
-  const sIdx = findNearestByArrayKey('sections');
-  if (sIdx !== null) {
-    return {
-      kind: 'section',
-      pageIndex,
-      sectionIndex: sIdx,
-      questionIndex,
-    };
-  }
-
-  const pIdx = findNearestByArrayKey('pages');
-  if (pIdx !== null) {
-    return {
-      kind: 'page',
-      pageIndex: pIdx,
-      sectionIndex,
-      questionIndex,
-    };
-  }
-
-  return null;
-}

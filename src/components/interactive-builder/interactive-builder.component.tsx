@@ -295,8 +295,14 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   );
 
   const handleSelection = useCallback(
-    (pageIndex: number, sectionIndex: number | null = null, questionIndex: number | null = null) => {
-      setSelection(pageIndex, sectionIndex, questionIndex);
+    (
+      pageIndex: number,
+      sectionIndex: number | null = null,
+      questionIndex: number | null = null,
+      label?: string,
+      kind?: 'page' | 'section' | 'question',
+    ) => {
+      setSelection(pageIndex, sectionIndex, questionIndex, label, kind, 'builder');
     },
     [setSelection],
   );
@@ -532,7 +538,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                 <div className={styles.editableFieldsContainer} key={pageIndex}>
                   <div
                     style={{ display: 'flex', alignItems: 'center' }}
-                    onClick={() => handleSelection(pageIndex)}
+                    onClick={() => handleSelection(pageIndex, null, null, page.label, 'page')}
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => {
@@ -574,7 +580,10 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                     {page?.sections?.length ? (
                       page.sections?.map((section, sectionIndex) => (
                         <Accordion key={sectionIndex}>
-                          <AccordionItem title={section.label} onClick={() => handleSelection(pageIndex, sectionIndex)}>
+                          <AccordionItem
+                            title={section.label}
+                            onClick={() => handleSelection(pageIndex, sectionIndex, null, section.label, 'section')}
+                          >
                             <>
                               <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <div className={styles.editorContainer}>
@@ -612,7 +621,13 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                         key={questionIndex}
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          handleSelection(pageIndex, sectionIndex, questionIndex);
+                                          handleSelection(
+                                            pageIndex,
+                                            sectionIndex,
+                                            questionIndex,
+                                            question.label,
+                                            'question',
+                                          );
                                         }}
                                         role="button"
                                         tabIndex={0}
