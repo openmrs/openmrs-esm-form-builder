@@ -23,6 +23,8 @@ import type { FormSchema, FormField } from '@openmrs/esm-form-engine-lib';
 import type { Schema } from '@types';
 import styles from './interactive-builder.scss';
 import { useSelection } from '../../context/selection-context';
+import { getBuilderElementId } from '../../utils/builder-ids';
+import { useBuilderScroll } from '../../hooks/useBuilderScroll';
 
 interface ValidationError {
   errorMessage?: string;
@@ -50,8 +52,33 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   schema,
   validationResponse,
 }) => {
-  const { setSelection } = useSelection();
+  const { setSelection, source, pageIndex: selectedPageIndex, sectionIndex: selectedSectionIndex } = useSelection();
   const [activeQuestion, setActiveQuestion] = useState(null);
+
+  // State for controlled accordions
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+
+  // Sync scroll from editor
+  useBuilderScroll();
+
+  // Auto-expand section when selection comes from editor
+  React.useEffect(() => {
+    if (source === 'editor' && selectedPageIndex !== null && selectedSectionIndex !== null) {
+      setExpandedSections((prev) => ({
+        ...prev,
+        [`${selectedPageIndex}-${selectedSectionIndex}`]: true,
+      }));
+    }
+  }, [source, selectedPageIndex, selectedSectionIndex]);
+
+  const toggleSection = (pageIndex: number, sectionIndex: number) => {
+    const key = `${pageIndex}-${sectionIndex}`;
+    setExpandedSections((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 10, // Enable sort function when dragging 10px 💡 here!!!.
@@ -535,7 +562,11 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         >
           {schema?.pages?.length
             ? schema.pages.map((page, pageIndex) => (
-                <div className={styles.editableFieldsContainer} key={pageIndex}>
+                <div
+                  className={styles.editableFieldsContainer}
+                  key={pageIndex}
+                  id={getBuilderElementId('page', pageIndex)}
+                >
                   <div
                     style={{ display: 'flex', alignItems: 'center' }}
                     onClick={() => handleSelection(pageIndex, null, null, page.label, 'page')}
@@ -582,7 +613,12 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                         <Accordion key={sectionIndex}>
                           <AccordionItem
                             title={section.label}
-                            onClick={() => handleSelection(pageIndex, sectionIndex, null, section.label, 'section')}
+                            open={expandedSections[`${pageIndex}-${sectionIndex}`] || false}
+                            onHeadingClick={() => {
+                              toggleSection(pageIndex, sectionIndex);
+                              handleSelection(pageIndex, sectionIndex, null, section.label, 'section');
+                            }}
+                            className={getBuilderElementId('section', pageIndex, sectionIndex)}
                           >
                             <>
                               <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -617,7 +653,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                   section.questions.map((question, questionIndex) => {
                                     return (
                                       <div
-                                        id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
+                                        id={getBuilderElementId('question', pageIndex, sectionIndex, questionIndex)}
                                         key={questionIndex}
                                         onClick={(e) => {
                                           e.stopPropagation();

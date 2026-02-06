@@ -2,6 +2,28 @@
 @use '@carbon/layout';
 @use '@carbon/type';
 
+@keyframes twinkle {
+  0% {
+    box-shadow: 0 0 5px 2px transparent;
+    border-color: transparent;
+  }
+  50% {
+    box-shadow: 0 0 10px 4px colors.$yellow-30;
+    border-color: colors.$yellow-40;
+  }
+  100% {
+    box-shadow: 0 0 5px 2px transparent;
+    border-color: transparent;
+  }
+}
+
+:global(.builder-highlight) {
+  animation: twinkle 1s infinite;
+  border: 2px solid transparent; // Reserve space for border to prevent layout shift
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
 .container {
   overflow-y: scroll;
   overflow-x: hidden;
