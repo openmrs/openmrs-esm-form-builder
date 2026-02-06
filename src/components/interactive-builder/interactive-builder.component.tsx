@@ -22,6 +22,7 @@ import type { DragEndEvent } from '@dnd-kit/core';
 import type { FormSchema, FormField } from '@openmrs/esm-form-engine-lib';
 import type { Schema } from '@types';
 import styles from './interactive-builder.scss';
+import { useSelection } from '../../context/selection-context';
 
 interface ValidationError {
   errorMessage?: string;
@@ -49,6 +50,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   schema,
   validationResponse,
 }) => {
+  const { setSelection } = useSelection();
   const [activeQuestion, setActiveQuestion] = useState(null);
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
@@ -292,6 +294,13 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     [onSchemaChange, schema, t],
   );
 
+  const handleSelection = useCallback(
+    (pageIndex: number, sectionIndex: number | null = null, questionIndex: number | null = null) => {
+      setSelection(pageIndex, sectionIndex, questionIndex);
+    },
+    [setSelection],
+  );
+
   const handleDragStart = (event) => {
     setActiveQuestion(event.active.data.current?.question);
   };
@@ -380,11 +389,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         if (overQuestion.type === 'obsQuestion') {
           const newSchema = { ...schema };
           const pages = newSchema.pages;
-          pages[pageIndex].sections[sectionIndex].questions[overQuestion.question.questionIndex].questions.splice(
-            overQuestion.question.subQuestionIndex,
-            0,
-            activeQuestion.question.question,
-          );
+          const targetQuestion = pages[pageIndex].sections[sectionIndex].questions[overQuestion.question.questionIndex];
+          targetQuestion.questions.splice(overQuestion.question.subQuestionIndex, 0, activeQuestion.question.question);
           return newSchema;
         }
       }
@@ -524,7 +530,17 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
           {schema?.pages?.length
             ? schema.pages.map((page, pageIndex) => (
                 <div className={styles.editableFieldsContainer} key={pageIndex}>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <div
+                    style={{ display: 'flex', alignItems: 'center' }}
+                    onClick={() => handleSelection(pageIndex)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        handleSelection(pageIndex);
+                      }
+                    }}
+                  >
                     <div className={styles.editorContainer}>
                       <EditableValue
                         elementType="page"
@@ -537,7 +553,10 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                       enterDelayMs={300}
                       kind="ghost"
                       label={t('deletePage', 'Delete page')}
-                      onClick={() => launchDeletePageModal(pageIndex)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        launchDeletePageModal(pageIndex);
+                      }}
                       size="md"
                     >
                       <TrashCan />
@@ -548,14 +567,14 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                       <p className={styles.sectionExplainer}>
                         {t(
                           'expandSectionExplainer',
-                          'Below are the sections linked to this page. Expand each section to add questions to it.',
+                          'Below are the sections linked to this page. Expand each section to add questions to this section.',
                         )}
                       </p>
                     ) : null}
                     {page?.sections?.length ? (
                       page.sections?.map((section, sectionIndex) => (
                         <Accordion key={sectionIndex}>
-                          <AccordionItem title={section.label}>
+                          <AccordionItem title={section.label} onClick={() => handleSelection(pageIndex, sectionIndex)}>
                             <>
                               <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <div className={styles.editorContainer}>
@@ -591,6 +610,18 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                       <div
                                         id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
                                         key={questionIndex}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleSelection(pageIndex, sectionIndex, questionIndex);
+                                        }}
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyDown={(e) => {
+                                          if (e.key === 'Enter' || e.key === ' ') {
+                                            e.stopPropagation();
+                                            handleSelection(pageIndex, sectionIndex, questionIndex);
+                                          }
+                                        }}
                                       >
                                         <DraggableQuestion
                                           handleDuplicateQuestion={duplicateQuestion}

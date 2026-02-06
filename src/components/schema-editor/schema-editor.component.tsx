@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import AceEditor from 'react-ace';
 import 'ace-builds/webpack-resolver';
 import { addCompleter } from 'ace-builds/src-noconflict/ext-language_tools';
@@ -10,6 +10,7 @@ import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
 import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
 import styles from './schema-editor.scss';
+import { useSelection } from '../../context/selection-context';
 
 interface MarkerProps extends IMarker {
   text: string;
@@ -35,35 +36,13 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
 }) => {
   const { schema, schemaProperties } = useStandardFormSchema();
   const { t } = useTranslation();
+  const { setSelection } = useSelection();
   const [autocompleteSuggestions, setAutocompleteSuggestions] = useState<
     Array<{ name: string; type: string; path: string }>
   >([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  /**
-   * We keep a ref to the underlying Ace editor instance so that
-   * we can read the current cursor position on click.
-   *
-   * Using a ref (instead of state) avoids re-renders every time
-   * the cursor moves.
-   */
-  const editorRef = useRef<any | null>(null);
-
-  /**
-   * We also keep the latest JSON text in a ref.
-   *
-   * Reason:
-   * - The click handler we attach to the editor container is a DOM listener.
-   * - That listener closes over whatever value of `stringifiedSchema`
-   *   existed when the handler was attached.
-   * - As the user edits the schema, `stringifiedSchema` changes.
-   * - Updating this ref on every render means the click handler
-   *   can always read the *current* JSON text via `schemaTextRef.current`.
-   */
-  const schemaTextRef = useRef(stringifiedSchema);
-
-  useEffect(() => {
-    schemaTextRef.current = stringifiedSchema;
-  }, [stringifiedSchema]);
+  // Ref to the underlying Ace editor instance so we can read the cursor position
+  const aceRef = useRef<any | null>(null);
 
   // Enable autocompletion in the schema
   const generateAutocompleteSuggestions = useCallback(() => {
@@ -216,58 +195,40 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
    * - Using the Ace editor's `container` gives us reliable access to
    *   the real editor and its `selection`.
    */
-  const handleEditorLoad = useCallback((editor) => {
-    // Keep the editor instance so we can use it later if needed.
-    editorRef.current = editor;
+  const handleEditorLoad = useCallback(
+    (editor) => {
+      // Keep the editor instance so we can use it later if needed.
+      aceRef.current = editor;
 
-    editor.container.addEventListener('click', () => {
-      try {
-        // 1. Get the current cursor position (row/column in Ace coordinates).
-        const cursor = editor.selection.getCursor();
+      editor.container.addEventListener('click', () => {
+        try {
+          // 1. Get the current cursor position (row/column in Ace coordinates).
+          const cursor = editor.selection.getCursor();
 
-        // 2. Ask our helper to infer which page/section/question
-        //    the cursor is currently inside, based purely on the text.
-        const info = getSchemaCursorInfo(schemaTextRef.current ?? '', cursor.row, cursor.column);
+          // 2. Ask our helper to infer which page/section/question
+          //    the cursor is currently inside, based purely on the text.
+          const info = getSchemaCursorInfo(editor.getValue(), cursor.row, cursor.column);
 
-        if (!info) {
-          // If we couldn't map the cursor to a page/section/question,
-          // just log that fact (useful while iterating on the algorithm).
+          if (!info) {
+            // If we couldn't map the cursor to a page/section/question,
+            // just log that fact (useful while iterating on the algorithm).
+            // eslint-disable-next-line no-console
+            console.log('Cursor not inside page/section/question', cursor);
+            return;
+          }
+
+          const { kind, pageIndex, sectionIndex, questionIndex } = info;
+          setSelection(pageIndex, sectionIndex, questionIndex);
+        } catch (e) {
+          // If anything goes wrong (malformed JSON, unexpected structure),
+          // we log it instead of blowing up the editor.
           // eslint-disable-next-line no-console
-          console.log('Cursor not inside page/section/question', cursor);
-          return;
+          console.error('Error computing schema cursor info', e);
         }
-
-        const { kind, pageIndex, sectionIndex, questionIndex } = info;
-
-        // 3. Log the indices in a very explicit way so they are easy to see
-        //    and easy to plug into other parts of the app later.
-        if (kind === 'question') {
-          // eslint-disable-next-line no-console
-          console.log('Question indices', {
-            pageIndex,
-            sectionIndex,
-            questionIndex,
-          });
-        } else if (kind === 'section') {
-          // eslint-disable-next-line no-console
-          console.log('Section indices', {
-            pageIndex,
-            sectionIndex,
-          });
-        } else if (kind === 'page') {
-          // eslint-disable-next-line no-console
-          console.log('Page index', {
-            pageIndex,
-          });
-        }
-      } catch (e) {
-        // If anything goes wrong (malformed JSON, unexpected structure),
-        // we log it instead of blowing up the editor.
-        // eslint-disable-next-line no-console
-        console.error('Error computing schema cursor info', e);
-      }
-    });
-  }, []);
+      });
+    },
+    [setSelection],
+  );
 
   // Schema Validation Errors
   const ErrorNotification = ({ text, line }) => (
