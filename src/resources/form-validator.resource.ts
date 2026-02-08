@@ -39,6 +39,7 @@ export const handleFormValidation = async (
             handleQuestionValidation(question, errors, configObject, warnings),
             handleAnswerValidation(question, errors),
             handlePatientIdentifierValidation(question, errors),
+            handlePersonAttributeValidation(question, errors),
           );
           if (question.type === 'obsGroup') {
             question?.questions?.forEach((obsGrpQuestion) =>
@@ -142,6 +143,34 @@ const handlePatientIdentifierValidation = async (question, errors) => {
       console.error('Error fetching patient identifier:', error);
       errors.push({
         errorMessage: `❓ The identifier type does not exist`,
+        field: question,
+      });
+    }
+  }
+};
+
+const handlePersonAttributeValidation = async (question, errors) => {
+  if (question.type === 'personAttribute' && !question.questionOptions.attributeType) {
+    errors.push({
+      errorMessage: `❓ Person attribute type missing in schema`,
+      field: question,
+    });
+  }
+  const personAttribute = question.questionOptions.attributeType;
+
+  if (personAttribute) {
+    try {
+      const { data } = await openmrsFetch(`${restBaseUrl}/personattributetype/${personAttribute}`);
+      if (!data) {
+        errors.push({
+          errorMessage: `❓ The person attribute type does not exist`,
+          field: question,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching person attribute:', error);
+      errors.push({
+        errorMessage: `❓ The person attribute type does not exist`,
         field: question,
       });
     }
