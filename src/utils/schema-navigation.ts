@@ -168,12 +168,12 @@ export function getSchemaCursorInfo(text: string, row: number, column: number): 
 
   const sIdx = findNearestByArrayKey('sections');
   if (sIdx !== null) {
-    return { kind: 'section', pageIndex, sectionIndex: sIdx, questionIndex };
+    return { kind: 'section', pageIndex, sectionIndex: sIdx, questionIndex: null };
   }
 
   const pIdx = findNearestByArrayKey('pages');
   if (pIdx !== null) {
-    return { kind: 'page', pageIndex: pIdx, sectionIndex, questionIndex };
+    return { kind: 'page', pageIndex: pIdx, sectionIndex: null, questionIndex: null };
   }
 
   // If we are deep enough to be in an object but not in any known array,
