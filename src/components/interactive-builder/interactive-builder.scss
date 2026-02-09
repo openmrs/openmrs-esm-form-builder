@@ -2,25 +2,12 @@
 @use '@carbon/layout';
 @use '@carbon/type';
 
-@keyframes twinkle {
-  0% {
-    box-shadow: 0 0 5px 2px transparent;
-    border-color: transparent;
-  }
-  50% {
-    box-shadow: 0 0 10px 4px colors.$yellow-30;
-    border-color: colors.$yellow-40;
-  }
-  100% {
-    box-shadow: 0 0 5px 2px transparent;
-    border-color: transparent;
-  }
-}
-
 :global(.builder-highlight) {
-  animation: twinkle 1s infinite;
-  border: 2px solid transparent; // Reserve space for border to prevent layout shift
+  outline: 1px solid colors.$warm-gray-30; // Balanced faint brown (Warm Gray 30), thinner width
+  outline-offset: -2px; // Ensure it draws inside if needed, or keeping it default
   border-radius: 4px;
+  position: relative; // Needed for z-index to work
+  z-index: 100 !important; // Ensure it sits above other content (Carbon hover/focus)
   transition: all 0.3s ease;
 }
 
@@ -29,6 +16,7 @@
   overflow-x: hidden;
   height: 95vh;
   padding-right: layout.$spacing-07;
+
   :global(.cds--modal-content:focus) {
     outline: none;
   }

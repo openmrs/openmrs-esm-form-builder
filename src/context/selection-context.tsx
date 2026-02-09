@@ -5,7 +5,7 @@ interface SelectionState {
   sectionIndex: number | null;
   questionIndex: number | null;
   label?: string;
-  kind?: 'page' | 'section' | 'question';
+  kind?: 'page' | 'section' | 'question' | 'form';
   source?: 'editor' | 'builder';
 }
 
@@ -15,7 +15,7 @@ interface SelectionContextType extends SelectionState {
     section?: number | null,
     question?: number | null,
     label?: string,
-    kind?: 'page' | 'section' | 'question',
+    kind?: 'page' | 'section' | 'question' | 'form',
     source?: 'editor' | 'builder',
   ) => void;
 }

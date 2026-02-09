@@ -4,7 +4,7 @@ export type Frame = {
   index: number | null;
 };
 
-export type CursorKind = 'page' | 'section' | 'question';
+export type CursorKind = 'page' | 'section' | 'question' | 'form';
 
 export interface SchemaCursorInfo {
   kind: CursorKind;
@@ -176,6 +176,16 @@ export function getSchemaCursorInfo(text: string, row: number, column: number): 
     return { kind: 'page', pageIndex: pIdx, sectionIndex, questionIndex };
   }
 
+  // If we are deep enough to be in an object but not in any known array,
+  // and checking the stack suggests we are in the root object (depth 1 or 0),
+  // return form kind.
+  // Actually, standard stack traversal: if we haven't found a page/section/question,
+  // we might be at the form level.
+  // Simplest check: if we are inside the root object (stack[0] is object) and no array parent found.
+  if (stack.length > 0 && stack[0].type === 'object') {
+    return { kind: 'form', pageIndex: null, sectionIndex: null, questionIndex: null };
+  }
+
   return null;
 }
 
@@ -268,7 +278,11 @@ export function findLineForIndices(
         currentKey = str;
         // Optimization: If we are searching for label, and this key is "label",
         // and we are at the right depth, return current line!
-        if (targetFound && str === 'label' && stack.length === targetStackDepth) {
+        // For Form (root), we look for "name". For others, we look for "label".
+        const isFormTarget = targetPageIndex === null && targetSectionIndex === null && targetQuestionIndex === null;
+        const targetKey = isFormTarget ? 'name' : 'label';
+
+        if (targetFound && str === targetKey && stack.length === targetStackDepth) {
           return lineNumber;
         }
       }
@@ -324,6 +338,13 @@ export function findLineForIndices(
             stack[stack.length - 2].type === 'array' &&
             stack[stack.length - 2].key === 'pages'
           ) {
+            isTarget = true;
+          }
+        } else {
+          // Form level target (all indices null)
+          // If we rely on valid indices for other types, then all-null implies form.
+          // The root object is the first object pushed (stack length 1).
+          if (stack.length === 1 && lineNumber >= 0) {
             isTarget = true;
           }
         }

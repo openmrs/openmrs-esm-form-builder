@@ -6,7 +6,7 @@ export function useBuilderScroll() {
   const { source, kind, pageIndex, sectionIndex, questionIndex } = useSelection();
 
   useEffect(() => {
-    if (source === 'editor' && kind) {
+    if (kind) {
       const elementId = getBuilderElementId(kind as ElementKind, pageIndex, sectionIndex, questionIndex);
       if (elementId) {
         let attempts = 0;
@@ -19,13 +19,9 @@ export function useBuilderScroll() {
           if (element && element.offsetParent !== null) {
             // Check visibility
             // Ensure it's fully rendered
-            setTimeout(() => {
+            if (source === 'editor') {
               element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              element.classList.add('builder-highlight');
-              setTimeout(() => {
-                element.classList.remove('builder-highlight');
-              }, 3000); // Highlight for 3s
-            }, 100);
+            }
           } else if (attempts < maxAttempts) {
             attempts++;
             setTimeout(tryScroll, 100);
