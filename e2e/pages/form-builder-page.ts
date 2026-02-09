@@ -23,40 +23,76 @@ export class FormBuilderPage {
   readonly formEncounterType = () => this.page.getByRole('combobox', { name: /encounter type/i });
   readonly formSaveButton = () => this.page.getByRole('dialog').getByRole('button', { name: /save/i });
 
+  // Container Locators
+  readonly pageWrapper = () => this.page.getByTestId('page-wrapper');
+  readonly sectionWrapper = () => this.page.getByTestId('section-wrapper');
+  readonly questionWrapper = () => this.page.getByTestId('question-wrapper');
+
   readonly previewTab = () => this.page.getByRole('tab', { name: /preview/i });
   readonly interactiveBuilderTab = () => this.page.getByRole('tab', { name: /interactive builder/i });
-  readonly startBuildingButton = () => this.page.getByRole('button', { name: /start building/i });
+  readonly startBuildingButton = () => this.page.getByRole('button', { name: /start building/i }).first();
   readonly interactiveFormNameInput = () => this.page.getByRole('textbox', { name: /form name/i });
   readonly interactiveFormDescriptionInput = () => this.page.getByRole('textbox', { name: /form description/i });
   readonly createFormButton = () => this.page.getByRole('button', { name: /create form/i });
   readonly editFormNameInput = () => this.page.locator('#formNameInput');
-  readonly addPageButton = () => this.page.getByRole('button', { name: /add page/i });
+  readonly addPageButton = () => this.page.getByRole('button', { name: /add page/i }).first();
   readonly pageNameInput = () =>
     this.page.getByRole('textbox', {
       name: /enter a title for your new page/i,
     });
-  readonly editPageButton = () => this.page.getByRole('button', { name: /edit page/i });
+  // Scoped to Page Wrapper
+  readonly editPageButton = () =>
+    this.pageWrapper()
+      .first()
+      .getByRole('button', { name: /edit page/i });
   readonly editPageNameInput = () => this.page.locator('#pageNameInput');
-  readonly deletePageButton = () => this.page.getByRole('button', { name: /delete page/i });
-  readonly saveButton = () => this.page.getByRole('button', { name: /^save$/i, exact: true });
+  readonly deletePageButton = () =>
+    this.pageWrapper()
+      .first()
+      .getByRole('button', { name: /delete page/i });
+
+  // Scoped to Modal (Dialog)
+  readonly saveButton = () => this.page.getByRole('dialog').getByRole('button', { name: /^save$/i, exact: true });
+
   readonly pageCreatedMessage = () => this.page.getByText(/new page created/i);
-  readonly addSectionButton = () => this.page.getByRole('button', { name: /add section/i });
+  readonly addSectionButton = () => this.page.getByRole('button', { name: /add section/i }).first();
   readonly sectionNameInput = () => this.page.getByRole('textbox', { name: /enter a section title/i });
   readonly isExpandedCheckbox = () => this.page.getByTestId('keep-section-expanded-checkbox');
-  readonly editSectionButton = () => this.page.getByRole('button', { name: /edit section/i });
+
+  // Scoped to Section Wrapper
+  readonly editSectionButton = () =>
+    this.sectionWrapper()
+      .first()
+      .getByRole('button', { name: /edit section/i });
   readonly editSectionNameInput = () => this.page.locator('#sectionNameInput');
-  readonly deleteSectionButton = () => this.page.getByRole('button', { name: /delete section/i });
+  readonly deleteSectionButton = () =>
+    this.sectionWrapper()
+      .first()
+      .getByRole('button', { name: /delete section/i });
+
   readonly sectionCreatedMessage = () => this.page.getByText(/new section created/i);
   readonly addReferenceButton = () => this.page.getByRole('button', { name: /add reference/i });
   readonly selectFormDropdown = () => this.page.getByRole('combobox', { name: /Select form/i });
   readonly selectFormPageDropdown = () => this.page.getByRole('combobox', { name: /pages:$/i });
   readonly selectQuestionsCheckbox = () => this.page.getByRole('group', { name: /Select questions/i });
   readonly addButton = () => this.page.getByRole('button', { name: /^add$/i });
-  readonly addQuestionButton = () => this.page.getByRole('button', { name: /add question/i });
-  readonly editQuestionButton = () => this.page.getByRole('button', { name: /edit question/i });
-  readonly duplicateQuestionButton = () => this.page.getByRole('button', { name: /duplicate question/i });
-  readonly deleteQuestionButton = () => this.page.getByRole('button', { name: /delete question/i }).nth(0);
-  readonly questionLabelInput = () => this.page.locator('#questionLabel');
+  readonly addQuestionButton = () => this.page.getByRole('button', { name: /add question/i }).first();
+
+  // Scoped to Question Wrapper
+  readonly editQuestionButton = () =>
+    this.questionWrapper()
+      .first()
+      .getByRole('button', { name: /edit question/i });
+  readonly duplicateQuestionButton = () =>
+    this.questionWrapper()
+      .first()
+      .getByRole('button', { name: /duplicate question/i });
+  readonly deleteQuestionButton = () =>
+    this.questionWrapper()
+      .first()
+      .getByRole('button', { name: /delete question/i });
+
+  readonly questionLabelInput = () => this.page.locator('#questionLabel').first();
   readonly questionTypeDropdown = () =>
     this.page.getByRole('combobox', {
       name: /question type/i,
@@ -68,7 +104,7 @@ export class FormBuilderPage {
   readonly conceptSearchInput = () => this.page.getByPlaceholder(/search using a concept name or uuid/i);
   readonly selectAnswersDropdown = () => this.page.getByText(/select answers to display/i);
   readonly answer = () => this.page.getByRole('menuitem', { name: /tested for covid 19/i });
-  readonly questionIdInput = () => this.page.getByRole('textbox', { name: /question id/i });
+  readonly questionIdInput = () => this.page.getByRole('textbox', { name: /question id/i }).first();
   readonly questionCreatedMessage = () => this.page.getByText(/new question created/i);
 
   async gotoFormBuilder() {

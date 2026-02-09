@@ -458,7 +458,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     setActiveQuestion(null);
   };
 
-  if (isLoading || !schema) {
+  if (isLoading || (isEditingExistingForm && !schema)) {
     return (
       <div className={styles.container}>
         <InlineLoading description={t('loadingSchema', 'Loading schema') + '...'} />
@@ -528,7 +528,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         </div>
       )}
 
-      <InteractiveElementWrapper kind="form" label={schema.name} style={{ minHeight: '200px' }}>
+      <InteractiveElementWrapper kind="form" label={schema?.name} style={{ minHeight: '200px' }}>
         <DndContext
           collisionDetection={(args) => [...rectIntersection(args), ...closestCorners(args), ...pointerWithin(args)]}
           onDragStart={handleDragStart}

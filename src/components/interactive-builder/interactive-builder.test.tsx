@@ -100,6 +100,42 @@ describe('InteractiveBuilder', () => {
     expect(screen.getAllByRole('button', { name: /delete page/i })[0]).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /add section/i })).toBeInTheDocument();
   });
+
+  it('renders data-testid attributes for scoped locators', () => {
+    const dummySchema: FormSchema = {
+      encounterType: '',
+      name: 'Sample Form',
+      processor: 'EncounterFormProcessor',
+      referencedForms: [],
+      uuid: '',
+      version: '1.0',
+      pages: [
+        {
+          label: 'Page 1',
+          sections: [
+            {
+              label: 'Section 1',
+              isExpanded: 'true',
+              questions: [
+                {
+                  id: 'q1',
+                  label: 'Question 1',
+                  type: 'obs',
+                  questionOptions: { rendering: 'text', concept: 'uuid' },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    renderInteractiveBuilder({ schema: dummySchema });
+
+    expect(screen.getAllByTestId('page-wrapper').length).toBeGreaterThan(0);
+    expect(screen.getAllByTestId('section-wrapper').length).toBeGreaterThan(0);
+    expect(screen.getAllByTestId('question-wrapper').length).toBeGreaterThan(0);
+  });
 });
 
 function renderInteractiveBuilder(props = {}) {

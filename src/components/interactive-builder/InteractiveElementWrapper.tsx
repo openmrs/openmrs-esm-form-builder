@@ -56,6 +56,7 @@ export const InteractiveElementWrapper: React.FC<InteractiveElementWrapperProps>
       role={role}
       tabIndex={tabIndex}
       onKeyDown={onKeyDown}
+      data-testid={`${kind}-wrapper`}
     >
       {children}
     </div>
