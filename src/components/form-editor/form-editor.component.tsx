@@ -146,7 +146,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   const onValidateForm = async () => {
     setIsValidating(true);
     try {
-      const [errorsArray] = await handleFormValidation(schema, dataTypeToRenderingMap);
+      const [errorsArray] = await handleFormValidation(schema, dataTypeToRenderingMap, t);
       setValidationResponse(errorsArray);
       setValidationComplete(true);
     } catch (error) {
