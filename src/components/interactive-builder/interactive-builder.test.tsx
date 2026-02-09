@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 import { showModal } from '@openmrs/esm-framework';
 import { type FormSchema } from '@openmrs/esm-form-engine-lib';
 import { type Schema } from '../../types';
+import { SelectionProvider } from '../../context/selection-context';
 import InteractiveBuilder from './interactive-builder.component';
 
 const mockShowModal = jest.mocked(showModal);
@@ -96,7 +97,7 @@ describe('InteractiveBuilder', () => {
     expect(screen.getByRole('heading', { name: dummySchema.pages[0].label })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: dummySchema.pages[0].sections[0].label })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: dummySchema.pages[0].sections[1].label })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /delete page/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /delete page/i })[0]).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /add section/i })).toBeInTheDocument();
   });
 });
@@ -109,5 +110,9 @@ function renderInteractiveBuilder(props = {}) {
     validationResponse: [],
   };
 
-  render(<InteractiveBuilder {...defaultProps} {...props} />);
+  render(
+    <SelectionProvider>
+      <InteractiveBuilder {...defaultProps} {...props} />
+    </SelectionProvider>,
+  );
 }
