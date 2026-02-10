@@ -44,7 +44,7 @@ export class FormBuilderPage {
   readonly editPageButton = () =>
     this.pageWrapper()
       .first()
-      .getByRole('button', { name: /edit page/i, exact: true });
+      .getByRole('button', { name: /^edit page$/i });
   readonly editPageNameInput = () => this.page.locator('#pageNameInput');
   readonly deletePageButton = () =>
     this.pageWrapper()
@@ -66,7 +66,7 @@ export class FormBuilderPage {
   readonly editSectionButton = () =>
     this.sectionWrapper()
       .first()
-      .getByRole('button', { name: /edit section/i, exact: true });
+      .getByRole('button', { name: /^edit section$/i });
   readonly editSectionNameInput = () => this.page.locator('#sectionNameInput');
   readonly deleteSectionButton = () =>
     this.sectionWrapper()
@@ -85,15 +85,15 @@ export class FormBuilderPage {
   readonly editQuestionButton = () =>
     this.questionWrapper()
       .first()
-      .getByRole('button', { name: /edit question/i, exact: true });
+      .getByRole('button', { name: /^edit question$/i });
   readonly duplicateQuestionButton = () =>
     this.questionWrapper()
       .first()
-      .getByRole('button', { name: /duplicate question/i, exact: true });
+      .getByRole('button', { name: /^duplicate question$/i });
   readonly deleteQuestionButton = () =>
     this.questionWrapper()
       .first()
-      .getByRole('button', { name: /delete question/i, exact: true });
+      .getByRole('button', { name: /^delete question$/i });
 
   readonly questionLabelInput = () => this.page.locator('#questionLabel').first();
   readonly questionTypeDropdown = () =>
