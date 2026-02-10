@@ -19,9 +19,13 @@ import { showModal, showSnackbar } from '@openmrs/esm-framework';
 import DraggableQuestion from './draggable/draggable-question.component';
 import EditableValue from './editable/editable-value.component';
 import type { DragEndEvent } from '@dnd-kit/core';
-import type { FormSchema, FormField } from '@openmrs/esm-form-engine-lib';
+import type { FormSchema, FormField, FormPage, FormSection } from '@openmrs/esm-form-engine-lib';
 import type { Schema } from '@types';
 import styles from './interactive-builder.scss';
+import { useSelection } from '../../context/selection-context';
+import { getBuilderElementId } from '../../utils/builder-ids';
+import { useBuilderScroll } from '../../hooks/useBuilderScroll';
+import { InteractiveElementWrapper } from './InteractiveElementWrapper';
 
 interface ValidationError {
   errorMessage?: string;
@@ -31,6 +35,63 @@ interface ValidationError {
 
 interface InteractiveBuilderProps {
   isLoading: boolean;
+  onSchemaChange: (schema: Schema) => void;
+  schema: Schema;
+  validationResponse: Array<ValidationError>;
+}
+
+interface ObsGroupSubQuestionsProps {
+  question: FormField;
+  pageIndex: number;
+  sectionIndex: number;
+  questionIndex: number;
+  duplicateQuestion: (question: FormField, pageId: number, sectionId: number, questionId?: number) => void;
+  onSchemaChange: (schema: Schema) => void;
+  schema: Schema;
+}
+
+interface PageElementProps {
+  page: FormPage;
+  pageIndex: number;
+  renamePage: (name: string, pageIndex: number) => void;
+  launchDeletePageModal: (pageIndex: number) => void;
+  t: any;
+  expandedSections: Record<string, boolean>;
+  toggleSection: (pageIndex: number, sectionIndex: number) => void;
+  launchAddFormReferenceModal: (pageIndex: number, mode?: string, sectionIndex?: number) => void;
+  launchEditSectionModal: (pageIndex: number, sectionIndex: number) => void;
+  launchDeleteSectionModal: (pageIndex: number, sectionIndex: number) => void;
+  launchAddQuestionModal: (pageIndex: number, sectionIndex: number) => void;
+  duplicateQuestion: (question: FormField, pageId: number, sectionId: number, questionId?: number) => void;
+  onSchemaChange: (schema: Schema) => void;
+  schema: Schema;
+  launchAddSectionModal: (pageIndex: number) => void;
+  validationResponse: Array<ValidationError>;
+}
+
+interface SectionElementProps {
+  section: FormSection;
+  pageIndex: number;
+  sectionIndex: number;
+  expandedSections: Record<string, boolean>;
+  toggleSection: (pageIndex: number, sectionIndex: number) => void;
+  launchAddFormReferenceModal: (pageIndex: number, mode?: string, sectionIndex?: number) => void;
+  launchEditSectionModal: (pageIndex: number, sectionIndex: number) => void;
+  launchDeleteSectionModal: (pageIndex: number, sectionIndex: number) => void;
+  launchAddQuestionModal: (pageIndex: number, sectionIndex: number) => void;
+  duplicateQuestion: (question: FormField, pageId: number, sectionId: number, questionId?: number) => void;
+  onSchemaChange: (schema: Schema) => void;
+  schema: Schema;
+  t: any;
+  validationResponse: Array<ValidationError>;
+}
+
+interface QuestionElementProps {
+  question: FormField;
+  pageIndex: number;
+  sectionIndex: number;
+  questionIndex: number;
+  duplicateQuestion: (question: FormField, pageId: number, sectionId: number, questionId?: number) => void;
   onSchemaChange: (schema: Schema) => void;
   schema: Schema;
   validationResponse: Array<ValidationError>;
@@ -49,7 +110,40 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
   schema,
   validationResponse,
 }) => {
+  const {
+    setSelection,
+    source,
+    kind,
+    pageIndex: selectedPageIndex,
+    sectionIndex: selectedSectionIndex,
+    questionIndex: selectedQuestionIndex,
+  } = useSelection();
   const [activeQuestion, setActiveQuestion] = useState(null);
+
+  // State for controlled accordions
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+
+  // Sync scroll from editor
+  useBuilderScroll();
+
+  // Auto-expand section when selection comes from editor AND it is a question
+  React.useEffect(() => {
+    if (source === 'editor' && kind === 'question' && selectedPageIndex !== null && selectedSectionIndex !== null) {
+      setExpandedSections((prev) => ({
+        ...prev,
+        [`${selectedPageIndex}-${selectedSectionIndex}`]: true,
+      }));
+    }
+  }, [source, kind, selectedPageIndex, selectedSectionIndex]);
+
+  const toggleSection = (pageIndex: number, sectionIndex: number) => {
+    const key = `${pageIndex}-${sectionIndex}`;
+    setExpandedSections((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 10, // Enable sort function when dragging 10px 💡 here!!!.
@@ -292,6 +386,19 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     [onSchemaChange, schema, t],
   );
 
+  const handleSelection = useCallback(
+    (
+      pageIndex: number | null,
+      sectionIndex: number | null = null,
+      questionIndex: number | null = null,
+      label?: string,
+      kind?: 'page' | 'section' | 'question' | 'form',
+    ) => {
+      setSelection(pageIndex, sectionIndex, questionIndex, label, kind, 'builder');
+    },
+    [setSelection],
+  );
+
   const handleDragStart = (event) => {
     setActiveQuestion(event.active.data.current?.question);
   };
@@ -380,11 +487,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         if (overQuestion.type === 'obsQuestion') {
           const newSchema = { ...schema };
           const pages = newSchema.pages;
-          pages[pageIndex].sections[sectionIndex].questions[overQuestion.question.questionIndex].questions.splice(
-            overQuestion.question.subQuestionIndex,
-            0,
-            activeQuestion.question.question,
-          );
+          const targetQuestion = pages[pageIndex].sections[sectionIndex].questions[overQuestion.question.questionIndex];
+          targetQuestion.questions.splice(overQuestion.question.subQuestionIndex, 0, activeQuestion.question.question);
           return newSchema;
         }
       }
@@ -411,49 +515,16 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     setActiveQuestion(null);
   };
 
-  const getAnswerErrors = (answers: Array<Record<string, string>>) => {
-    const answerLabels = answers?.map((answer) => answer.label) || [];
-    const errors: Array<ValidationError> = validationResponse.filter((error) =>
-      answerLabels?.includes(error.field.label),
-    );
-    return errors || [];
-  };
-
-  const getValidationError = (question: FormField) => {
-    const errorField: ValidationError = validationResponse.find(
-      (error) =>
-        error.field.label === question.label && error.field.id === question.id && error.field.type === question.type,
-    );
-    return errorField?.errorMessage || '';
-  };
-
-  const ObsGroupSubQuestions = ({ question, pageIndex, sectionIndex, questionIndex }: SubQuestionProps) => {
+  if (isLoading || (isEditingExistingForm && !schema)) {
     return (
-      <div className={styles.obsQuestions}>
-        {question.questions.map((qn, qnIndex) => {
-          return (
-            <DraggableQuestion
-              handleDuplicateQuestion={duplicateQuestion}
-              key={qn.id}
-              onSchemaChange={onSchemaChange}
-              pageIndex={pageIndex}
-              question={qn}
-              questionCount={question.questions.length}
-              questionIndex={questionIndex}
-              schema={schema}
-              sectionIndex={sectionIndex}
-              subQuestionIndex={qnIndex}
-            />
-          );
-        })}
+      <div className={styles.container}>
+        <InlineLoading description={t('loadingSchema', 'Loading schema') + '...'} />
       </div>
     );
-  };
+  }
 
   return (
     <div className={styles.container}>
-      {isLoading ? <InlineLoading description={t('loadingSchema', 'Loading schema') + '...'} /> : null}
-
       {schema?.name && (
         <>
           <div className={styles.header}>
@@ -482,7 +553,13 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
               {t('addPage', 'Add Page')}
             </Button>
           </div>
-          <div className={styles.editorContainer}>
+          <div
+            className={styles.editorContainer}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSelection(null, null, null, schema.name, 'form');
+            }}
+          >
             <EditableValue
               elementType="schema"
               id="formNameInput"
@@ -508,194 +585,44 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
         </div>
       )}
 
-      <DndContext
-        collisionDetection={(args) => [...rectIntersection(args), ...closestCorners(args), ...pointerWithin(args)]}
-        onDragStart={handleDragStart}
-        onDragEnd={(event: DragEndEvent) => handleDragEnd(event)}
-        sensors={sensors}
-      >
-        <SortableContext
-          items={
-            schema?.pages?.flatMap(
-              (page) => page?.sections?.flatMap((section) => section?.questions?.map((qn) => qn.id) || []) || [],
-            ) || []
-          }
+      <InteractiveElementWrapper kind="form" label={schema?.name} style={{ minHeight: '200px' }}>
+        <DndContext
+          collisionDetection={(args) => [...rectIntersection(args), ...closestCorners(args), ...pointerWithin(args)]}
+          onDragStart={handleDragStart}
+          onDragEnd={(event: DragEndEvent) => handleDragEnd(event)}
+          sensors={sensors}
         >
-          {schema?.pages?.length
-            ? schema.pages.map((page, pageIndex) => (
-                <div className={styles.editableFieldsContainer} key={pageIndex}>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <div className={styles.editorContainer}>
-                      <EditableValue
-                        elementType="page"
-                        id="pageNameInput"
-                        value={schema.pages[pageIndex].label}
-                        onSave={(name) => renamePage(name, pageIndex)}
-                      />
-                    </div>
-                    <IconButton
-                      enterDelayMs={300}
-                      kind="ghost"
-                      label={t('deletePage', 'Delete page')}
-                      onClick={() => launchDeletePageModal(pageIndex)}
-                      size="md"
-                    >
-                      <TrashCan />
-                    </IconButton>
-                  </div>
-                  <div>
-                    {page?.sections?.length ? (
-                      <p className={styles.sectionExplainer}>
-                        {t(
-                          'expandSectionExplainer',
-                          'Below are the sections linked to this page. Expand each section to add questions to it.',
-                        )}
-                      </p>
-                    ) : null}
-                    {page?.sections?.length ? (
-                      page.sections?.map((section, sectionIndex) => (
-                        <Accordion key={sectionIndex}>
-                          <AccordionItem title={section.label}>
-                            <>
-                              <div style={{ display: 'flex', alignItems: 'center' }}>
-                                <div className={styles.editorContainer}>
-                                  <h1 className={styles['sectionLabel']}>{section.label}</h1>
-                                  <IconButton
-                                    enterDelayMs={300}
-                                    kind="ghost"
-                                    label={t('editSection', 'Edit Section')}
-                                    onClick={() =>
-                                      section.reference
-                                        ? launchAddFormReferenceModal(pageIndex, 'edit', sectionIndex)
-                                        : launchEditSectionModal(pageIndex, sectionIndex)
-                                    }
-                                    size="md"
-                                  >
-                                    <Edit />
-                                  </IconButton>
-                                </div>
-                                <IconButton
-                                  enterDelayMs={300}
-                                  kind="ghost"
-                                  label={t('deleteSection', 'Delete section')}
-                                  onClick={() => launchDeleteSectionModal(pageIndex, sectionIndex)}
-                                  size="md"
-                                >
-                                  <TrashCan />
-                                </IconButton>
-                              </div>
-                              <div>
-                                {section.questions?.length ? (
-                                  section.questions.map((question, questionIndex) => {
-                                    return (
-                                      <div
-                                        id={`droppable-question-${pageIndex}-${sectionIndex}-${questionIndex}`}
-                                        key={questionIndex}
-                                      >
-                                        <DraggableQuestion
-                                          handleDuplicateQuestion={duplicateQuestion}
-                                          key={question.id}
-                                          onSchemaChange={onSchemaChange}
-                                          pageIndex={pageIndex}
-                                          question={question}
-                                          questionCount={section.questions.length}
-                                          questionIndex={questionIndex}
-                                          schema={schema}
-                                          sectionIndex={sectionIndex}
-                                        >
-                                          <ObsGroupSubQuestions
-                                            question={question}
-                                            pageIndex={pageIndex}
-                                            sectionIndex={sectionIndex}
-                                            questionIndex={questionIndex}
-                                          />
-                                        </DraggableQuestion>
-                                        {getValidationError(question) && (
-                                          <div className={styles.validationErrorMessage}>
-                                            {getValidationError(question)}
-                                          </div>
-                                        )}
-                                        {getAnswerErrors(question.questionOptions.answers)?.length ? (
-                                          <div className={styles.answerErrors}>
-                                            <div>Answer Errors</div>
-                                            {getAnswerErrors(question.questionOptions.answers)?.map((error, index) => (
-                                              <div
-                                                className={styles.validationErrorMessage}
-                                                key={index}
-                                              >{`${error.field.label}: ${error.errorMessage}`}</div>
-                                            ))}
-                                          </div>
-                                        ) : null}
-                                      </div>
-                                    );
-                                  })
-                                ) : section.reference ? (
-                                  <p className={styles.explainer}>
-                                    {t(
-                                      'sectionReferenceExplainer',
-                                      'This section is a reference to another form. Modify the referenced form to add questions to this section.',
-                                    )}
-                                  </p>
-                                ) : (
-                                  <p className={styles.explainer}>
-                                    {t(
-                                      'sectionExplainer',
-                                      'A section will typically contain one or more questions. Click the button below to add a question to this section.',
-                                    )}
-                                  </p>
-                                )}
-
-                                <Button
-                                  className={styles.addQuestionButton}
-                                  kind="ghost"
-                                  renderIcon={Add}
-                                  onClick={() => {
-                                    launchAddQuestionModal(pageIndex, sectionIndex);
-                                  }}
-                                  iconDescription={t('addQuestion', 'Add Question')}
-                                  disabled={!!section.reference}
-                                >
-                                  {t('addQuestion', 'Add Question')}
-                                </Button>
-                              </div>
-                            </>
-                          </AccordionItem>
-                        </Accordion>
-                      ))
-                    ) : (
-                      <p className={styles.explainer}>
-                        {t(
-                          'pageExplainer',
-                          'Pages typically have one or more sections. Click the button below to add a section to your page.',
-                        )}
-                      </p>
-                    )}
-                  </div>
-                  <Button
-                    className={styles.addSectionButton}
-                    kind="ghost"
-                    renderIcon={Add}
-                    onClick={() => {
-                      launchAddSectionModal(pageIndex);
-                    }}
-                    iconDescription={t('addSection', 'Add Section')}
-                  >
-                    {t('addSection', 'Add Section')}
-                  </Button>
-                  <Button
-                    className={styles.addSectionButton}
-                    kind="ghost"
-                    renderIcon={Add}
-                    onClick={() => {
-                      launchAddFormReferenceModal(pageIndex);
-                    }}
-                    iconDescription={t('addReference', 'Add Reference')}
-                  >
-                    {t('addReference', 'Add Reference')}
-                  </Button>
-                </div>
-              ))
-            : null}
+          <SortableContext
+            items={
+              schema?.pages?.flatMap(
+                (page) => page?.sections?.flatMap((section) => section?.questions?.map((qn) => qn.id) || []) || [],
+              ) || []
+            }
+          >
+            {schema?.pages?.length
+              ? schema.pages.map((page, pageIndex) => (
+                  <PageElement
+                    key={pageIndex}
+                    page={page}
+                    pageIndex={pageIndex}
+                    renamePage={renamePage}
+                    launchDeletePageModal={launchDeletePageModal}
+                    t={t}
+                    expandedSections={expandedSections}
+                    toggleSection={toggleSection}
+                    launchAddFormReferenceModal={launchAddFormReferenceModal}
+                    launchEditSectionModal={launchEditSectionModal}
+                    launchDeleteSectionModal={launchDeleteSectionModal}
+                    launchAddQuestionModal={launchAddQuestionModal}
+                    duplicateQuestion={duplicateQuestion}
+                    onSchemaChange={onSchemaChange}
+                    schema={schema}
+                    launchAddSectionModal={launchAddSectionModal}
+                    validationResponse={validationResponse}
+                  />
+                ))
+              : null}
+          </SortableContext>
           <DragOverlay>
             {activeQuestion ? (
               <div className={styles.dragOverlay}>
@@ -712,10 +639,333 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
               </div>
             ) : null}
           </DragOverlay>
-        </SortableContext>
-      </DndContext>
+        </DndContext>
+      </InteractiveElementWrapper>
     </div>
   );
 };
 
 export default InteractiveBuilder;
+
+// --- Modular Sub-Components ---
+
+function ObsGroupSubQuestions({
+  question,
+  pageIndex,
+  sectionIndex,
+  questionIndex,
+  duplicateQuestion,
+  onSchemaChange,
+  schema,
+}: ObsGroupSubQuestionsProps) {
+  return (
+    <div className={styles.obsQuestions}>
+      {question.questions.map((qn, qnIndex) => {
+        return (
+          <DraggableQuestion
+            handleDuplicateQuestion={duplicateQuestion}
+            key={qn.id}
+            onSchemaChange={onSchemaChange}
+            pageIndex={pageIndex}
+            question={qn}
+            questionCount={question.questions.length}
+            questionIndex={questionIndex}
+            schema={schema}
+            sectionIndex={sectionIndex}
+            subQuestionIndex={qnIndex}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function PageElement({
+  page,
+  pageIndex,
+  renamePage,
+  launchDeletePageModal,
+  t,
+  expandedSections,
+  toggleSection,
+  launchAddFormReferenceModal,
+  launchEditSectionModal,
+  launchDeleteSectionModal,
+  launchAddQuestionModal,
+  duplicateQuestion,
+  onSchemaChange,
+  schema,
+  launchAddSectionModal,
+  validationResponse,
+}: PageElementProps) {
+  return (
+    <InteractiveElementWrapper
+      kind="page"
+      label={page.label}
+      pageIndex={pageIndex}
+      className={styles.editableFieldsContainer}
+    >
+      <div style={{ display: 'flex', alignItems: 'center' }} role="button" tabIndex={0}>
+        <div className={styles.editorContainer}>
+          <EditableValue
+            elementType="page"
+            id="pageNameInput"
+            value={page.label}
+            onSave={(name) => renamePage(name, pageIndex)}
+          />
+        </div>
+        <IconButton
+          enterDelayMs={300}
+          kind="ghost"
+          label={t('deletePage', 'Delete page')}
+          onClick={(e) => {
+            e.stopPropagation();
+            launchDeletePageModal(pageIndex);
+          }}
+          size="md"
+        >
+          <TrashCan />
+        </IconButton>
+      </div>
+
+      <div>
+        {page?.sections?.length ? (
+          <p className={styles.sectionExplainer}>
+            {t(
+              'expandSectionExplainer',
+              'Below are the sections linked to this page. Expand each section to add questions to this section.',
+            )}
+          </p>
+        ) : null}
+
+        {page?.sections?.length ? (
+          page.sections.map((section, sectionIndex) => (
+            <SectionElement
+              key={sectionIndex}
+              section={section}
+              pageIndex={pageIndex}
+              sectionIndex={sectionIndex}
+              expandedSections={expandedSections}
+              toggleSection={toggleSection}
+              launchAddFormReferenceModal={launchAddFormReferenceModal}
+              launchEditSectionModal={launchEditSectionModal}
+              launchDeleteSectionModal={launchDeleteSectionModal}
+              launchAddQuestionModal={launchAddQuestionModal}
+              duplicateQuestion={duplicateQuestion}
+              onSchemaChange={onSchemaChange}
+              schema={schema}
+              t={t}
+              validationResponse={validationResponse}
+            />
+          ))
+        ) : (
+          <p className={styles.explainer}>
+            {t(
+              'pageExplainer',
+              'Pages typically have one or more sections. Click the button below to add a section to your page.',
+            )}
+          </p>
+        )}
+      </div>
+
+      <Button
+        className={styles.addSectionButton}
+        kind="ghost"
+        renderIcon={Add}
+        onClick={() => launchAddSectionModal(pageIndex)}
+        iconDescription={t('addSection', 'Add Section')}
+      >
+        {t('addSection', 'Add Section')}
+      </Button>
+      <Button
+        className={styles.addSectionButton}
+        kind="ghost"
+        renderIcon={Add}
+        onClick={() => launchAddFormReferenceModal(pageIndex)}
+        iconDescription={t('addReference', 'Add Reference')}
+      >
+        {t('addReference', 'Add Reference')}
+      </Button>
+    </InteractiveElementWrapper>
+  );
+}
+
+function SectionElement({
+  section,
+  pageIndex,
+  sectionIndex,
+  expandedSections,
+  toggleSection,
+  launchAddFormReferenceModal,
+  launchEditSectionModal,
+  launchDeleteSectionModal,
+  launchAddQuestionModal,
+  duplicateQuestion,
+  onSchemaChange,
+  schema,
+  t,
+  validationResponse,
+}: SectionElementProps) {
+  return (
+    <InteractiveElementWrapper kind="section" label={section.label} pageIndex={pageIndex} sectionIndex={sectionIndex}>
+      <Accordion>
+        <AccordionItem
+          title={section.label}
+          open={expandedSections[`${pageIndex}-${sectionIndex}`] || false}
+          onHeadingClick={(e) => {
+            toggleSection(pageIndex, sectionIndex);
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div className={styles.editorContainer}>
+              <h1 className={styles['sectionLabel']}>{section.label}</h1>
+              <IconButton
+                enterDelayMs={300}
+                kind="ghost"
+                label={t('editSection', 'Edit Section')}
+                onClick={() =>
+                  section.reference
+                    ? launchAddFormReferenceModal(pageIndex, 'edit', sectionIndex)
+                    : launchEditSectionModal(pageIndex, sectionIndex)
+                }
+                size="md"
+              >
+                <Edit />
+              </IconButton>
+            </div>
+            <IconButton
+              enterDelayMs={300}
+              kind="ghost"
+              label={t('deleteSection', 'Delete section')}
+              onClick={() => launchDeleteSectionModal(pageIndex, sectionIndex)}
+              size="md"
+            >
+              <TrashCan />
+            </IconButton>
+          </div>
+
+          <div>
+            {section.questions?.length ? (
+              section.questions.map((question, questionIndex) => (
+                <QuestionElement
+                  key={questionIndex}
+                  question={question}
+                  pageIndex={pageIndex}
+                  sectionIndex={sectionIndex}
+                  questionIndex={questionIndex}
+                  duplicateQuestion={duplicateQuestion}
+                  onSchemaChange={onSchemaChange}
+                  schema={schema}
+                  validationResponse={validationResponse}
+                />
+              ))
+            ) : section.reference ? (
+              <p className={styles.explainer}>
+                {t(
+                  'sectionReferenceExplainer',
+                  'This section is a reference to another form. Modify the referenced form to add questions to this section.',
+                )}
+              </p>
+            ) : (
+              <p className={styles.explainer}>
+                {t(
+                  'sectionExplainer',
+                  'A section will typically contain one or more questions. Click the button below to add a question to this section.',
+                )}
+              </p>
+            )}
+
+            <Button
+              className={styles.addQuestionButton}
+              kind="ghost"
+              renderIcon={Add}
+              onClick={() => launchAddQuestionModal(pageIndex, sectionIndex)}
+              iconDescription={t('addQuestion', 'Add Question')}
+              disabled={!!section.reference}
+            >
+              {t('addQuestion', 'Add Question')}
+            </Button>
+          </div>
+        </AccordionItem>
+      </Accordion>
+    </InteractiveElementWrapper>
+  );
+}
+
+function QuestionElement({
+  question,
+  pageIndex,
+  sectionIndex,
+  questionIndex,
+  duplicateQuestion,
+  onSchemaChange,
+  schema,
+  validationResponse,
+}: QuestionElementProps) {
+  // Helper for validation display
+  const getValidationError = (question) => {
+    // Re-implementing logic or assume it is passed?
+    // The original code had getValidationError in scope.
+    // Since this is outside the main component, I don't have access to validationResponse from props.
+    // This is a problem. I need to pass validationResponse to QuestionElement.
+    const errorField: ValidationError = validationResponse?.find(
+      (error) =>
+        error.field.label === question.label && error.field.id === question.id && error.field.type === question.type,
+    );
+    return errorField?.errorMessage || '';
+  };
+
+  const getAnswerErrors = (answers: Array<Record<string, string>>) => {
+    const answerLabels = answers?.map((answer) => answer.label) || [];
+    const errors: Array<ValidationError> = validationResponse?.filter((error) =>
+      answerLabels?.includes(error.field.label),
+    );
+    return errors || [];
+  };
+
+  return (
+    <InteractiveElementWrapper
+      kind="question"
+      label={question.label}
+      pageIndex={pageIndex}
+      sectionIndex={sectionIndex}
+      questionIndex={questionIndex}
+    >
+      <DraggableQuestion
+        handleDuplicateQuestion={duplicateQuestion}
+        key={question.id}
+        onSchemaChange={onSchemaChange}
+        pageIndex={pageIndex}
+        question={question}
+        questionCount={999}
+        questionIndex={questionIndex}
+        schema={schema}
+        sectionIndex={sectionIndex}
+      >
+        <ObsGroupSubQuestions
+          question={question}
+          pageIndex={pageIndex}
+          sectionIndex={sectionIndex}
+          questionIndex={questionIndex}
+          duplicateQuestion={duplicateQuestion}
+          onSchemaChange={onSchemaChange}
+          schema={schema}
+        />
+      </DraggableQuestion>
+      {/* Validation errors would go here */}
+      {getValidationError(question) && (
+        <div className={styles.validationErrorMessage}>{getValidationError(question)}</div>
+      )}
+      {getAnswerErrors(question.questionOptions.answers)?.length ? (
+        <div className={styles.answerErrors}>
+          <div>Answer Errors</div>
+          {getAnswerErrors(question.questionOptions.answers)?.map((error, index) => (
+            <div className={styles.validationErrorMessage} key={index}>{`${error.field.label}: ${
+              error.errorMessage
+            }`}</div>
+          ))}
+        </div>
+      ) : null}
+    </InteractiveElementWrapper>
+  );
+}

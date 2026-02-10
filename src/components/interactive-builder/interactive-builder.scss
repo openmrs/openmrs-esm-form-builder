@@ -2,11 +2,33 @@
 @use '@carbon/layout';
 @use '@carbon/type';
 
+:global(.builder-highlight) {
+  outline: 1px solid colors.$warm-gray-30 !important;
+  outline-offset: calc(-1 * layout.$spacing-01);
+  border-radius: layout.$spacing-02;
+  position: relative;
+  z-index: 100 !important;
+}
+
+:global([data-testid$='-wrapper']:not(.builder-highlight)) {
+  outline: none !important;
+
+  &:focus,
+  &:focus-visible {
+    outline: none !important;
+  }
+}
+
+:global([data-testid$='-wrapper']) {
+  cursor: pointer;
+}
+
 .container {
   overflow-y: scroll;
   overflow-x: hidden;
   height: 95vh;
   padding-right: layout.$spacing-07;
+
   :global(.cds--modal-content:focus) {
     outline: none;
   }

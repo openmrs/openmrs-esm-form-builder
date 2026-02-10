@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import AceEditor from 'react-ace';
 import 'ace-builds/webpack-resolver';
 import { addCompleter } from 'ace-builds/src-noconflict/ext-language_tools';
@@ -10,6 +10,8 @@ import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
 import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
 import styles from './schema-editor.scss';
+import { useSelection } from '../../context/selection-context';
+import { findLineForIndices, getSchemaCursorInfo } from '../../utils/schema-navigation';
 
 interface MarkerProps extends IMarker {
   text: string;
@@ -35,10 +37,29 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
 }) => {
   const { schema, schemaProperties } = useStandardFormSchema();
   const { t } = useTranslation();
+  const { setSelection, ...selection } = useSelection();
   const [autocompleteSuggestions, setAutocompleteSuggestions] = useState<
     Array<{ name: string; type: string; path: string }>
   >([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  // Ref to the underlying Ace editor instance so we can read the cursor position
+  const aceRef = useRef<any | null>(null);
+
+  // Scroll to selection when it comes from the builder
+  useEffect(() => {
+    if (selection.source === 'builder' && aceRef.current) {
+      const { pageIndex, sectionIndex, questionIndex } = selection;
+      // We pass the full text from the editor instance
+      const text = aceRef.current.getValue();
+
+      const line = findLineForIndices(text, pageIndex, sectionIndex, questionIndex);
+
+      if (line >= 0) {
+        aceRef.current.gotoLine(line + 1, 0, true);
+        aceRef.current.scrollToLine(line + 1, true, true, function () {});
+      }
+    }
+  }, [selection]);
 
   // Enable autocompletion in the schema
   const generateAutocompleteSuggestions = useCallback(() => {
@@ -178,6 +199,51 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     debouncedValidateSchema(newValue, schema);
   };
 
+  /**
+   * Called once when the Ace editor is created.
+   *
+   * Here we:
+   * - Store the editor instance in a ref.
+   * - Attach a low‑level DOM 'click' listener on the editor container.
+   *
+   * Why a DOM listener instead of React's onClick?
+   * - react-ace wraps Ace and doesn't directly give us a React click
+   *   with the Ace editor reference.
+   * - Using the Ace editor's `container` gives us reliable access to
+   *   the real editor and its `selection`.
+   */
+  const handleEditorLoad = useCallback(
+    (editor) => {
+      // Keep the editor instance so we can use it later if needed.
+      aceRef.current = editor;
+
+      editor.container.addEventListener('click', () => {
+        try {
+          // 1. Get the current cursor position (row/column in Ace coordinates).
+          const cursor = editor.selection.getCursor();
+
+          // 2. Ask our helper to infer which page/section/question
+          //    the cursor is currently inside, based purely on the text.
+          const info = getSchemaCursorInfo(editor.getValue(), cursor.row, cursor.column);
+
+          if (!info) {
+            return;
+          }
+
+          const { kind, pageIndex, sectionIndex, questionIndex } = info;
+
+          setSelection(pageIndex, sectionIndex, questionIndex, undefined, kind, 'editor');
+        } catch (e) {
+          // If anything goes wrong (malformed JSON, unexpected structure),
+          // we log it instead of blowing up the editor.
+          // eslint-disable-next-line no-console
+          console.error('Error computing schema cursor info', e);
+        }
+      });
+    },
+    [setSelection],
+  );
+
   // Schema Validation Errors
   const ErrorNotification = ({ text, line }) => (
     <ActionableNotification
@@ -227,6 +293,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     <div>
       {errors.length && validationOn ? <ErrorMessages /> : null}
       <AceEditor
+        onLoad={handleEditorLoad}
         style={{ height: '100vh', width: '100%', border: errors.length ? '3px solid #DA1E28' : 'none' }}
         mode="json"
         theme="textmate"
