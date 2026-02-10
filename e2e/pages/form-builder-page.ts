@@ -23,7 +23,6 @@ export class FormBuilderPage {
   readonly formEncounterType = () => this.page.getByRole('combobox', { name: /encounter type/i });
   readonly formSaveButton = () => this.page.getByRole('dialog').getByRole('button', { name: /save/i });
 
-  // Container Locators
   readonly pageWrapper = () => this.page.getByTestId('page-wrapper');
   readonly sectionWrapper = () => this.page.getByTestId('section-wrapper');
   readonly questionWrapper = () => this.page.getByTestId('question-wrapper');
@@ -40,7 +39,6 @@ export class FormBuilderPage {
     this.page.getByRole('textbox', {
       name: /enter a title for your new page/i,
     });
-  // Scoped to Page Wrapper
   readonly editPageButton = () =>
     this.pageWrapper()
       .first()
@@ -51,10 +49,6 @@ export class FormBuilderPage {
       .first()
       .getByRole('button', { name: /^delete page$/i });
 
-  // Scoped to Modal (Dialog) OR Inline
-  // We use .first() here because typically only one "Save" action is relevant at a time (modal takes precedence visually)
-  // or we can use a more complex selector.
-  // Reverting to generic button for now as it supports both inline and modal, but adding visibility check implicitly via Playwright's auto-wait.
   readonly saveButton = () => this.page.getByRole('button', { name: /^save$/i, exact: true });
 
   readonly pageCreatedMessage = () => this.page.getByText(/new page created/i);
@@ -62,7 +56,6 @@ export class FormBuilderPage {
   readonly sectionNameInput = () => this.page.getByRole('textbox', { name: /enter a section title/i });
   readonly isExpandedCheckbox = () => this.page.getByTestId('keep-section-expanded-checkbox');
 
-  // Scoped to Section Wrapper
   readonly editSectionButton = () =>
     this.sectionWrapper()
       .first()
@@ -81,7 +74,6 @@ export class FormBuilderPage {
   readonly addButton = () => this.page.getByRole('button', { name: /^add$/i });
   readonly addQuestionButton = () => this.page.getByRole('button', { name: /add question/i }).first();
 
-  // Scoped to Question Wrapper
   readonly editQuestionButton = () =>
     this.questionWrapper()
       .first()

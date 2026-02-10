@@ -3,12 +3,24 @@
 @use '@carbon/type';
 
 :global(.builder-highlight) {
-  outline: 1px solid colors.$warm-gray-30; // Balanced faint brown (Warm Gray 30), thinner width
-  outline-offset: -2px; // Ensure it draws inside if needed, or keeping it default
-  border-radius: 4px;
-  position: relative; // Needed for z-index to work
-  z-index: 100 !important; // Ensure it sits above other content (Carbon hover/focus)
-  transition: all 0.3s ease;
+  outline: 1px solid colors.$warm-gray-30 !important;
+  outline-offset: calc(-1 * layout.$spacing-01);
+  border-radius: layout.$spacing-02;
+  position: relative;
+  z-index: 100 !important;
+}
+
+:global([data-testid$='-wrapper']:not(.builder-highlight)) {
+  outline: none !important;
+
+  &:focus,
+  &:focus-visible {
+    outline: none !important;
+  }
+}
+
+:global([data-testid$='-wrapper']) {
+  cursor: pointer;
 }
 
 .container {

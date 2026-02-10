@@ -19,7 +19,7 @@ import { showModal, showSnackbar } from '@openmrs/esm-framework';
 import DraggableQuestion from './draggable/draggable-question.component';
 import EditableValue from './editable/editable-value.component';
 import type { DragEndEvent } from '@dnd-kit/core';
-import type { FormSchema, FormField } from '@openmrs/esm-form-engine-lib';
+import type { FormSchema, FormField, FormPage, FormSection } from '@openmrs/esm-form-engine-lib';
 import type { Schema } from '@types';
 import styles from './interactive-builder.scss';
 import { useSelection } from '../../context/selection-context';
@@ -35,6 +35,63 @@ interface ValidationError {
 
 interface InteractiveBuilderProps {
   isLoading: boolean;
+  onSchemaChange: (schema: Schema) => void;
+  schema: Schema;
+  validationResponse: Array<ValidationError>;
+}
+
+interface ObsGroupSubQuestionsProps {
+  question: FormField;
+  pageIndex: number;
+  sectionIndex: number;
+  questionIndex: number;
+  duplicateQuestion: (question: FormField, pageId: number, sectionId: number, questionId?: number) => void;
+  onSchemaChange: (schema: Schema) => void;
+  schema: Schema;
+}
+
+interface PageElementProps {
+  page: FormPage;
+  pageIndex: number;
+  renamePage: (name: string, pageIndex: number) => void;
+  launchDeletePageModal: (pageIndex: number) => void;
+  t: any;
+  expandedSections: Record<string, boolean>;
+  toggleSection: (pageIndex: number, sectionIndex: number) => void;
+  launchAddFormReferenceModal: (pageIndex: number, mode?: string, sectionIndex?: number) => void;
+  launchEditSectionModal: (pageIndex: number, sectionIndex: number) => void;
+  launchDeleteSectionModal: (pageIndex: number, sectionIndex: number) => void;
+  launchAddQuestionModal: (pageIndex: number, sectionIndex: number) => void;
+  duplicateQuestion: (question: FormField, pageId: number, sectionId: number, questionId?: number) => void;
+  onSchemaChange: (schema: Schema) => void;
+  schema: Schema;
+  launchAddSectionModal: (pageIndex: number) => void;
+  validationResponse: Array<ValidationError>;
+}
+
+interface SectionElementProps {
+  section: FormSection;
+  pageIndex: number;
+  sectionIndex: number;
+  expandedSections: Record<string, boolean>;
+  toggleSection: (pageIndex: number, sectionIndex: number) => void;
+  launchAddFormReferenceModal: (pageIndex: number, mode?: string, sectionIndex?: number) => void;
+  launchEditSectionModal: (pageIndex: number, sectionIndex: number) => void;
+  launchDeleteSectionModal: (pageIndex: number, sectionIndex: number) => void;
+  launchAddQuestionModal: (pageIndex: number, sectionIndex: number) => void;
+  duplicateQuestion: (question: FormField, pageId: number, sectionId: number, questionId?: number) => void;
+  onSchemaChange: (schema: Schema) => void;
+  schema: Schema;
+  t: any;
+  validationResponse: Array<ValidationError>;
+}
+
+interface QuestionElementProps {
+  question: FormField;
+  pageIndex: number;
+  sectionIndex: number;
+  questionIndex: number;
+  duplicateQuestion: (question: FormField, pageId: number, sectionId: number, questionId?: number) => void;
   onSchemaChange: (schema: Schema) => void;
   schema: Schema;
   validationResponse: Array<ValidationError>;
@@ -592,8 +649,6 @@ export default InteractiveBuilder;
 
 // --- Modular Sub-Components ---
 
-// --- Modular Sub-Components ---
-
 function ObsGroupSubQuestions({
   question,
   pageIndex,
@@ -602,7 +657,7 @@ function ObsGroupSubQuestions({
   duplicateQuestion,
   onSchemaChange,
   schema,
-}: any) {
+}: ObsGroupSubQuestionsProps) {
   return (
     <div className={styles.obsQuestions}>
       {question.questions.map((qn, qnIndex) => {
@@ -642,7 +697,7 @@ function PageElement({
   schema,
   launchAddSectionModal,
   validationResponse,
-}: any) {
+}: PageElementProps) {
   return (
     <InteractiveElementWrapper
       kind="page"
@@ -650,12 +705,7 @@ function PageElement({
       pageIndex={pageIndex}
       className={styles.editableFieldsContainer}
     >
-      <div
-        style={{ display: 'flex', alignItems: 'center' }}
-        role="button"
-        tabIndex={0}
-        // Click handling is done by wrapper, but we keep structure
-      >
+      <div style={{ display: 'flex', alignItems: 'center' }} role="button" tabIndex={0}>
         <div className={styles.editorContainer}>
           <EditableValue
             elementType="page"
@@ -755,7 +805,7 @@ function SectionElement({
   schema,
   t,
   validationResponse,
-}: any) {
+}: SectionElementProps) {
   return (
     <InteractiveElementWrapper kind="section" label={section.label} pageIndex={pageIndex} sectionIndex={sectionIndex}>
       <Accordion>
@@ -763,7 +813,6 @@ function SectionElement({
           title={section.label}
           open={expandedSections[`${pageIndex}-${sectionIndex}`] || false}
           onHeadingClick={(e) => {
-            // Let bubbling handle selection via wrapper
             toggleSection(pageIndex, sectionIndex);
           }}
         >
@@ -852,7 +901,7 @@ function QuestionElement({
   onSchemaChange,
   schema,
   validationResponse,
-}: any) {
+}: QuestionElementProps) {
   // Helper for validation display
   const getValidationError = (question) => {
     // Re-implementing logic or assume it is passed?
@@ -888,7 +937,7 @@ function QuestionElement({
         onSchemaChange={onSchemaChange}
         pageIndex={pageIndex}
         question={question}
-        questionCount={999} // Simplification
+        questionCount={999}
         questionIndex={questionIndex}
         schema={schema}
         sectionIndex={sectionIndex}
