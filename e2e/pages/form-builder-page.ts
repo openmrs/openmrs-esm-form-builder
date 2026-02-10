@@ -51,8 +51,11 @@ export class FormBuilderPage {
       .first()
       .getByRole('button', { name: /delete page/i });
 
-  // Scoped to Modal (Dialog)
-  readonly saveButton = () => this.page.getByRole('dialog').getByRole('button', { name: /^save$/i, exact: true });
+  // Scoped to Modal (Dialog) OR Inline
+  // We use .first() here because typically only one "Save" action is relevant at a time (modal takes precedence visually)
+  // or we can use a more complex selector.
+  // Reverting to generic button for now as it supports both inline and modal, but adding visibility check implicitly via Playwright's auto-wait.
+  readonly saveButton = () => this.page.getByRole('button', { name: /^save$/i, exact: true });
 
   readonly pageCreatedMessage = () => this.page.getByText(/new page created/i);
   readonly addSectionButton = () => this.page.getByRole('button', { name: /add section/i }).first();
