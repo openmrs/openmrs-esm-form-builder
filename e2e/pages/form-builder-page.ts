@@ -49,7 +49,7 @@ export class FormBuilderPage {
   readonly deletePageButton = () =>
     this.pageWrapper()
       .first()
-      .getByRole('button', { name: /delete page/i });
+      .getByRole('button', { name: /^delete page$/i });
 
   // Scoped to Modal (Dialog) OR Inline
   // We use .first() here because typically only one "Save" action is relevant at a time (modal takes precedence visually)
@@ -71,7 +71,7 @@ export class FormBuilderPage {
   readonly deleteSectionButton = () =>
     this.sectionWrapper()
       .first()
-      .getByRole('button', { name: /delete section/i });
+      .getByRole('button', { name: /^delete section$/i });
 
   readonly sectionCreatedMessage = () => this.page.getByText(/new section created/i);
   readonly addReferenceButton = () => this.page.getByRole('button', { name: /add reference/i });
