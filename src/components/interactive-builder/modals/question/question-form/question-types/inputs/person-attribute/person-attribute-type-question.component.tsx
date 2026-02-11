@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FormLabel, InlineNotification, ComboBox, InlineLoading } from '@carbon/react';
 import { usePersonAttributeTypes } from '@hooks/usePersonAttributeTypes';
@@ -13,11 +13,21 @@ const PersonAttributeTypeQuestion: React.FC = () => {
     usePersonAttributeTypes();
 
   const attributeTypeUuid = (formField.questionOptions as any)?.attributeType;
-  const [selectedPersonAttributeType, setSelectedPersonAttributeType] = useState<PersonAttributeType | null>(
-    attributeTypeUuid
-      ? personAttributeTypes.find((personAttributeType) => personAttributeType.uuid === attributeTypeUuid)
-      : null,
-  );
+  const [selectedPersonAttributeType, setSelectedPersonAttributeType] = useState<PersonAttributeType | null>(null);
+
+  // Sync selected person attribute type when personAttributeTypes loads or attributeTypeUuid changes
+  useEffect(() => {
+    if (attributeTypeUuid && personAttributeTypes.length > 0) {
+      const matchingType = personAttributeTypes.find(
+        (personAttributeType) => personAttributeType.uuid === attributeTypeUuid,
+      );
+      if (matchingType) {
+        setSelectedPersonAttributeType(matchingType);
+      }
+    } else if (!attributeTypeUuid) {
+      setSelectedPersonAttributeType(null);
+    }
+  }, [attributeTypeUuid, personAttributeTypes]);
 
   const handlePersonAttributeTypeChange = ({ selectedItem }: { selectedItem: PersonAttributeType }) => {
     setSelectedPersonAttributeType(selectedItem);
@@ -60,9 +70,6 @@ const PersonAttributeTypeQuestion: React.FC = () => {
           onChange={handlePersonAttributeTypeChange}
           placeholder={t('choosePersonAttributeType', 'Choose a person attribute type')}
           selectedItem={selectedPersonAttributeType}
-          initialSelectedItem={personAttributeTypes.find(
-            (personAttributeType) => personAttributeType?.uuid === attributeTypeUuid,
-          )}
         />
       )}
     </div>
