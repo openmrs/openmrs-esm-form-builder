@@ -43,16 +43,16 @@ export async function uploadSchema(schema: Schema): Promise<string> {
   const body = new FormData();
   body.append('file', schemaBlob);
 
-  const response = await window
-    .fetch(`${window.openmrsBase}${restBaseUrl}/clobdata`, {
-      body,
-      method: 'POST',
-    })
-    .then((response) => {
-      return response.text();
-    });
+  const response = await window.fetch(`${window.openmrsBase}${restBaseUrl}/clobdata`, {
+    body,
+    method: 'POST',
+  });
 
-  return response;
+  if (!response.ok) {
+    throw new Error(`Schema upload failed (status ${response.status})`);
+  }
+
+  return response.text();
 }
 
 export async function getResourceUuid(formUuid: string, valueReference: string): Promise<FetchResponse<Schema>> {

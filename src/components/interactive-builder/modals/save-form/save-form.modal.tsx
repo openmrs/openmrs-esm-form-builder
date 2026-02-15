@@ -21,6 +21,7 @@ import { useEncounterTypes } from '@hooks/useEncounterTypes';
 import { useForm } from '@hooks/useForm';
 import {
   deleteClobdata,
+  deleteForm,
   deleteResource,
   getResourceUuid,
   saveNewForm,
@@ -60,7 +61,7 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema }) => {
   const [saveState, setSaveState] = useState('');
   const [version, setVersion] = useState('');
 
-  const clearDraftFormSchema = useCallback(() => localStorage.removeItem('formSchema'), []);
+  const clearDraftFormSchema = useCallback(() => localStorage.removeItem('formJSON'), []);
 
   useEffect(() => {
     if (schema) {
@@ -121,8 +122,18 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema }) => {
           uuid: newForm.uuid,
         };
 
-        const newValueReference = await uploadSchema(updatedSchema);
-        await getResourceUuid(newForm.uuid, newValueReference.toString());
+        let newValueReference: string | undefined;
+        try {
+          newValueReference = (await uploadSchema(updatedSchema)).toString();
+          await getResourceUuid(newForm.uuid, newValueReference);
+        } catch (error) {
+          // Clean up the orphaned clobdata and form since schema upload or linking failed
+          if (newValueReference) {
+            await deleteClobdata(newValueReference).catch(() => {});
+          }
+          await deleteForm(newForm.uuid).catch(() => {});
+          throw error;
+        }
 
         showSnackbar({
           title: t('formCreated', 'New form created'),
@@ -162,50 +173,40 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema }) => {
 
         await updateForm(form.uuid, name, version, description, encounterType);
 
-        if (form?.resources?.length !== 0) {
-          const existingValueReferenceUuid =
-            form?.resources?.find(({ name }) => name === 'JSON schema')?.valueReference ?? '';
+        const oldResource = form?.resources?.length
+          ? form.resources.find(({ name }) => name === 'JSON schema')
+          : undefined;
 
-          await deleteClobdata(existingValueReferenceUuid)
-            .catch((error) => console.error('Unable to delete clobdata: ', error))
-            .then(() => {
-              const resourceUuidToDelete = form?.resources?.find(({ name }) => name === 'JSON schema')?.uuid ?? '';
+        // Upload the new clobdata first (doesn't affect the live form yet)
+        const newValueReference = (await uploadSchema(updatedSchema)).toString();
 
-              deleteResource(form?.uuid, resourceUuidToDelete)
-                .then(() => {
-                  uploadSchema(updatedSchema)
-                    .then((result) => {
-                      getResourceUuid(form?.uuid, result.toString())
-                        .then(async () => {
-                          showSnackbar({
-                            title: t('success', 'Success!'),
-                            kind: 'success',
-                            isLowContrast: true,
-                            subtitle: form?.name + ' ' + t('saveSuccess', 'was updated successfully'),
-                          });
-                          setOpenSaveFormModal(false);
-                          await mutate();
-
-                          setIsSavingForm(false);
-                        })
-                        .catch((err) => {
-                          console.error('Error associating form with new schema: ', err);
-
-                          showSnackbar({
-                            title: t('errorSavingForm', 'Unable to save form'),
-                            kind: 'error',
-                            subtitle: t(
-                              'saveError',
-                              'There was a problem saving your form. Try saving again. To ensure you don’t lose your changes, copy them, reload the page and then paste them back into the editor.',
-                            ),
-                          });
-                        });
-                    })
-                    .catch((err) => console.error('Error uploading new schema: ', err));
-                })
-                .catch((error) => console.error('Unable to create new clobdata resource: ', error));
-            });
+        // Swap: remove old resource link, then link the new clobdata.
+        // If the swap fails, clean up the newly uploaded clobdata.
+        try {
+          if (oldResource) {
+            await deleteResource(form.uuid, oldResource.uuid);
+          }
+          await getResourceUuid(form.uuid, newValueReference);
+        } catch (error) {
+          await deleteClobdata(newValueReference).catch(() => {});
+          throw error;
         }
+
+        // Clean up old clobdata. If this fails, the form still works
+        // (just an orphaned clobdata row in the database).
+        if (oldResource) {
+          await deleteClobdata(oldResource.valueReference).catch(() => {});
+        }
+
+        showSnackbar({
+          title: t('success', 'Success!'),
+          kind: 'success',
+          isLowContrast: true,
+          subtitle: form?.name + ' ' + t('saveSuccess', 'was updated successfully'),
+        });
+        setOpenSaveFormModal(false);
+        await mutate();
+        setIsSavingForm(false);
       } catch (error) {
         if (error instanceof Error) {
           showSnackbar({
