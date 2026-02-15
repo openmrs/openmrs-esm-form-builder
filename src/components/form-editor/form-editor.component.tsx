@@ -109,12 +109,17 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
     [resetErrorMessage],
   );
 
+  const updateSchema = useCallback((updatedSchema: FormSchema) => {
+    setSchema(updatedSchema);
+    localStorage.setItem('formJSON', JSON.stringify(updatedSchema));
+  }, []);
+
   const launchRestoreDraftSchemaModal = useCallback(() => {
     const dispose = showModal('restore-draft-schema-modal', {
       closeModal: () => dispose(),
-      onSchemaChange: handleSchemaChange,
+      onSchemaChange: updateSchema,
     });
-  }, [handleSchemaChange]);
+  }, [updateSchema]);
 
   useEffect(() => {
     if (formUuid) {
@@ -137,11 +142,6 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   useEffect(() => {
     setStringifiedSchema(JSON.stringify(schema, null, 2));
   }, [schema]);
-
-  const updateSchema = useCallback((updatedSchema: FormSchema) => {
-    setSchema(updatedSchema);
-    localStorage.setItem('formJSON', JSON.stringify(updatedSchema));
-  }, []);
 
   const onValidateForm = async () => {
     setIsValidating(true);

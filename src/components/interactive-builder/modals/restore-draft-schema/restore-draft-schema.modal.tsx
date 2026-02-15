@@ -36,7 +36,9 @@ const RestoreDraftSchemaModal: React.FC<RestoreDraftSchemaModalProps> = ({ close
         </ModalBody>
       </Form>
       <ModalFooter>
-        <Button kind="secondary">{t('cancel', 'Cancel')}</Button>
+        <Button kind="secondary" onClick={closeModal}>
+          {t('cancel', 'Cancel')}
+        </Button>
         <Button
           onClick={() => {
             handleRestoreDraftSchema();
