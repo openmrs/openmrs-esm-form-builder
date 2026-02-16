@@ -11,15 +11,16 @@ import {
   MouseSensor,
   KeyboardSensor,
 } from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
 import { SortableContext } from '@dnd-kit/sortable';
 import { Accordion, AccordionItem, Button, IconButton, InlineLoading } from '@carbon/react';
 import { Add, TrashCan, Edit } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
+import type { FormSchema, FormField } from '@openmrs/esm-form-engine-lib';
 import { showModal, showSnackbar } from '@openmrs/esm-framework';
+import { moveQuestion, type DragQuestionData } from './drag-and-drop-helpers';
 import DraggableQuestion from './draggable/draggable-question.component';
 import EditableValue from './editable/editable-value.component';
-import type { DragEndEvent } from '@dnd-kit/core';
-import type { FormSchema, FormField } from '@openmrs/esm-form-engine-lib';
 import type { Schema } from '@types';
 import styles from './interactive-builder.scss';
 
@@ -98,8 +99,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
   const launchDeletePageModal = useCallback(
     (pageIndex: number) => {
-      const dipose = showModal('delete-page-modal', {
-        closeModal: () => dipose(),
+      const dispose = showModal('delete-page-modal', {
+        closeModal: () => dispose(),
         onSchemaChange,
         schema,
         pageIndex,
@@ -302,8 +303,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
     const activeId = active.id;
     const overId = over.id;
-    const activeQuestion = active.data.current;
-    const overQuestion = over.data.current;
+    const activeQuestion = active.data.current as DragQuestionData;
+    const overQuestion = over.data.current as DragQuestionData;
 
     if (activeId === overId) return;
 
@@ -317,97 +318,14 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     )
       return;
 
-    function deleteFromSource(schema, pageIndex, sectionIndex, questionId) {
-      if (activeQuestion.type === 'obsQuestion') {
-        const newSchema = { ...schema };
-        const pages = newSchema.pages;
-        const targetQuestion = pages[pageIndex].sections[sectionIndex].questions[activeQuestion.question.questionIndex];
+    const newSchema = moveQuestion(schema, activeQuestion, overQuestion, overId);
 
-        targetQuestion.questions.splice(activeQuestion.question.subQuestionIndex, 1);
-
-        return newSchema;
-      }
-      if (activeQuestion.type === 'question') {
-        const newSchema = { ...schema };
-        const pages = newSchema.pages;
-        pages[pageIndex].sections[sectionIndex].questions.splice(activeQuestion.question.questionIndex, 1);
-        return newSchema;
-      }
+    if (!newSchema) {
+      console.warn('Drag-and-drop: move failed, aborting');
+      return;
     }
 
-    function addToDestination(
-      schema: Schema,
-      pageIndex: number,
-      sectionIndex: number,
-      questionId: string | number,
-      newQuestion: FormField,
-    ): Schema {
-      if (activeQuestion.type === 'question') {
-        const newSchema = { ...schema };
-        const questions = newSchema.pages[pageIndex]?.sections[sectionIndex]?.questions;
-        const questionIndex = questions.findIndex((q) => q.id === questionId);
-
-        if (questionIndex === -1) {
-          console.error('Question with given id not found');
-          return schema;
-        }
-
-        if (
-          activeQuestion.question.pageIndex === overQuestion.question.pageIndex &&
-          overQuestion.question.sectionIndex === activeQuestion.question.sectionIndex
-        ) {
-          if (activeQuestion.question.questionIndex > overQuestion.question.questionIndex) {
-            questions.splice(questionIndex, 0, newQuestion);
-          } else {
-            const overQuestionIndex = questionIndex + 1;
-            questions.splice(overQuestionIndex, 0, newQuestion);
-          }
-        } else {
-          questions.splice(questionIndex, 0, newQuestion);
-        }
-
-        return newSchema;
-      } else if (activeQuestion.type === 'obsQuestion') {
-        if (overQuestion.type === 'question') {
-          const newSchema = { ...schema };
-          const pages = newSchema.pages;
-          const targetQuestion = pages[pageIndex].sections[sectionIndex].questions[overQuestion.question.questionIndex];
-
-          // Add the active question
-          targetQuestion.questions.unshift(activeQuestion.question.question);
-          return newSchema;
-        }
-        if (overQuestion.type === 'obsQuestion') {
-          const newSchema = { ...schema };
-          const pages = newSchema.pages;
-          pages[pageIndex].sections[sectionIndex].questions[overQuestion.question.questionIndex].questions.splice(
-            overQuestion.question.subQuestionIndex,
-            0,
-            activeQuestion.question.question,
-          );
-          return newSchema;
-        }
-      }
-    }
-
-    const updatedSchema = deleteFromSource(
-      schema,
-      activeQuestion.question.pageIndex,
-      activeQuestion.question.sectionIndex,
-      activeId as string,
-    );
-
-    onSchemaChange(updatedSchema);
-
-    const finalSchema = addToDestination(
-      updatedSchema,
-      overQuestion.question.pageIndex,
-      overQuestion.question.sectionIndex,
-      overId,
-      activeQuestion.question.question,
-    );
-
-    onSchemaChange(finalSchema);
+    onSchemaChange(newSchema);
     setActiveQuestion(null);
   };
 
