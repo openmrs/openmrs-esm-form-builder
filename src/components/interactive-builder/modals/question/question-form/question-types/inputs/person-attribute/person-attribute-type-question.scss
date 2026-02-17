@@ -1,0 +1,15 @@
+@use '@carbon/styles/scss/spacing';
+
+.label {
+  display: block;
+  margin-bottom: spacing.$spacing-03;
+}
+
+.error {
+  margin-bottom: spacing.$spacing-05;
+}
+
+.loader {
+  margin-top: spacing.$spacing-05;
+}
+
