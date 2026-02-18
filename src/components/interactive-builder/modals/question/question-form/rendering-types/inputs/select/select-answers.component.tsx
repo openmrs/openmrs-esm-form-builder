@@ -226,6 +226,7 @@ const SelectAnswers: React.FC = () => {
           id="selectAnswers"
           items={answerItems}
           itemToString={convertAnswerItemsToString}
+          label=""
           onChange={handleSelectAnswers}
           size="md"
           selectedItems={selectedAnswers}

@@ -110,7 +110,6 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
             onChange={handleConceptChange}
             labelText={t('searchForBackingConcept', 'Search for a backing concept')}
             placeholder={t('searchConcept', 'Search using a concept name or UUID')}
-            required
             size="md"
             value={(() => {
               if (conceptToLookup) {
