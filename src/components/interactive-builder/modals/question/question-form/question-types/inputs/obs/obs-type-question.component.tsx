@@ -126,7 +126,7 @@ const ObsTypeQuestion: React.FC = () => {
       )}
 
       {(concept?.conceptClass?.display || concept?.datatype?.display || concept?.uuid) && (
-        <FormGroup>
+        <FormGroup legendText="">
           <FormLabel className={styles.label}>{t('attributes', 'Attributes')}</FormLabel>
           <table className={styles.tableStriped}>
             <thead>
@@ -154,7 +154,7 @@ const ObsTypeQuestion: React.FC = () => {
       )}
 
       {conceptMappings.length > 0 && (
-        <FormGroup>
+        <FormGroup legendText="">
           <FormLabel className={styles.label}>{t('mappings', 'Mappings')}</FormLabel>
           <table className={styles.tableStriped}>
             <thead>
@@ -176,6 +176,7 @@ const ObsTypeQuestion: React.FC = () => {
                       {mapping.relationship === 'SAME-AS' && (
                         <Checkbox
                           id={`checkbox-${index}`}
+                          labelText=""
                           checked={selectedMapping === `${mapping.type}:${mapping.value}`}
                           onChange={() => {
                             if (selectedMapping === `${mapping.type}:${mapping.value}`) {

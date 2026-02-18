@@ -1,4 +1,4 @@
-import React, { type SyntheticEvent, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import {
@@ -93,11 +93,11 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema }) => {
     }
   }, []);
 
-  const handleSubmit = async (event: SyntheticEvent<{ name: { value: string } }>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSavingForm(true);
 
-    const target = event.target as typeof event.target & {
+    const target = event.target as EventTarget & {
       name: { value: string };
       version: { value: string };
       encounterType: { value: string };
@@ -283,7 +283,7 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema }) => {
                 <TextInput
                   id="version"
                   labelText={t('version', 'Version')}
-                  placeholder="e.g. 1.0"
+                  placeholder={t('versionPlaceholder', 'e.g. 1.0')}
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                     checkVersionValidity(event.target.value);
 

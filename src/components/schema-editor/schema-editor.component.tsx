@@ -4,7 +4,7 @@ import 'ace-builds/webpack-resolver';
 import { addCompleter } from 'ace-builds/src-noconflict/ext-language_tools';
 import type { IMarker } from 'react-ace';
 import { useTranslation } from 'react-i18next';
-import { ActionableNotification, Link } from '@carbon/react';
+import { ActionableNotification } from '@carbon/react';
 import { useStandardFormSchema } from '@hooks/useStandardFormSchema';
 import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
@@ -186,10 +186,9 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
       title={t('errorOnLine', 'Error on line') + ` ${line + 1}: `}
       kind="error"
       lowContrast
-      actionButtonLabel={
-        <Link target="_blank" rel="noopener noreferrer" href="https://json.openmrs.org/form.schema.json">
-          {t('referenceSchema', 'Reference schema')}
-        </Link>
+      actionButtonLabel={t('referenceSchema', 'Reference schema')}
+      onActionButtonClick={() =>
+        window.open('https://json.openmrs.org/form.schema.json', '_blank', 'noopener,noreferrer')
       }
     />
   );
@@ -207,7 +206,6 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
       <ErrorNotification text={errors[currentIndex]?.text} line={errors[currentIndex]?.startRow} />
       <div className={styles.pagination}>
         <ChevronLeft
-          disabled={currentIndex === 0}
           onClick={onPreviousErrorClick}
           className={currentIndex === 0 ? styles.disabledIcon : styles.paginationIcon}
         />
@@ -215,7 +213,6 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
           {currentIndex + 1}/{errors.length}
         </div>
         <ChevronRight
-          disabled={currentIndex === errors.length - 1}
           onClick={onNextErrorClick}
           className={currentIndex === errors.length - 1 ? styles.disabledIcon : styles.paginationIcon}
         />

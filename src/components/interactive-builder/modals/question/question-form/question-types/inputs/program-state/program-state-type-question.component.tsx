@@ -191,6 +191,7 @@ const ProgramStateTypeQuestion: React.FC = () => {
                 id="programState"
                 items={programStates}
                 itemToString={convertItemsToString}
+                label=""
                 selectionFeedback="top-after-reopen"
                 onChange={selectProgramStates}
                 selectedItems={selectedProgramStates}

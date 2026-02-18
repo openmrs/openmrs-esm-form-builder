@@ -3,9 +3,14 @@ import type { FormField } from '@openmrs/esm-form-engine-lib';
 import type { Schema } from '@types';
 import type { ConfigObject } from '../config-schema';
 
+interface ConceptMapping {
+  type: string;
+  value: string;
+}
+
 interface Field {
-  label: string;
-  concept: string;
+  label?: string;
+  concept?: string;
   id?: string;
   type?: string;
 }
@@ -58,15 +63,22 @@ export const handleFormValidation = async (
   return [errors, warnings]; // Return empty arrays if schema is falsy
 };
 
-const handleQuestionValidation = async (conceptObject, errorsArray, configObject, warningsArray) => {
+const handleQuestionValidation = async (
+  conceptObject: FormField,
+  errorsArray: Array<ErrorMessageResponse>,
+  configObject: ConfigObject['dataTypeToRenderingMap'],
+  warningsArray: Array<WarningMessageResponse>,
+) => {
   const conceptRepresentation =
     'custom:(uuid,display,datatype,answers,conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
 
+  const conceptMappings = (conceptObject.questionOptions as { conceptMappings?: Array<ConceptMapping> })
+    .conceptMappings;
   const searchRef = conceptObject.questionOptions.concept
     ? conceptObject.questionOptions.concept
-    : conceptObject.questionOptions.conceptMappings?.length
-      ? conceptObject.questionOptions.conceptMappings
-          ?.map((mapping) => {
+    : conceptMappings?.length
+      ? conceptMappings
+          .map((mapping: ConceptMapping) => {
             return `${mapping.type}:${mapping.value}`;
           })
           .join(',')
@@ -77,8 +89,8 @@ const handleQuestionValidation = async (conceptObject, errorsArray, configObject
       const { data } = await openmrsFetch(`${restBaseUrl}/concept?references=${searchRef}&v=${conceptRepresentation}`);
       if (data.results.length) {
         const [resObject] = data.results;
-        resObject.datatype.name === 'Boolean' &&
-          conceptObject.questionOptions.answers.forEach((answer) => {
+        if (resObject.datatype.name === 'Boolean') {
+          conceptObject.questionOptions.answers?.forEach((answer) => {
             if (
               answer.concept !== 'cf82933b-3f3f-45e7-a5ab-5d31aaee3da3' &&
               answer.concept !== '488b58ff-64f5-4f8a-8979-fa79940b1594'
@@ -89,16 +101,18 @@ const handleQuestionValidation = async (conceptObject, errorsArray, configObject
               });
             }
           });
+        }
 
-        resObject.datatype.name === 'Coded' &&
-          conceptObject.questionOptions.answers.forEach((answer) => {
-            if (!resObject.answers.some((answerObject) => answerObject.uuid === answer.concept)) {
+        if (resObject.datatype.name === 'Coded') {
+          conceptObject.questionOptions.answers?.forEach((answer) => {
+            if (!resObject.answers.some((answerObject: { uuid: string }) => answerObject.uuid === answer.concept)) {
               warningsArray.push({
                 warningMessage: `⚠️ answer: "${answer.label}" - "${answer.concept}" does not exist in the response answers but exists in the form`,
                 field: conceptObject,
               });
             }
           });
+        }
 
         dataTypeChecker(conceptObject, resObject, errorsArray, configObject);
       } else {
@@ -118,7 +132,7 @@ const handleQuestionValidation = async (conceptObject, errorsArray, configObject
   }
 };
 
-const handlePatientIdentifierValidation = async (question, errors) => {
+const handlePatientIdentifierValidation = async (question: FormField, errors: Array<ErrorMessageResponse>) => {
   if (question.type === 'patientIdentifier' && !question.questionOptions.identifierType) {
     errors.push({
       errorMessage: `❓ Patient identifier type missing in schema`,
@@ -148,22 +162,28 @@ const handlePatientIdentifierValidation = async (question, errors) => {
   }
 };
 
-const dataTypeChecker = (conceptObject, responseObject, array, dataTypeToRenderingMap) => {
-  Object.prototype.hasOwnProperty.call(dataTypeToRenderingMap, responseObject.datatype.name) &&
-    !dataTypeToRenderingMap[responseObject.datatype.name].includes(conceptObject.questionOptions.rendering) &&
-    array.push({
-      errorMessage: `❓ ${conceptObject.questionOptions.concept}: datatype "${responseObject.datatype.name}" doesn't match control type "${conceptObject.questionOptions.rendering}"`,
-      field: conceptObject,
-    });
-
-  !Object.prototype.hasOwnProperty.call(dataTypeToRenderingMap, responseObject.datatype.name) &&
+const dataTypeChecker = (
+  conceptObject: FormField,
+  responseObject: { datatype: { name: string }; answers: Array<{ uuid: string }> },
+  array: Array<ErrorMessageResponse>,
+  dataTypeToRenderingMap: ConfigObject['dataTypeToRenderingMap'],
+) => {
+  if (Object.prototype.hasOwnProperty.call(dataTypeToRenderingMap, responseObject.datatype.name)) {
+    if (!dataTypeToRenderingMap[responseObject.datatype.name].includes(conceptObject.questionOptions.rendering)) {
+      array.push({
+        errorMessage: `❓ ${conceptObject.questionOptions.concept}: datatype "${responseObject.datatype.name}" doesn't match control type "${conceptObject.questionOptions.rendering}"`,
+        field: conceptObject,
+      });
+    }
+  } else {
     array.push({
       errorMessage: `❓ Untracked datatype "${responseObject.datatype.name}"`,
       field: conceptObject,
     });
+  }
 };
 
-const handleAnswerValidation = async (questionObject, array) => {
+const handleAnswerValidation = async (questionObject: FormField, array: Array<ErrorMessageResponse>) => {
   const answerArray = questionObject.questionOptions.answers;
   const conceptRepresentation =
     'custom:(uuid,display,datatype,conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
@@ -174,7 +194,7 @@ const handleAnswerValidation = async (questionObject, array) => {
         ? answer.concept
         : answer.conceptMappings?.length
           ? answer.conceptMappings
-              .map((eachMapping) => {
+              .map((eachMapping: ConceptMapping) => {
                 return `${eachMapping.type}:${eachMapping.value}`;
               })
               .join(',')
