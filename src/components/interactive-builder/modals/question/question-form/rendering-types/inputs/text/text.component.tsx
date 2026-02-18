@@ -8,9 +8,12 @@ const Text: React.FC = () => {
   const { formField, setFormField } = useFormField();
 
   const checkIfInvalid = useCallback(() => {
-    if (parseFloat(formField.questionOptions?.minLength ?? '') > parseFloat(formField.questionOptions?.maxLength ?? ''))
+    if (
+      parseFloat(formField.questionOptions?.minLength ?? '') > parseFloat(formField.questionOptions?.maxLength ?? '')
+    ) {
       return true;
-    else false;
+    }
+    return false;
   }, [formField.questionOptions?.maxLength, formField.questionOptions?.minLength]);
 
   const getInvalidText = useCallback(() => {
@@ -23,7 +26,7 @@ const Text: React.FC = () => {
     <>
       <TextInput
         id="minLength"
-        labelText="Min length of characters"
+        labelText={t('minLengthOfCharacters', 'Min length of characters')}
         value={formField.questionOptions?.minLength ?? ''}
         invalid={checkIfInvalid()}
         invalidText={getInvalidText()}
@@ -37,10 +40,10 @@ const Text: React.FC = () => {
       />
       <TextInput
         id="maxLength"
-        labelText="Max length of characters"
+        labelText={t('maxLengthOfCharacters', 'Max length of characters')}
         value={formField.questionOptions?.maxLength ?? ''}
         invalid={checkIfInvalid()}
-        invalidText={getInvalidText}
+        invalidText={getInvalidText()}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           const updatedQuestion = {
             ...formField,

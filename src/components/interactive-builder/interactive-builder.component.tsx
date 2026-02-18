@@ -535,7 +535,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                         )}
                                         {getAnswerErrors(question.questionOptions.answers)?.length ? (
                                           <div className={styles.answerErrors}>
-                                            <div>Answer Errors</div>
+                                            <div>{t('answerErrors', 'Answer Errors')}</div>
                                             {getAnswerErrors(question.questionOptions.answers)?.map((error, index) => (
                                               <div
                                                 className={styles.validationErrorMessage}

@@ -163,7 +163,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
       />
       <Form className={styles.form} onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
-          <FormGroup>
+          <FormGroup legendText="">
             <Stack gap={5}>
               <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
               {formField.questions?.length >= 1 && (

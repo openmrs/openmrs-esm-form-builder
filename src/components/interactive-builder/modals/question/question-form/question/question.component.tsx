@@ -33,15 +33,15 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
   }, [formField.id, checkIfQuestionIdExists]);
 
   const handleQuestionInfoToggle = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (value: string) => {
       setFormField((prevFormField) => {
-        if (e.target.value === 'false') {
+        if (value === 'false') {
           const { questionInfo, ...updatedFormField } = prevFormField;
           return updatedFormField;
         }
         return prevFormField;
       });
-      setIsQuestionInfoVisible(e.target.value === 'true');
+      setIsQuestionInfoVisible(value === 'true');
     },
     [setFormField],
   );
@@ -193,7 +193,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
             />
             <RadioButton
               id="questionIsRequired"
-              checked={formField.required ? formField.required : false}
+              checked={!!formField.required}
               labelText={t('required', 'Required')}
               onClick={() => setFormField({ ...formField, required: true })}
               value="required"
@@ -211,14 +211,14 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
           id="questionInfoProvided"
           checked={!!formField?.questionInfo}
           labelText={t('yes', 'Yes')}
-          onClick={handleQuestionInfoToggle}
+          onClick={() => handleQuestionInfoToggle('true')}
           value="true"
         />
         <RadioButton
           id="questionInfoNotProvided"
           checked={!formField?.questionInfo}
           labelText={t('no', 'No')}
-          onClick={handleQuestionInfoToggle}
+          onClick={() => handleQuestionInfoToggle('false')}
           value="false"
         />
       </RadioButtonGroup>

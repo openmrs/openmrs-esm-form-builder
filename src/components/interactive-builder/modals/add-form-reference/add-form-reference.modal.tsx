@@ -73,7 +73,7 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
     setExcludedQuestions([]);
   }, []);
 
-  const handleExcludedQuestions = useCallback((question: FormField, checked: Boolean) => {
+  const handleExcludedQuestions = useCallback((question: FormField, checked: boolean) => {
     setExcludedQuestions((prev) => {
       if (!checked) {
         return prev.some((q) => q === question.id) ? prev : [...prev, question.id];
@@ -102,17 +102,19 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
         return;
       }
       if (!schema.referencedForms?.some((form) => form.formName === selectedForm.name)) {
-        schema.referencedForms
-          ? schema.referencedForms.push({
+        if (schema.referencedForms) {
+          schema.referencedForms.push({
+            formName: selectedForm.name,
+            alias: selectedForm.name,
+          });
+        } else {
+          schema.referencedForms = [
+            {
               formName: selectedForm.name,
               alias: selectedForm.name,
-            })
-          : (schema.referencedForms = [
-              {
-                formName: selectedForm.name,
-                alias: selectedForm.name,
-              },
-            ]);
+            },
+          ];
+        }
       }
       schema.pages[pageIndex].sections.push({
         label: selectedSection.label,
@@ -182,7 +184,7 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
             ) : forms.length === 0 ? (
               <InlineNotification>{t('noFormsAvailable', 'No forms available')}</InlineNotification>
             ) : !mode ? (
-              <FormGroup legendText={''} display={mode === 'edit' ? 'hidden' : 'inline'}>
+              <FormGroup legendText={''}>
                 <Dropdown
                   titleText={t('selectForm', 'Select form')}
                   id="form-component-dropdown"
