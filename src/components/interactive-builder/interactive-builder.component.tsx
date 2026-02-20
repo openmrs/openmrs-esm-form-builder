@@ -80,14 +80,18 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
     return schema || dummySchema;
   }, [onSchemaChange, schema]);
 
-  const launchNewFormModal = useCallback(() => {
-    const schema = initializeSchema();
-    const dispose = showModal('new-form-modal', {
-      closeModal: () => dispose(),
-      schema,
-      onSchemaChange,
-    });
-  }, [onSchemaChange, initializeSchema]);
+  const launchNewFormModal = useCallback(
+    (templateId?: string) => {
+      const schema = initializeSchema();
+      const dispose = showModal('new-form-modal', {
+        closeModal: () => dispose(),
+        schema,
+        onSchemaChange,
+        initialTemplate: templateId,
+      });
+    },
+    [onSchemaChange, initializeSchema],
+  );
 
   const launchAddPageModal = useCallback(() => {
     const dispose = showModal('new-page-modal', {
