@@ -4,6 +4,7 @@ import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-textmate';
 import { addCompleter } from 'ace-builds/src-noconflict/ext-language_tools';
 import type { IMarker } from 'react-ace';
+import type * as AceBuilds from 'ace-builds';
 import { useTranslation } from 'react-i18next';
 import { ActionableNotification } from '@carbon/react';
 import { useStandardFormSchema } from '@hooks/useStandardFormSchema';
@@ -37,14 +38,14 @@ const traverseSchema = (
   path: string,
   suggestions: Array<{ name: string; type: string; path: string }>,
 ) => {
-  if (schemaProps && typeof schemaProps === 'object') {
+  if (schemaProps && typeof schemaProps === 'object' && !Array.isArray(schemaProps)) {
     Object.entries(schemaProps).forEach(([propertyName, property]) => {
       if (propertyName === '$schema') return;
 
       const currentPath = path ? `${path}.${propertyName}` : propertyName;
       const typedProperty = property as SchemaProperty;
 
-      if (typeof property === 'object') {
+      if (typeof property === 'object' && !Array.isArray(property)) {
         if (typedProperty.type === 'array' && typedProperty.items?.properties) {
           traverseSchema(typedProperty.items.properties, currentPath, suggestions);
         } else if (typedProperty.properties) {
@@ -69,10 +70,9 @@ const ErrorNotification = ({ text, line }: { text: string; line: number }) => {
       title={t('errorOnLine', 'Error on line {{line}}:', { line: line + 1 })}
       kind="error"
       lowContrast
-      actionButtonLabel={
-        <Link target="_blank" rel="noopener noreferrer" href="https://json.openmrs.org/form.schema.json">
-          {t('referenceSchema', 'Reference schema')}
-        </Link>
+      actionButtonLabel={t('referenceSchema', 'Reference schema')}
+      onActionButtonClick={() =>
+        window.open('https://json.openmrs.org/form.schema.json', '_blank', 'noopener,noreferrer')
       }
     />
   );
@@ -90,7 +90,6 @@ const ErrorMessages = ({ errors, currentIndex, onPreviousErrorClick, onNextError
     <ErrorNotification text={errors[currentIndex]?.text} line={errors[currentIndex]?.startRow} />
     <div className={styles.pagination}>
       <ChevronLeft
-        disabled={currentIndex === 0}
         onClick={onPreviousErrorClick}
         className={currentIndex === 0 ? styles.disabledIcon : styles.paginationIcon}
       />
@@ -98,7 +97,6 @@ const ErrorMessages = ({ errors, currentIndex, onPreviousErrorClick, onNextError
         {currentIndex + 1}/{errors.length}
       </div>
       <ChevronRight
-        disabled={currentIndex === errors.length - 1}
         onClick={onNextErrorClick}
         className={currentIndex === errors.length - 1 ? styles.disabledIcon : styles.paginationIcon}
       />
@@ -133,13 +131,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
 
   useEffect(() => {
     addCompleter({
-      getCompletions: function (
-        _editor: unknown,
-        _session: unknown,
-        _pos: unknown,
-        _prefix: unknown,
-        callback: (err: null, completions: object[]) => void,
-      ) {
+      getCompletions(editor, session, pos, prefix, callback) {
         callback(
           null,
           autocompleteSuggestions.map(function (word) {
@@ -152,7 +144,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
           }),
         );
       },
-    });
+    } satisfies AceBuilds.Ace.Completer);
   }, [autocompleteSuggestions]);
 
   // Validate JSON schema
@@ -175,8 +167,8 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
         let lineNumber = -1;
 
         for (const segment of pathSegments) {
-          if (segment === 'properties' || segment === 'items') continue;
-          const match = /^([^[\]]+)/.exec(segment);
+          if (segment === 'properties' || segment === 'items') continue; // Skip 'properties' and 'items'
+          const match = /^([^[\]]+)/.exec(segment); // Extract property key
           if (match) {
             const propertyName = pathSegments.at(-2) ?? '';
             lineNumber = jsonLines.findIndex((line) => line.includes(propertyName));

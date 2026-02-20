@@ -300,7 +300,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
             <div className={styles.heading}>
               <span className={styles.tabHeading}>{t('schemaEditor', 'Schema editor')}</span>
               <div className={styles.topBtns}>
-                {schema ? null : (
+                {!schema && (
                   <FileUploader
                     onChange={handleSchemaImport}
                     labelTitle=""
@@ -359,7 +359,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                     kind="ghost"
                     onClick={handleCopySchema}
                   />
-                  <a download={`${form?.name}.json`} href={globalThis.URL.createObjectURL(downloadableSchema)}>
+                  <a download={`${form?.name}.json`} href={window.URL.createObjectURL(downloadableSchema)}>
                     <IconButton
                       enterDelayMs={defaultEnterDelayInMs}
                       kind="ghost"
@@ -442,9 +442,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
 function BackButton({ t }: TranslationFnProps) {
   return (
     <div className={styles.backButton}>
-      <ConfigurableLink
-        to={(globalThis as unknown as { getOpenmrsSpaBase: () => string }).getOpenmrsSpaBase() + 'form-builder'}
-      >
+      <ConfigurableLink to={window.getOpenmrsSpaBase() + 'form-builder'}>
         <Button
           kind="ghost"
           renderIcon={(props) => <ArrowLeft size={24} {...props} />}
