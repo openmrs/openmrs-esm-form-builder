@@ -3375,7 +3375,7 @@ __metadata:
     webpack: "npm:^5.99.9"
     webpack-cli: "npm:^6.0.1"
   peerDependencies:
-    "@openmrs/esm-framework": "*"
+    "@openmrs/esm-framework": 9.x
     react: 18.x
     react-dom: 18.x
     react-i18next: 16.x
