@@ -46,7 +46,7 @@ interface ErrorProps {
 }
 
 interface TranslationFnProps {
-  t: TFunction;
+  readonly t: TFunction;
 }
 
 interface MarkerProps extends IMarker {
@@ -223,15 +223,13 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
 
   const renderSchemaChanges = useCallback(() => {
     resetErrorMessage();
-    {
-      try {
-        const parsedJson: Schema = JSON.parse(stringifiedSchema);
-        updateSchema(parsedJson);
-        setStringifiedSchema(JSON.stringify(parsedJson, null, 2));
-      } catch (e) {
-        if (e instanceof Error) {
-          setInvalidJsonErrorMessage(e.message);
-        }
+    try {
+      const parsedJson: Schema = JSON.parse(stringifiedSchema);
+      updateSchema(parsedJson);
+      setStringifiedSchema(JSON.stringify(parsedJson, null, 2));
+    } catch (e) {
+      if (e instanceof Error) {
+        setInvalidJsonErrorMessage(e.message);
       }
     }
   }, [stringifiedSchema, updateSchema, resetErrorMessage]);
@@ -258,25 +256,11 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
     }
   }, [blockRenderingWithErrors, errors.length, renderSchemaChanges, selectedLanguageCode]);
 
-  const handleSchemaImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSchemaImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files[0];
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      const result = e.target?.result;
-      if (typeof result === 'string') {
-        const fileContent: string = result;
-        const parsedJson: Schema = JSON.parse(fileContent);
-        setSchema(parsedJson);
-      } else if (result instanceof ArrayBuffer) {
-        const decoder = new TextDecoder();
-        const fileContent: string = decoder.decode(result);
-        const parsedJson: Schema = JSON.parse(fileContent);
-        setSchema(parsedJson);
-      }
-    };
-
-    reader.readAsText(file);
+    const fileContent = await file.text();
+    const parsedJson: Schema = JSON.parse(fileContent);
+    setSchema(parsedJson);
   };
 
   const downloadableSchema = useMemo(
@@ -316,7 +300,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
             <div className={styles.heading}>
               <span className={styles.tabHeading}>{t('schemaEditor', 'Schema editor')}</span>
               <div className={styles.topBtns}>
-                {!schema ? (
+                {!schema && (
                   <FileUploader
                     onChange={handleSchemaImport}
                     labelTitle=""
@@ -331,7 +315,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                     iconDescription={t('importSchema', 'Import schema')}
                     name="form-import"
                   />
-                ) : null}
+                )}
                 {isNewSchema && !schema ? (
                   <Button kind="ghost" onClick={inputDummySchema}>
                     {t('inputDummySchema', 'Input dummy schema')}
@@ -397,7 +381,6 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
             <div className={styles.editorContainer}>
               <SchemaEditor
                 errors={errors}
-                isLoading={isLoadingFormOrSchema}
                 onSchemaChange={handleSchemaChange}
                 setErrors={setErrors}
                 setValidationOn={setValidationOn}
