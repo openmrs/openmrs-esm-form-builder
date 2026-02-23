@@ -38,6 +38,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
   const { t } = useTranslation();
   const defaultEnterDelayInMs = 300;
   const [isCollapsed, setIsCollapsed] = useState(true);
+
   const toggleCollapse = () => {
     if (question.questions) {
       setIsCollapsed(!isCollapsed);
@@ -70,20 +71,20 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
     });
   }, [onSchemaChange, pageIndex, question, questionIndex, schema, sectionIndex, subQuestionIndex]);
 
-  const { attributes, listeners, setNodeRef, active, isDragging, over, isOver } = useSortable({
+  const { attributes, listeners, setNodeRef, active, isDragging, over } = useSortable({
     id: question.id,
     data: {
       type: subQuestionIndex === null || subQuestionIndex === undefined ? 'question' : 'obsQuestion',
       question: {
-        handleDuplicateQuestion: handleDuplicateQuestion,
-        onSchemaChange: onSchemaChange,
-        pageIndex: pageIndex,
-        sectionIndex: sectionIndex,
-        question: question,
-        questionCount: questionCount,
-        questionIndex: questionIndex,
-        subQuestionIndex: subQuestionIndex !== null ? subQuestionIndex : null,
-        schema: schema,
+        handleDuplicateQuestion,
+        onSchemaChange,
+        pageIndex,
+        sectionIndex,
+        question,
+        questionCount,
+        questionIndex,
+        subQuestionIndex: subQuestionIndex ?? null,
+        schema,
       },
     },
     disabled: questionCount <= 1 && (subQuestionIndex === undefined || subQuestionIndex === null),
@@ -116,17 +117,19 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
         onClick={toggleCollapse}
       >
         <div className={styles.iconAndName}>
-          <div ref={setNodeRef} {...attributes} {...listeners}>
+          <div {...attributes} {...listeners}>
             <IconButton
-              className={styles.dragIcon}
-              enterDelayMs={over ? 6000 : defaultEnterDelayInMs}
+              enterDelayMs={defaultEnterDelayInMs}
               label={t('dragToReorder', 'Drag to reorder')}
               kind="ghost"
               size="md"
+              className={styles.dragIcon}
+              onClick={(e) => e.stopPropagation()}
             >
               <Draggable />
             </IconButton>
           </div>
+
           <p className={styles.questionLabel}>
             {question.questionOptions.rendering === 'markdown' ? (
               <MarkdownWrapper markdown={question.value} />
@@ -135,36 +138,49 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
             )}
           </p>
         </div>
+
         <div className={styles.buttonsContainer}>
           <IconButton
             enterDelayMs={defaultEnterDelayInMs}
             label={t('duplicateQuestion', 'Duplicate question')}
             kind="ghost"
-            onClick={handleDuplicate}
             size="md"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDuplicate();
+            }}
           >
             <Copy />
           </IconButton>
+
           <IconButton
             enterDelayMs={defaultEnterDelayInMs}
             label={t('editQuestion', 'Edit question')}
             kind="ghost"
-            onClick={launchEditQuestionModal}
             size="md"
+            onClick={(e) => {
+              e.stopPropagation();
+              launchEditQuestionModal();
+            }}
           >
             <Edit />
           </IconButton>
+
           <IconButton
             enterDelayMs={defaultEnterDelayInMs}
             label={t('deleteQuestion', 'Delete question')}
             kind="ghost"
-            onClick={launchDeleteQuestionModal}
             size="md"
+            onClick={(e) => {
+              e.stopPropagation();
+              launchDeleteQuestionModal();
+            }}
           >
             <TrashCan />
           </IconButton>
+
           {question?.questions && question?.questions.length > 0 && (
-            <span className={styles.collapseIconWrapper}>
+            <span className={styles.collapseIconWrapper} onClick={(e) => e.stopPropagation()}>
               {isCollapsed ? (
                 <ChevronDownIcon className={styles.collapseIcon} aria-label="Expand" />
               ) : (
@@ -174,6 +190,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
           )}
         </div>
       </div>
+
       {question?.questions && (
         <div
           className={classNames(styles.obsQuestions, {
