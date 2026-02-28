@@ -109,12 +109,17 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
     [resetErrorMessage],
   );
 
+  const updateSchema = useCallback((updatedSchema: FormSchema) => {
+    setSchema(updatedSchema);
+    localStorage.setItem('formJSON', JSON.stringify(updatedSchema));
+  }, []);
+
   const launchRestoreDraftSchemaModal = useCallback(() => {
     const dispose = showModal('restore-draft-schema-modal', {
       closeModal: () => dispose(),
-      onSchemaChange: handleSchemaChange,
+      onSchemaChange: updateSchema,
     });
-  }, [handleSchemaChange]);
+  }, [updateSchema]);
 
   useEffect(() => {
     if (formUuid) {
@@ -137,11 +142,6 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   useEffect(() => {
     setStringifiedSchema(JSON.stringify(schema, null, 2));
   }, [schema]);
-
-  const updateSchema = useCallback((updatedSchema: FormSchema) => {
-    setSchema(updatedSchema);
-    localStorage.setItem('formJSON', JSON.stringify(updatedSchema));
-  }, []);
 
   const onValidateForm = async () => {
     setIsValidating(true);
@@ -351,14 +351,14 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                   className={styles.dropdown}
                 />
 
-                <Button kind="ghost" onClick={handleRenderSchemaChanges} disabled={invalidJsonErrorMessage}>
+                <Button kind="ghost" onClick={handleRenderSchemaChanges} disabled={!!invalidJsonErrorMessage}>
                   <span>{t('renderChanges', 'Render changes')}</span>
                 </Button>
               </div>
               {schema ? (
                 <>
                   <IconButton
-                    enterDelayInMs={defaultEnterDelayInMs}
+                    enterDelayMs={defaultEnterDelayInMs}
                     kind="ghost"
                     label={
                       isMaximized ? t('minimizeEditor', 'Minimize editor') : t('maximizeEditor', 'Maximize editor')
@@ -371,14 +371,13 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                   <CopyButton
                     align="top"
                     className="cds--btn--md"
-                    enterDelayInMs={defaultEnterDelayInMs}
                     iconDescription={t('copySchema', 'Copy schema')}
                     kind="ghost"
                     onClick={handleCopySchema}
                   />
                   <a download={`${form?.name}.json`} href={window.URL.createObjectURL(downloadableSchema)}>
                     <IconButton
-                      enterDelayInMs={defaultEnterDelayInMs}
+                      enterDelayMs={defaultEnterDelayInMs}
                       kind="ghost"
                       label={t('downloadSchema', 'Download schema')}
                       size="md"
@@ -464,7 +463,7 @@ function BackButton({ t }: TranslationFnProps) {
         <Button
           kind="ghost"
           renderIcon={(props) => <ArrowLeft size={24} {...props} />}
-          iconDescription="Return to dashboard"
+          iconDescription={t('returnToDashboard', 'Return to dashboard')}
         >
           <span>{t('backToDashboard', 'Back to dashboard')}</span>
         </Button>

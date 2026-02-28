@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
-import { Button, InlineLoading, Tile } from '@carbon/react';
+import { InlineLoading, Tile } from '@carbon/react';
 import { type FormSchema, FormEngine } from '@openmrs/esm-form-engine-lib';
 import styles from './form-renderer.scss';
 
 interface ErrorFallbackProps {
   error: Error;
-  resetErrorBoundary: () => void;
 }
 
 interface FormRendererProps {
@@ -79,7 +78,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
         </Tile>
       )}
       {schema === schemaToRender && (
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <ErrorBoundary FallbackComponent={ErrorFallback} resetKeys={[schemaToRender]}>
           <FormEngine formJson={schemaToRender} mode={'enter'} patientUUID={''} />
         </ErrorBoundary>
       )}
@@ -87,7 +86,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({ isLoading, schema }) => {
   );
 };
 
-function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
+function ErrorFallback({ error }: ErrorFallbackProps) {
   const { t } = useTranslation();
   return (
     <Tile className={styles.errorStateTile}>
@@ -95,9 +94,9 @@ function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
       <p className={styles.helperText}>
         <pre>{error.message}</pre>
       </p>
-      <Button kind="primary" onClick={resetErrorBoundary}>
-        {t('tryAgain', 'Try again')}
-      </Button>
+      <p className={styles.helperText}>
+        {t('fixSchemaAndRender', 'Fix the error in the Schema Editor and click "Render changes" to retry.')}
+      </p>
     </Tile>
   );
 }

@@ -258,6 +258,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
               id="target-language"
               items={languageOptions}
               itemToString={(item) => item?.label ?? ''}
+              label=""
               titleText=""
               selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
               onChange={({ selectedItem }) => selectedItem && languageChanger(selectedItem.code)}

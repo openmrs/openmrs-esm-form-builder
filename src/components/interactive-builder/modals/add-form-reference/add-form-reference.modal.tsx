@@ -19,7 +19,8 @@ import {
 import { showSnackbar } from '@openmrs/esm-framework';
 import { useForms } from '@hooks/useForms';
 import { useClobdata } from '@hooks/useClobdata';
-import { type Form as FormType, type Schema, type Page, type Section, type Question } from '@types';
+import type { FormPage, FormSection, FormField } from '@openmrs/esm-form-engine-lib';
+import type { Form as FormType, Schema } from '@types';
 import styles from './add-form-reference.scss';
 
 interface AddFormReferenceModalProps {
@@ -41,9 +42,9 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const [selectedForm, setSelectedForm] = useState<FormType>(null);
-  const [pages, setPages] = useState<Page[]>([]);
-  const [selectedPage, setSelectedPage] = useState<Page>(null);
-  const [selectedSection, setSelectedSection] = useState<Section>(null);
+  const [pages, setPages] = useState<FormPage[]>([]);
+  const [selectedPage, setSelectedPage] = useState<FormPage>(null);
+  const [selectedSection, setSelectedSection] = useState<FormSection>(null);
   const [excludedQuestions, setExcludedQuestions] = useState<string[]>([]);
   const { forms, error, isLoading } = useForms();
   const { clobdata, isLoadingClobdata, clobdataError } = useClobdata(selectedForm);
@@ -61,18 +62,18 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
     }
   }, [clobdata]);
 
-  const handleSelectedPage = useCallback(({ selectedItem }: { selectedItem: Page }) => {
+  const handleSelectedPage = useCallback(({ selectedItem }: { selectedItem: FormPage }) => {
     setSelectedPage(selectedItem);
     setSelectedSection(null);
     setExcludedQuestions([]);
   }, []);
 
-  const handleSelectedSections = useCallback((section: Section) => {
+  const handleSelectedSections = useCallback((section: FormSection) => {
     setSelectedSection(section);
     setExcludedQuestions([]);
   }, []);
 
-  const handleExcludedQuestions = useCallback((question: Question, checked: Boolean) => {
+  const handleExcludedQuestions = useCallback((question: FormField, checked: boolean) => {
     setExcludedQuestions((prev) => {
       if (!checked) {
         return prev.some((q) => q === question.id) ? prev : [...prev, question.id];
@@ -101,17 +102,19 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
         return;
       }
       if (!schema.referencedForms?.some((form) => form.formName === selectedForm.name)) {
-        schema.referencedForms
-          ? schema.referencedForms.push({
+        if (schema.referencedForms) {
+          schema.referencedForms.push({
+            formName: selectedForm.name,
+            alias: selectedForm.name,
+          });
+        } else {
+          schema.referencedForms = [
+            {
               formName: selectedForm.name,
               alias: selectedForm.name,
-            })
-          : (schema.referencedForms = [
-              {
-                formName: selectedForm.name,
-                alias: selectedForm.name,
-              },
-            ]);
+            },
+          ];
+        }
       }
       schema.pages[pageIndex].sections.push({
         label: selectedSection.label,
@@ -181,7 +184,7 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
             ) : forms.length === 0 ? (
               <InlineNotification>{t('noFormsAvailable', 'No forms available')}</InlineNotification>
             ) : !mode ? (
-              <FormGroup legendText={''} display={mode === 'edit' ? 'hidden' : 'inline'}>
+              <FormGroup legendText={''}>
                 <Dropdown
                   titleText={t('selectForm', 'Select form')}
                   id="form-component-dropdown"
@@ -211,7 +214,7 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
                       label: page.label,
                       sections: page.sections,
                     }))}
-                    itemToString={(item: Page) => (item ? item.label : '')}
+                    itemToString={(item: FormPage) => (item ? item.label : '')}
                     onChange={handleSelectedPage}
                     selectedItem={selectedPage}
                   />

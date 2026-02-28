@@ -55,7 +55,7 @@ type Mutator = KeyedMutator<{
 interface ActionButtonsProps {
   form: TypedForm;
   mutate: Mutator;
-  responsiveSize: string;
+  responsiveSize: 'sm' | 'lg';
   t: TFunction;
 }
 
@@ -139,7 +139,6 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
   const ImportButton = () => {
     return (
       <IconButton
-        align="center"
         enterDelayMs={defaultEnterDelayInMs}
         label={t('import', 'Import')}
         kind="ghost"
@@ -216,7 +215,7 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
 function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
   const pageSize = 10;
   const isTablet = useLayoutType() === 'tablet';
-  const responsiveSize = isTablet ? 'lg' : 'sm';
+  const responsiveSize: 'sm' | 'lg' = isTablet ? 'lg' : 'sm';
   const [filter, setFilter] = useState('');
   const [searchString, setSearchString] = useState('');
 
