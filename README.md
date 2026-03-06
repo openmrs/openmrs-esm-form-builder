@@ -9,7 +9,7 @@ The Form Builder is a widget used to create OpenMRS form schemas. It enables use
 ## Form Builder User Guide
 
 * See the thorough User Guide for the Form Builder here: <https://ampath-forms.vercel.app/docs/quickstart>
-* Visit our wiki page:<https://openmrs.atlassian.net/wiki/x/QgEBCQ>
+* Visit our wiki page: [OpenMRS Form Builder Wiki (internal)(https://openmrs.atlassian.net/wiki/x/QgEBCQ)>
 * Prerequisites & dependencies are covered here: <https://ampath-forms.vercel.app/docs/developer-guide/run-form-engine-in-openmrs3#prerequisites>
 
 ## Running this code
