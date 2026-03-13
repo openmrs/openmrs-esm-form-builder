@@ -75,15 +75,15 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
     data: {
       type: subQuestionIndex === null || subQuestionIndex === undefined ? 'question' : 'obsQuestion',
       question: {
-        handleDuplicateQuestion: handleDuplicateQuestion,
-        onSchemaChange: onSchemaChange,
-        pageIndex: pageIndex,
-        sectionIndex: sectionIndex,
-        question: question,
-        questionCount: questionCount,
-        questionIndex: questionIndex,
-        subQuestionIndex: subQuestionIndex !== null ? subQuestionIndex : null,
-        schema: schema,
+        handleDuplicateQuestion,
+        onSchemaChange,
+        pageIndex,
+        sectionIndex,
+        question,
+        questionCount,
+        questionIndex,
+        subQuestionIndex,
+        schema,
       },
     },
     disabled: questionCount <= 1 && (subQuestionIndex === undefined || subQuestionIndex === null),
@@ -123,6 +123,7 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
               label={t('dragToReorder', 'Drag to reorder')}
               kind="ghost"
               size="md"
+              onClick={(e) => e.stopPropagation()}
             >
               <Draggable />
             </IconButton>
@@ -140,7 +141,10 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
             enterDelayMs={defaultEnterDelayInMs}
             label={t('duplicateQuestion', 'Duplicate question')}
             kind="ghost"
-            onClick={handleDuplicate}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDuplicate();
+            }}
             size="md"
           >
             <Copy />
@@ -149,7 +153,10 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
             enterDelayMs={defaultEnterDelayInMs}
             label={t('editQuestion', 'Edit question')}
             kind="ghost"
-            onClick={launchEditQuestionModal}
+            onClick={(e) => {
+              e.stopPropagation();
+              launchEditQuestionModal();
+            }}
             size="md"
           >
             <Edit />
@@ -158,13 +165,16 @@ const DraggableQuestion: React.FC<DraggableQuestionProps> = ({
             enterDelayMs={defaultEnterDelayInMs}
             label={t('deleteQuestion', 'Delete question')}
             kind="ghost"
-            onClick={launchDeleteQuestionModal}
+            onClick={(e) => {
+              e.stopPropagation();
+              launchDeleteQuestionModal();
+            }}
             size="md"
           >
             <TrashCan />
           </IconButton>
           {question?.questions && question?.questions.length > 0 && (
-            <span className={styles.collapseIconWrapper}>
+            <span className={styles.collapseIconWrapper} onClick={(e) => e.stopPropagation()}>
               {isCollapsed ? (
                 <ChevronDownIcon className={styles.collapseIcon} aria-label="Expand" />
               ) : (
