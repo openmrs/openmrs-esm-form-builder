@@ -44,13 +44,15 @@ export const renderingTypes: Array<RenderType> = [
   'select-concept-answers',
 ];
 
-export const renderTypeOptions: Record<Exclude<QuestionType, 'obs' | 'personAttribute'>, Array<RenderType>> = {
+export const renderTypeOptions: Record<QuestionType, Array<RenderType>> = {
   control: ['text', 'markdown'],
   encounterDatetime: ['date', 'datetime'],
   encounterLocation: ['ui-select-extended'],
   encounterProvider: ['ui-select-extended'],
   encounterRole: ['ui-select-extended'],
+  obs: renderingTypes,
   obsGroup: ['group', 'repeating'],
+  personAttribute: ['text', 'select', 'date', 'radio', 'checkbox', 'textarea', 'toggle'],
   testOrder: ['group', 'repeating'],
   patientIdentifier: ['text'],
   programState: ['select'],
