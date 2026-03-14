@@ -336,6 +336,19 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
                       placeholder={t('searchThisList', 'Search this list')}
                     />
                     <Button
+                      kind="secondary"
+                      iconDescription={t('createDischargeSummary', 'Create Discharge Summary')}
+                      renderIcon={() => <Add size={16} />}
+                      size={responsiveSize}
+                      onClick={() =>
+                        navigate({
+                          to: `${window.spaBase}/form-builder/new?template=discharge-summary`,
+                        })
+                      }
+                    >
+                      {t('dischargeSummary', 'Discharge Summary')}
+                    </Button>
+                    <Button
                       kind="primary"
                       iconDescription={t('createNewForm', 'Create a new form')}
                       renderIcon={() => <Add size={16} />}
