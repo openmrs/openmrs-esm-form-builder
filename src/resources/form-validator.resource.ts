@@ -191,13 +191,14 @@ const handlePersonAttributeValidation = async (
   errors: Array<ErrorMessageResponse>,
   t: TFunction,
 ) => {
-  if (question.type === 'personAttribute' && !question.questionOptions.attributeType) {
+  const personAttribute = (question.questionOptions as { attributeType?: string }).attributeType;
+
+  if (question.type === 'personAttribute' && !personAttribute) {
     errors.push({
       errorMessage: t('personAttributeTypeMissing', 'Person attribute type missing in schema'),
       field: question,
     });
   }
-  const personAttribute = question.questionOptions.attributeType;
 
   if (personAttribute) {
     try {
