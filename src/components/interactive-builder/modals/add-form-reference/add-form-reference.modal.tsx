@@ -19,7 +19,8 @@ import {
 import { showSnackbar } from '@openmrs/esm-framework';
 import { useForms } from '@hooks/useForms';
 import { useClobdata } from '@hooks/useClobdata';
-import type { Form as FormType, Schema, FormPage, FormSection, FormField } from '@types';
+import type { FormField, FormPage, FormSection } from '@openmrs/esm-form-engine-lib';
+import type { Form as FormType, Schema } from '@types';
 import styles from './add-form-reference.scss';
 
 interface AddFormReferenceModalProps {

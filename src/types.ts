@@ -1,25 +1,5 @@
 import type { OpenmrsResource } from '@openmrs/esm-framework';
-import type {
-  OpenmrsFormResource,
-  FormField,
-  ProgramState,
-  ReferencedForm,
-  RenderType,
-  RequiredFieldProps,
-  FormReference,
-  OpenmrsEncounter,
-  OpenmrsObs,
-  SessionMode,
-  PostSubmissionAction,
-  FormSchema,
-  FormPage,
-  FormSection,
-  FormQuestionOptions,
-  QuestionAnswerOption,
-  HideProps,
-  DisableProps,
-  RepeatOptions,
-} from '@openmrs/esm-form-engine-lib';
+import type { FormSchema, ProgramState } from '@openmrs/esm-form-engine-lib';
 import type { AuditInfo } from './components/audit-details/audit-details.component';
 import type { questionTypes } from '@constants';
 
@@ -75,26 +55,6 @@ export interface SchemaContextType {
   setSchema: (schema: Schema) => void;
 }
 
-// Using FormPage from form-engine-lib instead of local Page
-export type Page = FormPage;
-// Export FormPage as well for direct imports
-export { FormPage };
-
-// Using FormSection from form-engine-lib instead of local Section
-export type Section = FormSection;
-// Export FormSection as well for direct imports
-export { FormSection };
-
-// Using FormField from form-engine-lib instead of local Question
-export type Question = FormField;
-// Export FormField as well for direct imports
-export { FormField };
-
-// Using FormQuestionOptions from form-engine-lib instead of local QuestionOptions
-export type QuestionOptions = FormQuestionOptions;
-// Export FormQuestionOptions as well for direct imports
-export { FormQuestionOptions };
-
 export interface Answer {
   concept: string;
   label: string;
@@ -141,25 +101,6 @@ export interface PersonAttributeType {
     answers: Array<ConceptAnswer>;
   };
 }
-
-// Export the imported types directly
-export type {
-  OpenmrsEncounter,
-  OpenmrsObs,
-  SessionMode,
-  PostSubmissionAction,
-  FormSchema,
-  QuestionAnswerOption,
-  HideProps,
-  DisableProps,
-  RepeatOptions,
-  OpenmrsFormResource,
-  RenderType,
-  RequiredFieldProps,
-  FormReference,
-  ReferencedForm,
-  ProgramState,
-};
 
 export interface Program {
   uuid: string;
