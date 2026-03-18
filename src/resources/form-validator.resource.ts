@@ -2,6 +2,7 @@ import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
 import type { Schema } from '@types';
 import type { ConfigObject } from '../config-schema';
+import type { TFunction } from 'i18next';
 
 interface ConceptMapping {
   type: string;
@@ -28,6 +29,7 @@ interface WarningMessageResponse {
 export const handleFormValidation = async (
   schema: string | Schema,
   configObject: ConfigObject['dataTypeToRenderingMap'],
+  t: TFunction,
 ): Promise<[Array<ErrorMessageResponse>, Array<WarningMessageResponse>]> => {
   const errors: Array<ErrorMessageResponse> = [];
   const warnings: Array<WarningMessageResponse> = [];
@@ -41,15 +43,16 @@ export const handleFormValidation = async (
       page.sections?.forEach((section: { questions: Array<FormField> }) =>
         section.questions?.forEach((question) => {
           asyncTasks.push(
-            handleQuestionValidation(question, errors, configObject, warnings),
-            handleAnswerValidation(question, errors),
-            handlePatientIdentifierValidation(question, errors),
+            handleQuestionValidation(question, errors, configObject, warnings, t),
+            handleAnswerValidation(question, errors, t),
+            handlePatientIdentifierValidation(question, errors, t),
+            handlePersonAttributeValidation(question, errors, t),
           );
           if (question.type === 'obsGroup') {
             question?.questions?.forEach((obsGrpQuestion) =>
               asyncTasks.push(
-                handleQuestionValidation(obsGrpQuestion, errors, configObject, warnings),
-                handleAnswerValidation(obsGrpQuestion, errors),
+                handleQuestionValidation(obsGrpQuestion, errors, configObject, warnings, t),
+                handleAnswerValidation(obsGrpQuestion, errors, t),
               ),
             );
           }
@@ -68,6 +71,7 @@ const handleQuestionValidation = async (
   errorsArray: Array<ErrorMessageResponse>,
   configObject: ConfigObject['dataTypeToRenderingMap'],
   warningsArray: Array<WarningMessageResponse>,
+  t: TFunction,
 ) => {
   const conceptRepresentation =
     'custom:(uuid,display,datatype,answers,conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
@@ -96,7 +100,14 @@ const handleQuestionValidation = async (
               answer.concept !== '488b58ff-64f5-4f8a-8979-fa79940b1594'
             ) {
               errorsArray.push({
-                errorMessage: `❌ concept "${conceptObject.questionOptions.concept}" of type "boolean" has a non-boolean answer "${answer.label}"`,
+                errorMessage: t(
+                  'booleanConceptNonBooleanAnswer',
+                  'Concept "{{concept}}" of type "boolean" has a non-boolean answer "{{answer}}"',
+                  {
+                    concept: conceptObject.questionOptions.concept,
+                    answer: answer.label,
+                  },
+                ),
                 field: conceptObject,
               });
             }
@@ -107,17 +118,26 @@ const handleQuestionValidation = async (
           conceptObject.questionOptions.answers?.forEach((answer) => {
             if (!resObject.answers.some((answerObject: { uuid: string }) => answerObject.uuid === answer.concept)) {
               warningsArray.push({
-                warningMessage: `⚠️ answer: "${answer.label}" - "${answer.concept}" does not exist in the response answers but exists in the form`,
+                warningMessage: t(
+                  'answerNotInResponseAnswers',
+                  'Answer: "{{label}}" - "{{concept}}" does not exist in the response answers but exists in the form',
+                  {
+                    label: answer.label,
+                    concept: answer.concept,
+                  },
+                ),
                 field: conceptObject,
               });
             }
           });
         }
 
-        dataTypeChecker(conceptObject, resObject, errorsArray, configObject);
+        dataTypeChecker(conceptObject, resObject, errorsArray, configObject, t);
       } else {
         errorsArray.push({
-          errorMessage: `❓ Concept "${conceptObject.questionOptions.concept}" not found`,
+          errorMessage: t('conceptNotFound', 'Concept "{{concept}}" not found', {
+            concept: conceptObject.questionOptions.concept,
+          }),
           field: conceptObject,
         });
       }
@@ -126,16 +146,20 @@ const handleQuestionValidation = async (
     }
   } else if (conceptObject.questionOptions.rendering !== 'workspace-launcher') {
     errorsArray.push({
-      errorMessage: `❓ No UUID`,
+      errorMessage: t('noUuid', 'No UUID'),
       field: conceptObject,
     });
   }
 };
 
-const handlePatientIdentifierValidation = async (question: FormField, errors: Array<ErrorMessageResponse>) => {
+const handlePatientIdentifierValidation = async (
+  question: FormField,
+  errors: Array<ErrorMessageResponse>,
+  t: TFunction,
+) => {
   if (question.type === 'patientIdentifier' && !question.questionOptions.identifierType) {
     errors.push({
-      errorMessage: `❓ Patient identifier type missing in schema`,
+      errorMessage: t('patientIdentifierTypeMissing', 'Patient identifier type missing in schema'),
       field: question,
     });
   }
@@ -148,14 +172,47 @@ const handlePatientIdentifierValidation = async (question: FormField, errors: Ar
       );
       if (!data) {
         errors.push({
-          errorMessage: `❓ The identifier type does not exist`,
+          errorMessage: t('identifierTypeDoesNotExist', 'The identifier type does not exist'),
           field: question,
         });
       }
     } catch (error) {
       console.error('Error fetching patient identifier:', error);
       errors.push({
-        errorMessage: `❓ The identifier type does not exist`,
+        errorMessage: t('identifierTypeDoesNotExist', 'The identifier type does not exist'),
+        field: question,
+      });
+    }
+  }
+};
+
+const handlePersonAttributeValidation = async (
+  question: FormField,
+  errors: Array<ErrorMessageResponse>,
+  t: TFunction,
+) => {
+  const personAttribute = (question.questionOptions as { attributeType?: string }).attributeType;
+
+  if (question.type === 'personAttribute' && !personAttribute) {
+    errors.push({
+      errorMessage: t('personAttributeTypeMissing', 'Person attribute type missing in schema'),
+      field: question,
+    });
+  }
+
+  if (personAttribute) {
+    try {
+      const { data } = await openmrsFetch(`${restBaseUrl}/personattributetype/${personAttribute}`);
+      if (!data) {
+        errors.push({
+          errorMessage: t('personAttributeTypeDoesNotExist', 'The person attribute type does not exist'),
+          field: question,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching person attribute:', error);
+      errors.push({
+        errorMessage: t('personAttributeTypeDoesNotExist', 'The person attribute type does not exist'),
         field: question,
       });
     }
@@ -167,23 +224,38 @@ const dataTypeChecker = (
   responseObject: { datatype: { name: string }; answers: Array<{ uuid: string }> },
   array: Array<ErrorMessageResponse>,
   dataTypeToRenderingMap: ConfigObject['dataTypeToRenderingMap'],
+  t: TFunction,
 ) => {
   if (Object.prototype.hasOwnProperty.call(dataTypeToRenderingMap, responseObject.datatype.name)) {
     if (!dataTypeToRenderingMap[responseObject.datatype.name].includes(conceptObject.questionOptions.rendering)) {
       array.push({
-        errorMessage: `❓ ${conceptObject.questionOptions.concept}: datatype "${responseObject.datatype.name}" doesn't match control type "${conceptObject.questionOptions.rendering}"`,
+        errorMessage: t(
+          'datatypeMismatch',
+          '{{concept}}: datatype "{{datatype}}" doesn\'t match control type "{{rendering}}"',
+          {
+            concept: conceptObject.questionOptions.concept,
+            datatype: responseObject.datatype.name,
+            rendering: conceptObject.questionOptions.rendering,
+          },
+        ),
         field: conceptObject,
       });
     }
   } else {
     array.push({
-      errorMessage: `❓ Untracked datatype "${responseObject.datatype.name}"`,
+      errorMessage: t('untrackedDatatype', 'Untracked datatype "{{datatype}}"', {
+        datatype: responseObject.datatype.name,
+      }),
       field: conceptObject,
     });
   }
 };
 
-const handleAnswerValidation = async (questionObject: FormField, array: Array<ErrorMessageResponse>) => {
+const handleAnswerValidation = async (
+  questionObject: FormField,
+  array: Array<ErrorMessageResponse>,
+  t: TFunction,
+) => {
   const answerArray = questionObject.questionOptions.answers;
   const conceptRepresentation =
     'custom:(uuid,display,datatype,conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
@@ -206,7 +278,7 @@ const handleAnswerValidation = async (questionObject: FormField, array: Array<Er
         );
         if (!response.data.results.length) {
           array.push({
-            errorMessage: `❌ concept "${answer.concept}" not found`,
+            errorMessage: t('answerConceptNotFound', 'Concept "{{concept}}" not found', { concept: answer.concept }),
             field: answer,
           });
         }

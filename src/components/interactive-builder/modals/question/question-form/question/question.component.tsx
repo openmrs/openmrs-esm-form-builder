@@ -56,7 +56,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
           if (!isQuestionTypeObs) {
             const isRenderingTypeValidForQuestionType =
               questionTypes.includes(newQuestionType as keyof typeof renderTypeOptions) &&
-              renderTypeOptions[newQuestionType].includes(prevFormField.questionOptions.rendering as RenderType);
+              renderTypeOptions[newQuestionType]?.includes(prevFormField.questionOptions.rendering as RenderType);
             if (!isRenderingTypeValidForQuestionType) {
               return {
                 ...prevFormField,
