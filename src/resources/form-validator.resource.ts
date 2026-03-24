@@ -144,7 +144,10 @@ const handleQuestionValidation = async (
     } catch (error) {
       console.error(error);
     }
-  } else if (conceptObject.questionOptions.rendering !== 'workspace-launcher') {
+  } else if (
+    conceptObject.questionOptions.rendering !== 'workspace-launcher' &&
+    conceptObject.type !== 'personAttribute'
+  ) {
     errorsArray.push({
       errorMessage: t('noUuid', 'No UUID'),
       field: conceptObject,
