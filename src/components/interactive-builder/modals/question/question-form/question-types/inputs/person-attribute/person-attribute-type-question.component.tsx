@@ -60,6 +60,7 @@ const PersonAttributeTypeQuestion: React.FC = () => {
         <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />
       ) : (
         <ComboBox
+          disabled={!!personAttributeTypeLookupError}
           helperText={t(
             'personAttributeTypeHelperText',
             'Person attribute type fields must be linked to a person attribute type',
