@@ -53,6 +53,7 @@ export const handleFormValidation = async (
               asyncTasks.push(
                 handleQuestionValidation(obsGrpQuestion, errors, configObject, warnings, t),
                 handleAnswerValidation(obsGrpQuestion, errors, t),
+                handlePersonAttributeValidation(obsGrpQuestion, errors, t),
               ),
             );
           }
