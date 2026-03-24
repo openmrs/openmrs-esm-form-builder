@@ -12,7 +12,7 @@ const PersonAttributeTypeQuestion: React.FC = () => {
   const { personAttributeTypes, personAttributeTypeLookupError, isLoadingPersonAttributeTypes } =
     usePersonAttributeTypes();
 
-  const attributeTypeUuid = (formField.questionOptions as any)?.attributeType;
+  const attributeTypeUuid = (formField.questionOptions as { attributeType?: string })?.attributeType;
   const [selectedPersonAttributeType, setSelectedPersonAttributeType] = useState<PersonAttributeType | null>(null);
 
   // Sync selected person attribute type when personAttributeTypes loads or attributeTypeUuid changes
@@ -36,7 +36,7 @@ const PersonAttributeTypeQuestion: React.FC = () => {
       questionOptions: {
         ...formField.questionOptions,
         attributeType: selectedItem?.uuid,
-      } as any,
+      } as typeof formField.questionOptions & { attributeType?: string },
     });
   };
 
