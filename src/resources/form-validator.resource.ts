@@ -198,6 +198,7 @@ const handlePersonAttributeValidation = async (
       errorMessage: t('personAttributeTypeMissing', 'Person attribute type missing in schema'),
       field: question,
     });
+    return;
   }
 
   if (personAttribute) {
@@ -251,11 +252,7 @@ const dataTypeChecker = (
   }
 };
 
-const handleAnswerValidation = async (
-  questionObject: FormField,
-  array: Array<ErrorMessageResponse>,
-  t: TFunction,
-) => {
+const handleAnswerValidation = async (questionObject: FormField, array: Array<ErrorMessageResponse>, t: TFunction) => {
   const answerArray = questionObject.questionOptions.answers;
   const conceptRepresentation =
     'custom:(uuid,display,datatype,conceptMappings:(conceptReferenceTerm:(conceptSource:(name),code)))';
