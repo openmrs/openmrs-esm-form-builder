@@ -21,11 +21,8 @@ jest.mock('../../../../form-field-context', () => ({
   useFormField: () => ({ formField, setFormField: mockSetFormField }),
 }));
 
+jest.mock('@hooks/usePersonAttributeTypes');
 const mockUsePersonAttributeTypes = jest.mocked(usePersonAttributeTypes);
-jest.mock('@hooks/usePersonAttributeTypes', () => ({
-  ...jest.requireActual('@hooks/usePersonAttributeTypes'),
-  usePersonAttributeTypes: jest.fn(),
-}));
 
 const personAttributeTypes: Array<PersonAttributeType> = [
   { uuid: '1', display: 'Email', format: 'java.lang.String', concept: null },
