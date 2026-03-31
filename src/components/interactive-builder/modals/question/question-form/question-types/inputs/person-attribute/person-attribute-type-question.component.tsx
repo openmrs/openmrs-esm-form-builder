@@ -14,6 +14,7 @@ const PersonAttributeTypeQuestion: React.FC = () => {
 
   const attributeTypeUuid = (formField.questionOptions as { attributeType?: string })?.attributeType;
   const [selectedPersonAttributeType, setSelectedPersonAttributeType] = useState<PersonAttributeType | null>(null);
+  const [isInvalidAttributeType, setIsInvalidAttributeType] = useState(false);
 
   // Sync selected person attribute type when personAttributeTypes loads or attributeTypeUuid changes
   useEffect(() => {
@@ -23,9 +24,14 @@ const PersonAttributeTypeQuestion: React.FC = () => {
       );
       if (matchingType) {
         setSelectedPersonAttributeType(matchingType);
+        setIsInvalidAttributeType(false);
+      } else {
+        setSelectedPersonAttributeType(null);
+        setIsInvalidAttributeType(true);
       }
     } else if (!attributeTypeUuid) {
       setSelectedPersonAttributeType(null);
+      setIsInvalidAttributeType(false);
     }
   }, [attributeTypeUuid, personAttributeTypes]);
 
@@ -47,6 +53,19 @@ const PersonAttributeTypeQuestion: React.FC = () => {
       <FormLabel className={styles.label}>
         {t('searchForBackingPersonAttributeType', 'Search for a backing person attribute type')}
       </FormLabel>
+      {isInvalidAttributeType && (
+        <InlineNotification
+          kind="warning"
+          lowContrast
+          className={styles.error}
+          title={t('invalidPersonAttributeType', 'Invalid person attribute type')}
+          subtitle={t(
+            'personAttributeTypeNotFound',
+            'The configured person attribute type ({{uuid}}) was not found. It may have been deleted or retired.',
+            { uuid: attributeTypeUuid },
+          )}
+        />
+      )}
       {personAttributeTypeLookupError && (
         <InlineNotification
           kind="error"
