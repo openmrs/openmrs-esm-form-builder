@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
 import type { PersonAttributeType } from '@types';
-import { FormFieldProvider } from '../../../../form-field-context';
+import { useFormField } from '../../../../form-field-context';
 import { usePersonAttributeTypes } from '@hooks/usePersonAttributeTypes';
 import PersonAttributeTypeQuestion from './person-attribute-type-question.component';
 
@@ -16,10 +16,8 @@ const formField: FormField = {
   },
 };
 
-jest.mock('../../../../form-field-context', () => ({
-  ...jest.requireActual('../../../../form-field-context'),
-  useFormField: () => ({ formField, setFormField: mockSetFormField }),
-}));
+jest.mock('../../../../form-field-context');
+const mockUseFormField = jest.mocked(useFormField);
 
 jest.mock('@hooks/usePersonAttributeTypes');
 const mockUsePersonAttributeTypes = jest.mocked(usePersonAttributeTypes);
@@ -30,6 +28,17 @@ const personAttributeTypes: Array<PersonAttributeType> = [
 ];
 
 describe('PersonAttributeTypeQuestion', () => {
+  beforeEach(() => {
+    mockUseFormField.mockReturnValue({
+      formField,
+      setFormField: mockSetFormField,
+      concept: null,
+      setConcept: jest.fn(),
+      isConceptValid: true,
+      setIsConceptValid: jest.fn(),
+    });
+  });
+
   it('renders without crashing and displays the person attribute types', async () => {
     mockUsePersonAttributeTypes.mockReturnValue({
       personAttributeTypes: personAttributeTypes,
@@ -120,9 +129,5 @@ describe('PersonAttributeTypeQuestion', () => {
 });
 
 function renderComponent() {
-  render(
-    <FormFieldProvider initialFormField={formField}>
-      <PersonAttributeTypeQuestion />
-    </FormFieldProvider>,
-  );
+  render(<PersonAttributeTypeQuestion />);
 }
