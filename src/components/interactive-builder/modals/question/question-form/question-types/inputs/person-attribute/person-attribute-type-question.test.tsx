@@ -34,8 +34,6 @@ describe('PersonAttributeTypeQuestion', () => {
       setFormField: mockSetFormField,
       concept: null,
       setConcept: jest.fn(),
-      isConceptValid: true,
-      setIsConceptValid: jest.fn(),
     });
   });
 
