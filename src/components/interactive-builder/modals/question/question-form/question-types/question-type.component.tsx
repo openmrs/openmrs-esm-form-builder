@@ -4,6 +4,7 @@ import {
   ProgramStateTypeQuestion,
   PatientIdentifierTypeQuestion,
   TestOrderTypeQuestion,
+  PersonAttributeTypeQuestion,
 } from './inputs';
 import { useFormField } from '../../form-field-context';
 import type { QuestionType } from '@types';
@@ -14,10 +15,12 @@ const componentMap: Partial<Record<QuestionType, React.FC>> = {
   patientIdentifier: PatientIdentifierTypeQuestion,
   obsGroup: ObsTypeQuestion,
   testOrder: TestOrderTypeQuestion,
+  personAttribute: PersonAttributeTypeQuestion,
 };
 
 const QuestionTypeComponent: React.FC = () => {
   const { formField } = useFormField();
+
   const Component = componentMap[formField.type as QuestionType];
   if (!Component) {
     console.error(`No component found for questiontype: ${formField.type}`);
