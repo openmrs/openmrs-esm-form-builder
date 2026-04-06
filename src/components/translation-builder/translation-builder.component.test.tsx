@@ -1,47 +1,28 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import TranslationBuilder from './translation-builder.component';
 
-import { showModal, showSnackbar } from '@openmrs/esm-framework';
-import { useLanguageOptions } from '@hooks/getLanguageOptionsFromSession';
-import { fetchBackendTranslations } from '@hooks/useBackendTranslations';
-import { uploadBackendTranslations } from '@hooks/uploadBackendTranslations';
+import { showModal, showSnackbar, useSession, openmrsFetch } from '@openmrs/esm-framework';
 
-jest.mock('@hooks/getLanguageOptionsFromSession');
-jest.mock('@hooks/useBackendTranslations');
-jest.mock('@hooks/uploadBackendTranslations');
-jest.mock('@openmrs/esm-framework');
+// mocked framework functions
+const mockedShowModal = jest.mocked(showModal);
+const mockedShowSnackbar = jest.mocked(showSnackbar);
+const mockedUseSession = jest.mocked(useSession);
+const mockedOpenmrsFetch = jest.mocked(openmrsFetch);
 
-const mockedUseLanguageOptions = useLanguageOptions as jest.Mock;
-const mockedFetchTranslations = fetchBackendTranslations as jest.Mock;
-const mockedUploadTranslations = uploadBackendTranslations as jest.Mock;
-const mockedShowModal = showModal as jest.Mock;
-const mockedShowSnackbar = showSnackbar as jest.Mock;
-
-beforeAll(() => {
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: jest.fn().mockImplementation((query) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      dispatchEvent: jest.fn(),
-    })),
-  });
-});
 
 const mockSchema = {
   uuid: 'test-form',
   name: 'Test Form',
   translations: {
     fr: {
-      'field.label': 'Champ',
-      'field.name': '',
+
+      Label: 'Champ',
+      Name: '',
+
     },
   },
   pages: [
@@ -58,177 +39,223 @@ const mockSchema = {
   ],
 };
 
+
+function renderWithRouter(ui: React.ReactElement) {
+  return render(
+    <MemoryRouter initialEntries={['/form/test-form-uuid']}>
+      <Routes>
+        <Route path="/form/:formUuid" element={ui} />
+      </Routes>
+    </MemoryRouter>,
+  );
+}
+
 describe('TranslationBuilder', () => {
   beforeEach(() => {
-    mockedUseLanguageOptions.mockReturnValue([
-      { code: 'en', label: 'English' },
-      { code: 'fr', label: 'French' },
-    ]);
+    mockedUseSession.mockReturnValue({
+      allowedLocales: ['en', 'fr'],
+      locale: 'en',
+    } as ReturnType<typeof useSession>);
 
-    mockedFetchTranslations.mockResolvedValue({
-      'field.label': 'Champ',
-      'field.name': '',
+    mockedOpenmrsFetch.mockImplementation(async (url: string) => {
+      if (url.includes('/form/')) {
+        return {
+          data: {
+            resources: [{ name: 'translations_fr', valueReference: 'mock-clob' }],
+          },
+        } as any;
+      }
+      if (url.includes('/clobdata/')) {
+        return {
+          data: {
+            translations: {
+              Label: 'Champ',
+              Name: '',
+            },
+          },
+        } as any;
+      }
+      return { data: {} } as any;
     });
-
-    mockedShowSnackbar.mockReset();
-    mockedShowModal.mockReset();
-    mockedUploadTranslations.mockReset();
-    mockedFetchTranslations.mockClear();
   });
 
-  async function selectLanguage(label: string) {
-    fireEvent.click(screen.getByRole('combobox'));
-    fireEvent.click(await screen.findByText(label));
+  async function selectLanguage(user: ReturnType<typeof userEvent.setup>, label: string) {
+    await user.click(screen.getByRole('combobox'));
+    await user.click(await screen.findByText(label));
   }
 
-  //   test one ensures UI renders as correctly
+  //   test one ensures UI renders correctly
   it('renders UI components correctly', async () => {
-    render(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={jest.fn()} />);
-    await selectLanguage('French');
-
+    const user = userEvent.setup();
+    renderWithRouter(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={jest.fn()} />);
+    await selectLanguage(user, 'French (fr)');
     expect(screen.getByText(/download translation/i)).toBeInTheDocument();
     expect(screen.getByText(/upload translation/i)).toBeInTheDocument();
-    expect(await screen.findByPlaceholderText(/search translation keys/i)).toBeInTheDocument(); // ✅ fixed
+    expect(await screen.findByPlaceholderText(/search translation keys/i)).toBeInTheDocument();
     expect(screen.getByText('All')).toBeInTheDocument();
     expect(screen.getByText('Translated')).toBeInTheDocument();
     expect(screen.getByText('Untranslated')).toBeInTheDocument();
-    expect(screen.getByTestId('translation-row-field-label')).toBeInTheDocument();
+    expect(await screen.findByText('Label')).toBeInTheDocument();
+
     expect(screen.getByText('Champ')).toBeInTheDocument();
   });
 
   //  test two shows updates translation on save
   it('opens edit modal and updates translation on save', async () => {
+
+    const user = userEvent.setup();
     const updateSchemaMock = jest.fn();
     let onSaveCallback!: (value: string) => void;
-
-    mockedShowModal.mockImplementation((_id, { onSave }) => {
-      onSaveCallback = onSave;
+    mockedShowModal.mockImplementation((_id, options: any) => {
+      onSaveCallback = options.onSave;
       return jest.fn();
     });
-
-    render(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={updateSchemaMock} />);
-
-    await selectLanguage('French');
-
+    renderWithRouter(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={updateSchemaMock} />);
+    await selectLanguage(user, 'French (fr)');
     const editButtons = await screen.findAllByRole('button', { name: /edit string/i });
-    fireEvent.click(editButtons[0]);
-
-    act(() => {
-      onSaveCallback('Updated Translation');
-    });
-
+    await user.click(editButtons[0]);
+    onSaveCallback('Updated Translation');
     await waitFor(() => {
       expect(updateSchemaMock).toHaveBeenCalled();
     });
-
     const updatedSchema = updateSchemaMock.mock.calls[updateSchemaMock.mock.calls.length - 1][0];
-
-    expect(updatedSchema.translations.fr['field.label']).toBe('Updated Translation');
+    expect(updatedSchema.translations.fr['Label']).toBe('Updated Translation');
   });
-  //test three ensures the translated  works as expected
+
+  //test three ensures the translated filter works as expected
   it('filters translated keys in "Translated" tab', async () => {
-    render(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={jest.fn()} />);
-    await selectLanguage('French');
-
-    fireEvent.click(screen.getAllByRole('tab')[1]);
-
+    const user = userEvent.setup();
+    renderWithRouter(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={jest.fn()} />);
+    await selectLanguage(user, 'French (fr)');
+    // Wait for translations to load
+    await screen.findByText('Label');
+    await user.click(screen.getByText('Translated'));
     await waitFor(() => {
-      expect(screen.getByTestId('translation-row-field-label')).toBeInTheDocument();
+      expect(screen.getByText('Label')).toBeInTheDocument();
     });
-    expect(screen.queryByTestId('translation-row-field-name')).not.toBeInTheDocument();
+    expect(screen.queryByText('Name')).not.toBeInTheDocument();
   });
-  //test four ensures the untranslated work as expected
+
+  //test four ensures the untranslated filter works as expected
   it('filters untranslated keys in "Untranslated" tab', async () => {
-    render(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={jest.fn()} />);
-    await selectLanguage('French');
-
-    fireEvent.click(screen.getAllByRole('tab')[2]);
-
+    const user = userEvent.setup();
+    renderWithRouter(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={jest.fn()} />);
+    await selectLanguage(user, 'French (fr)');
+    // Wait for translations to load
+    await screen.findByText('Name');
+    await user.click(screen.getByText('Untranslated'));
     await waitFor(() => {
-      expect(screen.getByTestId('translation-row-field-name')).toBeInTheDocument();
+      expect(screen.getByText('Name')).toBeInTheDocument();
     });
-    expect(screen.queryByTestId('translation-row-field-label')).not.toBeInTheDocument();
+    expect(screen.queryByText('Label')).not.toBeInTheDocument();
+
   });
 
   //  test five filtering keys by search
   it('filters keys by search query', async () => {
-    render(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={jest.fn()} />);
-    await selectLanguage('French');
 
-    fireEvent.change(await screen.findByPlaceholderText(/search translation keys/i), {
-      target: { value: 'name' },
-    });
-
+    const user = userEvent.setup();
+    renderWithRouter(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={jest.fn()} />);
+    await selectLanguage(user, 'French (fr)');
+    // Wait for translations to load
+    await screen.findByText('Name');
+    await user.type(await screen.findByPlaceholderText(/search translation keys/i), 'name');
     await waitFor(() => {
-      expect(screen.queryByTestId('translation-row-field-label')).not.toBeInTheDocument();
+      expect(screen.queryByText('Label')).not.toBeInTheDocument();
     });
-    expect(screen.getByTestId('translation-row-field-name')).toBeInTheDocument();
+    expect(screen.getByText('Name')).toBeInTheDocument();
   });
+
+
   //test six switching languages and backend
   it('switches language and loads backend translations', async () => {
     const updateSchemaMock = jest.fn();
 
-    mockedFetchTranslations.mockResolvedValue({
-      'field.label': 'Étiquette',
-      'field.name': 'Nom',
+
+    mockedOpenmrsFetch.mockImplementation(async (url: string) => {
+      if (url.includes('/form/')) {
+        return {
+          data: { resources: [{ name: 'translations_fr', valueReference: 'mock-clob' }] },
+        } as any;
+      }
+      if (url.includes('/clobdata/')) {
+        return {
+          data: {
+            translations: { Label: 'Étiquette', Name: 'Nom' },
+          },
+        } as any;
+      }
+      return { data: {} } as any;
     });
-
-    render(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={updateSchemaMock} />);
-    await selectLanguage('French');
-
+    const user = userEvent.setup();
+    renderWithRouter(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={updateSchemaMock} />);
+    await selectLanguage(user, 'French (fr)');
     await waitFor(() => {
-      expect(mockedFetchTranslations).toHaveBeenCalled();
+      expect(mockedOpenmrsFetch).toHaveBeenCalled();
     });
-    expect(updateSchemaMock).toHaveBeenCalled();
     expect(screen.getByText('Étiquette')).toBeInTheDocument();
+    expect(updateSchemaMock).toHaveBeenCalled();
     expect(screen.getByText('Nom')).toBeInTheDocument();
   });
+
   //test seven handling download with translations
   it('handles download when translations exist', async () => {
+    const user = userEvent.setup();
     global.URL.createObjectURL = jest.fn(() => 'blob:url') as any;
     global.URL.revokeObjectURL = jest.fn() as any;
-
-    render(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={jest.fn()} />);
-    await selectLanguage('French');
-
-    fireEvent.click(screen.getByText(/download translation/i));
-
+    renderWithRouter(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={jest.fn()} />);
+    await selectLanguage(user, 'French (fr)');
+    const downloadBtn = await screen.findByText(/download translation/i);
+    await user.click(downloadBtn);
     expect(global.URL.createObjectURL).toHaveBeenCalled();
     expect(global.URL.revokeObjectURL).toHaveBeenCalled();
   });
+
   //test eight shows error when download without translations
   it('shows inline error message when download attempted without translations', async () => {
-    render(<TranslationBuilder formSchema={{ ...mockSchema, translations: {} }} onUpdateSchema={jest.fn()} />);
-
-    await selectLanguage('French');
-    fireEvent.click(screen.getByText(/download translation/i));
-
+    const user = userEvent.setup();
+    renderWithRouter(
+      <TranslationBuilder formSchema={{ ...mockSchema, translations: {} }} onUpdateSchema={jest.fn()} />,
+    );
+    await selectLanguage(user, 'French (fr)');
+    const downloadBtn = await screen.findByText(/download translation/i);
+    await user.click(downloadBtn);
     await waitFor(() => {
-      expect(screen.getByText(/no translations found/i)).toBeInTheDocument(); // ✅ quick fix
+      expect(screen.getByText(/no translations found/i)).toBeInTheDocument();
     });
   });
+
   // test nine
   it('uploads translation successfully and shows snackbar', async () => {
-    mockedUploadTranslations.mockResolvedValue({});
-
-    render(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={jest.fn()} />);
-    await selectLanguage('French');
-
-    fireEvent.click(screen.getByText(/upload translation/i));
-
-    await waitFor(() => {
-      expect(mockedUploadTranslations).toHaveBeenCalled();
+    const user = userEvent.setup();
+    mockedOpenmrsFetch.mockImplementation(async (url: string) => {
+      if (url.includes('/form/')) return { data: { resources: [] } } as any;
+      return { data: {} } as any;
     });
-    expect(mockedShowSnackbar).toHaveBeenCalledWith(expect.objectContaining({ kind: 'success' }));
+
+    // Mock window.fetch for the clobdata POST
+    const originalFetch = window.fetch;
+    window.fetch = jest.fn().mockResolvedValue({
+      text: () => Promise.resolve('new-clob-uuid'),
+    }) as any;
+    renderWithRouter(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={jest.fn()} />);
+    await selectLanguage(user, 'French (fr)');
+    const uploadBtn = await screen.findByText(/upload translation/i);
+    await user.click(uploadBtn);
+    await waitFor(() => {
+      expect(mockedShowSnackbar).toHaveBeenCalledWith(expect.objectContaining({ kind: 'success' }));
+    });
+    window.fetch = originalFetch;
   });
+
   //test ten showing the snackbar notification
   it('shows error snackbar if upload fails', async () => {
-    mockedUploadTranslations.mockRejectedValue(new Error('Upload failed'));
-
-    render(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={jest.fn()} />);
-    await selectLanguage('French');
-
-    fireEvent.click(screen.getByText(/upload translation/i));
+    const user = userEvent.setup();
+    mockedOpenmrsFetch.mockRejectedValue(new Error('Upload failed'));
+    renderWithRouter(<TranslationBuilder formSchema={mockSchema} onUpdateSchema={jest.fn()} />);
+    await selectLanguage(user, 'French (fr)');
+    const uploadBtn = await screen.findByText(/upload translation/i);
+    await user.click(uploadBtn);
 
     await waitFor(() => {
       expect(mockedShowSnackbar).toHaveBeenCalledWith(expect.objectContaining({ kind: 'error' }));

@@ -1,0 +1,2282 @@
+﻿  console.error
+    Error: Not implemented: navigation (except hash changes)
+        at module.exports (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jsdom\lib\jsdom\browser\not-implemented.js:9:17)
+        at navigateFetch (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jsdom\lib\jsdom\living\window\navigation.js:77:3)
+        at exports.navigate (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jsdom\lib\jsdom\living\window\navigation.js:55:3)
+        at Timeout._onTimeout (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jsdom\lib\jsdom\living\nodes\HTMLHyperlinkElementUtils-impl.js:81:7)
+        at listOnTimeout (node:internal/timers:588:17)
+        at processTimers (node:internal/timers:523:7) {
+      type: 'not implemented'
+    }
+
+      at VirtualConsole.<anonymous> (node_modules/jest-environment-jsdom/build/index.js:63:23)
+      at module.exports (node_modules/jsdom/lib/jsdom/browser/not-implemented.js:12:26)
+      at navigateFetch (node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+      at exports.navigate (node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+      at Timeout._onTimeout (node_modules/jsdom/lib/jsdom/living/nodes/HTMLHyperlinkElementUtils-impl.js:81:7)
+
+  console.error
+    Error fetching backend translations: Error: Upload failed
+        at Object.<anonymous> (C:\Users\DELL\openmrs-esm-form-builder\src\components\translation-builder\translation-builder.component.test.tsx:266:42)
+        at Promise.then.completed (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\utils.js:231:10)
+        at _callCircusTest (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\run.js:316:40)
+        at _runTest (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\run.js:252:3)
+        at _runTestsForDescribeBlock (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\run.js:126:9)
+        at _runTestsForDescribeBlock (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\run.js:121:9)
+        at run (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\run.js:71:3)
+        at runAndTransformResultsToJestFormat (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+        at jestAdapter (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+        at runTestInternal (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-runner\build\runTest.js:367:16)
+        at runTest (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-runner\build\runTest.js:444:34)
+
+    [0m [90m 28 |[39m     )[33m;[39m
+     [90m 29 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 30 |[39m     console[33m.[39merror([32m'Error fetching backend translations:'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 31 |[39m     [36mreturn[39m fallbackStrings[33m;[39m
+     [90m 32 |[39m   }
+     [90m 33 |[39m }[0m
+
+      at error (src/hooks/useBackendTranslations.ts:30:13)
+      at languageChanger (src/components/translation-builder/translation-builder.component.tsx:126:22)
+
+  console.error
+    Error uploading backend translations: Error: Upload failed
+        at Object.<anonymous> (C:\Users\DELL\openmrs-esm-form-builder\src\components\translation-builder\translation-builder.component.test.tsx:266:42)
+        at Promise.then.completed (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\utils.js:231:10)
+        at _callCircusTest (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\run.js:316:40)
+        at _runTest (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\run.js:252:3)
+        at _runTestsForDescribeBlock (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\run.js:126:9)
+        at _runTestsForDescribeBlock (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\run.js:121:9)
+        at run (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\run.js:71:3)
+        at runAndTransformResultsToJestFormat (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+        at jestAdapter (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+        at runTestInternal (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-runner\build\runTest.js:367:16)
+        at runTest (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-runner\build\runTest.js:444:34)
+
+    [0m [90m 50 |[39m     })[33m;[39m
+     [90m 51 |[39m   } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 52 |[39m     console[33m.[39merror([32m'Error uploading backend translations:'[39m[33m,[39m error)[33m;[39m
+     [90m    |[39m             [31m[1m^[22m[39m
+     [90m 53 |[39m     [36mthrow[39m error[33m;[39m
+     [90m 54 |[39m   }
+     [90m 55 |[39m }[0m
+
+      at error (src/hooks/uploadBackendTranslations.ts:52:13)
+      at src/components/translation-builder/translation-builder.component.tsx:191:7
+
+  console.error
+    Error: Upload failed
+        at Object.<anonymous> (C:\Users\DELL\openmrs-esm-form-builder\src\components\translation-builder\translation-builder.component.test.tsx:266:42)
+        at Promise.then.completed (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\utils.js:231:10)
+        at _callCircusTest (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\run.js:316:40)
+        at _runTest (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\run.js:252:3)
+        at _runTestsForDescribeBlock (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\run.js:126:9)
+        at _runTestsForDescribeBlock (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\run.js:121:9)
+        at run (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\run.js:71:3)
+        at runAndTransformResultsToJestFormat (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+        at jestAdapter (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+        at runTestInternal (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-runner\build\runTest.js:367:16)
+        at runTest (C:\Users\DELL\openmrs-esm-form-builder\node_modules\jest-runner\build\runTest.js:444:34)
+
+    [0m [90m 202 |[39m         subtitle[33m:[39m t([32m'translationFileUploadFail'[39m[33m,[39m [32m`Failed to upload translation file`[39m)[33m,[39m
+     [90m 203 |[39m       })[33m;[39m
+    [31m[1m>[22m[39m[90m 204 |[39m       console[33m.[39merror(err)[33m;[39m
+     [90m     |[39m               [31m[1m^[22m[39m
+     [90m 205 |[39m     } [36mfinally[39m {
+     [90m 206 |[39m       setTranslationsUploading([36mfalse[39m)[33m;[39m
+     [90m 207 |[39m     }[0m
+
+      at error (src/components/translation-builder/translation-builder.component.tsx:204:15)
+
+node.exe : FAIL src/compone
+nts/translation-builder/tra
+nslation-builder.component.
+test.tsx (20.705 s)
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" "C:\
+Users\DELL\AppData\Roaming\
+n ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo         
+     : NotSpecified: (FAI  
+  L src/compon....tsx (2   
+ 0.705 s):String) [], R    
+emoteException
+    + FullyQualifiedErrorI 
+   d : NativeCommandError
+ 
+  TranslationBuilder
+    ├ù renders UI 
+components correctly (1850 
+ms)
+    ├ù opens edit modal 
+and updates translation on 
+save (587 ms)
+    ├ù filters translated 
+keys in "Translated" tab 
+(1328 ms)
+    ├ù filters 
+untranslated keys in 
+"Untranslated" tab (1180 
+ms)
+    ├ù filters keys by 
+search query (1190 ms)
+    ├ù switches language 
+and loads backend 
+translations (1141 ms)
+    ΓêÜ handles download 
+when translations exist 
+(232 ms)
+    ΓêÜ shows inline error 
+message when download 
+attempted without 
+translations (260 ms)
+    ΓêÜ uploads 
+translation successfully 
+and shows snackbar (193 ms)
+    ΓêÜ shows error 
+snackbar if upload fails 
+(266 ms)
+
+  ΓùÅ TranslationBuilder 
+ΓÇ║ renders UI components 
+correctly
+
+    Unable to find an 
+element with the text: 
+field.label. This could be 
+because the text is broken 
+up by multiple elements. 
+In this case, you can 
+provide a function for 
+your text matcher to make 
+your matcher more flexible.
+
+    Ignored nodes: 
+comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mclass[39m=
+[32m"translationBuilderCont
+ainer"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m
+=[32m"translationBuilderHe
+ader"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[3
+9m=[32m"languageTools"[39
+m
+            [36m>[39m
+              
+[36m<div[39m
+                [33mclass
+[39m=[32m"languagePath"[3
+9m
+              [36m>[39m
+                
+[36m<span[39m
+                  [33mclas
+s[39m=[32m"language"[39m
+                [36m>[39m
+                  
+[0mEnglish (en)[0m
+                
+[36m</span>[39m
+                
+[36m<svg[39m
+                  [33maria
+-hidden[39m=[32m"true"[3
+9m
+                  [33mclas
+s[39m=[32m"arrow"[39m
+                  [33mfill
+[39m=[32m"currentColor"[
+39m
+                  [33mfocu
+sable[39m=[32m"false"[39
+m
+                  [33mheig
+ht[39m=[32m"16"[39m
+                  [33mpres
+erveAspectRatio[39m=[32m"
+xMidYMid meet"[39m
+                  
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                  [33mwidt
+h[39m=[32m"16"[39m
+                  [33mxmln
+s[39m=[32m"http://www.w3.
+org/2000/svg"[39m
+                [36m>[39m
+                  
+[36m<path[39m
+                    
+[33md[39m=[32m"M9.3 
+3.7L13.1 7.5 1 7.5 1 8.5 
+13.1 8.5 9.3 12.3 10 13 15 
+8 10 3z"[39m
+                  
+[36m/>[39m
+                
+[36m</svg>[39m
+                
+[36m<div[39m
+                  [33mclas
+s[39m=[32m"cds--dropdown_
+_wrapper cds--list-box__wra
+pper"[39m
+                [36m>[39m
+                  
+[36m<div[39m
+                    [33mcl
+ass[39m=[32m"cds--dropdow
+n cds--list-box"[39m
+                    [33mid
+[39m=[32m"target-language
+"[39m
+                  
+[36m>[39m
+                    
+[36m<button[39m
+                      [33m
+aria-activedescendant[39m=
+[32m""[39m
+                      [33m
+aria-controls[39m=[32m"do
+wnshift-:r2:-menu"[39m
+                      [33m
+aria-expanded[39m=[32m"fa
+lse"[39m
+                      [33m
+aria-haspopup[39m=[32m"li
+stbox"[39m
+                      [33m
+aria-labelledby[39m=[32m"
+downshift-:r2:-label"[39m
+                      [33m
+class[39m=[32m"cds--list-
+box__field"[39m
+                      [33m
+id[39m=[32m"downshift-:r2
+:-toggle-button"[39m
+                      [33m
+role[39m=[32m"combobox"[
+39m
+                      [33m
+tabindex[39m=[32m"0"[39m
+                      [33m
+title[39m=[32m"French 
+(fr)"[39m
+                      [33m
+type[39m=[32m"button"[39
+m
+                    
+[36m>[39m
+                      
+[36m<span[39m
+                        [3
+3mclass[39m=[32m"cds--lis
+t-box__label"[39m
+                      
+[36m>[39m
+                        
+[0mFrench (fr)[0m
+                      
+[36m</span>[39m
+                      
+[36m<div[39m
+                        [3
+3mclass[39m=[32m"cds--lis
+t-box__menu-icon"[39m
+                      
+[36m>[39m
+                        
+[36m<svg[39m
+                          
+[33maria-label[39m=[32m"O
+pen menu"[39m
+                          
+[33mfill[39m=[32m"current
+Color"[39m
+                          
+[33mfocusable[39m=[32m"fa
+lse"[39m
+                          
+[33mheight[39m=[32m"16"[
+39m
+                          
+[33mname[39m=[32m"chevron
+--down"[39m
+                          
+[33mpreserveAspectRatio[39
+m=[32m"xMidYMid meet"[39m
+                          
+[33mrole[39m=[32m"img"[3
+9m
+                          
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                          
+[33mwidth[39m=[32m"16"[3
+9m
+                          
+[33mxmlns[39m=[32m"http:/
+/www.w3.org/2000/svg"[39m
+                        
+[36m>[39m
+                          
+[36m<path[39m
+                           
+ [33md[39m=[32m"M8 11L3 
+6 3.7 5.3 8 9.6 12.3 5.3 
+13 6z"[39m
+                          
+[36m/>[39m
+                          
+[36m<title>[39m
+                           
+ [0mOpen menu[0m
+                          
+[36m</title>[39m
+                        
+[36m</svg>[39m
+                      
+[36m</div>[39m
+                    
+[36m</button>[39m
+                    
+[36m<ul[39m
+                      [33m
+aria-labelledby[39m=[32m"
+downshift-:r2:-label"[39m
+                      [33m
+class[39m=[32m"cds--list-
+box__menu"[39m
+                      [33m
+id[39m=[32m"downshift-:r2
+:-menu"[39m
+                      [33m
+role[39m=[32m"listbox"[3
+9m
+                    
+[36m/>[39m
+                  
+[36m</div>[39m
+                
+[36m</div>[39m
+              
+[36m</div>[39m
+              
+[36m<div[39m
+                [33mclass
+[39m=[32m"translationActio
+ns"[39m
+              [36m>[39m
+                
+[36m<button[39m
+                  [33mclas
+s[39m=[32m"linkButton"[3
+9m
+                [36m>[39m
+                  
+[0mDownload 
+translation[0m
+                  
+[36m<svg[39m
+                    [33mar
+ia-hidden[39m=[32m"true"
+[39m
+                    [33mfi
+ll[39m=[32m"currentColor"
+[39m
+                    [33mfo
+cusable[39m=[32m"false"[
+39m
+                    [33mhe
+ight[39m=[32m"16"[39m
+                    [33mpr
+eserveAspectRatio[39m=[32
+m"xMidYMid meet"[39m
+                    
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                    [33mwi
+dth[39m=[32m"16"[39m
+                    [33mxm
+lns[39m=[32m"http://www.w
+3.org/2000/svg"[39m
+                  
+[36m>[39m
+                    
+[36m<path[39m
+                      
+[33md[39m=[32m"M13 
+7L12.3 6.3 8.5 10.1 8.5 1 
+7.5 1 7.5 10.1 3.7 6.3 3 7 
+8 12zM13 12v2H3v-2H2v2l0 
+0c0 .6.4 1 1 1h10c.6 0 
+1-.4 1-1l0 0v-2H13z"[39m
+                    
+[36m/>[39m
+                  
+[36m</svg>[39m
+                
+[36m</button>[39m
+                
+[36m<button[39m
+                  [33mclas
+s[39m=[32m"linkButton"[3
+9m
+                [36m>[39m
+                  
+[0mUpload translation[0m
+                  
+[36m<svg[39m
+                    [33mar
+ia-hidden[39m=[32m"true"
+[39m
+                    [33mfi
+ll[39m=[32m"currentColor"
+[39m
+                    [33mfo
+cusable[39m=[32m"false"[
+39m
+                    [33mhe
+ight[39m=[32m"16"[39m
+                    [33mpr
+eserveAspectRatio[39m=[32
+m"xMidYMid meet"[39m
+                    
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                    [33mwi
+dth[39m=[32m"16"[39m
+                    [33mxm
+lns[39m=[32m"http://www.w
+3.org/2000/svg"[39m
+                  
+[36m>[39m
+                    
+[36m<path[39m
+                      
+[33md[39m=[32m"M3 9L3.7 
+9.7 7.5 5.9 7.5 15 8.5 15 
+8.5 5.9 12.3 9.7 13 9 8 
+4zM3 4V2h10v2h1V2c0-.6-.4-1
+-1-1H3C2.4 1 2 1.4 2 
+2v2H3z"[39m
+                    
+[36m/>[39m
+                  
+[36m</svg>[39m
+                
+[36m</button>[39m
+              
+[36m</div>[39m
+            
+[36m</div>[39m
+            [36m<div[39m
+              [33mclass[3
+9m=[32m"translationTabs"[
+39m
+            [36m>[39m
+              
+[36m<div[39m
+                [33mclass
+[39m=[32m"cds--tabs"[39m
+              [36m>[39m
+                
+[36m<button[39m
+                  [33maria
+-hidden[39m=[32m"true"[3
+9m
+                  [33maria
+-label[39m=[32m"Scroll 
+left"[39m
+                  [33mclas
+s[39m=[32m"cds--tab--over
+flow-nav-button cds--tab--o
+verflow-nav-button--previou
+s cds--tab--overflow-nav-bu
+tton--hidden"[39m
+                  [33mtabi
+ndex[39m=[32m"-1"[39m
+                  [33mtype
+[39m=[32m"button"[39m
+                [36m>[39m
+                  
+[36m<svg[39m
+                    [33mar
+ia-hidden[39m=[32m"true"
+[39m
+                    ...
+
+    [0m [90m 91 |[39m   
+  expect(screen[33m.[39mg
+etByText([32m'Translated'
+[39m))[33m.[39mtoBeInTheD
+ocument()[33m;[39m
+     [90m 92 |[39m     ex
+pect(screen[33m.[39mgetBy
+Text([32m'Untranslated'[3
+9m))[33m.[39mtoBeInTheDoc
+ument()[33m;[39m
+    
+[31m[1m>[22m[39m[90m 
+93 |[39m     
+expect([36mawait[39m scre
+en[33m.[39mfindByText([3
+2m'field.label'[39m))[33m
+.[39mtoBeInTheDocument()[
+33m;[39m
+     [90m    |[39m       
+                  
+[31m[1m^[22m[39m
+     [90m 94 |[39m     ex
+pect(screen[33m.[39mgetBy
+Text([32m'Champ'[39m))[3
+3m.[39mtoBeInTheDocument()
+[33m;[39m
+     [90m 95 |[39m   
+})[33m;[39m
+     [90m 96 |[39m[0m
+
+      at waitForWrapper (no
+de_modules/@testing-library
+/dom/dist/wait-for.js:163:2
+7)
+      at node_modules/@test
+ing-library/dom/dist/query-
+helpers.js:86:33
+      at Object.findByText 
+(src/components/translation
+-builder/translation-builde
+r.component.test.tsx:93:25)
+
+  ΓùÅ TranslationBuilder 
+ΓÇ║ opens edit modal and 
+updates translation on save
+
+    expect(received).toBe(e
+xpected) // Object.is 
+equality
+
+    Expected: "Updated 
+Translation"
+    Received: undefined
+
+    [0m [90m 122 |[39m  
+   [36mconst[39m 
+updatedSchema [33m=[39m u
+pdateSchemaMock[33m.[39mm
+ock[33m.[39mcalls[updateS
+chemaMock[33m.[39mmock[3
+3m.[39mcalls[33m.[39mlen
+gth [33m-[39m [35m1[39m
+][[35m0[39m][33m;[39m
+     [90m 123 |[39m
+    
+[31m[1m>[22m[39m[90m 
+124 |[39m     expect(updat
+edSchema[33m.[39mtranslat
+ions[33m.[39mfr[[32m'fie
+ld.label'[39m])[33m.[39m
+toBe([32m'Updated Translat
+ion'[39m)[33m;[39m
+     [90m     |[39m      
+                           
+                         
+[31m[1m^[22m[39m
+     [90m 125 |[39m   
+})[33m;[39m
+     [90m 126 |[39m
+     [90m 127 |[39m   
+[90m//test three ensures 
+the translated filter 
+works as expected[39m[0m
+
+      at Object.toBe (src/c
+omponents/translation-build
+er/translation-builder.comp
+onent.test.tsx:124:58)
+
+  ΓùÅ TranslationBuilder 
+ΓÇ║ filters translated 
+keys in "Translated" tab
+
+    Unable to find an 
+element with the text: 
+field.label. This could be 
+because the text is broken 
+up by multiple elements. 
+In this case, you can 
+provide a function for 
+your text matcher to make 
+your matcher more flexible.
+
+    Ignored nodes: 
+comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mclass[39m=
+[32m"translationBuilderCont
+ainer"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m
+=[32m"translationBuilderHe
+ader"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[3
+9m=[32m"languageTools"[39
+m
+            [36m>[39m
+              
+[36m<div[39m
+                [33mclass
+[39m=[32m"languagePath"[3
+9m
+              [36m>[39m
+                
+[36m<span[39m
+                  [33mclas
+s[39m=[32m"language"[39m
+                [36m>[39m
+                  
+[0mEnglish (en)[0m
+                
+[36m</span>[39m
+                
+[36m<svg[39m
+                  [33maria
+-hidden[39m=[32m"true"[3
+9m
+                  [33mclas
+s[39m=[32m"arrow"[39m
+                  [33mfill
+[39m=[32m"currentColor"[
+39m
+                  [33mfocu
+sable[39m=[32m"false"[39
+m
+                  [33mheig
+ht[39m=[32m"16"[39m
+                  [33mpres
+erveAspectRatio[39m=[32m"
+xMidYMid meet"[39m
+                  
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                  [33mwidt
+h[39m=[32m"16"[39m
+                  [33mxmln
+s[39m=[32m"http://www.w3.
+org/2000/svg"[39m
+                [36m>[39m
+                  
+[36m<path[39m
+                    
+[33md[39m=[32m"M9.3 
+3.7L13.1 7.5 1 7.5 1 8.5 
+13.1 8.5 9.3 12.3 10 13 15 
+8 10 3z"[39m
+                  
+[36m/>[39m
+                
+[36m</svg>[39m
+                
+[36m<div[39m
+                  [33mclas
+s[39m=[32m"cds--dropdown_
+_wrapper cds--list-box__wra
+pper"[39m
+                [36m>[39m
+                  
+[36m<div[39m
+                    [33mcl
+ass[39m=[32m"cds--dropdow
+n cds--list-box"[39m
+                    [33mid
+[39m=[32m"target-language
+"[39m
+                  
+[36m>[39m
+                    
+[36m<button[39m
+                      [33m
+aria-activedescendant[39m=
+[32m""[39m
+                      [33m
+aria-controls[39m=[32m"do
+wnshift-:r1a:-menu"[39m
+                      [33m
+aria-expanded[39m=[32m"fa
+lse"[39m
+                      [33m
+aria-haspopup[39m=[32m"li
+stbox"[39m
+                      [33m
+aria-labelledby[39m=[32m"
+downshift-:r1a:-label"[39m
+                      [33m
+class[39m=[32m"cds--list-
+box__field"[39m
+                      [33m
+id[39m=[32m"downshift-:r1
+a:-toggle-button"[39m
+                      [33m
+role[39m=[32m"combobox"[
+39m
+                      [33m
+tabindex[39m=[32m"0"[39m
+                      [33m
+title[39m=[32m"French 
+(fr)"[39m
+                      [33m
+type[39m=[32m"button"[39
+m
+                    
+[36m>[39m
+                      
+[36m<span[39m
+                        [3
+3mclass[39m=[32m"cds--lis
+t-box__label"[39m
+                      
+[36m>[39m
+                        
+[0mFrench (fr)[0m
+                      
+[36m</span>[39m
+                      
+[36m<div[39m
+                        [3
+3mclass[39m=[32m"cds--lis
+t-box__menu-icon"[39m
+                      
+[36m>[39m
+                        
+[36m<svg[39m
+                          
+[33maria-label[39m=[32m"O
+pen menu"[39m
+                          
+[33mfill[39m=[32m"current
+Color"[39m
+                          
+[33mfocusable[39m=[32m"fa
+lse"[39m
+                          
+[33mheight[39m=[32m"16"[
+39m
+                          
+[33mname[39m=[32m"chevron
+--down"[39m
+                          
+[33mpreserveAspectRatio[39
+m=[32m"xMidYMid meet"[39m
+                          
+[33mrole[39m=[32m"img"[3
+9m
+                          
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                          
+[33mwidth[39m=[32m"16"[3
+9m
+                          
+[33mxmlns[39m=[32m"http:/
+/www.w3.org/2000/svg"[39m
+                        
+[36m>[39m
+                          
+[36m<path[39m
+                           
+ [33md[39m=[32m"M8 11L3 
+6 3.7 5.3 8 9.6 12.3 5.3 
+13 6z"[39m
+                          
+[36m/>[39m
+                          
+[36m<title>[39m
+                           
+ [0mOpen menu[0m
+                          
+[36m</title>[39m
+                        
+[36m</svg>[39m
+                      
+[36m</div>[39m
+                    
+[36m</button>[39m
+                    
+[36m<ul[39m
+                      [33m
+aria-labelledby[39m=[32m"
+downshift-:r1a:-label"[39m
+                      [33m
+class[39m=[32m"cds--list-
+box__menu"[39m
+                      [33m
+id[39m=[32m"downshift-:r1
+a:-menu"[39m
+                      [33m
+role[39m=[32m"listbox"[3
+9m
+                    
+[36m/>[39m
+                  
+[36m</div>[39m
+                
+[36m</div>[39m
+              
+[36m</div>[39m
+              
+[36m<div[39m
+                [33mclass
+[39m=[32m"translationActio
+ns"[39m
+              [36m>[39m
+                
+[36m<button[39m
+                  [33mclas
+s[39m=[32m"linkButton"[3
+9m
+                [36m>[39m
+                  
+[0mDownload 
+translation[0m
+                  
+[36m<svg[39m
+                    [33mar
+ia-hidden[39m=[32m"true"
+[39m
+                    [33mfi
+ll[39m=[32m"currentColor"
+[39m
+                    [33mfo
+cusable[39m=[32m"false"[
+39m
+                    [33mhe
+ight[39m=[32m"16"[39m
+                    [33mpr
+eserveAspectRatio[39m=[32
+m"xMidYMid meet"[39m
+                    
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                    [33mwi
+dth[39m=[32m"16"[39m
+                    [33mxm
+lns[39m=[32m"http://www.w
+3.org/2000/svg"[39m
+                  
+[36m>[39m
+                    
+[36m<path[39m
+                      
+[33md[39m=[32m"M13 
+7L12.3 6.3 8.5 10.1 8.5 1 
+7.5 1 7.5 10.1 3.7 6.3 3 7 
+8 12zM13 12v2H3v-2H2v2l0 
+0c0 .6.4 1 1 1h10c.6 0 
+1-.4 1-1l0 0v-2H13z"[39m
+                    
+[36m/>[39m
+                  
+[36m</svg>[39m
+                
+[36m</button>[39m
+                
+[36m<button[39m
+                  [33mclas
+s[39m=[32m"linkButton"[3
+9m
+                [36m>[39m
+                  
+[0mUpload translation[0m
+                  
+[36m<svg[39m
+                    [33mar
+ia-hidden[39m=[32m"true"
+[39m
+                    [33mfi
+ll[39m=[32m"currentColor"
+[39m
+                    [33mfo
+cusable[39m=[32m"false"[
+39m
+                    [33mhe
+ight[39m=[32m"16"[39m
+                    [33mpr
+eserveAspectRatio[39m=[32
+m"xMidYMid meet"[39m
+                    
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                    [33mwi
+dth[39m=[32m"16"[39m
+                    [33mxm
+lns[39m=[32m"http://www.w
+3.org/2000/svg"[39m
+                  
+[36m>[39m
+                    
+[36m<path[39m
+                      
+[33md[39m=[32m"M3 9L3.7 
+9.7 7.5 5.9 7.5 15 8.5 15 
+8.5 5.9 12.3 9.7 13 9 8 
+4zM3 4V2h10v2h1V2c0-.6-.4-1
+-1-1H3C2.4 1 2 1.4 2 
+2v2H3z"[39m
+                    
+[36m/>[39m
+                  
+[36m</svg>[39m
+                
+[36m</button>[39m
+              
+[36m</div>[39m
+            
+[36m</div>[39m
+            [36m<div[39m
+              [33mclass[3
+9m=[32m"translationTabs"[
+39m
+            [36m>[39m
+              
+[36m<div[39m
+                [33mclass
+[39m=[32m"cds--tabs"[39m
+              [36m>[39m
+                
+[36m<button[39m
+                  [33maria
+-hidden[39m=[32m"true"[3
+9m
+                  [33maria
+-label[39m=[32m"Scroll 
+left"[39m
+                  [33mclas
+s[39m=[32m"cds--tab--over
+flow-nav-button cds--tab--o
+verflow-nav-button--previou
+s cds--tab--overflow-nav-bu
+tton--hidden"[39m
+                  [33mtabi
+ndex[39m=[32m"-1"[39m
+                  [33mtype
+[39m=[32m"button"[39m
+                [36m>[39m
+                  
+[36m<svg[39m
+                    [33mar
+ia-hidden[39m=[32m"true"
+[39m
+                ...
+
+    [0m [90m 131 |[39m
+     [90m 132 |[39m     
+[90m// Wait for 
+translations to load[39m
+    
+[31m[1m>[22m[39m[90m 
+133 |[39m     
+[36mawait[39m screen[33m
+.[39mfindByText([32m'fiel
+d.label'[39m)[33m;[39m
+     [90m     |[39m      
+            
+[31m[1m^[22m[39m
+     [90m 134 |[39m
+     [90m 135 |[39m     f
+ireEvent[33m.[39mclick(sc
+reen[33m.[39mgetAllByRole
+([32m'tab'[39m)[[35m1[3
+9m])[33m;[39m
+     [90m 136 |[39m[0m
+
+      at waitForWrapper (no
+de_modules/@testing-library
+/dom/dist/wait-for.js:163:2
+7)
+      at node_modules/@test
+ing-library/dom/dist/query-
+helpers.js:86:33
+      at Object.findByText 
+(src/components/translation
+-builder/translation-builde
+r.component.test.tsx:133:18
+)
+
+  ΓùÅ TranslationBuilder 
+ΓÇ║ filters untranslated 
+keys in "Untranslated" tab
+
+    Unable to find an 
+element with the text: 
+field.name. This could be 
+because the text is broken 
+up by multiple elements. 
+In this case, you can 
+provide a function for 
+your text matcher to make 
+your matcher more flexible.
+
+    Ignored nodes: 
+comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mclass[39m=
+[32m"translationBuilderCont
+ainer"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m
+=[32m"translationBuilderHe
+ader"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[3
+9m=[32m"languageTools"[39
+m
+            [36m>[39m
+              
+[36m<div[39m
+                [33mclass
+[39m=[32m"languagePath"[3
+9m
+              [36m>[39m
+                
+[36m<span[39m
+                  [33mclas
+s[39m=[32m"language"[39m
+                [36m>[39m
+                  
+[0mEnglish (en)[0m
+                
+[36m</span>[39m
+                
+[36m<svg[39m
+                  [33maria
+-hidden[39m=[32m"true"[3
+9m
+                  [33mclas
+s[39m=[32m"arrow"[39m
+                  [33mfill
+[39m=[32m"currentColor"[
+39m
+                  [33mfocu
+sable[39m=[32m"false"[39
+m
+                  [33mheig
+ht[39m=[32m"16"[39m
+                  [33mpres
+erveAspectRatio[39m=[32m"
+xMidYMid meet"[39m
+                  
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                  [33mwidt
+h[39m=[32m"16"[39m
+                  [33mxmln
+s[39m=[32m"http://www.w3.
+org/2000/svg"[39m
+                [36m>[39m
+                  
+[36m<path[39m
+                    
+[33md[39m=[32m"M9.3 
+3.7L13.1 7.5 1 7.5 1 8.5 
+13.1 8.5 9.3 12.3 10 13 15 
+8 10 3z"[39m
+                  
+[36m/>[39m
+                
+[36m</svg>[39m
+                
+[36m<div[39m
+                  [33mclas
+s[39m=[32m"cds--dropdown_
+_wrapper cds--list-box__wra
+pper"[39m
+                [36m>[39m
+                  
+[36m<div[39m
+                    [33mcl
+ass[39m=[32m"cds--dropdow
+n cds--list-box"[39m
+                    [33mid
+[39m=[32m"target-language
+"[39m
+                  
+[36m>[39m
+                    
+[36m<button[39m
+                      [33m
+aria-activedescendant[39m=
+[32m""[39m
+                      [33m
+aria-controls[39m=[32m"do
+wnshift-:r1u:-menu"[39m
+                      [33m
+aria-expanded[39m=[32m"fa
+lse"[39m
+                      [33m
+aria-haspopup[39m=[32m"li
+stbox"[39m
+                      [33m
+aria-labelledby[39m=[32m"
+downshift-:r1u:-label"[39m
+                      [33m
+class[39m=[32m"cds--list-
+box__field"[39m
+                      [33m
+id[39m=[32m"downshift-:r1
+u:-toggle-button"[39m
+                      [33m
+role[39m=[32m"combobox"[
+39m
+                      [33m
+tabindex[39m=[32m"0"[39m
+                      [33m
+title[39m=[32m"French 
+(fr)"[39m
+                      [33m
+type[39m=[32m"button"[39
+m
+                    
+[36m>[39m
+                      
+[36m<span[39m
+                        [3
+3mclass[39m=[32m"cds--lis
+t-box__label"[39m
+                      
+[36m>[39m
+                        
+[0mFrench (fr)[0m
+                      
+[36m</span>[39m
+                      
+[36m<div[39m
+                        [3
+3mclass[39m=[32m"cds--lis
+t-box__menu-icon"[39m
+                      
+[36m>[39m
+                        
+[36m<svg[39m
+                          
+[33maria-label[39m=[32m"O
+pen menu"[39m
+                          
+[33mfill[39m=[32m"current
+Color"[39m
+                          
+[33mfocusable[39m=[32m"fa
+lse"[39m
+                          
+[33mheight[39m=[32m"16"[
+39m
+                          
+[33mname[39m=[32m"chevron
+--down"[39m
+                          
+[33mpreserveAspectRatio[39
+m=[32m"xMidYMid meet"[39m
+                          
+[33mrole[39m=[32m"img"[3
+9m
+                          
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                          
+[33mwidth[39m=[32m"16"[3
+9m
+                          
+[33mxmlns[39m=[32m"http:/
+/www.w3.org/2000/svg"[39m
+                        
+[36m>[39m
+                          
+[36m<path[39m
+                           
+ [33md[39m=[32m"M8 11L3 
+6 3.7 5.3 8 9.6 12.3 5.3 
+13 6z"[39m
+                          
+[36m/>[39m
+                          
+[36m<title>[39m
+                           
+ [0mOpen menu[0m
+                          
+[36m</title>[39m
+                        
+[36m</svg>[39m
+                      
+[36m</div>[39m
+                    
+[36m</button>[39m
+                    
+[36m<ul[39m
+                      [33m
+aria-labelledby[39m=[32m"
+downshift-:r1u:-label"[39m
+                      [33m
+class[39m=[32m"cds--list-
+box__menu"[39m
+                      [33m
+id[39m=[32m"downshift-:r1
+u:-menu"[39m
+                      [33m
+role[39m=[32m"listbox"[3
+9m
+                    
+[36m/>[39m
+                  
+[36m</div>[39m
+                
+[36m</div>[39m
+              
+[36m</div>[39m
+              
+[36m<div[39m
+                [33mclass
+[39m=[32m"translationActio
+ns"[39m
+              [36m>[39m
+                
+[36m<button[39m
+                  [33mclas
+s[39m=[32m"linkButton"[3
+9m
+                [36m>[39m
+                  
+[0mDownload 
+translation[0m
+                  
+[36m<svg[39m
+                    [33mar
+ia-hidden[39m=[32m"true"
+[39m
+                    [33mfi
+ll[39m=[32m"currentColor"
+[39m
+                    [33mfo
+cusable[39m=[32m"false"[
+39m
+                    [33mhe
+ight[39m=[32m"16"[39m
+                    [33mpr
+eserveAspectRatio[39m=[32
+m"xMidYMid meet"[39m
+                    
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                    [33mwi
+dth[39m=[32m"16"[39m
+                    [33mxm
+lns[39m=[32m"http://www.w
+3.org/2000/svg"[39m
+                  
+[36m>[39m
+                    
+[36m<path[39m
+                      
+[33md[39m=[32m"M13 
+7L12.3 6.3 8.5 10.1 8.5 1 
+7.5 1 7.5 10.1 3.7 6.3 3 7 
+8 12zM13 12v2H3v-2H2v2l0 
+0c0 .6.4 1 1 1h10c.6 0 
+1-.4 1-1l0 0v-2H13z"[39m
+                    
+[36m/>[39m
+                  
+[36m</svg>[39m
+                
+[36m</button>[39m
+                
+[36m<button[39m
+                  [33mclas
+s[39m=[32m"linkButton"[3
+9m
+                [36m>[39m
+                  
+[0mUpload translation[0m
+                  
+[36m<svg[39m
+                    [33mar
+ia-hidden[39m=[32m"true"
+[39m
+                    [33mfi
+ll[39m=[32m"currentColor"
+[39m
+                    [33mfo
+cusable[39m=[32m"false"[
+39m
+                    [33mhe
+ight[39m=[32m"16"[39m
+                    [33mpr
+eserveAspectRatio[39m=[32
+m"xMidYMid meet"[39m
+                    
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                    [33mwi
+dth[39m=[32m"16"[39m
+                    [33mxm
+lns[39m=[32m"http://www.w
+3.org/2000/svg"[39m
+                  
+[36m>[39m
+                    
+[36m<path[39m
+                      
+[33md[39m=[32m"M3 9L3.7 
+9.7 7.5 5.9 7.5 15 8.5 15 
+8.5 5.9 12.3 9.7 13 9 8 
+4zM3 4V2h10v2h1V2c0-.6-.4-1
+-1-1H3C2.4 1 2 1.4 2 
+2v2H3z"[39m
+                    
+[36m/>[39m
+                  
+[36m</svg>[39m
+                
+[36m</button>[39m
+              
+[36m</div>[39m
+            
+[36m</div>[39m
+            [36m<div[39m
+              [33mclass[3
+9m=[32m"translationTabs"[
+39m
+            [36m>[39m
+              
+[36m<div[39m
+                [33mclass
+[39m=[32m"cds--tabs"[39m
+              [36m>[39m
+                
+[36m<button[39m
+                  [33maria
+-hidden[39m=[32m"true"[3
+9m
+                  [33maria
+-label[39m=[32m"Scroll 
+left"[39m
+                  [33mclas
+s[39m=[32m"cds--tab--over
+flow-nav-button cds--tab--o
+verflow-nav-button--previou
+s cds--tab--overflow-nav-bu
+tton--hidden"[39m
+                  [33mtabi
+ndex[39m=[32m"-1"[39m
+                  [33mtype
+[39m=[32m"button"[39m
+                [36m>[39m
+                  
+[36m<svg[39m
+                    [33mar
+ia-hidden[39m=[32m"true"
+[39m
+                ...
+
+    [0m [90m 147 |[39m
+     [90m 148 |[39m     
+[90m// Wait for 
+translations to load[39m
+    
+[31m[1m>[22m[39m[90m 
+149 |[39m     
+[36mawait[39m screen[33m
+.[39mfindByText([32m'fiel
+d.name'[39m)[33m;[39m
+     [90m     |[39m      
+            
+[31m[1m^[22m[39m
+     [90m 150 |[39m
+     [90m 151 |[39m     f
+ireEvent[33m.[39mclick(sc
+reen[33m.[39mgetAllByRole
+([32m'tab'[39m)[[35m2[3
+9m])[33m;[39m
+     [90m 152 |[39m[0m
+
+      at waitForWrapper (no
+de_modules/@testing-library
+/dom/dist/wait-for.js:163:2
+7)
+      at node_modules/@test
+ing-library/dom/dist/query-
+helpers.js:86:33
+      at Object.findByText 
+(src/components/translation
+-builder/translation-builde
+r.component.test.tsx:149:18
+)
+
+  ΓùÅ TranslationBuilder 
+ΓÇ║ filters keys by search 
+query
+
+    Unable to find an 
+element with the text: 
+field.name. This could be 
+because the text is broken 
+up by multiple elements. 
+In this case, you can 
+provide a function for 
+your text matcher to make 
+your matcher more flexible.
+
+    Ignored nodes: 
+comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mclass[39m=
+[32m"translationBuilderCont
+ainer"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m
+=[32m"translationBuilderHe
+ader"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[3
+9m=[32m"languageTools"[39
+m
+            [36m>[39m
+              
+[36m<div[39m
+                [33mclass
+[39m=[32m"languagePath"[3
+9m
+              [36m>[39m
+                
+[36m<span[39m
+                  [33mclas
+s[39m=[32m"language"[39m
+                [36m>[39m
+                  
+[0mEnglish (en)[0m
+                
+[36m</span>[39m
+                
+[36m<svg[39m
+                  [33maria
+-hidden[39m=[32m"true"[3
+9m
+                  [33mclas
+s[39m=[32m"arrow"[39m
+                  [33mfill
+[39m=[32m"currentColor"[
+39m
+                  [33mfocu
+sable[39m=[32m"false"[39
+m
+                  [33mheig
+ht[39m=[32m"16"[39m
+                  [33mpres
+erveAspectRatio[39m=[32m"
+xMidYMid meet"[39m
+                  
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                  [33mwidt
+h[39m=[32m"16"[39m
+                  [33mxmln
+s[39m=[32m"http://www.w3.
+org/2000/svg"[39m
+                [36m>[39m
+                  
+[36m<path[39m
+                    
+[33md[39m=[32m"M9.3 
+3.7L13.1 7.5 1 7.5 1 8.5 
+13.1 8.5 9.3 12.3 10 13 15 
+8 10 3z"[39m
+                  
+[36m/>[39m
+                
+[36m</svg>[39m
+                
+[36m<div[39m
+                  [33mclas
+s[39m=[32m"cds--dropdown_
+_wrapper cds--list-box__wra
+pper"[39m
+                [36m>[39m
+                  
+[36m<div[39m
+                    [33mcl
+ass[39m=[32m"cds--dropdow
+n cds--list-box"[39m
+                    [33mid
+[39m=[32m"target-language
+"[39m
+                  
+[36m>[39m
+                    
+[36m<button[39m
+                      [33m
+aria-activedescendant[39m=
+[32m""[39m
+                      [33m
+aria-controls[39m=[32m"do
+wnshift-:r2i:-menu"[39m
+                      [33m
+aria-expanded[39m=[32m"fa
+lse"[39m
+                      [33m
+aria-haspopup[39m=[32m"li
+stbox"[39m
+                      [33m
+aria-labelledby[39m=[32m"
+downshift-:r2i:-label"[39m
+                      [33m
+class[39m=[32m"cds--list-
+box__field"[39m
+                      [33m
+id[39m=[32m"downshift-:r2
+i:-toggle-button"[39m
+                      [33m
+role[39m=[32m"combobox"[
+39m
+                      [33m
+tabindex[39m=[32m"0"[39m
+                      [33m
+title[39m=[32m"French 
+(fr)"[39m
+                      [33m
+type[39m=[32m"button"[39
+m
+                    
+[36m>[39m
+                      
+[36m<span[39m
+                        [3
+3mclass[39m=[32m"cds--lis
+t-box__label"[39m
+                      
+[36m>[39m
+                        
+[0mFrench (fr)[0m
+                      
+[36m</span>[39m
+                      
+[36m<div[39m
+                        [3
+3mclass[39m=[32m"cds--lis
+t-box__menu-icon"[39m
+                      
+[36m>[39m
+                        
+[36m<svg[39m
+                          
+[33maria-label[39m=[32m"O
+pen menu"[39m
+                          
+[33mfill[39m=[32m"current
+Color"[39m
+                          
+[33mfocusable[39m=[32m"fa
+lse"[39m
+                          
+[33mheight[39m=[32m"16"[
+39m
+                          
+[33mname[39m=[32m"chevron
+--down"[39m
+                          
+[33mpreserveAspectRatio[39
+m=[32m"xMidYMid meet"[39m
+                          
+[33mrole[39m=[32m"img"[3
+9m
+                          
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                          
+[33mwidth[39m=[32m"16"[3
+9m
+                          
+[33mxmlns[39m=[32m"http:/
+/www.w3.org/2000/svg"[39m
+                        
+[36m>[39m
+                          
+[36m<path[39m
+                           
+ [33md[39m=[32m"M8 11L3 
+6 3.7 5.3 8 9.6 12.3 5.3 
+13 6z"[39m
+                          
+[36m/>[39m
+                          
+[36m<title>[39m
+                           
+ [0mOpen menu[0m
+                          
+[36m</title>[39m
+                        
+[36m</svg>[39m
+                      
+[36m</div>[39m
+                    
+[36m</button>[39m
+                    
+[36m<ul[39m
+                      [33m
+aria-labelledby[39m=[32m"
+downshift-:r2i:-label"[39m
+                      [33m
+class[39m=[32m"cds--list-
+box__menu"[39m
+                      [33m
+id[39m=[32m"downshift-:r2
+i:-menu"[39m
+                      [33m
+role[39m=[32m"listbox"[3
+9m
+                    
+[36m/>[39m
+                  
+[36m</div>[39m
+                
+[36m</div>[39m
+              
+[36m</div>[39m
+              
+[36m<div[39m
+                [33mclass
+[39m=[32m"translationActio
+ns"[39m
+              [36m>[39m
+                
+[36m<button[39m
+                  [33mclas
+s[39m=[32m"linkButton"[3
+9m
+                [36m>[39m
+                  
+[0mDownload 
+translation[0m
+                  
+[36m<svg[39m
+                    [33mar
+ia-hidden[39m=[32m"true"
+[39m
+                    [33mfi
+ll[39m=[32m"currentColor"
+[39m
+                    [33mfo
+cusable[39m=[32m"false"[
+39m
+                    [33mhe
+ight[39m=[32m"16"[39m
+                    [33mpr
+eserveAspectRatio[39m=[32
+m"xMidYMid meet"[39m
+                    
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                    [33mwi
+dth[39m=[32m"16"[39m
+                    [33mxm
+lns[39m=[32m"http://www.w
+3.org/2000/svg"[39m
+                  
+[36m>[39m
+                    
+[36m<path[39m
+                      
+[33md[39m=[32m"M13 
+7L12.3 6.3 8.5 10.1 8.5 1 
+7.5 1 7.5 10.1 3.7 6.3 3 7 
+8 12zM13 12v2H3v-2H2v2l0 
+0c0 .6.4 1 1 1h10c.6 0 
+1-.4 1-1l0 0v-2H13z"[39m
+                    
+[36m/>[39m
+                  
+[36m</svg>[39m
+                
+[36m</button>[39m
+                
+[36m<button[39m
+                  [33mclas
+s[39m=[32m"linkButton"[3
+9m
+                [36m>[39m
+                  
+[0mUpload translation[0m
+                  
+[36m<svg[39m
+                    [33mar
+ia-hidden[39m=[32m"true"
+[39m
+                    [33mfi
+ll[39m=[32m"currentColor"
+[39m
+                    [33mfo
+cusable[39m=[32m"false"[
+39m
+                    [33mhe
+ight[39m=[32m"16"[39m
+                    [33mpr
+eserveAspectRatio[39m=[32
+m"xMidYMid meet"[39m
+                    
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                    [33mwi
+dth[39m=[32m"16"[39m
+                    [33mxm
+lns[39m=[32m"http://www.w
+3.org/2000/svg"[39m
+                  
+[36m>[39m
+                    
+[36m<path[39m
+                      
+[33md[39m=[32m"M3 9L3.7 
+9.7 7.5 5.9 7.5 15 8.5 15 
+8.5 5.9 12.3 9.7 13 9 8 
+4zM3 4V2h10v2h1V2c0-.6-.4-1
+-1-1H3C2.4 1 2 1.4 2 
+2v2H3z"[39m
+                    
+[36m/>[39m
+                  
+[36m</svg>[39m
+                
+[36m</button>[39m
+              
+[36m</div>[39m
+            
+[36m</div>[39m
+            [36m<div[39m
+              [33mclass[3
+9m=[32m"translationTabs"[
+39m
+            [36m>[39m
+              
+[36m<div[39m
+                [33mclass
+[39m=[32m"cds--tabs"[39m
+              [36m>[39m
+                
+[36m<button[39m
+                  [33maria
+-hidden[39m=[32m"true"[3
+9m
+                  [33maria
+-label[39m=[32m"Scroll 
+left"[39m
+                  [33mclas
+s[39m=[32m"cds--tab--over
+flow-nav-button cds--tab--o
+verflow-nav-button--previou
+s cds--tab--overflow-nav-bu
+tton--hidden"[39m
+                  [33mtabi
+ndex[39m=[32m"-1"[39m
+                  [33mtype
+[39m=[32m"button"[39m
+                [36m>[39m
+                  
+[36m<svg[39m
+                    [33mar
+ia-hidden[39m=[32m"true"
+[39m
+                ...
+
+    [0m [90m 163 |[39m
+     [90m 164 |[39m     
+[90m// Wait for 
+translations to load[39m
+    
+[31m[1m>[22m[39m[90m 
+165 |[39m     
+[36mawait[39m screen[33m
+.[39mfindByText([32m'fiel
+d.name'[39m)[33m;[39m
+     [90m     |[39m      
+            
+[31m[1m^[22m[39m
+     [90m 166 |[39m
+     [90m 167 |[39m     f
+ireEvent[33m.[39mchange(
+[36mawait[39m screen[33m.
+[39mfindByPlaceholderText(
+[35m/search translation 
+keys/i[39m)[33m,[39m {
+     [90m 168 |[39m      
+ target[33m:[39m { 
+value[33m:[39m 
+[32m'name'[39m 
+}[33m,[39m[0m
+
+      at waitForWrapper (no
+de_modules/@testing-library
+/dom/dist/wait-for.js:163:2
+7)
+      at node_modules/@test
+ing-library/dom/dist/query-
+helpers.js:86:33
+      at Object.findByText 
+(src/components/translation
+-builder/translation-builde
+r.component.test.tsx:165:18
+)
+
+  ΓùÅ TranslationBuilder 
+ΓÇ║ switches language and 
+loads backend translations
+
+    Unable to find an 
+element with the text: 
+├ëtiquette. This could be 
+because the text is broken 
+up by multiple elements. 
+In this case, you can 
+provide a function for 
+your text matcher to make 
+your matcher more flexible.
+
+    Ignored nodes: 
+comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<div[39m
+          [33mclass[39m=
+[32m"translationBuilderCont
+ainer"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m
+=[32m"translationBuilderHe
+ader"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[3
+9m=[32m"languageTools"[39
+m
+            [36m>[39m
+              
+[36m<div[39m
+                [33mclass
+[39m=[32m"languagePath"[3
+9m
+              [36m>[39m
+                
+[36m<span[39m
+                  [33mclas
+s[39m=[32m"language"[39m
+                [36m>[39m
+                  
+[0mEnglish (en)[0m
+                
+[36m</span>[39m
+                
+[36m<svg[39m
+                  [33maria
+-hidden[39m=[32m"true"[3
+9m
+                  [33mclas
+s[39m=[32m"arrow"[39m
+                  [33mfill
+[39m=[32m"currentColor"[
+39m
+                  [33mfocu
+sable[39m=[32m"false"[39
+m
+                  [33mheig
+ht[39m=[32m"16"[39m
+                  [33mpres
+erveAspectRatio[39m=[32m"
+xMidYMid meet"[39m
+                  
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                  [33mwidt
+h[39m=[32m"16"[39m
+                  [33mxmln
+s[39m=[32m"http://www.w3.
+org/2000/svg"[39m
+                [36m>[39m
+                  
+[36m<path[39m
+                    
+[33md[39m=[32m"M9.3 
+3.7L13.1 7.5 1 7.5 1 8.5 
+13.1 8.5 9.3 12.3 10 13 15 
+8 10 3z"[39m
+                  
+[36m/>[39m
+                
+[36m</svg>[39m
+                
+[36m<div[39m
+                  [33mclas
+s[39m=[32m"cds--dropdown_
+_wrapper cds--list-box__wra
+pper"[39m
+                [36m>[39m
+                  
+[36m<div[39m
+                    [33mcl
+ass[39m=[32m"cds--dropdow
+n cds--list-box"[39m
+                    [33mid
+[39m=[32m"target-language
+"[39m
+                  
+[36m>[39m
+                    
+[36m<button[39m
+                      [33m
+aria-activedescendant[39m=
+[32m""[39m
+                      [33m
+aria-controls[39m=[32m"do
+wnshift-:r36:-menu"[39m
+                      [33m
+aria-expanded[39m=[32m"fa
+lse"[39m
+                      [33m
+aria-haspopup[39m=[32m"li
+stbox"[39m
+                      [33m
+aria-labelledby[39m=[32m"
+downshift-:r36:-label"[39m
+                      [33m
+class[39m=[32m"cds--list-
+box__field"[39m
+                      [33m
+id[39m=[32m"downshift-:r3
+6:-toggle-button"[39m
+                      [33m
+role[39m=[32m"combobox"[
+39m
+                      [33m
+tabindex[39m=[32m"0"[39m
+                      [33m
+title[39m=[32m"French 
+(fr)"[39m
+                      [33m
+type[39m=[32m"button"[39
+m
+                    
+[36m>[39m
+                      
+[36m<span[39m
+                        [3
+3mclass[39m=[32m"cds--lis
+t-box__label"[39m
+                      
+[36m>[39m
+                        
+[0mFrench (fr)[0m
+                      
+[36m</span>[39m
+                      
+[36m<div[39m
+                        [3
+3mclass[39m=[32m"cds--lis
+t-box__menu-icon"[39m
+                      
+[36m>[39m
+                        
+[36m<svg[39m
+                          
+[33maria-label[39m=[32m"O
+pen menu"[39m
+                          
+[33mfill[39m=[32m"current
+Color"[39m
+                          
+[33mfocusable[39m=[32m"fa
+lse"[39m
+                          
+[33mheight[39m=[32m"16"[
+39m
+                          
+[33mname[39m=[32m"chevron
+--down"[39m
+                          
+[33mpreserveAspectRatio[39
+m=[32m"xMidYMid meet"[39m
+                          
+[33mrole[39m=[32m"img"[3
+9m
+                          
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                          
+[33mwidth[39m=[32m"16"[3
+9m
+                          
+[33mxmlns[39m=[32m"http:/
+/www.w3.org/2000/svg"[39m
+                        
+[36m>[39m
+                          
+[36m<path[39m
+                           
+ [33md[39m=[32m"M8 11L3 
+6 3.7 5.3 8 9.6 12.3 5.3 
+13 6z"[39m
+                          
+[36m/>[39m
+                          
+[36m<title>[39m
+                           
+ [0mOpen menu[0m
+                          
+[36m</title>[39m
+                        
+[36m</svg>[39m
+                      
+[36m</div>[39m
+                    
+[36m</button>[39m
+                    
+[36m<ul[39m
+                      [33m
+aria-labelledby[39m=[32m"
+downshift-:r36:-label"[39m
+                      [33m
+class[39m=[32m"cds--list-
+box__menu"[39m
+                      [33m
+id[39m=[32m"downshift-:r3
+6:-menu"[39m
+                      [33m
+role[39m=[32m"listbox"[3
+9m
+                    
+[36m/>[39m
+                  
+[36m</div>[39m
+                
+[36m</div>[39m
+              
+[36m</div>[39m
+              
+[36m<div[39m
+                [33mclass
+[39m=[32m"translationActio
+ns"[39m
+              [36m>[39m
+                
+[36m<button[39m
+                  [33mclas
+s[39m=[32m"linkButton"[3
+9m
+                [36m>[39m
+                  
+[0mDownload 
+translation[0m
+                  
+[36m<svg[39m
+                    [33mar
+ia-hidden[39m=[32m"true"
+[39m
+                    [33mfi
+ll[39m=[32m"currentColor"
+[39m
+                    [33mfo
+cusable[39m=[32m"false"[
+39m
+                    [33mhe
+ight[39m=[32m"16"[39m
+                    [33mpr
+eserveAspectRatio[39m=[32
+m"xMidYMid meet"[39m
+                    
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                    [33mwi
+dth[39m=[32m"16"[39m
+                    [33mxm
+lns[39m=[32m"http://www.w
+3.org/2000/svg"[39m
+                  
+[36m>[39m
+                    
+[36m<path[39m
+                      
+[33md[39m=[32m"M13 
+7L12.3 6.3 8.5 10.1 8.5 1 
+7.5 1 7.5 10.1 3.7 6.3 3 7 
+8 12zM13 12v2H3v-2H2v2l0 
+0c0 .6.4 1 1 1h10c.6 0 
+1-.4 1-1l0 0v-2H13z"[39m
+                    
+[36m/>[39m
+                  
+[36m</svg>[39m
+                
+[36m</button>[39m
+                
+[36m<button[39m
+                  [33mclas
+s[39m=[32m"linkButton"[3
+9m
+                [36m>[39m
+                  
+[0mUpload translation[0m
+                  
+[36m<svg[39m
+                    [33mar
+ia-hidden[39m=[32m"true"
+[39m
+                    [33mfi
+ll[39m=[32m"currentColor"
+[39m
+                    [33mfo
+cusable[39m=[32m"false"[
+39m
+                    [33mhe
+ight[39m=[32m"16"[39m
+                    [33mpr
+eserveAspectRatio[39m=[32
+m"xMidYMid meet"[39m
+                    
+[33mviewBox[39m=[32m"0 
+0 16 16"[39m
+                    [33mwi
+dth[39m=[32m"16"[39m
+                    [33mxm
+lns[39m=[32m"http://www.w
+3.org/2000/svg"[39m
+                  
+[36m>[39m
+                    
+[36m<path[39m
+                      
+[33md[39m=[32m"M3 9L3.7 
+9.7 7.5 5.9 7.5 15 8.5 15 
+8.5 5.9 12.3 9.7 13 9 8 
+4zM3 4V2h10v2h1V2c0-.6-.4-1
+-1-1H3C2.4 1 2 1.4 2 
+2v2H3z"[39m
+                    
+[36m/>[39m
+                  
+[36m</svg>[39m
+                
+[36m</button>[39m
+              
+[36m</div>[39m
+            
+[36m</div>[39m
+            [36m<div[39m
+              [33mclass[3
+9m=[32m"translationTabs"[
+39m
+            [36m>[39m
+              
+[36m<div[39m
+                [33mclass
+[39m=[32m"cds--tabs"[39m
+              [36m>[39m
+                
+[36m<button[39m
+                  [33maria
+-hidden[39m=[32m"true"[3
+9m
+                  [33maria
+-label[39m=[32m"Scroll 
+left"[39m
+                  [33mclas
+s[39m=[32m"cds--tab--over
+flow-nav-button cds--tab--o
+verflow-nav-button--previou
+s cds--tab--overflow-nav-bu
+tton--hidden"[39m
+                  [33mtabi
+ndex[39m=[32m"-1"[39m
+                  [33mtype
+[39m=[32m"button"[39m
+                [36m>[39m
+                  
+[36m<svg[39m
+                    [33mar
+ia-hidden[39m=[32m"true"
+[39m
+                ...
+
+    [0m [90m 198 |[39m  
+   [36mawait[39m selectLa
+nguage([32m'French 
+(fr)'[39m)[33m;[39m
+     [90m 199 |[39m
+    
+[31m[1m>[22m[39m[90m 
+200 |[39m     
+[36mawait[39m waitFor(() 
+[33m=>[39m {
+     [90m     |[39m      
+            
+[31m[1m^[22m[39m
+     [90m 201 |[39m      
+ expect(mockedOpenmrsFetch)
+[33m.[39mtoHaveBeenCalled
+()[33m;[39m
+     [90m 202 |[39m      
+ expect(screen[33m.[39mge
+tByText([32m'├ëtiquette'[
+39m))[33m.[39mtoBeInTheDo
+cument()[33m;[39m
+     [90m 203 |[39m     
+})[33m;[39m[0m
+
+      at waitForWrapper (no
+de_modules/@testing-library
+/dom/dist/wait-for.js:163:2
+7)
+      at 
+Object.<anonymous> (src/com
+ponents/translation-builder
+/translation-builder.compon
+ent.test.tsx:200:18)
+
+Test Suites: 1 failed, 1 
+total
+Tests:       6 failed, 4 
+passed, 10 total
+Snapshots:   0 total
+Time:        22.533 s
+Ran all test suites 
+matching /src\\components\\
+translation-builder\\transl
+ation-builder.component.tes
+t.tsx/i.
