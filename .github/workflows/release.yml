@@ -1,0 +1,15 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  release:
+    types:
+      - created
+
+jobs:
+  release:
+    uses: openmrs/openmrs-contrib-gha-workflows/.github/workflows/release-frontend-module.yml@main
+    secrets:
+      NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      BOT_PAT: ${{ secrets.BOT_PAT }}
