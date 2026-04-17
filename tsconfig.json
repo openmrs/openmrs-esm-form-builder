@@ -16,7 +16,7 @@
       "esnext"
     ],
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noEmit": true,
     "noImplicitAny": false,
     "resolveJsonModule": true,
@@ -29,8 +29,7 @@
       "@types": ["./src/types"],
       "@tools/*": ["./tools/*"],
       "@constants": ["./src/constants"],
-      "@resources/*": ["./src/resources/*"],
-      "@openmrs/*": ["./node_modules/@openmrs/*"]
+      "@resources/*": ["./src/resources/*"]
     }
   },
   "types": ["@testing-library/jest-dom", "lodash"],
