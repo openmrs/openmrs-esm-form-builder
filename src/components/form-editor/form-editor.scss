@@ -36,6 +36,12 @@
   padding: 0;
 }
 
+.retiredNotification {
+  min-width: 100%;
+  max-width: 100%;
+  margin: 0 0 layout.$spacing-04 0;
+}
+
 .actionButtons {
   display: flex;
   align-items: center;

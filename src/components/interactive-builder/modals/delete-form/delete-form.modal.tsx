@@ -13,10 +13,15 @@ const DeleteFormModal: React.FC<DeleteFormModalProps> = ({ closeModal, isDeletin
   const { t } = useTranslation();
   return (
     <>
-      <ModalHeader closeModal={closeModal} title={t('deleteForm', 'Delete form')} />
+      <ModalHeader closeModal={closeModal} title={t('retireForm', 'Retire form')} />
       <Form onSubmit={(event: SyntheticEvent) => event.preventDefault()}>
         <ModalBody>
-          <p>{t('deleteFormConfirmation', 'Are you sure you want to delete this form?')}</p>
+          <p>
+            {t(
+              'retireFormConfirmation',
+              'Are you sure you want to retire this form? Retired forms are hidden by default but can be restored later.',
+            )}
+          </p>
         </ModalBody>
       </Form>
       <ModalFooter>
@@ -32,9 +37,9 @@ const DeleteFormModal: React.FC<DeleteFormModalProps> = ({ closeModal, isDeletin
           }}
         >
           {isDeletingForm ? (
-            <InlineLoading className={styles.spinner} description={t('deleting', 'Deleting') + '...'} />
+            <InlineLoading className={styles.spinner} description={t('retiring', 'Retiring') + '...'} />
           ) : (
-            <span>{t('delete', 'Delete')}</span>
+            <span>{t('retire', 'Retire')}</span>
           )}
         </Button>
       </ModalFooter>

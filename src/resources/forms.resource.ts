@@ -150,3 +150,13 @@ export async function unpublishForm(uuid: string): Promise<FetchResponse<Form>> 
   });
   return response;
 }
+
+export async function unretireForm(uuid: string): Promise<FetchResponse<Form>> {
+  const body = { deleted: 'false' };
+  const response: FetchResponse = await openmrsFetch(`${restBaseUrl}/form/${uuid}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: body,
+  });
+  return response;
+}
