@@ -101,12 +101,16 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
 
   const deleteObsGroupQuestion = useCallback(
     (index: number) => {
+      const confirmed = window.confirm(
+        t('deleteGroupedQuestionConfirmation', 'Delete this grouped question? This cannot be undone until you save.'),
+      );
+      if (!confirmed) return;
       setFormField((prevFormField) => ({
         ...prevFormField,
         questions: prevFormField.questions?.filter((_, i) => i !== index) || [],
       }));
     },
-    [setFormField],
+    [setFormField, t],
   );
 
   const saveQuestion = () => {
@@ -162,7 +166,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
         title={formFieldProp ? t('editQuestion', 'Edit question') : t('createNewQuestion', 'Create a new question')}
       />
       <Form className={styles.form} onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
-        <ModalBody>
+        <ModalBody hasScrollingContent>
           <FormGroup legendText="">
             <Stack gap={5}>
               <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
@@ -196,8 +200,8 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                 </Accordion>
               )}
               {formField.type === 'obsGroup' && (
-                <Button onClick={addObsGroupQuestion}>
-                  <span>{t('addObsGroupQuestion', 'Add a grouped question')}</span>
+                <Button kind="tertiary" size="sm" onClick={addObsGroupQuestion}>
+                  {t('addObsGroupQuestion', 'Add a grouped question')}
                 </Button>
               )}
             </Stack>
