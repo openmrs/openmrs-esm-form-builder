@@ -1,12 +1,13 @@
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  CopyButton,
+  IconButton,
   StructuredListBody,
   StructuredListCell,
   StructuredListRow,
   StructuredListWrapper,
 } from '@carbon/react';
+import { Copy } from '@carbon/react/icons';
 import { formatDatetime, parseDate } from '@openmrs/esm-framework';
 import type { EncounterType } from '@types';
 
@@ -19,7 +20,9 @@ function CopyableValue({ value }: { value: string }) {
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
       <span>{value}</span>
-      <CopyButton iconDescription={t('copyToClipboard', 'Copy to clipboard')} onClick={handleCopy} />
+      <IconButton kind="ghost" size="sm" label={t('copyToClipboard', 'Copy to clipboard')} onClick={handleCopy}>
+        <Copy />
+      </IconButton>
     </span>
   );
 }
