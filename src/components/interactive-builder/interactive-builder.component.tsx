@@ -392,7 +392,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
               </p>
             </div>
             <Button
-              kind="ghost"
+              kind="tertiary"
+              size="sm"
               renderIcon={Add}
               onClick={launchAddPageModal}
               iconDescription={t('addPage', 'Add Page')}
@@ -420,7 +421,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
             )}
           </p>
 
-          <Button onClick={launchNewFormModal} className={styles.startButton} kind="ghost">
+          <Button onClick={launchNewFormModal} className={styles.startButton} kind="primary">
             {t('startBuilding', 'Start building')}
           </Button>
         </div>
@@ -565,7 +566,8 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
 
                                 <Button
                                   className={styles.addQuestionButton}
-                                  kind="ghost"
+                                  kind="tertiary"
+                                  size="sm"
                                   renderIcon={Add}
                                   onClick={() => {
                                     launchAddQuestionModal(pageIndex, sectionIndex);
