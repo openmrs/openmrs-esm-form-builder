@@ -482,7 +482,7 @@ const InteractiveBuilder: React.FC<InteractiveBuilderProps> = ({
                                   <IconButton
                                     enterDelayMs={300}
                                     kind="ghost"
-                                    label={t('editSection', 'Edit Section')}
+                                    label={t('editSection', 'Edit section')}
                                     onClick={() =>
                                       section.reference
                                         ? launchAddFormReferenceModal(pageIndex, 'edit', sectionIndex)
