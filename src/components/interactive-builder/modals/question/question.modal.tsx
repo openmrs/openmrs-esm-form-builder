@@ -101,16 +101,12 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
 
   const deleteObsGroupQuestion = useCallback(
     (index: number) => {
-      const confirmed = window.confirm(
-        t('deleteGroupedQuestionConfirmation', 'Delete this grouped question? This cannot be undone until you save.'),
-      );
-      if (!confirmed) return;
       setFormField((prevFormField) => ({
         ...prevFormField,
         questions: prevFormField.questions?.filter((_, i) => i !== index) || [],
       }));
     },
-    [setFormField, t],
+    [setFormField],
   );
 
   const saveQuestion = () => {
