@@ -11,7 +11,7 @@ export class FormBuilderPage {
   readonly inputDummySchemaButton = () => this.page.getByRole('button', { name: /input dummy schema/i });
   readonly saveFormButton = () => this.page.getByRole('button', { name: /save form/i });
   readonly editFormButton = () => this.page.getByRole('button', { name: /edit schema/i });
-  readonly deleteFormConfirmationButton = () => this.page.getByRole('button', { name: /danger delete/i });
+  readonly deleteFormConfirmationButton = () => this.page.getByRole('button', { name: /danger retire/i });
   readonly publishFormButton = () => this.page.getByRole('button', { name: /^publish form$/i });
   readonly unpublishFormButton = () => this.page.getByRole('button', { name: /unpublish form/i });
   readonly unpublishFormConfirmationButton = () =>

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import {
+  ActionableNotification,
   Button,
   Column,
   CopyButton,
@@ -20,7 +21,7 @@ import { ArrowLeft, Maximize, Minimize, Download } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { type TFunction } from 'i18next';
-import { ConfigurableLink, showModal, useConfig } from '@openmrs/esm-framework';
+import { ConfigurableLink, showModal, showSnackbar, useConfig } from '@openmrs/esm-framework';
 import ActionButtons from '../action-buttons/action-buttons.component';
 import AuditDetails from '../audit-details/audit-details.component';
 import FormRenderer from '../form-renderer/form-renderer.component';
@@ -31,6 +32,7 @@ import SchemaEditor from '../schema-editor/schema-editor.component';
 import ValidationMessage from '../validation-info/validation-info.component';
 import { handleFormValidation } from '@resources/form-validator.resource';
 import { mergeTranslatedSchema } from '../../utils/translationSchemaUtils';
+import { unretireForm } from '@resources/forms.resource';
 import { useClobdata } from '@hooks/useClobdata';
 import { useForm } from '@hooks/useForm';
 import { useLanguageOptions } from '@hooks/getLanguageOptionsFromSession';
@@ -73,8 +75,9 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   const { blockRenderingWithErrors, dataTypeToRenderingMap } = useConfig<ConfigObject>();
   const isNewSchema = !formUuid;
   const [schema, setSchema] = useState<Schema>();
-  const { form, formError, isLoadingForm } = useForm(formUuid);
+  const { form, formError, isLoadingForm, mutate: mutateForm } = useForm(formUuid);
   const { clobdata, clobdataError, isLoadingClobdata } = useClobdata(form);
+  const [isRestoringForm, setIsRestoringForm] = useState(false);
   const [status, setStatus] = useState<Status>('idle');
   const [isMaximized, setIsMaximized] = useState(false);
   const [stringifiedSchema, setStringifiedSchema] = useState(schema ? JSON.stringify(schema, null, 2) : '');
@@ -120,6 +123,35 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
       onSchemaChange: updateSchema,
     });
   }, [updateSchema]);
+
+  const handleRestoreForm = useCallback(async () => {
+    if (!form) return;
+    setIsRestoringForm(true);
+    try {
+      const res = await unretireForm(form.uuid);
+      if (res.status === 200) {
+        showSnackbar({
+          title: t('formRestored', 'Form restored'),
+          kind: 'success',
+          isLowContrast: true,
+          subtitle: t('formRestoredMessage', 'The form "{{- formName}}" has been restored', {
+            formName: form.name,
+          }),
+        });
+        await mutateForm();
+      }
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        showSnackbar({
+          title: t('errorRestoringForm', 'Error restoring form'),
+          kind: 'error',
+          subtitle: e.message,
+        });
+      }
+    } finally {
+      setIsRestoringForm(false);
+    }
+  }, [form, mutateForm, t]);
 
   useEffect(() => {
     if (formUuid) {
@@ -299,6 +331,18 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
 
   return (
     <div className={styles.container}>
+      {form?.retired && (
+        <ActionableNotification
+          className={styles.retiredNotification}
+          kind="warning"
+          lowContrast
+          inline
+          hideCloseButton
+          title={t('formIsRetired', 'This form is retired.')}
+          actionButtonLabel={isRestoringForm ? t('restoring', 'Restoring') : t('restoreForm', 'Restore form')}
+          onActionButtonClick={handleRestoreForm}
+        />
+      )}
       <Grid
         className={classNames(styles.grid as string, {
           [styles.maximized]: isMaximized,

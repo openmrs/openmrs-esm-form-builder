@@ -22,20 +22,20 @@ test('Delete an existing form', async ({ page }) => {
     await formBuilderPage.searchForForm(form.name);
   });
 
-  await test.step('And I click the `Delete` button on the form I need to delete', async () => {
+  await test.step('And I click the `Retire` button on the form I need to retire', async () => {
     await formBuilderPage.page
       .getByRole('row', { name: form.name })
-      .getByLabel(/delete schema/i)
+      .getByLabel(/retire schema/i)
       .first()
       .click();
   });
 
-  await test.step('Then I click the `Delete` button on the modal', async () => {
+  await test.step('Then I click the `Retire` button on the modal', async () => {
     await formBuilderPage.deleteFormConfirmationButton().click();
   });
 
   await test.step('Then I should get a success message and the row with the form name should be removed', async () => {
-    await expect(formBuilderPage.page.getByText(/form deleted/i)).toBeVisible();
+    await expect(formBuilderPage.page.getByText(/form retired/i)).toBeVisible();
     await expect(formBuilderPage.page.getByRole('row', { name: form.name })).toHaveCount(0);
   });
 });
