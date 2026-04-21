@@ -167,7 +167,7 @@ function ActionButtons({
         ) : null}
 
         {form && form.published ? (
-          <Button kind="danger" onClick={launchUnpublishModal} disabled={status === 'unpublishing'}>
+          <Button kind="danger--tertiary" onClick={launchUnpublishModal} disabled={status === 'unpublishing'}>
             {t('unpublishForm', 'Unpublish form')}
           </Button>
         ) : null}

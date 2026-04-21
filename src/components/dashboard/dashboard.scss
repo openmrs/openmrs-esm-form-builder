@@ -132,3 +132,9 @@
 .warningMessage {
   margin: layout.$spacing-05 0;
 }
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: layout.$spacing-03;
+}

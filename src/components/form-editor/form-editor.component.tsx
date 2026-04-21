@@ -16,8 +16,9 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
+  Tag,
 } from '@carbon/react';
-import { ArrowLeft, Maximize, Minimize, Download } from '@carbon/react/icons';
+import { ArrowLeft, Maximize, Minimize, Download, Renew } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { type TFunction } from 'i18next';
@@ -94,6 +95,21 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   const [renderLangCode, setRenderLangCode] = useState<string | null>(null);
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
+
+  const savedSchemaString = useMemo(() => (clobdata ? JSON.stringify(clobdata, null, 2) : ''), [clobdata]);
+  const hasSchemaContent =
+    Boolean(stringifiedSchema) && stringifiedSchema !== 'undefined' && stringifiedSchema !== 'null';
+  const isDirty = hasSchemaContent && stringifiedSchema !== savedSchemaString;
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
 
   const langCodeForPreview = useMemo(
     () => (shouldMergeTranslation ? renderLangCode : null),
@@ -353,7 +369,14 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
             {isLoadingFormOrSchema ? (
               <InlineLoading description={t('loadingSchema', 'Loading schema') + '...'} />
             ) : (
-              <h1 className={styles.formName}>{form?.name}</h1>
+              <h1 className={styles.formName}>
+                {form?.name}
+                {isDirty && (
+                  <Tag className={styles.dirtyIndicator} type="warm-gray" size="sm">
+                    {t('unsavedChanges', 'Unsaved changes')}
+                  </Tag>
+                )}
+              </h1>
             )}
           </div>
           <div>
@@ -378,7 +401,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                 ) : null}
                 {isNewSchema && !schema ? (
                   <Button kind="ghost" onClick={inputDummySchema}>
-                    {t('inputDummySchema', 'Input dummy schema')}
+                    {t('inputDummySchema', 'Load sample schema')}
                   </Button>
                 ) : null}
                 <Dropdown
@@ -395,12 +418,18 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                   className={styles.dropdown}
                 />
 
-                <Button kind="ghost" onClick={handleRenderSchemaChanges} disabled={!!invalidJsonErrorMessage}>
-                  <span>{t('renderChanges', 'Render changes')}</span>
+                <Button
+                  kind="tertiary"
+                  size="sm"
+                  renderIcon={Renew}
+                  onClick={handleRenderSchemaChanges}
+                  disabled={!!invalidJsonErrorMessage}
+                >
+                  {t('renderChanges', 'Render changes')}
                 </Button>
               </div>
               {schema ? (
-                <>
+                <div className={styles.schemaIconActions}>
                   <IconButton
                     enterDelayMs={defaultEnterDelayInMs}
                     kind="ghost"
@@ -429,7 +458,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                       <Download />
                     </IconButton>
                   </a>
-                </>
+                </div>
               ) : null}
             </div>
             {formError ? (
@@ -518,10 +547,12 @@ function BackButton({ t }: TranslationFnProps) {
 
 function FormEditor() {
   const { t } = useTranslation();
+  const { formUuid } = useParams<{ formUuid: string }>();
+  const isNewForm = !formUuid;
 
   return (
     <>
-      <Header title={t('schemaEditor', 'Schema editor')} />
+      <Header title={isNewForm ? t('createNewForm', 'Create a new form') : t('editForm', 'Edit form')} />
       <BackButton t={t} />
       <FormEditorContent t={t} />
     </>

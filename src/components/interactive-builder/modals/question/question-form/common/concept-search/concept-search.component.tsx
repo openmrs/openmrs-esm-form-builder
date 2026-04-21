@@ -102,7 +102,7 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
       )}
       <div className={styles.searchContainer}>
         {isLoadingConcept ? (
-          <InlineLoading className={styles.loader} description={t('loading', 'Loading...')} />
+          <InlineLoading className={styles.loader} description={t('loading', 'Loading') + '...'} />
         ) : (
           <Search
             id="conceptLookup"

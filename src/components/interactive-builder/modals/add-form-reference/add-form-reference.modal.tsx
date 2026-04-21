@@ -178,7 +178,7 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
         <ModalBody className={styles.modalBody}>
           <Stack gap={4}>
             {isLoading ? (
-              <InlineLoading description={t('loading', 'Loading...')} />
+              <InlineLoading description={t('loading', 'Loading') + '...'} />
             ) : error ? (
               <InlineNotification>{t('errorLoadingForms', 'Error loading forms')}</InlineNotification>
             ) : forms.length === 0 ? (
@@ -200,7 +200,7 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
               </FormGroup>
             ) : null}
             {isLoadingClobdata ? (
-              <InlineLoading description={t('loading', 'Loading...')} />
+              <InlineLoading description={t('loading', 'Loading') + '...'} />
             ) : clobdataError ? (
               <InlineNotification>{t('errorLoadingForm', 'Error loading form')}</InlineNotification>
             ) : pages && pages.length > 0 && !mode ? (
