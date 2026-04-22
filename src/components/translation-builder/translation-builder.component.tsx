@@ -195,11 +195,11 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
         subtitle: t('translationsUploadedSuccessfully', `Translation file uploaded successfully.`),
       });
     } catch (err: any) {
-      setError(t('translationFileUploadFail', 'Failed to upload translation file.'));
+      setError(t('translationFileUploadFail', 'Failed to upload translation file'));
       showSnackbar({
         title: t('uploadFailed', 'Upload Failed'),
         kind: 'error',
-        subtitle: t('translationFileUploadFail', `Failed to upload translation file`),
+        subtitle: t('translationFileUploadFail', 'Failed to upload translation file'),
       });
       console.error(err);
     } finally {

@@ -162,7 +162,7 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
         title={formFieldProp ? t('editQuestion', 'Edit question') : t('createNewQuestion', 'Create a new question')}
       />
       <Form className={styles.form} onSubmit={(event: React.SyntheticEvent) => event.preventDefault()}>
-        <ModalBody>
+        <ModalBody hasScrollingContent>
           <FormGroup legendText="">
             <Stack gap={5}>
               <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
@@ -196,8 +196,8 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
                 </Accordion>
               )}
               {formField.type === 'obsGroup' && (
-                <Button onClick={addObsGroupQuestion}>
-                  <span>{t('addObsGroupQuestion', 'Add a grouped question')}</span>
+                <Button kind="tertiary" size="sm" onClick={addObsGroupQuestion}>
+                  {t('addObsGroupQuestion', 'Add a grouped question')}
                 </Button>
               )}
             </Stack>

@@ -22,7 +22,7 @@ import {
   Tag,
   Tile,
 } from '@carbon/react';
-import { Add, DocumentImport, Download, Edit, TrashCan } from '@carbon/react/icons';
+import { Add, DocumentImport, Download, Edit, TrashCan, Undo } from '@carbon/react/icons';
 import { type KeyedMutator, preload } from 'swr';
 import {
   ConfigurableLink,
@@ -38,7 +38,7 @@ import {
 import EmptyState from '../empty-state/empty-state.component';
 import ErrorState from '../error-state/error-state.component';
 import Header from '../header/header.component';
-import { deleteForm } from '@resources/forms.resource';
+import { deleteForm, unretireForm } from '@resources/forms.resource';
 import { FormBuilderPagination } from '../pagination';
 import { useClobdata } from '@hooks/useClobdata';
 import { useForms } from '@hooks/useForms';
@@ -66,19 +66,20 @@ interface FormsListProps {
   t: TFunction;
 }
 
-function CustomTag({ condition }: { condition?: boolean }) {
+function CustomTag({ condition, invertTone = false }: { condition?: boolean; invertTone?: boolean }) {
   const { t } = useTranslation();
+  const positiveTrueType = invertTone ? 'red' : 'green';
 
   if (condition) {
     return (
-      <Tag type="green" size="md" title="Clear Filter" data-testid="yes-tag">
+      <Tag type={positiveTrueType} size="md" title="Clear Filter" data-testid="yes-tag">
         {t('yes', 'Yes')}
       </Tag>
     );
   }
 
   return (
-    <Tag type="red" size="md" title="Clear Filter" data-testid="no-tag">
+    <Tag type="cool-gray" size="md" title="Clear Filter" data-testid="no-tag">
       {t('no', 'No')}
     </Tag>
   );
@@ -104,10 +105,10 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
         const res = await deleteForm(formUuid);
         if (res.status === 204) {
           showSnackbar({
-            title: t('formDeleted', 'Form deleted'),
+            title: t('formRetired', 'Form retired'),
             kind: 'success',
             isLowContrast: true,
-            subtitle: t('formDeletedMessage', 'The form "{{- formName}}" has been deleted successfully', {
+            subtitle: t('formRetiredMessage', 'The form "{{- formName}}" has been retired successfully', {
               formName: form.name,
             }),
           });
@@ -116,7 +117,7 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
       } catch (e: unknown) {
         if (e instanceof Error) {
           showSnackbar({
-            title: t('errorDeletingForm', 'Error deleting form'),
+            title: t('errorRetiringForm', 'Error retiring form'),
             kind: 'error',
             subtitle: e?.message,
           });
@@ -127,6 +128,31 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
     },
     [form.name, mutate, t],
   );
+
+  const handleUnretireForm = useCallback(async () => {
+    try {
+      const res = await unretireForm(form.uuid);
+      if (res.status === 200) {
+        showSnackbar({
+          title: t('formRestored', 'Form restored'),
+          kind: 'success',
+          isLowContrast: true,
+          subtitle: t('formRestoredMessage', 'The form "{{- formName}}" has been restored', {
+            formName: form.name,
+          }),
+        });
+        await mutate();
+      }
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        showSnackbar({
+          title: t('errorRestoringForm', 'Error restoring form'),
+          kind: 'error',
+          subtitle: e?.message,
+        });
+      }
+    }
+  }, [form.uuid, form.name, mutate, t]);
 
   const launchDeleteFormModal = useCallback(() => {
     const dispose = showModal('delete-form-modal', {
@@ -188,7 +214,7 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
       <IconButton
         enterDelayMs={defaultEnterDelayInMs}
         kind="ghost"
-        label={t('deleteSchema', 'Delete schema')}
+        label={t('retireSchema', 'Retire schema')}
         onClick={launchDeleteFormModal}
         size={responsiveSize}
       >
@@ -197,8 +223,22 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
     );
   };
 
+  const RestoreButton = () => {
+    return (
+      <IconButton
+        enterDelayMs={defaultEnterDelayInMs}
+        kind="ghost"
+        label={t('restoreSchema', 'Restore form')}
+        onClick={handleUnretireForm}
+        size={responsiveSize}
+      >
+        <Undo />
+      </IconButton>
+    );
+  };
+
   return (
-    <>
+    <div className={styles.actionButtons}>
       {formResources.length == 0 || !form?.resources[0] ? (
         <ImportButton />
       ) : (
@@ -207,8 +247,8 @@ function ActionButtons({ form, mutate, responsiveSize, t }: ActionButtonsProps) 
           <DownloadSchemaButton />
         </>
       )}
-      <DeleteButton />
-    </>
+      {form.retired ? <RestoreButton /> : <DeleteButton />}
+    </div>
   );
 }
 
@@ -216,20 +256,24 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
   const pageSize = 10;
   const isTablet = useLayoutType() === 'tablet';
   const responsiveSize: 'sm' | 'lg' = isTablet ? 'lg' : 'sm';
-  const [filter, setFilter] = useState('');
+  const [filter, setFilter] = useState('Active');
   const [searchString, setSearchString] = useState('');
 
   const filteredRows = useMemo(() => {
-    if (!filter) {
+    if (!filter || filter === 'All') {
       return forms;
     }
 
+    if (filter === 'Active') {
+      return forms.filter((form) => !form.retired);
+    }
+
     if (filter === 'Published') {
-      return forms.filter((form) => form.published);
+      return forms.filter((form) => form.published && !form.retired);
     }
 
     if (filter === 'Unpublished') {
-      return forms.filter((form) => !form.published);
+      return forms.filter((form) => !form.published && !form.retired);
     }
 
     if (filter === 'Retired') {
@@ -243,22 +287,27 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
     {
       header: t('name', 'Name'),
       key: 'name',
+      isSortable: true,
     },
     {
       header: t('version', 'Version'),
       key: 'version',
+      isSortable: true,
     },
     {
       header: t('published', 'Published'),
       key: 'published',
+      isSortable: true,
     },
     {
       header: t('retired', 'Retired'),
       key: 'retired',
+      isSortable: true,
     },
     {
       header: t('schemaActions', 'Schema actions'),
       key: 'actions',
+      isSortable: false,
     },
   ];
 
@@ -275,22 +324,46 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
   const { paginated, goTo, results, currentPage } = usePagination(searchResults, pageSize);
 
   const tableRows = results?.map((form: TypedForm) => ({
-    ...form,
     id: form?.uuid,
-    name: (
-      <ConfigurableLink
-        className={styles.link}
-        to={editSchemaUrl}
-        templateParams={{ formUuid: form?.uuid }}
-        onMouseEnter={() => void preload(`${restBaseUrl}/form/${form?.uuid}?v=full`, openmrsFetch)}
-      >
-        {form.name}
-      </ConfigurableLink>
-    ),
-    published: <CustomTag condition={form.published} />,
-    retired: <CustomTag condition={form.retired} />,
-    actions: <ActionButtons form={form} mutate={mutate} responsiveSize={responsiveSize} t={t} />,
+    name: form.name,
+    version: form.version,
+    published: form.published,
+    retired: form.retired,
+    actions: form.uuid,
   }));
+
+  const formsByUuid = useMemo(() => new Map(results?.map((form: TypedForm) => [form.uuid, form]) ?? []), [results]);
+
+  const renderCell = (cell: { id: string; value: unknown; info: { header: string } }) => {
+    const form = formsByUuid.get(String(cell.value)) ?? formsByUuid.get(cell.id.split(':')[0]);
+    switch (cell.info.header) {
+      case 'name': {
+        const rowForm = formsByUuid.get(cell.id.split(':')[0]);
+        return (
+          <ConfigurableLink
+            className={styles.link}
+            to={editSchemaUrl}
+            templateParams={{ formUuid: rowForm?.uuid }}
+            onMouseEnter={() => rowForm && void preload(`${restBaseUrl}/form/${rowForm.uuid}?v=full`, openmrsFetch)}
+          >
+            {String(cell.value)}
+          </ConfigurableLink>
+        );
+      }
+      case 'published':
+        return <CustomTag condition={Boolean(cell.value)} />;
+      case 'retired':
+        return <CustomTag condition={Boolean(cell.value)} invertTone />;
+      case 'actions': {
+        const actionForm = formsByUuid.get(String(cell.value));
+        return actionForm ? (
+          <ActionButtons form={actionForm} mutate={mutate} responsiveSize={responsiveSize} t={t} />
+        ) : null;
+      }
+      default:
+        return String(cell.value);
+    }
+  };
 
   const handleFilter = ({ selectedItem }: { selectedItem: string }) => setFilter(selectedItem);
 
@@ -309,12 +382,12 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
           <Dropdown
             className={styles.filterDropdown}
             id="publishStatusFilter"
-            initialSelectedItem={'All'}
+            initialSelectedItem={'Active'}
             label=""
             titleText={t('filterBy', 'Filter by') + ':'}
             size={responsiveSize}
             type="inline"
-            items={['All', 'Published', 'Unpublished', 'Retired']}
+            items={['Active', 'All', 'Published', 'Unpublished', 'Retired']}
             onChange={handleFilter}
           />
         </div>
@@ -322,7 +395,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
           <span>{isValidating ? <InlineLoading /> : null}</span>
         </div>
       </div>
-      <DataTable rows={tableRows} headers={tableHeaders} size={isTablet ? 'lg' : 'sm'} useZebraStyles>
+      <DataTable rows={tableRows} headers={tableHeaders} size={isTablet ? 'lg' : 'sm'} useZebraStyles isSortable>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <>
             <TableContainer className={styles.tableContainer} data-testid="forms-table">
@@ -338,7 +411,6 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
                     <Button
                       kind="primary"
                       iconDescription={t('createNewForm', 'Create a new form')}
-                      renderIcon={() => <Add size={16} />}
                       size={responsiveSize}
                       onClick={() =>
                         navigate({
@@ -346,6 +418,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
                         })
                       }
                     >
+                      <Add size={16} style={{ marginRight: '0.5rem' }} aria-hidden />
                       {t('createNewForm', 'Create a new form')}
                     </Button>
                   </TableToolbarContent>
@@ -354,16 +427,19 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
               <Table {...getTableProps()} className={styles.table}>
                 <TableHead>
                   <TableRow>
-                    {headers.map((header) => (
-                      <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
-                    ))}
+                    {headers.map((header) => {
+                      const sortable = (header as { isSortable?: boolean }).isSortable;
+                      return (
+                        <TableHeader {...getHeaderProps({ header, isSortable: sortable })}>{header.header}</TableHeader>
+                      );
+                    })}
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {rows.map((row) => (
-                    <TableRow key="row.id" {...getRowProps({ row })} data-testid={`form-row-${row.id}`}>
+                    <TableRow key={row.id} {...getRowProps({ row })} data-testid={`form-row-${row.id}`}>
                       {row.cells.map((cell) => (
-                        <TableCell key={cell.id}>{cell.value}</TableCell>
+                        <TableCell key={cell.id}>{renderCell(cell)}</TableCell>
                       ))}
                     </TableRow>
                   ))}
@@ -429,7 +505,7 @@ const Dashboard: React.FC = () => {
                   lowContrast
                   title={t(
                     'schemaSaveWarningMessage',
-                    "The dev3 server is ephemeral at best and can't be relied upon to save your schemas permanently. To avoid losing your work, please save your schemas to your local machine. Alternatively, upload your schema to the distro repo to have it persisted across server resets.",
+                    "This is a demo server and can't be relied upon to save your schemas permanently. To avoid losing your work, please save your schemas to your local machine. Alternatively, upload your schema to the distro repo to have it persisted across server resets.",
                   )}
                 />
               )}
