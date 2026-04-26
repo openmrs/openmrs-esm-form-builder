@@ -36,6 +36,12 @@
   padding: 0;
 }
 
+.retiredNotification {
+  min-width: 100%;
+  max-width: 100%;
+  margin: 0 0 layout.$spacing-04 0;
+}
+
 .actionButtons {
   display: flex;
   align-items: center;
@@ -48,6 +54,11 @@
 
 .formName {
   @include type.type-style('heading-03');
+}
+
+.dirtyIndicator {
+  margin-left: layout.$spacing-03;
+  vertical-align: middle;
 }
 
 .editorContainer {
@@ -64,6 +75,7 @@
   display: flex;
   margin-right: 1rem;
   align-items: center;
+  gap: layout.$spacing-05;
 }
 
 .tabHeading {
@@ -106,10 +118,18 @@ button {
 .topBtns {
   display: flex;
   align-items: center;
+  gap: layout.$spacing-05;
+}
+
+.schemaIconActions {
+  display: flex;
+  align-items: center;
+  gap: layout.$spacing-02;
 }
 
 .dropdown {
-  grid-gap: 0 !important;
+  gap: layout.$spacing-03 !important;
+  column-gap: layout.$spacing-03 !important;
 
   :global(.cds--label) {
     white-space: nowrap;

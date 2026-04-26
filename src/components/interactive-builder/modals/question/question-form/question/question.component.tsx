@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { TextInput, Button, Select, SelectItem, RadioButtonGroup, RadioButton } from '@carbon/react';
+import { Button, RadioButton, RadioButtonGroup, Select, SelectItem, Stack, TextInput } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import RenderTypeComponent from '../rendering-types/rendering-type.component';
 import QuestionTypeComponent from '../question-types/question-type.component';
@@ -56,7 +56,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
           if (!isQuestionTypeObs) {
             const isRenderingTypeValidForQuestionType =
               questionTypes.includes(newQuestionType as keyof typeof renderTypeOptions) &&
-              renderTypeOptions[newQuestionType].includes(prevFormField.questionOptions.rendering as RenderType);
+              renderTypeOptions[newQuestionType]?.includes(prevFormField.questionOptions.rendering as RenderType);
             if (!isRenderingTypeValidForQuestionType) {
               return {
                 ...prevFormField,
@@ -86,17 +86,11 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
   );
 
   return (
-    <>
+    <Stack gap={5}>
       {formField.questionOptions && formField.questionOptions.rendering !== 'markdown' && (
         <TextInput
           id="questionLabel"
-          labelText={
-            <RequiredLabel
-              isRequired={formField?.required && formField?.required === 'true' ? true : false}
-              text={t('questionLabel', 'Label')}
-              t={t}
-            />
-          }
+          labelText={<RequiredLabel isRequired text={t('questionLabel', 'Label')} t={t} />}
           placeholder={t('labelPlaceholder', 'e.g. Type of Anaesthesia')}
           value={formField?.label}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -112,7 +106,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
         labelText={
           <div className={styles.questionIdLabel}>
             <span>
-              {t('questionId', 'Question ID (prefer using camel-case for IDs). Each field should have a unique ID.')}
+              <RequiredLabel isRequired text={t('questionId', 'Question ID')} t={t} />
             </span>
             {formField?.label && (
               <Button kind={'ghost'} onClick={convertLabelToCamelCase} size="sm">
@@ -121,6 +115,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
             )}
           </div>
         }
+        helperText={t('questionIdHelper', 'Prefer camel-case; must be unique within this form')}
         value={formField?.id}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           setFormField({ ...formField, id: event.target.value });
@@ -136,7 +131,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
         onChange={handleQuestionTypeChange}
         id="questionType"
         invalidText={t('typeRequired', 'Type is required')}
-        labelText={t('questionType', 'Question type')}
+        labelText={<RequiredLabel isRequired text={t('questionType', 'Question type')} t={t} />}
         required
       >
         {!formField?.type && <SelectItem text={t('chooseQuestionType', 'Choose a question type')} value="" />}
@@ -161,7 +156,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
         }}
         id="renderingType"
         invalidText={t('validRenderingTypeRequired', 'A valid rendering type value is required')}
-        labelText={t('renderingType', 'Rendering type')}
+        labelText={<RequiredLabel isRequired text={t('renderingType', 'Rendering type')} t={t} />}
         required
       >
         {!formField.questionOptions?.rendering && (
@@ -234,7 +229,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
           onChange={handleQuestionInfoChange}
         />
       )}
-    </>
+    </Stack>
   );
 };
 

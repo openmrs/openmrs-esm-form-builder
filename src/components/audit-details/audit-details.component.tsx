@@ -1,8 +1,31 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  IconButton,
+  StructuredListBody,
+  StructuredListCell,
+  StructuredListRow,
+  StructuredListWrapper,
+} from '@carbon/react';
+import { Copy } from '@carbon/react/icons';
 import { formatDatetime, parseDate } from '@openmrs/esm-framework';
-import { StructuredListWrapper, StructuredListRow, StructuredListCell, StructuredListBody } from '@carbon/react';
 import type { EncounterType } from '@types';
+
+function CopyableValue({ value }: { value: string }) {
+  const { t } = useTranslation();
+  const handleCopy = useCallback(() => {
+    navigator.clipboard.writeText(value);
+  }, [value]);
+
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+      <span>{value}</span>
+      <IconButton kind="ghost" size="sm" label={t('copyToClipboard', 'Copy to clipboard')} onClick={handleCopy}>
+        <Copy />
+      </IconButton>
+    </span>
+  );
+}
 
 interface AuditDetailsProps {
   form: FormGroupData;
@@ -54,7 +77,9 @@ const AuditDetails: React.FC<AuditDetailsProps> = ({ form }) => {
         </StructuredListRow>
         <StructuredListRow>
           <StructuredListCell>{t('formUuid', 'Form UUID')}</StructuredListCell>
-          <StructuredListCell>{form.uuid}</StructuredListCell>
+          <StructuredListCell>
+            <CopyableValue value={form.uuid} />
+          </StructuredListCell>
         </StructuredListRow>
         <StructuredListRow>
           <StructuredListCell>{t('version', 'Version')}</StructuredListCell>
@@ -62,7 +87,9 @@ const AuditDetails: React.FC<AuditDetailsProps> = ({ form }) => {
         </StructuredListRow>
         <StructuredListRow>
           <StructuredListCell>{t('encounterType', 'Encounter Type')}</StructuredListCell>
-          <StructuredListCell>{form.encounterType.uuid}</StructuredListCell>
+          <StructuredListCell>
+            <CopyableValue value={form.encounterType.uuid} />
+          </StructuredListCell>
         </StructuredListRow>
         <StructuredListRow>
           <StructuredListCell>{t('createdBy', 'Created By')}</StructuredListCell>
@@ -75,9 +102,16 @@ const AuditDetails: React.FC<AuditDetailsProps> = ({ form }) => {
         <StructuredListRow>
           <StructuredListCell>{t('lastEditedBy', 'Last Edited By')}</StructuredListCell>
           <StructuredListCell>
-            {form?.auditInfo?.dateChanged
-              ? `${form?.auditInfo?.changedBy.display} on ${formatDatetime(parseDate(form?.auditInfo?.dateChanged))}`
-              : t('uneditedFormMsg', 'This form has never been edited')}
+            {form?.auditInfo?.dateChanged ? (
+              `${form?.auditInfo?.changedBy.display} on ${formatDatetime(parseDate(form?.auditInfo?.dateChanged))}`
+            ) : (
+              <span
+                aria-label={t('uneditedFormMsg', 'This form has never been edited')}
+                style={{ color: 'var(--cds-text-placeholder)' }}
+              >
+                —
+              </span>
+            )}
           </StructuredListCell>
         </StructuredListRow>
         <StructuredListRow>

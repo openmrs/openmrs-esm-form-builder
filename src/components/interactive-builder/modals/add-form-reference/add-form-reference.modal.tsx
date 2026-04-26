@@ -19,7 +19,7 @@ import {
 import { showSnackbar } from '@openmrs/esm-framework';
 import { useForms } from '@hooks/useForms';
 import { useClobdata } from '@hooks/useClobdata';
-import type { FormPage, FormSection, FormField } from '@openmrs/esm-form-engine-lib';
+import type { FormField, FormPage, FormSection } from '@openmrs/esm-form-engine-lib';
 import type { Form as FormType, Schema } from '@types';
 import styles from './add-form-reference.scss';
 
@@ -178,7 +178,7 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
         <ModalBody className={styles.modalBody}>
           <Stack gap={4}>
             {isLoading ? (
-              <InlineLoading description={t('loading', 'Loading...')} />
+              <InlineLoading description={t('loading', 'Loading') + '...'} />
             ) : error ? (
               <InlineNotification>{t('errorLoadingForms', 'Error loading forms')}</InlineNotification>
             ) : forms.length === 0 ? (
@@ -200,7 +200,7 @@ const AddFormReferenceModal: React.FC<AddFormReferenceModalProps> = ({
               </FormGroup>
             ) : null}
             {isLoadingClobdata ? (
-              <InlineLoading description={t('loading', 'Loading...')} />
+              <InlineLoading description={t('loading', 'Loading') + '...'} />
             ) : clobdataError ? (
               <InlineNotification>{t('errorLoadingForm', 'Error loading form')}</InlineNotification>
             ) : pages && pages.length > 0 && !mode ? (

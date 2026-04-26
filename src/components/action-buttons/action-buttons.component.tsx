@@ -79,7 +79,7 @@ function ActionButtons({
 
   async function handleValidateAndPublish() {
     setStatus('validateBeforePublishing');
-    const [errorsArray] = await handleFormValidation(schema, dataTypeToRenderingMap);
+    const [errorsArray] = await handleFormValidation(schema, dataTypeToRenderingMap, t);
     setValidationResponse(errorsArray);
     if (errorsArray.length) {
       setStatus('validated');
@@ -167,7 +167,7 @@ function ActionButtons({
         ) : null}
 
         {form && form.published ? (
-          <Button kind="danger" onClick={launchUnpublishModal} disabled={status === 'unpublishing'}>
+          <Button kind="danger--tertiary" onClick={launchUnpublishModal} disabled={status === 'unpublishing'}>
             {t('unpublishForm', 'Unpublish form')}
           </Button>
         ) : null}
