@@ -1,5 +1,5 @@
 import React from 'react';
-import { vi, describe, it, expect, test } from 'vitest';
+import { vi, describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { FormFieldProvider } from '../../form-field-context';
 import QuestionTypeComponent from './question-type.component';

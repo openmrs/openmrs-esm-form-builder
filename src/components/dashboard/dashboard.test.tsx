@@ -1,5 +1,5 @@
 import React from 'react';
-import { vi, describe, it, expect, test } from 'vitest';
+import { vi, describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type FetchResponse, navigate, openmrsFetch, showModal } from '@openmrs/esm-framework';

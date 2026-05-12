@@ -1,5 +1,5 @@
 import React from 'react';
-import { vi, describe, it, expect, test, beforeEach, type Mock } from 'vitest';
+import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import TestOrderTypeQuestion from './test-order-type-question.component';
