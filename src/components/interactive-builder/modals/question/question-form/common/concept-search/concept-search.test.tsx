@@ -1,4 +1,5 @@
 import React from 'react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 import { useConceptId } from '@hooks/useConceptId';
@@ -32,22 +33,22 @@ const concepts: Array<Concept> = [
     mappings: [{ display: 'CIEL:1656', conceptMapType: { display: 'SAME-AS' } }],
   },
 ];
-const mockUseConceptLookup = jest.mocked(useConceptLookup);
-jest.mock('@hooks/useConceptLookup', () => ({
-  ...jest.requireActual('@hooks/useConceptLookup'),
-  useConceptLookup: jest.fn(),
+const mockUseConceptLookup = vi.mocked(useConceptLookup);
+vi.mock('@hooks/useConceptLookup', async () => ({
+  ...((await vi.importActual('@hooks/useConceptLookup')) as object),
+  useConceptLookup: vi.fn(),
 }));
-const mockUseConceptId = jest.mocked(useConceptId);
-jest.mock('@hooks/useConceptId', () => ({
-  ...jest.requireActual('@hooks/useConceptId'),
-  useConceptId: jest.fn(),
+const mockUseConceptId = vi.mocked(useConceptId);
+vi.mock('@hooks/useConceptId', async () => ({
+  ...((await vi.importActual('@hooks/useConceptId')) as object),
+  useConceptId: vi.fn(),
 }));
-const onSelectConcept = jest.fn();
-const mockSetFormField = jest.fn();
-const setConcept = jest.fn();
-const setIsConceptValid = jest.fn();
-jest.mock('../../../form-field-context', () => ({
-  ...jest.requireActual('../../../form-field-context'),
+const onSelectConcept = vi.fn();
+const mockSetFormField = vi.fn();
+const setConcept = vi.fn();
+const setIsConceptValid = vi.fn();
+vi.mock('../../../form-field-context', async () => ({
+  ...((await vi.importActual('../../../form-field-context')) as object),
   useFormField: () => ({ formField, setFormField: mockSetFormField, setConcept, setIsConceptValid }),
 }));
 

@@ -1,10 +1,11 @@
 import React from 'react';
+import { vi, describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import RenderingTypeComponent from './rendering-type.component';
 import { FormFieldProvider } from '../../form-field-context';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
 
-const mockSetFormField = jest.fn();
+const mockSetFormField = vi.fn();
 const formField: FormField = {
   datePickerFormat: 'both',
   type: 'obs',
@@ -12,8 +13,8 @@ const formField: FormField = {
   id: '1',
 };
 
-jest.mock('../../form-field-context', () => ({
-  ...jest.requireActual('../../form-field-context'),
+vi.mock('../../form-field-context', async () => ({
+  ...((await vi.importActual('../../form-field-context')) as object),
   useFormField: () => ({ formField, setFormField: mockSetFormField }),
 }));
 
@@ -78,7 +79,7 @@ describe('RenderingType Component', () => {
   });
 
   it('renders component only if rendering type is allowed', () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     formField.type = 'encounterLocation';
     formField.questionOptions.rendering = 'date';
     renderRenderingTypeComponent();

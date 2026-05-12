@@ -1,4 +1,5 @@
 import React from 'react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
@@ -7,7 +8,7 @@ import { useFormField } from '../../../../form-field-context';
 import { usePersonAttributeTypes } from '@hooks/usePersonAttributeTypes';
 import PersonAttributeTypeQuestion from './person-attribute-type-question.component';
 
-const mockSetFormField = jest.fn();
+const mockSetFormField = vi.fn();
 const formField: FormField = {
   id: '1',
   type: 'personAttribute',
@@ -16,11 +17,11 @@ const formField: FormField = {
   },
 };
 
-jest.mock('../../../../form-field-context');
-const mockUseFormField = jest.mocked(useFormField);
+vi.mock('../../../../form-field-context');
+const mockUseFormField = vi.mocked(useFormField);
 
-jest.mock('@hooks/usePersonAttributeTypes');
-const mockUsePersonAttributeTypes = jest.mocked(usePersonAttributeTypes);
+vi.mock('@hooks/usePersonAttributeTypes');
+const mockUsePersonAttributeTypes = vi.mocked(usePersonAttributeTypes);
 
 const personAttributeTypes: Array<PersonAttributeType> = [
   { uuid: '1', display: 'Email', format: 'java.lang.String', concept: null },
@@ -33,7 +34,7 @@ describe('PersonAttributeTypeQuestion', () => {
       formField,
       setFormField: mockSetFormField,
       concept: null,
-      setConcept: jest.fn(),
+      setConcept: vi.fn(),
     });
   });
 
