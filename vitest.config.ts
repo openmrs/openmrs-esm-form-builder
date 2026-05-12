@@ -1,4 +1,7 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
+
+const r = (relativePath: string) => fileURLToPath(new URL(relativePath, import.meta.url));
 
 export default defineConfig({
   resolve: {
@@ -21,8 +24,6 @@ export default defineConfig({
         'clearTimeout',
         'setInterval',
         'clearInterval',
-        'setImmediate',
-        'clearImmediate',
         'requestAnimationFrame',
         'cancelAnimationFrame',
         'Date',
@@ -31,13 +32,13 @@ export default defineConfig({
     alias: [
       { find: '@openmrs/esm-framework/src/internal', replacement: '@openmrs/esm-framework/mock' },
       { find: '@openmrs/esm-framework', replacement: '@openmrs/esm-framework/mock' },
-      { find: 'react-i18next', replacement: new URL('./__mocks__/react-i18next.js', import.meta.url).pathname },
-      { find: 'react-markdown', replacement: new URL('./__mocks__/react-markdown.tsx', import.meta.url).pathname },
-      { find: /^@resources\/(.*)$/, replacement: new URL('./src/resources/', import.meta.url).pathname + '$1' },
-      { find: /^@hooks\/(.*)$/, replacement: new URL('./src/hooks/', import.meta.url).pathname + '$1' },
-      { find: '@types', replacement: new URL('./src/types.ts', import.meta.url).pathname },
-      { find: /^@tools\/(.*)$/, replacement: new URL('./tools/', import.meta.url).pathname + '$1' },
-      { find: '@constants', replacement: new URL('./src/constants.ts', import.meta.url).pathname },
+      { find: 'react-i18next', replacement: r('./__mocks__/react-i18next.js') },
+      { find: 'react-markdown', replacement: r('./__mocks__/react-markdown.tsx') },
+      { find: /^@resources\/(.*)$/, replacement: r('./src/resources/') + '$1' },
+      { find: /^@hooks\/(.*)$/, replacement: r('./src/hooks/') + '$1' },
+      { find: '@types', replacement: r('./src/types.ts') },
+      { find: /^@tools\/(.*)$/, replacement: r('./tools/') + '$1' },
+      { find: '@constants', replacement: r('./src/constants.ts') },
     ],
   },
 });
