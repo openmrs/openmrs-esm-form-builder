@@ -1,4 +1,5 @@
 import React from 'react';
+import { vi, describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 import ProgramStateTypeQuestion from './program-state-type-question.component';
@@ -7,7 +8,7 @@ import { usePrograms, useProgramWorkStates } from '@hooks/useProgramStates';
 import type { FormField, ProgramState } from '@openmrs/esm-form-engine-lib';
 import type { Program } from '@types';
 
-const mockSetFormField = jest.fn();
+const mockSetFormField = vi.fn();
 const formField: FormField = {
   id: '1',
   type: 'programState',
@@ -16,17 +17,17 @@ const formField: FormField = {
   },
 };
 
-jest.mock('../../../../form-field-context', () => ({
-  ...jest.requireActual('../../../../form-field-context'),
+vi.mock('../../../../form-field-context', async () => ({
+  ...((await vi.importActual('../../../../form-field-context')) as object),
   useFormField: () => ({ formField, setFormField: mockSetFormField }),
 }));
 
-const mockUsePrograms = jest.mocked(usePrograms);
-const mockUseProgramWorkflowStates = jest.mocked(useProgramWorkStates);
-jest.mock('@hooks/useProgramStates', () => ({
-  ...jest.requireActual('@hooks/useProgramStates'),
-  usePrograms: jest.fn(),
-  useProgramWorkStates: jest.fn(),
+const mockUsePrograms = vi.mocked(usePrograms);
+const mockUseProgramWorkflowStates = vi.mocked(useProgramWorkStates);
+vi.mock('@hooks/useProgramStates', async () => ({
+  ...((await vi.importActual('@hooks/useProgramStates')) as object),
+  usePrograms: vi.fn(),
+  useProgramWorkStates: vi.fn(),
 }));
 
 const programOneWorkflowOneStates: Array<ProgramState> = [
@@ -79,7 +80,7 @@ describe('ProgramStateTypeQuestion', () => {
       programStates: [],
       programStatesLookupError: null,
       isLoadingProgramStates: null,
-      mutateProgramStates: jest.fn(),
+      mutateProgramStates: vi.fn(),
     });
     renderComponent();
 
@@ -92,7 +93,7 @@ describe('ProgramStateTypeQuestion', () => {
       programStates: [],
       programStatesLookupError: null,
       isLoadingProgramStates: null,
-      mutateProgramStates: jest.fn(),
+      mutateProgramStates: vi.fn(),
     });
     renderComponent();
 
@@ -106,7 +107,7 @@ describe('ProgramStateTypeQuestion', () => {
       programStates: programOneWorkflowOneStates,
       programStatesLookupError: null,
       isLoadingProgramStates: null,
-      mutateProgramStates: jest.fn(),
+      mutateProgramStates: vi.fn(),
     });
     const user = userEvent.setup();
     renderComponent();
@@ -168,7 +169,7 @@ describe('ProgramStateTypeQuestion', () => {
       programStates: programOneWorkflowOneStates,
       programStatesLookupError: null,
       isLoadingProgramStates: null,
-      mutateProgramStates: jest.fn(),
+      mutateProgramStates: vi.fn(),
     });
     formField.questionOptions = {
       rendering: 'select',

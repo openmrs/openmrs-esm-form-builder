@@ -1,4 +1,5 @@
 import React from 'react';
+import { vi, describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 import { showModal } from '@openmrs/esm-framework';
@@ -6,7 +7,7 @@ import { type FormSchema } from '@openmrs/esm-form-engine-lib';
 import { type Schema } from '../../types';
 import InteractiveBuilder from './interactive-builder.component';
 
-const mockShowModal = jest.mocked(showModal);
+const mockShowModal = vi.mocked(showModal);
 
 describe('InteractiveBuilder', () => {
   it('renders the interactive builder', async () => {
@@ -104,7 +105,7 @@ describe('InteractiveBuilder', () => {
 function renderInteractiveBuilder(props = {}) {
   const defaultProps = {
     isLoading: false,
-    onSchemaChange: jest.fn(),
+    onSchemaChange: vi.fn(),
     schema: {} as Schema,
     validationResponse: [],
   };

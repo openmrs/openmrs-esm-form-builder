@@ -1,19 +1,20 @@
 import React from 'react';
+import { vi, describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Date from './date.component';
 import { FormFieldProvider } from '../../../../form-field-context';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
 
-const mockSetFormField = jest.fn();
+const mockSetFormField = vi.fn();
 const formField: FormField = {
   datePickerFormat: 'both',
   type: 'obs',
   questionOptions: { rendering: 'date' },
   id: '1',
 };
-jest.mock('../../../../form-field-context', () => ({
-  ...jest.requireActual('../../../../form-field-context'),
+vi.mock('../../../../form-field-context', async () => ({
+  ...((await vi.importActual('../../../../form-field-context')) as object),
   useFormField: () => ({ formField, setFormField: mockSetFormField }),
 }));
 

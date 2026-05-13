@@ -1,4 +1,5 @@
 import React from 'react';
+import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import TestOrderTypeQuestion from './test-order-type-question.component';
@@ -7,21 +8,21 @@ import { useConceptId } from '@hooks/useConceptId';
 import { useConceptLookup } from '@hooks/useConceptLookup';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
 
-const mockUseConceptLookup = jest.mocked(useConceptLookup);
-jest.mock('@hooks/useConceptLookup', () => ({
-  ...jest.requireActual('@hooks/useConceptLookup'),
-  useConceptLookup: jest.fn(),
+const mockUseConceptLookup = vi.mocked(useConceptLookup);
+vi.mock('@hooks/useConceptLookup', async () => ({
+  ...((await vi.importActual('@hooks/useConceptLookup')) as object),
+  useConceptLookup: vi.fn(),
 }));
 
-const mockUseConceptId = jest.mocked(useConceptId);
-jest.mock('@hooks/useConceptId', () => ({
-  ...jest.requireActual('@hooks/useConceptId'),
-  useConceptId: jest.fn(),
+const mockUseConceptId = vi.mocked(useConceptId);
+vi.mock('@hooks/useConceptId', async () => ({
+  ...((await vi.importActual('@hooks/useConceptId')) as object),
+  useConceptId: vi.fn(),
 }));
 
-const mockSetFormField = jest.fn();
-const mockSetConcept = jest.fn();
-const mockSetIsConceptValid = jest.fn();
+const mockSetFormField = vi.fn();
+const mockSetConcept = vi.fn();
+const mockSetIsConceptValid = vi.fn();
 const formField: FormField = {
   id: 'test-order-1',
   type: 'testOrder',
@@ -32,8 +33,8 @@ const formField: FormField = {
   },
 };
 
-jest.mock('../../../../form-field-context', () => ({
-  ...jest.requireActual('../../../../form-field-context'),
+vi.mock('../../../../form-field-context', async () => ({
+  ...((await vi.importActual('../../../../form-field-context')) as object),
   useFormField: () => ({
     formField,
     setFormField: mockSetFormField,
@@ -44,7 +45,7 @@ jest.mock('../../../../form-field-context', () => ({
 
 describe('TestOrderTypeQuestion', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockUseConceptLookup.mockReturnValue({ concepts: [], conceptLookupError: null, isLoadingConcepts: false });
     mockUseConceptId.mockReturnValue({
       concept: null,

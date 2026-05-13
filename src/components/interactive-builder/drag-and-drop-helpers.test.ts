@@ -1,4 +1,5 @@
 import { moveQuestion, type DragQuestionData } from './drag-and-drop-helpers';
+import { describe, it, expect } from 'vitest';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
 import type { Schema } from '../../types';
 

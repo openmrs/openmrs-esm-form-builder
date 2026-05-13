@@ -1,4 +1,5 @@
 import React from 'react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import SelectAnswers from './select-answers.component';
 import { useConceptId } from '@hooks/useConceptId';
@@ -36,15 +37,15 @@ const concepts: Array<Concept> = [
   },
 ];
 
-const mockUseConceptLookup = jest.mocked(useConceptLookup);
-jest.mock('@hooks/useConceptLookup', () => ({
-  ...jest.requireActual('@hooks/useConceptLookup'),
-  useConceptLookup: jest.fn(),
+const mockUseConceptLookup = vi.mocked(useConceptLookup);
+vi.mock('@hooks/useConceptLookup', async () => ({
+  ...((await vi.importActual('@hooks/useConceptLookup')) as object),
+  useConceptLookup: vi.fn(),
 }));
-const mockUseConceptId = jest.mocked(useConceptId);
-jest.mock('@hooks/useConceptId', () => ({
-  ...jest.requireActual('@hooks/useConceptId'),
-  useConceptId: jest.fn(),
+const mockUseConceptId = vi.mocked(useConceptId);
+vi.mock('@hooks/useConceptId', async () => ({
+  ...((await vi.importActual('@hooks/useConceptId')) as object),
+  useConceptId: vi.fn(),
 }));
 
 describe('Select answers component', () => {

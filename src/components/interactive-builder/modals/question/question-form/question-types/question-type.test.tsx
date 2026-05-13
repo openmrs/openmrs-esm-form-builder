@@ -1,18 +1,19 @@
 import React from 'react';
+import { vi, describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { FormFieldProvider } from '../../form-field-context';
 import QuestionTypeComponent from './question-type.component';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
 
-const mockSetFormField = jest.fn();
+const mockSetFormField = vi.fn();
 const formField: FormField = {
   type: 'obs',
   questionOptions: { rendering: 'text' },
   id: '1',
 };
 
-jest.mock('../../form-field-context', () => ({
-  ...jest.requireActual('../../form-field-context'),
+vi.mock('../../form-field-context', async () => ({
+  ...((await vi.importActual('../../form-field-context')) as object),
   useFormField: () => ({ formField, setFormField: mockSetFormField }),
 }));
 
@@ -53,7 +54,7 @@ describe('RenderingType Component', () => {
   });
 
   it('prints error to console if component cannot be found for type', () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     formField.type = 'control';
     renderQuestionTypeComponent();
 
