@@ -2343,7 +2343,6 @@ __metadata:
     "@testing-library/user-event": "npm:^14.5.2"
     "@types/react": "npm:^18.3.2"
     "@types/react-dom": "npm:^18.3.0"
-    "@types/webpack-env": "npm:^1.18.5"
     "@typescript-eslint/eslint-plugin": "npm:^8.0.0"
     "@typescript-eslint/parser": "npm:^8.0.0"
     "@vitest/coverage-v8": "npm:^4.1.2"
@@ -2389,8 +2388,8 @@ __metadata:
   linkType: soft
 
 "@openmrs/esm-form-engine-lib@npm:next":
-  version: 4.1.1-pre.2398
-  resolution: "@openmrs/esm-form-engine-lib@npm:4.1.1-pre.2398"
+  version: 4.1.1-pre.2404
+  resolution: "@openmrs/esm-form-engine-lib@npm:4.1.1-pre.2404"
   dependencies:
     "@carbon/react": "npm:^1.83.0"
     classnames: "npm:^2.5.1"
@@ -2407,7 +2406,7 @@ __metadata:
     react: 18.x
     react-i18next: 16.x
     swr: 2.x
-  checksum: 10/51381125846be89b364bba35e20a54cece5528fe8edd3361eeeb44cf0b48f52ef6d2c87a381a4fe411461ec6a4a28be5e2f2cf481901b94db59fe4d580db35b2
+  checksum: 10/9590da13af87276991d83323f36d92e91d0ff4f8ca5ce90bb032d084e6f3e3786cf669df3d911de7e76ae7f6f8d16eb797289c5fbc0fd20f782ce53157942c39
   languageName: node
   linkType: hard
 
@@ -5180,13 +5179,6 @@ __metadata:
   version: 2.0.11
   resolution: "@types/unist@npm:2.0.11"
   checksum: 10/6d436e832bc35c6dde9f056ac515ebf2b3384a1d7f63679d12358766f9b313368077402e9c1126a14d827f10370a5485e628bf61aa91117cf4fc882423191a4e
-  languageName: node
-  linkType: hard
-
-"@types/webpack-env@npm:^1.18.5":
-  version: 1.18.5
-  resolution: "@types/webpack-env@npm:1.18.5"
-  checksum: 10/3c8dd0b23d45e2d33abdfbae7f1d8f75ce23d54588b08943e833f4dba81eb683ac68672a75eccbdba8e008bc1647638803c1bcadc8cdfd1dd7142fa2c3f612de
   languageName: node
   linkType: hard
 
