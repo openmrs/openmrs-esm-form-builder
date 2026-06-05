@@ -404,6 +404,7 @@ function FormsList({ forms, isValidating, mutate, t }: FormsListProps) {
                   <TableToolbarContent className={styles.headerContainer}>
                     <TableToolbarSearch
                       expanded
+                      size={responsiveSize}
                       className={styles.searchbox}
                       onChange={handleSearch}
                       placeholder={t('searchThisList', 'Search this list')}
