@@ -32,6 +32,13 @@
   .toolbarWrapper {
     height: layout.$spacing-07;
   }
+
+  // The expanded toolbar search stretches to the toolbar content height, which
+  // overrides its `size` and leaves it taller than the sm "Create a new form"
+  // button on desktop. Pin it to the same height so the two line up.
+  .searchbox {
+    height: layout.$spacing-07;
+  }
 }
 
 .tableToolbar {
