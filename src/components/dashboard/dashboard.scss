@@ -33,9 +33,13 @@
     height: layout.$spacing-07;
   }
 
-  // The expanded toolbar search stretches to the toolbar content height, which
-  // overrides its `size` and leaves it taller than the sm "Create a new form"
-  // button on desktop. Pin it to the same height so the two line up.
+  // On desktop the "Create a new form" button renders at the sm size (2rem),
+  // but Carbon sizes the toolbar content row (and the expanded search it
+  // contains) from --cds-layout-size-height-local, which resolves to 3rem.
+  // That leaves the search taller than the button and the content background
+  // overflowing the toolbar onto the table header. Pin both to the toolbar
+  // height so the row collapses to match the button.
+  .headerContainer,
   .searchbox {
     height: layout.$spacing-07;
   }
