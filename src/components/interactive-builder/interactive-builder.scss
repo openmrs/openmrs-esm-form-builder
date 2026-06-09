@@ -13,6 +13,8 @@
 
   :global(.cds--tooltip) {
     z-index: 1;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
   }
 }
 
