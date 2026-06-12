@@ -71,6 +71,30 @@ export class FormBuilderPage {
   readonly questionIdInput = () => this.page.getByRole('textbox', { name: /question id/i });
   readonly questionCreatedMessage = () => this.page.getByText(/new question created/i);
 
+  readonly translationBuilderTab = () => this.page.getByRole('tab', { name: /translation builder/i });
+  readonly translationBuilderPanel = () =>
+    this.page
+      .getByRole('tabpanel')
+      .filter({ has: this.page.getByRole('button', { name: /upload translation/i }) })
+      .first();
+  readonly languageDropdown = () => this.translationBuilderPanel().locator('#target-language');
+  readonly downloadTranslationButton = () =>
+    this.translationBuilderPanel().getByRole('button', { name: /download translation/i });
+  readonly uploadTranslationButton = () =>
+    this.translationBuilderPanel().getByRole('button', { name: /upload translation/i });
+  readonly translationSearchInput = () => this.page.getByPlaceholder(/search translation keys/i);
+  readonly translationTabsList = () =>
+    this.translationBuilderPanel().getByRole('tablist', { name: 'Translation filter' });
+  readonly allTranslationsTab = () => this.translationTabsList().getByRole('tab', { name: 'All', exact: true });
+  readonly translatedTab = () => this.translationTabsList().getByRole('tab', { name: 'Translated', exact: true });
+  readonly untranslatedTab = () => this.translationTabsList().getByRole('tab', { name: 'Untranslated', exact: true });
+  readonly editTranslationButton = (index: number = 0) =>
+    this.page.locator('[data-testid="edit-translation-button"]').nth(index);
+  readonly translationModal = () => this.page.getByRole('dialog');
+  translationValueInput() {
+    return this.page.getByTestId('translation-value-input');
+  }
+  readonly saveTranslationButton = () => this.translationModal().getByRole('button', { name: 'Save' });
   async gotoFormBuilder() {
     await this.page.goto('form-builder');
   }
