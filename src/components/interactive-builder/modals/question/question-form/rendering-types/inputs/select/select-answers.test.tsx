@@ -1,6 +1,6 @@
 import React from 'react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import SelectAnswers from './select-answers.component';
 import { useConceptId } from '@hooks/useConceptId';
 import { useConceptLookup } from '@hooks/useConceptLookup';
@@ -69,7 +69,7 @@ describe('Select answers component', () => {
     ).toBeInTheDocument();
   });
 
-  it('lets user select answers provided by concept', async () => {
+  it('shows answers provided by concept as selected initially', async () => {
     const user = userEvent.setup();
     renderComponent();
     const answersMenu = screen.getByRole('combobox', {
@@ -78,20 +78,50 @@ describe('Select answers component', () => {
     expect(answersMenu).toBeInTheDocument();
 
     await user.click(answersMenu);
-    const answerOption1 = screen.getByRole('option', { name: /answer 1/i });
-    expect(answerOption1).toBeInTheDocument();
-    expect(screen.getByText(/answer 2/i)).toBeInTheDocument();
-    await user.click(answerOption1);
-    const option = screen.getByRole('option', {
+    const answerOption1 = screen.getByRole('checkbox', {
       name: /answer 1/i,
     });
-    expect(within(option).getByText(/answer 1/i)).toBeInTheDocument();
+    const answerOption2 = screen.getByRole('checkbox', {
+      name: /answer 2/i,
+    });
+    expect(answerOption1).toBeChecked();
+    expect(answerOption2).toBeChecked();
+  });
 
-    expect(
-      screen.getByRole('combobox', {
-        name: /select answers to display/i,
-      }),
-    ).toBeInTheDocument();
+  it('keeps a cleared selection cleared instead of re-selecting every answer', async () => {
+    const user = userEvent.setup();
+    renderComponent();
+    const answersMenu = screen.getByRole('combobox', {
+      name: /select answers to display/i,
+    });
+
+    await user.click(answersMenu);
+    await user.click(screen.getByRole('checkbox', { name: /answer 1/i }));
+    await user.click(screen.getByRole('checkbox', { name: /answer 2/i }));
+
+    expect(screen.getByRole('checkbox', { name: /answer 1/i })).not.toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /answer 2/i })).not.toBeChecked();
+  });
+
+  it('renders the answers menu when a saved custom answer exists and the concept has no answers', () => {
+    render(
+      <FormFieldProvider
+        initialFormField={{
+          ...formField,
+          questionOptions: {
+            rendering: 'select',
+            answers: [{ concept: '999', label: 'Custom answer' }],
+          },
+        }}
+        selectedConcept={{ ...concept, answers: [] }}>
+        <SelectAnswers />
+      </FormFieldProvider>,
+    );
+
+    const answersMenu = screen.getByRole('combobox', {
+      name: /select answers to display/i,
+    });
+    expect(answersMenu).toBeInTheDocument();
   });
 
   it('lets users add additional answers if concept is of datatype coded', async () => {

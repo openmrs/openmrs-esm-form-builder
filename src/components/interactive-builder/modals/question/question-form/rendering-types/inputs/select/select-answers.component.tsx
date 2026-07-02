@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { InlineNotification, MultiSelect, Stack } from '@carbon/react';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -20,12 +20,39 @@ const SelectAnswers: React.FC = () => {
   const { formField, concept, setFormField } = useFormField();
   const [addedAnswers, setAddedAnswers] = useState<AnswerItem[]>([]);
   const [invalidAnswerIds, setInvalidAnswerIds] = useState<string[]>([]);
+  const initializedConceptUuid = useRef<string | null>(null);
 
+  // Reset the additionally selected answers when the concept changes
   useEffect(() => {
     if (!concept) {
       setAddedAnswers([]);
     }
   }, [concept]);
+
+  // Initialize the selected answers to the concept's answers, once per concept.
+  // The once-per-concept guard keeps a cleared selection cleared instead of
+  // re-selecting every answer whenever the answers list becomes empty.
+  useEffect(() => {
+    if (!concept || initializedConceptUuid.current === concept.uuid) {
+      return;
+    }
+    initializedConceptUuid.current = concept.uuid;
+
+    if (concept.answers?.length && !formField.questionOptions?.answers?.length) {
+      const initialAnswers = concept.answers.map((answer) => ({
+        concept: answer.uuid,
+        label: answer.display,
+      }));
+
+      setFormField((prevField) => ({
+        ...prevField,
+        questionOptions: {
+          ...prevField.questionOptions,
+          answers: initialAnswers,
+        },
+      }));
+    }
+  }, [concept, formField.questionOptions?.answers, setFormField]);
 
   const selectedAnswers = useMemo(() => {
     const answers =
@@ -39,10 +66,12 @@ const SelectAnswers: React.FC = () => {
 
   const handleSelectAnswers = useCallback(
     ({ selectedItems }: { selectedItems: Array<AnswerItem> }) => {
-      const mappedAnswers = selectedItems.map((answer) => ({
-        concept: answer.id,
-        label: answer.text,
-      }));
+      const mappedAnswers = selectedItems
+        .filter((answer) => answer.id !== 'select-all')
+        .map((answer) => ({
+          concept: answer.id,
+          label: answer.text,
+        }));
 
       setFormField((prevField) => {
         const currentAnswers = prevField.questionOptions?.answers || [];
@@ -113,10 +142,17 @@ const SelectAnswers: React.FC = () => {
 
     // If no answers from concept but we have form field answers, use those
     if (conceptAnswerItems.length === 0 && formFieldAnswers.length > 0) {
-      return formFieldAnswers.map((answer) => ({
-        id: answer.concept,
-        text: answer.label,
-      }));
+      return [
+        ...formFieldAnswers.map((answer) => ({
+          id: answer.concept,
+          text: answer.label,
+        })),
+        {
+          id: 'select-all',
+          text: t('selectAllOptions', 'Select all options'),
+          isSelectAll: true,
+        },
+      ];
     }
 
     const formFieldAnswerLabelsMap = new Map(formFieldAnswers.map((answer) => [answer.concept, answer.label]));
@@ -133,8 +169,16 @@ const SelectAnswers: React.FC = () => {
         text: answer.label,
       }));
 
-    return [...answersFromConceptWithLabelsFromFormField, ...additionalAnswers];
-  }, [concept?.answers, formField.questionOptions?.answers]);
+    return [
+      ...answersFromConceptWithLabelsFromFormField,
+      ...additionalAnswers,
+      {
+        id: 'select-all',
+        text: t('selectAllOptions', 'Select all options'),
+        isSelectAll: true,
+      },
+    ];
+  }, [concept?.answers, formField.questionOptions?.answers, t]);
 
   const validateAnswers = useCallback(async () => {
     if (!answerItems.length) {
@@ -144,7 +188,10 @@ const SelectAnswers: React.FC = () => {
 
     const originalAnswerIds = new Set((concept?.answers || []).map((ans) => ans.uuid));
     const invalidIds: string[] = [];
-    const uniqueAnswers = Array.from(new Map(answerItems.map((a) => [a.id, a])).values());
+    // Filter out the 'select-all' option before validation
+    const uniqueAnswers = Array.from(
+      new Map(answerItems.filter((a) => a.id !== 'select-all').map((a) => [a.id, a])).values(),
+    );
 
     for (const answer of uniqueAnswers) {
       if (!originalAnswerIds.has(answer.id)) {
@@ -219,7 +266,7 @@ const SelectAnswers: React.FC = () => {
 
   return (
     <Stack gap={5}>
-      {answerItems.length > 0 && (
+      {answerItems.length > 1 && (
         <MultiSelect
           className={styles.multiSelect}
           direction="bottom"

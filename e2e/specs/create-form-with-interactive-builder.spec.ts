@@ -31,12 +31,12 @@ const formDetails = {
                 concept: '89c5bc03-8ce2-40d8-a77d-20b5a62a1ca1',
                 answers: [
                   {
-                    concept: '1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-                    label: 'No',
-                  },
-                  {
                     concept: '1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
                     label: 'Yes',
+                  },
+                  {
+                    concept: '1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                    label: 'No',
                   },
                 ],
               },
@@ -183,12 +183,6 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
     await formBuilderPage.page.getByRole('menuitem', { name: /tested for covid 19/i }).click();
   });
 
-  await test.step('And then I select `Yes` and `No` as the answers to display', async () => {
-    await formBuilderPage.selectAnswersDropdown().click();
-    await formBuilderPage.page.getByRole('option', { name: 'No' }).click();
-    await formBuilderPage.page.getByRole('option', { name: 'Yes' }).click();
-  });
-
   await test.step('And then I click on `Save`', async () => {
     await expect(formBuilderPage.saveButton()).toBeEnabled();
     await formBuilderPage.saveButton().click();
@@ -243,34 +237,9 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
       ],
       pages: [
         {
-          label: 'Screening',
+          ...formDetails.pages[0],
           sections: [
-            {
-              label: 'Testing history',
-              isExpanded: 'true',
-              questions: [
-                {
-                  type: 'obs',
-                  questionOptions: {
-                    rendering: 'radio',
-                    concept: '89c5bc03-8ce2-40d8-a77d-20b5a62a1ca1',
-                    answers: [
-                      {
-                        concept: '1066AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-                        label: 'No',
-                      },
-                      {
-                        concept: '1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-                        label: 'Yes',
-                      },
-                    ],
-                  },
-                  id: 'everTestedForCovid19',
-                  label: 'Have you been ever been tested for COVID-19?',
-                  required: true,
-                },
-              ],
-            },
+            formDetails.pages[0].sections[0],
             {
               label: 'Visit Details',
               isExpanded: 'true',
