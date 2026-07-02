@@ -88,6 +88,42 @@ describe('Select answers component', () => {
     expect(answerOption2).toBeChecked();
   });
 
+  it('keeps a cleared selection cleared instead of re-selecting every answer', async () => {
+    const user = userEvent.setup();
+    renderComponent();
+    const answersMenu = screen.getByRole('combobox', {
+      name: /select answers to display/i,
+    });
+
+    await user.click(answersMenu);
+    await user.click(screen.getByRole('checkbox', { name: /answer 1/i }));
+    await user.click(screen.getByRole('checkbox', { name: /answer 2/i }));
+
+    expect(screen.getByRole('checkbox', { name: /answer 1/i })).not.toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /answer 2/i })).not.toBeChecked();
+  });
+
+  it('renders the answers menu when a saved custom answer exists and the concept has no answers', () => {
+    render(
+      <FormFieldProvider
+        initialFormField={{
+          ...formField,
+          questionOptions: {
+            rendering: 'select',
+            answers: [{ concept: '999', label: 'Custom answer' }],
+          },
+        }}
+        selectedConcept={{ ...concept, answers: [] }}>
+        <SelectAnswers />
+      </FormFieldProvider>,
+    );
+
+    const answersMenu = screen.getByRole('combobox', {
+      name: /select answers to display/i,
+    });
+    expect(answersMenu).toBeInTheDocument();
+  });
+
   it('lets users add additional answers if concept is of datatype coded', async () => {
     const user = userEvent.setup();
     renderComponent();

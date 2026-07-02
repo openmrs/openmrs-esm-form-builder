@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { InlineNotification, MultiSelect, Stack } from '@carbon/react';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -20,6 +20,7 @@ const SelectAnswers: React.FC = () => {
   const { formField, concept, setFormField } = useFormField();
   const [addedAnswers, setAddedAnswers] = useState<AnswerItem[]>([]);
   const [invalidAnswerIds, setInvalidAnswerIds] = useState<string[]>([]);
+  const initializedConceptUuid = useRef<string | null>(null);
 
   // Reset the additionally selected answers when the concept changes
   useEffect(() => {
@@ -28,9 +29,16 @@ const SelectAnswers: React.FC = () => {
     }
   }, [concept]);
 
-  // Initialize the selected answers to be the concept's answers
+  // Initialize the selected answers to the concept's answers, once per concept.
+  // The once-per-concept guard keeps a cleared selection cleared instead of
+  // re-selecting every answer whenever the answers list becomes empty.
   useEffect(() => {
-    if (concept?.answers?.length && !formField.questionOptions?.answers?.length) {
+    if (!concept || initializedConceptUuid.current === concept.uuid) {
+      return;
+    }
+    initializedConceptUuid.current = concept.uuid;
+
+    if (concept.answers?.length && !formField.questionOptions?.answers?.length) {
       const initialAnswers = concept.answers.map((answer) => ({
         concept: answer.uuid,
         label: answer.display,
@@ -134,10 +142,17 @@ const SelectAnswers: React.FC = () => {
 
     // If no answers from concept but we have form field answers, use those
     if (conceptAnswerItems.length === 0 && formFieldAnswers.length > 0) {
-      return formFieldAnswers.map((answer) => ({
-        id: answer.concept,
-        text: answer.label,
-      }));
+      return [
+        ...formFieldAnswers.map((answer) => ({
+          id: answer.concept,
+          text: answer.label,
+        })),
+        {
+          id: 'select-all',
+          text: t('selectAllOptions', 'Select all options'),
+          isSelectAll: true,
+        },
+      ];
     }
 
     const formFieldAnswerLabelsMap = new Map(formFieldAnswers.map((answer) => [answer.concept, answer.label]));
@@ -159,11 +174,11 @@ const SelectAnswers: React.FC = () => {
       ...additionalAnswers,
       {
         id: 'select-all',
-        text: 'Select all options',
+        text: t('selectAllOptions', 'Select all options'),
         isSelectAll: true,
       },
     ];
-  }, [concept?.answers, formField.questionOptions?.answers]);
+  }, [concept?.answers, formField.questionOptions?.answers, t]);
 
   const validateAnswers = useCallback(async () => {
     if (!answerItems.length) {
