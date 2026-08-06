@@ -46,6 +46,7 @@
     "url": "https://github.com/openmrs/openmrs-esm-form-builder/issues"
   },
   "dependencies": {
+    "@carbon/icons-react": "^11.68.0",
     "@carbon/react": "^1.83.0",
     "@openmrs/esm-form-engine-lib": "next",
     "ajv": "^8.17.1",
@@ -59,6 +60,8 @@
     "sass": "^1.67.0"
   },
   "peerDependencies": {
+    "@carbon/icons-react": "11.x",
+    "@carbon/react": "1.x",
     "@openmrs/esm-framework": "10.x",
     "react": "18.x",
     "react-dom": "18.x",
