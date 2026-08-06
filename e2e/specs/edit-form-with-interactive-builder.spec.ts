@@ -196,7 +196,10 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   });
 
   await test.step('And then I click the `Delete` button on the modal', async () => {
-    await formBuilderPage.page.getByRole('button', { name: /delete question/i }).click();
+    await formBuilderPage.page
+      .getByRole('dialog')
+      .getByRole('button', { name: /delete question/i })
+      .click();
     updatedForm.pages[0].sections[0].questions = updatedForm.pages[0].sections[0].questions.filter(
       (q) => q.id !== 'sampleQuestion',
     );
@@ -214,7 +217,10 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   });
 
   await test.step('And then I click the `Delete` button on the modal', async () => {
-    await formBuilderPage.page.getByRole('button', { name: /delete section/i }).click();
+    await formBuilderPage.page
+      .getByRole('dialog')
+      .getByRole('button', { name: /delete section/i })
+      .click();
     updatedForm.pages[0].sections = [];
   });
 
@@ -230,7 +236,10 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   });
 
   await test.step('And then I click the `Delete` button on the modal', async () => {
-    await formBuilderPage.page.getByRole('button', { name: /delete page/i }).click();
+    await formBuilderPage.page
+      .getByRole('dialog')
+      .getByRole('button', { name: /delete page/i })
+      .click();
     updatedForm.pages = [];
   });
 
