@@ -42,6 +42,7 @@ export const renderingTypes: Array<RenderType> = [
   'markdown',
   'extension-widget',
   'select-concept-answers',
+  'annotation',
 ];
 
 export const renderTypeOptions: Record<QuestionType, Array<RenderType>> = {

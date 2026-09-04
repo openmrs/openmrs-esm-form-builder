@@ -42,6 +42,7 @@ const allowedFieldTypes: Array<RenderType> = [
   'markdown',
   'extension-widget',
   'select-concept-answers',
+  'annotation',
 ];
 
 export const configSchema = {
@@ -147,7 +148,7 @@ export const configSchema = {
       _elements: {
         _type: Type.String,
       },
-      _default: ['file'],
+      _default: ['file', 'annotation'],
     },
   },
   enableFormValidation: {
