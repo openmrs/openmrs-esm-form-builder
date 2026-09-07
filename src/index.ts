@@ -80,3 +80,8 @@ export const editTranslationModal = getAsyncLifecycle(
 export function startupApp() {
   defineConfigSchema(moduleName, configSchema);
 }
+
+export const saveFormModal = getAsyncLifecycle(
+  () => import('./components/interactive-builder/modals/save-form/save-form.modal'),
+  options,
+);

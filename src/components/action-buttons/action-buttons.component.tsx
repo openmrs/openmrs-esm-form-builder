@@ -1,8 +1,7 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { Button, InlineLoading } from '@carbon/react';
 import { useParams } from 'react-router-dom';
 import { showModal, showSnackbar, useConfig } from '@openmrs/esm-framework';
-import SaveFormModal from '../interactive-builder/modals/save-form/save-form.modal';
 import { handleFormValidation } from '@resources/form-validator.resource';
 import { publishForm, unpublishForm } from '@resources/forms.resource';
 import { useForm } from '@hooks/useForm';
@@ -50,6 +49,9 @@ function ActionButtons({
   const { formUuid } = useParams<{ formUuid?: string }>();
   const { form, mutate } = useForm(formUuid);
   const [status, setStatus] = useState<Status>('idle');
+  const [isSavingForm, setIsSavingForm] = useState(false);
+  const disposeSaveModal = useRef<ReturnType<typeof showModal>>();
+  useEffect(() => () => disposeSaveModal.current?.(), []);
   const { dataTypeToRenderingMap, enableFormValidation } = useConfig<ConfigObject>();
 
   async function handlePublish() {
@@ -126,7 +128,21 @@ function ActionButtons({
 
   return (
     <div className={styles.actionButtons}>
-      <SaveFormModal form={form} schema={schema} />
+      <Button
+        disabled={!schema || isSavingForm}
+        kind="primary"
+        onClick={() => {
+          disposeSaveModal.current?.();
+          disposeSaveModal.current = showModal('save-form-modal', {
+            form,
+            schema,
+            formUuid,
+            onSavingChange: setIsSavingForm,
+          });
+        }}
+      >
+        {t('saveForm', 'Save form')}
+      </Button>
 
       <>
         {form && enableFormValidation && (
