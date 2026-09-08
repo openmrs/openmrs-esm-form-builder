@@ -77,11 +77,11 @@ export const editTranslationModal = getAsyncLifecycle(
   options,
 );
 
-export function startupApp() {
-  defineConfigSchema(moduleName, configSchema);
-}
-
 export const saveFormModal = getAsyncLifecycle(
   () => import('./components/interactive-builder/modals/save-form/save-form.modal'),
   options,
 );
+
+export function startupApp() {
+  defineConfigSchema(moduleName, configSchema);
+}

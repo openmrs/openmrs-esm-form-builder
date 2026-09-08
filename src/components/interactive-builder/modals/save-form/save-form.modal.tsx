@@ -223,7 +223,7 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema, formUuid, c
     <>
       <ModalHeader closeModal={close} title={t('saveFormToServer', 'Save form to server')} />
       <ModalBody>
-        <Form id="save-form" onSubmit={handleSubmit} className={styles.saveFormBody}>
+        <Form id="save-form" onSubmit={handleSubmit}>
           <p>
             {t(
               'saveExplainerText',

@@ -173,6 +173,10 @@ describe('save form modal', () => {
       expect(launcher).toBeDisabled();
       await user.click(launcher);
       expect(showModal).toHaveBeenCalledOnce();
+      expect(showModal).toHaveBeenCalledWith(
+        'save-form-modal',
+        expect.objectContaining({ schema, onSavingChange: expect.any(Function) }),
+      );
       expect(saveNewForm).toHaveBeenCalledOnce();
       await act(async () => {
         if (outcome === 'success') {
