@@ -105,8 +105,8 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
   });
 
   await test.step('And then I fill in the page title', async () => {
-    const input = formBuilderPage.pageNameInput();
-    await input.fill(formDetails.pages[0].label);
+    // eslint-disable-next-line playwright/prefer-locator -- pageNameInput() returns a locator.
+    await formBuilderPage.pageNameInput().fill(formDetails.pages[0].label);
   });
 
   await test.step('And then I click on `Save`', async () => {

@@ -42,11 +42,11 @@ interface SaveFormModalProps {
   form: FormGroupData;
   schema: Schema;
   formUuid?: string;
-  close: () => void;
+  closeModal: () => void;
   onSavingChange?: (isSaving: boolean) => void;
 }
 
-const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema, formUuid, close, onSavingChange }) => {
+const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema, formUuid, closeModal, onSavingChange }) => {
   const { t } = useTranslation();
   const { encounterTypes } = useEncounterTypes();
   const { mutate } = useForm(formUuid);
@@ -116,7 +116,7 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema, formUuid, c
               t('saveSuccessMessage', 'was created successfully. It is now visible on the Forms dashboard.'),
           });
           clearDraftFormSchema();
-          close();
+          closeModal();
           await mutate();
 
           navigate({
@@ -174,7 +174,7 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema, formUuid, c
             isLowContrast: true,
             subtitle: form?.name + ' ' + t('saveSuccess', 'was updated successfully'),
           });
-          close();
+          closeModal();
           await mutate();
         } catch (error) {
           if (error instanceof Error) {
@@ -195,7 +195,7 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema, formUuid, c
   if (saveState === null) {
     return (
       <>
-        <ModalHeader closeModal={close} title={t('saveConfirmation', 'Save or Update form')} />
+        <ModalHeader closeModal={closeModal} title={t('saveConfirmation', 'Save or Update form')} />
         <ModalBody>
           <p>
             {t(
@@ -211,7 +211,7 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema, formUuid, c
           <Button kind={'primary'} onClick={() => setSaveState('newVersion')}>
             {t('saveAsNewForm', 'Save as a new form')}
           </Button>
-          <Button kind={'secondary'} onClick={close}>
+          <Button kind={'secondary'} onClick={closeModal}>
             {t('close', 'Close')}
           </Button>
         </ModalFooter>
@@ -221,7 +221,7 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema, formUuid, c
 
   return (
     <>
-      <ModalHeader closeModal={close} title={t('saveFormToServer', 'Save form to server')} />
+      <ModalHeader closeModal={closeModal} title={t('saveFormToServer', 'Save form to server')} />
       <ModalBody>
         <Form id="save-form" onSubmit={handleSubmit}>
           <p>
@@ -300,7 +300,7 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema, formUuid, c
         </Form>
       </ModalBody>
       <ModalFooter>
-        <Button kind={'secondary'} onClick={close}>
+        <Button kind={'secondary'} onClick={closeModal}>
           {t('close', 'Close')}
         </Button>
         <Button

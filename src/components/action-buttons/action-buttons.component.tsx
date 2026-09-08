@@ -137,6 +137,7 @@ function ActionButtons({
             form,
             schema,
             formUuid,
+            closeModal: () => disposeSaveModal.current?.(),
             onSavingChange: setIsSavingForm,
           });
         }}

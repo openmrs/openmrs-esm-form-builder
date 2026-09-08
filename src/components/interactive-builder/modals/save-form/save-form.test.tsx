@@ -74,10 +74,10 @@ beforeEach(() => {
 describe('save form modal', () => {
   it('creates a new form without a router provider', async () => {
     const user = userEvent.setup();
-    const close = vi.fn();
-    render(<SaveFormModal schema={schema} form={undefined} close={close} />);
+    const closeModal = vi.fn();
+    render(<SaveFormModal schema={schema} form={undefined} closeModal={closeModal} />);
     await user.click(screen.getByRole('button', { name: 'Save' }));
-    await waitFor(() => expect(close).toHaveBeenCalledOnce());
+    await waitFor(() => expect(closeModal).toHaveBeenCalledOnce());
     expect(saveNewForm).toHaveBeenCalledWith('Nutrition', '1.0', false, 'Nutrition form', 'encounter-type');
     expect(getResourceUuid).toHaveBeenCalledWith('new-form', 'new-clob');
     expect(updateForm).not.toHaveBeenCalled();
@@ -88,13 +88,13 @@ describe('save form modal', () => {
 
   it('updates the selected existing form after the confirmation step', async () => {
     const user = userEvent.setup();
-    const close = vi.fn();
-    render(<SaveFormModal schema={schema} form={form} formUuid="existing-form" close={close} />);
+    const closeModal = vi.fn();
+    render(<SaveFormModal schema={schema} form={form} formUuid="existing-form" closeModal={closeModal} />);
     expect(useForm).toHaveBeenCalledWith('existing-form');
     expect(screen.queryByRole('textbox', { name: 'Form Name' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Update existing version' }));
     await user.click(screen.getByRole('button', { name: 'Save' }));
-    await waitFor(() => expect(close).toHaveBeenCalledOnce());
+    await waitFor(() => expect(closeModal).toHaveBeenCalledOnce());
     expect(updateForm).toHaveBeenCalledWith('existing-form', 'Nutrition', '1.0', 'Nutrition form', 'encounter-type');
     expect(getResourceUuid).toHaveBeenCalledWith('existing-form', 'new-clob');
     expect(deleteResource).toHaveBeenCalledWith('existing-form', 'old-link');
@@ -104,7 +104,7 @@ describe('save form modal', () => {
 
   it('creates a new version instead of updating the old form', async () => {
     const user = userEvent.setup();
-    render(<SaveFormModal schema={schema} form={form} formUuid="existing-form" close={vi.fn()} />);
+    render(<SaveFormModal schema={schema} form={form} formUuid="existing-form" closeModal={vi.fn()} />);
     await user.click(screen.getByRole('button', { name: 'Save as a new form' }));
     await user.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() => expect(saveNewForm).toHaveBeenCalledOnce());
@@ -114,14 +114,14 @@ describe('save form modal', () => {
 
   it('keeps failed saves open and cancellation does not save', async () => {
     const user = userEvent.setup();
-    const close = vi.fn();
+    const closeModal = vi.fn();
     vi.mocked(saveNewForm).mockRejectedValueOnce(new Error('Cannot save'));
-    render(<SaveFormModal schema={schema} form={undefined} close={close} />);
+    render(<SaveFormModal schema={schema} form={undefined} closeModal={closeModal} />);
     await user.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() => expect(showSnackbar).toHaveBeenCalledWith(expect.objectContaining({ kind: 'error' })));
-    expect(close).not.toHaveBeenCalled();
+    expect(closeModal).not.toHaveBeenCalled();
     await user.click(screen.getAllByRole('button', { name: 'Close' }).at(-1));
-    expect(close).toHaveBeenCalledOnce();
+    expect(closeModal).toHaveBeenCalledOnce();
     expect(saveNewForm).toHaveBeenCalledOnce();
   });
   it.each(['success', 'failure'])(
@@ -154,16 +154,16 @@ describe('save form modal', () => {
         );
       };
       vi.mocked(showModal).mockImplementation((name, props) => {
-        const close = () => view.unmount();
+        const closeModal = () => view.unmount();
         const view = render(
           <SaveFormModal
             schema={schema}
             form={undefined}
             onSavingChange={props.onSavingChange as React.ComponentProps<typeof SaveFormModal>['onSavingChange']}
-            close={close}
+            closeModal={props.closeModal as React.ComponentProps<typeof SaveFormModal>['closeModal']}
           />,
         );
-        return close;
+        return closeModal;
       });
       render(<Launcher />);
       const launcher = screen.getByRole('button', { name: 'Save form' });
@@ -175,7 +175,7 @@ describe('save form modal', () => {
       expect(showModal).toHaveBeenCalledOnce();
       expect(showModal).toHaveBeenCalledWith(
         'save-form-modal',
-        expect.objectContaining({ schema, onSavingChange: expect.any(Function) }),
+        expect.objectContaining({ schema, closeModal: expect.any(Function), onSavingChange: expect.any(Function) }),
       );
       expect(saveNewForm).toHaveBeenCalledOnce();
       await act(async () => {
