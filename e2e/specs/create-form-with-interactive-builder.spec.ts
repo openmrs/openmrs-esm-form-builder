@@ -5,11 +5,13 @@ import { FormBuilderPage } from '../pages';
 import { type Form } from '@types';
 
 let form: Form = null;
+
 test.beforeEach(async ({ api }) => {
   form = await createForm(api, true);
   const valueReference = await createValueReference(api);
   await addFormResources(api, valueReference, form.uuid);
 });
+
 let formUuid = '';
 const formDetails = {
   name: 'Covid-19 Screening',
@@ -53,6 +55,15 @@ const formDetails = {
   description: 'A test form for recording COVID-19 screening information',
 };
 
+test.afterEach(async ({ api }) => {
+  if (formUuid) {
+    await deleteForm(api, formUuid);
+  }
+  if (form) {
+    await deleteForm(api, form.uuid);
+  }
+});
+
 test('Create a form using the interactive builder', async ({ page, context }) => {
   const formBuilderPage = new FormBuilderPage(page);
 
@@ -94,6 +105,7 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
   });
 
   await test.step('And then I fill in the page title', async () => {
+    // eslint-disable-next-line playwright/prefer-locator -- pageNameInput() returns a locator.
     await formBuilderPage.pageNameInput().fill(formDetails.pages[0].label);
   });
 
@@ -203,7 +215,7 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
 
   await test.step('And then I select the form to be referenced', async () => {
     await formBuilderPage.selectFormDropdown().click();
-    await formBuilderPage.page.getByRole('option', { name: 'A sample test form ' }).click();
+    await formBuilderPage.page.getByRole('option', { name: form.name, exact: true }).click();
   });
 
   await test.step('And then I select the page to be referenced', async () => {
@@ -291,13 +303,4 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
     const editFormPageURL = page.url();
     formUuid = editFormPageURL.split('/').slice(-1)[0];
   });
-});
-
-test.afterEach(async ({ api }) => {
-  if (formUuid) {
-    await deleteForm(api, formUuid);
-  }
-  if (form) {
-    await deleteForm(api, form.uuid);
-  }
 });
