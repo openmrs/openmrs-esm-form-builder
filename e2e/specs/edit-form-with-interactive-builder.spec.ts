@@ -39,10 +39,17 @@ let updatedForm = {
   version: '1',
   description: 'This is test description',
 };
+
 test.beforeEach(async ({ api }) => {
   form = await createForm(api, false, formDetails);
   const valueReference = await createValueReference(api);
   await addFormResources(api, valueReference, form.uuid);
+});
+
+test.afterEach(async ({ api }) => {
+  if (form) {
+    await deleteForm(api, form.uuid);
+  }
 });
 
 test('Edit a form using the interactive builder', async ({ page, context }) => {
@@ -237,13 +244,8 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   await test.step('Then I should get a success message and the page should be deleted', async () => {
     await expect(formBuilderPage.page.getByText(/page deleted/i)).toBeVisible();
     await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited page/i })).toHaveCount(0);
-    const formTextContent = await formBuilderPage.schemaEditorContent().textContent();
-    expect(JSON.parse(formTextContent)).toEqual(updatedForm);
+    await expect
+      .poll(async () => JSON.parse(await formBuilderPage.schemaEditorContent().textContent()))
+      .toEqual(updatedForm);
   });
-});
-
-test.afterEach(async ({ api }) => {
-  if (form) {
-    await deleteForm(api, form.uuid);
-  }
 });

@@ -74,6 +74,10 @@
     {
       "name": "edit-translation-modal",
       "component": "editTranslationModal"
+    },
+    {
+      "name": "save-form-modal",
+      "component": "saveFormModal"
     }
   ]
 }
