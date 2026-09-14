@@ -22,12 +22,24 @@
 }
 
 .concept {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: layout.$spacing-04;
   border-bottom: 1px solid colors.$gray-20;
 
   &:last-of-type {
     border-bottom: none;
   }
+}
+
+// Retired concepts render as if disabled typographically, but remain clickable
+.retiredConcept {
+  color: colors.$gray-50;
+}
+
+.retiredConceptInput :global(.cds--search-input) {
+  color: colors.$gray-50;
 }
 
 .conceptList {

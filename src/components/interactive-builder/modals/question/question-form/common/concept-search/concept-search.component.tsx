@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Search, InlineLoading, Layer, Tile, FormLabel, InlineNotification } from '@carbon/react';
+import classNames from 'classnames';
+import { Search, InlineLoading, Layer, Tag, Tile, FormLabel, InlineNotification } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { ArrowUpRight } from '@carbon/react/icons';
 import { useConceptId } from '@hooks/useConceptId';
@@ -76,6 +77,9 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
     },
     [onSelectConcept, setIsConceptValid, clearSelectedConcept, clearSearchAfterSelection],
   );
+  const currentConcept = selectedConcept ?? initialConcept;
+  const showsRetiredConcept = !conceptToLookup && Boolean(currentConcept?.retired);
+
   return (
     <>
       <FormLabel className={styles.label}>
@@ -106,6 +110,7 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
         ) : (
           <Search
             id="conceptLookup"
+            className={classNames({ [styles.retiredConceptInput]: showsRetiredConcept })}
             onClear={clearSelectedConcept}
             onChange={handleConceptChange}
             labelText={t('searchForBackingConcept', 'Search for a backing concept')}
@@ -135,11 +140,18 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
                 {concepts?.map((concept, index) => (
                   <li
                     role="menuitem"
-                    className={styles.concept}
+                    className={classNames(styles.concept, {
+                      [styles.retiredConcept]: concept.retired,
+                    })}
                     key={index}
                     onClick={() => handleConceptSelect(concept)}
                   >
-                    {concept.display}
+                    <span>{concept.display}</span>
+                    {concept.retired && (
+                      <Tag size="sm" type="cool-gray">
+                        {t('retired', 'Retired')}
+                      </Tag>
+                    )}
                   </li>
                 ))}
               </ul>
