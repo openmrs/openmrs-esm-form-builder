@@ -116,6 +116,19 @@ describe('Concept search component', () => {
 
     await user.click(retiredConceptMenuItem);
     expect(onSelectConcept).toHaveBeenCalledWith(concepts[2]);
+    expect(searchInput).toHaveDisplayValue(/\(Retired\)$/);
+  });
+
+  it('marks a pre-loaded retired backing concept in the search box', () => {
+    const { rerender } = render(<ConceptSearch onSelectConcept={onSelectConcept} defaultConcept="789" />);
+    mockUseConceptId.mockReturnValue({
+      concept: concepts[2],
+      conceptName: concepts[2].display,
+      conceptNameLookupError: null,
+      isLoadingConcept: false,
+    });
+    rerender(<ConceptSearch onSelectConcept={onSelectConcept} defaultConcept="789" />);
+    expect(screen.getByRole('searchbox', { name: /search for a backing concept/i })).toHaveDisplayValue(/\(Retired\)$/);
   });
 
   it('shows loading spinner when concept is loading', async () => {

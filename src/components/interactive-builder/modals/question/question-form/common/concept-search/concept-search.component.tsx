@@ -110,7 +110,6 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
         ) : (
           <Search
             id="conceptLookup"
-            className={classNames({ [styles.retiredConceptInput]: showsRetiredConcept })}
             onClear={clearSelectedConcept}
             onChange={handleConceptChange}
             labelText={t('searchForBackingConcept', 'Search for a backing concept')}
@@ -120,13 +119,8 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
               if (conceptToLookup) {
                 return conceptToLookup;
               }
-              if (selectedConcept) {
-                return selectedConcept.display;
-              }
-              if (conceptName) {
-                return conceptName;
-              }
-              return '';
+              const display = selectedConcept?.display ?? conceptName ?? '';
+              return showsRetiredConcept ? t('retiredConceptDisplay', '{{display}} (Retired)', { display }) : display;
             })()}
           />
         )}

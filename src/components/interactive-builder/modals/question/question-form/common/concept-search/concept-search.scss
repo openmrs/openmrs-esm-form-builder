@@ -33,13 +33,9 @@
   }
 }
 
-// Retired concepts render as if disabled typographically, but remain clickable
 .retiredConcept {
-  color: colors.$gray-50;
-}
-
-.retiredConceptInput :global(.cds--search-input) {
-  color: colors.$gray-50;
+  justify-content: flex-start;
+  gap: layout.$spacing-02;
 }
 
 .conceptList {
