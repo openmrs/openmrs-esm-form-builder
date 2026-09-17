@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import classNames from 'classnames';
 import { Search, InlineLoading, Layer, Tag, Tile, FormLabel, InlineNotification } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { ArrowUpRight } from '@carbon/react/icons';
@@ -134,9 +133,8 @@ const ConceptSearch: React.FC<ConceptSearchProps> = ({
                 {concepts?.map((concept, index) => (
                   <li
                     role="menuitem"
-                    className={classNames(styles.concept, {
-                      [styles.retiredConcept]: concept.retired,
-                    })}
+                    className={styles.concept}
+                    data-retired={concept.retired || undefined}
                     key={index}
                     onClick={() => handleConceptSelect(concept)}
                   >

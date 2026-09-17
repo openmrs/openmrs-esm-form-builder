@@ -31,11 +31,11 @@
   &:last-of-type {
     border-bottom: none;
   }
-}
 
-.retiredConcept {
-  justify-content: flex-start;
-  gap: layout.$spacing-02;
+  &[data-retired] {
+    justify-content: flex-start;
+    gap: layout.$spacing-02;
+  }
 }
 
 .conceptList {
