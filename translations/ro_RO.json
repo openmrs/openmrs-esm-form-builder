@@ -224,6 +224,7 @@
   "restoring": "Restoring",
   "retire": "Retire",
   "retired": "Dezactivat",
+  "retiredConceptDisplay": "{{display}} (Retired)",
   "retireForm": "Retire form",
   "retireFormConfirmation": "Are you sure you want to retire this form? Retired forms are hidden by default but can be restored later.",
   "retireSchema": "Retire schema",
