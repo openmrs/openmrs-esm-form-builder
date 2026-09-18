@@ -52,18 +52,15 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
       setFormField((prevFormField) => {
         const hasPreviousRenderingType = prevFormField?.questionOptions?.rendering;
         if (hasPreviousRenderingType) {
-          const isQuestionTypeObs = newQuestionType === 'obs' ? true : false;
-          if (!isQuestionTypeObs) {
-            const isRenderingTypeValidForQuestionType =
-              questionTypes.includes(newQuestionType as keyof typeof renderTypeOptions) &&
-              renderTypeOptions[newQuestionType]?.includes(prevFormField.questionOptions.rendering as RenderType);
-            if (!isRenderingTypeValidForQuestionType) {
-              return {
-                ...prevFormField,
-                questionOptions: { ...prevFormField.questionOptions, rendering: null },
-                type: newQuestionType,
-              };
-            }
+          const isRenderingTypeValidForQuestionType =
+            questionTypes.includes(newQuestionType as keyof typeof renderTypeOptions) &&
+            renderTypeOptions[newQuestionType]?.includes(prevFormField.questionOptions.rendering as RenderType);
+          if (!isRenderingTypeValidForQuestionType) {
+            return {
+              ...prevFormField,
+              questionOptions: { ...prevFormField.questionOptions, rendering: null },
+              type: newQuestionType,
+            };
           }
         }
         return {
@@ -162,9 +159,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
         {!formField.questionOptions?.rendering && (
           <SelectItem text={t('chooseRenderingType', 'Choose a rendering type')} value="" />
         )}
-        {formField.type &&
-        formField.type !== 'obs' &&
-        questionTypes.includes(formField.type as keyof typeof renderTypeOptions)
+        {formField.type && questionTypes.includes(formField.type as keyof typeof renderTypeOptions)
           ? renderTypeOptions[formField?.type].map((type, key) => (
               <SelectItem key={`${type}-${key}`} text={type} value={type} />
             ))

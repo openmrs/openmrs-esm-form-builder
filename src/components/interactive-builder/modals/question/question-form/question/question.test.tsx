@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import Question from './question.component';
 import { FormFieldProvider } from '../../form-field-context';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
-import { renderingTypes } from '@constants';
+import { obsRenderingTypes } from '@constants';
 
 const initialFormField: FormField = {
   id: 'testId',
@@ -293,7 +293,7 @@ describe('Question Component', () => {
     expect(options[0]).toHaveTextContent('select');
   });
 
-  it('should show all rendering types for obs question type', async () => {
+  it('should show all non-wrapper rendering types for obs question type', async () => {
     renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
       formField: { ...initialFormField, type: 'obs' },
     });
@@ -306,13 +306,41 @@ describe('Question Component', () => {
       (option) => option.value && option.value !== '',
     );
 
-    expect(options).toHaveLength(renderingTypes.length);
+    expect(options).toHaveLength(obsRenderingTypes.length);
 
     const optionTexts = options.map((option) => option.textContent);
 
-    renderingTypes.forEach((renderType) => {
+    obsRenderingTypes.forEach((renderType) => {
       expect(optionTexts).toContain(renderType);
     });
+  });
+
+  it('should not offer group or repeating rendering types for obs question type', () => {
+    renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
+      formField: { ...initialFormField, type: 'obs' },
+    });
+
+    const renderingTypeSelect = screen.getByLabelText(/rendering type/i);
+    const optionValues = (within(renderingTypeSelect).getAllByRole('option') as HTMLOptionElement[]).map(
+      (option) => option.value,
+    );
+
+    expect(optionValues).not.toContain('group');
+    expect(optionValues).not.toContain('repeating');
+  });
+
+  it('should clear the rendering type when switching from obsGroup with repeating to obs', async () => {
+    const user = userEvent.setup();
+    renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
+      formField: { ...initialFormField, type: 'obsGroup', questionOptions: { rendering: 'repeating' } },
+    });
+
+    expect(screen.getByLabelText(/rendering type/i)).toHaveValue('repeating');
+
+    await user.selectOptions(screen.getByLabelText(/question type/i), 'obs');
+
+    expect(screen.getByLabelText(/question type/i)).toHaveValue('obs');
+    expect(screen.getByLabelText(/rendering type/i)).toHaveValue('');
   });
 
   it('should load question info from the form field object', () => {
