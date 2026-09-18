@@ -224,7 +224,7 @@
   "restoring": "Восстановление",
   "retire": "Архивировать",
   "retired": "В архиве",
-  "retiredConceptDisplay": "{{display}} (Retired)",
+  "retiredConceptDisplay": "{{display}} (Выведено из использования)",
   "retireForm": "Архивировать форму",
   "retireFormConfirmation": "Вы уверены, что хотите отправить форму в архив? Архивные формы скрыты по умолчанию, но могут быть восстановлены позже.",
   "retireSchema": "Архивировать схему",
