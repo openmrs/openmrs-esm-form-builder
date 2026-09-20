@@ -2776,6 +2776,7 @@ __metadata:
     react-dom: 18.x
     react-i18next: 16.x
     rxjs: 6.x
+    swr: 2.x
   languageName: unknown
   linkType: soft
 
