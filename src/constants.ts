@@ -56,6 +56,12 @@ export const obsRenderingTypes: Array<RenderType> = renderingTypes.filter(
   (renderType) => !groupRenderingTypes.includes(renderType),
 );
 
+/**
+ * Question types that can hold nested questions. Children belong only to these, so they
+ * are dropped when a question is switched to any other type.
+ */
+export const nestableQuestionTypes: Array<QuestionType> = ['obsGroup'];
+
 export const renderTypeOptions: Record<QuestionType, Array<RenderType>> = {
   control: ['text', 'markdown'],
   encounterDatetime: ['date', 'datetime'],

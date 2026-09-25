@@ -6,7 +6,8 @@ import QuestionTypeComponent from '../question-types/question-type.component';
 import RequiredLabel from '../common/required-label/required-label.component';
 import { useFormField } from '../../form-field-context';
 import type { FormField, RenderType } from '@openmrs/esm-form-engine-lib';
-import { questionTypes, renderTypeOptions, renderingTypes } from '@constants';
+import { nestableQuestionTypes, questionTypes, renderTypeOptions, renderingTypes } from '@constants';
+import type { QuestionType } from '@constants';
 import styles from './question.scss';
 
 interface QuestionProps {
@@ -50,23 +51,27 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       const newQuestionType = event.target.value;
       setFormField((prevFormField) => {
-        const hasPreviousRenderingType = prevFormField?.questionOptions?.rendering;
-        if (hasPreviousRenderingType) {
-          const isRenderingTypeValidForQuestionType =
-            questionTypes.includes(newQuestionType as keyof typeof renderTypeOptions) &&
-            renderTypeOptions[newQuestionType]?.includes(prevFormField.questionOptions.rendering as RenderType);
-          if (!isRenderingTypeValidForQuestionType) {
-            return {
-              ...prevFormField,
-              questionOptions: { ...prevFormField.questionOptions, rendering: null },
-              type: newQuestionType,
-            };
-          }
-        }
-        return {
-          ...prevFormField,
+        // Nested questions belong only to question types that can group them, so they are
+        // dropped when switching to a type that cannot. Otherwise the saved schema keeps
+        // orphaned children, e.g. an `obs` carrying the questions of a former `obsGroup`.
+        const { questions, ...fieldWithoutNestedQuestions } = prevFormField;
+        const canKeepNestedQuestions = nestableQuestionTypes.includes(newQuestionType as QuestionType);
+        const updatedFormField: FormField = {
+          ...(canKeepNestedQuestions ? prevFormField : fieldWithoutNestedQuestions),
           type: newQuestionType,
         };
+
+        const previousRenderingType = prevFormField?.questionOptions?.rendering;
+        if (previousRenderingType) {
+          const isRenderingTypeValidForQuestionType =
+            questionTypes.includes(newQuestionType as keyof typeof renderTypeOptions) &&
+            renderTypeOptions[newQuestionType]?.includes(previousRenderingType as RenderType);
+          if (!isRenderingTypeValidForQuestionType) {
+            updatedFormField.questionOptions = { ...prevFormField.questionOptions, rendering: null };
+          }
+        }
+
+        return updatedFormField;
       });
     },
     [setFormField],
