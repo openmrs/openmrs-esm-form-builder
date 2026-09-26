@@ -22,11 +22,19 @@
 }
 
 .concept {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: layout.$spacing-04;
   border-bottom: 1px solid colors.$gray-20;
 
   &:last-of-type {
     border-bottom: none;
+  }
+
+  &[data-retired] {
+    justify-content: flex-start;
+    gap: layout.$spacing-02;
   }
 }
 

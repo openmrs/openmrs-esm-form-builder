@@ -224,6 +224,7 @@
   "restoring": "Wiederherstellen",
   "retire": "Zurückziehen",
   "retired": "Zurückgezogen",
+  "retiredConceptDisplay": "{{display}} (Retired)",
   "retireForm": "Formular zurückziehen",
   "retireFormConfirmation": "Möchten Sie dieses Formular wirklich aus dem Verkehr ziehen? Aus dem Verkehr gezogene Formulare sind standardmäßig ausgeblendet, können aber später wiederhergestellt werden.",
   "retireSchema": "Schema zurückziehen",

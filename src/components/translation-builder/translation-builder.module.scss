@@ -8,18 +8,6 @@
   padding-right: layout.$spacing-05;
 }
 
-.title {
-  font-size: 1.25rem;
-  margin-bottom: layout.$spacing-05;
-}
-
-.languageSelector {
-  .languageSelector {
-    white-space: nowrap;
-    display: inline-block;
-  }
-}
-
 .translationEditor {
   margin-top: layout.$spacing-05;
 }
@@ -57,38 +45,24 @@
   padding: layout.$spacing-05;
 }
 
-.addNewStringContainer {
-  margin: layout.$spacing-05 0;
-}
-
-.saveButton {
-  margin-top: layout.$spacing-05;
-}
-
 .translationBuilderHeader {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-}
-
-.translationBuilderHeader {
-  display: flex;
-  justify-content: space-between;
-
-  .cds--tabs {
-    flex-grow: 1;
-  }
+  gap: layout.$spacing-05;
 }
 
 .languageTools {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   white-space: nowrap;
 }
 
 .languagePath {
   display: flex;
   align-items: center;
-  gap: layout.$spacing-02;
+  gap: layout.$spacing-03;
 
   .language {
     font-weight: 600;
@@ -111,34 +85,6 @@
   font-size: 0.875rem;
 }
 
-.downloadTranslation,
-.saveTranslations {
-  display: flex;
-  color: $color-blue-60-2;
-}
-
-.translationBuilderHeader {
-  display: flex;
-  flex-direction: column;
-  gap: layout.$spacing-05;
-}
-
-.languageTools {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.languagePath {
-  display: flex;
-  align-items: center;
-  gap: layout.$spacing-03;
-
-  .language {
-    font-weight: 600;
-  }
-}
-
 .translationActions {
   display: flex;
   align-items: center;
@@ -151,6 +97,7 @@
   gap: 4px;
   background: none;
   border: none;
+  padding-block-start: layout.$spacing-03;
   font-size: 0.9rem;
   color: $color-blue-60-2;
   cursor: pointer;

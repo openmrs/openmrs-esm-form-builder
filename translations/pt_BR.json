@@ -224,6 +224,7 @@
   "restoring": "Restaurando",
   "retire": "Arquivar",
   "retired": "Reformado",
+  "retiredConceptDisplay": "{{display}} (Retired)",
   "retireForm": "Arquivar formulário",
   "retireFormConfirmation": "Tem certeza de que deseja arquivar este formulário? Formulários arquivados ficam ocultos por padrão, mas podem ser restaurados posteriormente.",
   "retireSchema": "Arquivar esquema",

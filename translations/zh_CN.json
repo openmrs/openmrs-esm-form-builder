@@ -224,6 +224,7 @@
   "restoring": "恢复中",
   "retire": "停用",
   "retired": "已停用",
+  "retiredConceptDisplay": "{{display}} (Retired)",
   "retireForm": "停用表单",
   "retireFormConfirmation": "确定要停用此表单吗？",
   "retireSchema": "停用模式",

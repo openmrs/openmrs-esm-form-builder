@@ -171,7 +171,7 @@ describe('AddFormReferenceModal', () => {
     const dropdown = screen.getByRole('combobox', { name: /select form/i });
     expect(dropdown).toBeInTheDocument();
 
-    user.click(dropdown);
+    await user.click(dropdown);
     expect(await screen.findByText(/Adult HIV Return Visit Form/i)).toBeInTheDocument();
     expect(await screen.findByText(/Covid 19/i)).toBeInTheDocument();
   });
@@ -191,7 +191,7 @@ describe('AddFormReferenceModal', () => {
     const pageDropdown = screen.getByRole('combobox', { name: /Adult HIV Return Visit Form Pages:/i });
     expect(pageDropdown).toBeInTheDocument();
 
-    user.click(pageDropdown);
+    await user.click(pageDropdown);
     expect(await screen.findByText(/Encounter Details/i)).toBeInTheDocument();
     expect(await screen.findByText(/Pre-Clinic Review/i)).toBeInTheDocument();
   });
