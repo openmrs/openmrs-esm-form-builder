@@ -2,7 +2,7 @@ import React from 'react';
 import { Date, Markdown, Number, SelectAnswers, Text, TextArea, Toggle, UiSelectExtended } from './inputs';
 import { useFormField } from '../../form-field-context';
 import type { RenderType } from '@openmrs/esm-form-engine-lib';
-import { renderTypeOptions, renderingTypes } from '@constants';
+import { renderTypeOptions } from '@constants';
 
 const componentMap: Partial<Record<RenderType, React.FC>> = {
   number: Number,
@@ -21,8 +21,7 @@ const componentMap: Partial<Record<RenderType, React.FC>> = {
 const RenderTypeComponent: React.FC = () => {
   const { formField } = useFormField();
   // Get allowed rendering types based on formField.type
-  const allowedRenderingTypes =
-    formField.type && formField.type !== 'obs' ? renderTypeOptions[formField.type] : renderingTypes;
+  const allowedRenderingTypes = formField.type ? renderTypeOptions[formField.type] : [];
 
   // Only get component if rendering type is allowed. Exception is program state because selecting the states is also implemented in the SelectAnswers component
   const Component =
