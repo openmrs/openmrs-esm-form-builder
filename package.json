@@ -60,6 +60,7 @@
     "sass": "^1.67.0"
   },
   "peerDependencies": {
+    "@carbon/react": "1.x",
     "@openmrs/esm-framework": "10.x",
     "react": "18.x",
     "react-dom": "18.x",
