@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   ActionableNotification,
@@ -32,6 +32,7 @@ import TranslationBuilder from '../translation-builder/translation-builder.compo
 import SchemaEditor from '../schema-editor/schema-editor.component';
 import ValidationMessage from '../validation-info/validation-info.component';
 import { handleFormValidation } from '@resources/form-validator.resource';
+import { getDraftSchemaKey } from '../../utils/draft-schema';
 import { mergeTranslatedSchema } from '../../utils/translationSchemaUtils';
 import { unretireForm } from '@resources/forms.resource';
 import { useClobdata } from '@hooks/useClobdata';
@@ -95,6 +96,9 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   const [renderLangCode, setRenderLangCode] = useState<string | null>(null);
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
+  const draftKey = getDraftSchemaKey(formUuid);
+  const promptedDraftKey = useRef<string>();
+  const loadedClobdata = useRef<Schema>();
 
   const savedSchemaString = useMemo(() => (clobdata ? JSON.stringify(clobdata, null, 2) : ''), [clobdata]);
   const hasSchemaContent =
@@ -128,17 +132,21 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
     [resetErrorMessage],
   );
 
-  const updateSchema = useCallback((updatedSchema: FormSchema) => {
-    setSchema(updatedSchema);
-    localStorage.setItem('formJSON', JSON.stringify(updatedSchema));
-  }, []);
+  const updateSchema = useCallback(
+    (updatedSchema: FormSchema) => {
+      setSchema(updatedSchema);
+      localStorage.setItem(draftKey, JSON.stringify(updatedSchema));
+    },
+    [draftKey],
+  );
 
   const launchRestoreDraftSchemaModal = useCallback(() => {
     const dispose = showModal('restore-draft-schema-modal', {
       closeModal: () => dispose(),
+      draftKey,
       onSchemaChange: updateSchema,
     });
-  }, [updateSchema]);
+  }, [draftKey, updateSchema]);
 
   const handleRestoreForm = useCallback(async () => {
     if (!form) return;
@@ -175,17 +183,37 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
         setStatus('formLoaded');
       }
 
-      if (status === 'formLoaded' && !isLoadingClobdata && clobdata === undefined) {
+      if (
+        status === 'formLoaded' &&
+        !isLoadingClobdata &&
+        clobdata === undefined &&
+        promptedDraftKey.current !== draftKey &&
+        localStorage.getItem(draftKey)
+      ) {
+        promptedDraftKey.current = draftKey;
         launchRestoreDraftSchemaModal();
       }
 
-      if (clobdata && Object.keys(clobdata).length > 0) {
+      // Load the server schema once per fetched copy. The effect also re-runs when the form
+      // metadata changes (for example after publishing), and that must not discard edits in progress.
+      if (clobdata && Object.keys(clobdata).length > 0 && loadedClobdata.current !== clobdata) {
+        loadedClobdata.current = clobdata;
         setStatus('schemaLoaded');
-        setSchema(clobdata);
-        localStorage.setItem('formJSON', JSON.stringify(clobdata));
+        // Work on a copy so edits made in the builder never reach the cached server copy.
+        setSchema(JSON.parse(JSON.stringify(clobdata)) as Schema);
+        localStorage.setItem(draftKey, JSON.stringify(clobdata));
       }
     }
-  }, [clobdata, form, formUuid, isLoadingClobdata, isLoadingFormOrSchema, launchRestoreDraftSchemaModal, status]);
+  }, [
+    clobdata,
+    draftKey,
+    form,
+    formUuid,
+    isLoadingClobdata,
+    isLoadingFormOrSchema,
+    launchRestoreDraftSchemaModal,
+    status,
+  ]);
 
   useEffect(() => {
     setStringifiedSchema(JSON.stringify(schema, null, 2));
