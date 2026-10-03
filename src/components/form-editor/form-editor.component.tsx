@@ -101,6 +101,19 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
     Boolean(stringifiedSchema) && stringifiedSchema !== 'undefined' && stringifiedSchema !== 'null';
   const isDirty = hasSchemaContent && stringifiedSchema !== savedSchemaString;
 
+  // The schema as it currently reads in the editor, including edits that haven't been rendered yet.
+  // While the editor text isn't valid JSON there is no schema, only the parse error.
+  const { schema: editorSchema, error: editorJsonError } = useMemo<{ schema?: Schema; error?: string }>(() => {
+    if (!hasSchemaContent) {
+      return {};
+    }
+    try {
+      return { schema: JSON.parse(stringifiedSchema) as Schema };
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : String(e) };
+    }
+  }, [hasSchemaContent, stringifiedSchema]);
+
   useEffect(() => {
     if (!isDirty) return;
     const handler = (event: BeforeUnloadEvent) => {
@@ -191,10 +204,14 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
     setStringifiedSchema(JSON.stringify(schema, null, 2));
   }, [schema]);
 
+  // Validate what Save would persist: the schema as it reads in the editor.
   const onValidateForm = async () => {
+    if (!editorSchema) {
+      return;
+    }
     setIsValidating(true);
     try {
-      const [errorsArray] = await handleFormValidation(schema, dataTypeToRenderingMap, t);
+      const [errorsArray] = await handleFormValidation(editorSchema, dataTypeToRenderingMap, t);
       setValidationResponse(errorsArray);
       setValidationComplete(true);
     } catch (error) {
@@ -423,7 +440,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                   size="sm"
                   renderIcon={Renew}
                   onClick={handleRenderSchemaChanges}
-                  disabled={!!invalidJsonErrorMessage}
+                  disabled={!!invalidJsonErrorMessage || !!editorJsonError}
                 >
                   {t('renderChanges', 'Render changes')}
                 </Button>
@@ -467,6 +484,16 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
             {clobdataError ? (
               <ErrorNotification error={clobdataError} title={t('schemaLoadError', 'Error loading schema')} />
             ) : null}
+            {editorJsonError ? (
+              <InlineNotification
+                className={styles.errorNotification}
+                kind="error"
+                lowContrast
+                hideCloseButton
+                title={t('invalidSchemaJson', 'The schema is not valid JSON, so it cannot be rendered or saved')}
+                subtitle={editorJsonError}
+              />
+            ) : null}
             <div className={styles.editorContainer}>
               <SchemaEditor
                 errors={errors}
@@ -482,7 +509,8 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
         </Column>
         <Column lg={8} md={8} sm={4} className={styles.column}>
           <ActionButtons
-            schema={schema}
+            schema={editorSchema}
+            hasUnsavedChanges={isDirty}
             t={t}
             schemaErrors={errors}
             setPublishedWithErrors={setPublishedWithErrors}
