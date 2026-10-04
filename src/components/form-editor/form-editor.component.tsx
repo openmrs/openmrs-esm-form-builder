@@ -96,23 +96,37 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
-  const savedSchemaString = useMemo(() => (clobdata ? JSON.stringify(clobdata, null, 2) : ''), [clobdata]);
   const hasSchemaContent =
     Boolean(stringifiedSchema) && stringifiedSchema !== 'undefined' && stringifiedSchema !== 'null';
-  const isDirty = hasSchemaContent && stringifiedSchema !== savedSchemaString;
 
   // The schema as it currently reads in the editor, including edits that haven't been rendered yet.
-  // While the editor text isn't valid JSON there is no schema, only the parse error.
+  // While the editor text isn't valid JSON, or isn't a JSON object, there is no schema, only the error.
   const { schema: editorSchema, error: editorJsonError } = useMemo<{ schema?: Schema; error?: string }>(() => {
     if (!hasSchemaContent) {
       return {};
     }
     try {
-      return { schema: JSON.parse(stringifiedSchema) as Schema };
+      const parsed: unknown = JSON.parse(stringifiedSchema);
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+        return { error: t('schemaMustBeObject', 'The schema must be a JSON object') };
+      }
+      return { schema: parsed as Schema };
     } catch (e) {
       return { error: e instanceof Error ? e.message : String(e) };
     }
-  }, [hasSchemaContent, stringifiedSchema]);
+  }, [hasSchemaContent, stringifiedSchema, t]);
+
+  // Unsaved changes are judged on the parsed schema, so reformatting the JSON alone doesn't count,
+  // while an emptied or unparseable editor does when a saved schema exists.
+  const isDirty = useMemo(() => {
+    if (!clobdata) {
+      return hasSchemaContent;
+    }
+    if (!editorSchema) {
+      return true;
+    }
+    return JSON.stringify(editorSchema) !== JSON.stringify(clobdata);
+  }, [clobdata, editorSchema, hasSchemaContent]);
 
   useEffect(() => {
     if (!isDirty) return;

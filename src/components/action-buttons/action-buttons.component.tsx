@@ -55,6 +55,10 @@ function ActionButtons({
   const disposeSaveModal = useRef<ReturnType<typeof showModal>>();
   useEffect(() => () => disposeSaveModal.current?.(), []);
   const { dataTypeToRenderingMap, enableFormValidation } = useConfig<ConfigObject>();
+  // Validation is asynchronous, so the publish step re-reads the latest dirty state rather than the one
+  // captured when the click happened.
+  const hasUnsavedChangesRef = useRef(hasUnsavedChanges);
+  hasUnsavedChangesRef.current = hasUnsavedChanges;
 
   function warnAboutUnsavedChanges() {
     showSnackbar({
@@ -118,6 +122,11 @@ function ActionButtons({
         subtitle: error instanceof Error ? error.message : String(error),
       });
       setStatus('error');
+      return;
+    }
+    if (hasUnsavedChangesRef.current) {
+      setStatus('idle');
+      warnAboutUnsavedChanges();
       return;
     }
     await handlePublish();

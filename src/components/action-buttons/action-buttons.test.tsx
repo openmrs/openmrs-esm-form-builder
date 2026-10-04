@@ -102,4 +102,41 @@ describe('ActionButtons', () => {
 
     await waitFor(() => expect(mockPublishForm).toHaveBeenCalledWith('form-uuid'));
   });
+  it('does not publish when edits arrive while validation is running', async () => {
+    const user = userEvent.setup();
+    mockUseConfig.mockReturnValue({ enableFormValidation: true, dataTypeToRenderingMap: {} });
+    type ValidationResult = Awaited<ReturnType<typeof handleFormValidation>>;
+    let finishValidation: (result: ValidationResult) => void;
+    mockHandleFormValidation.mockReturnValue(
+      new Promise<ValidationResult>((resolve) => {
+        finishValidation = resolve;
+      }),
+    );
+    const view = renderActionButtons();
+
+    await user.click(screen.getByRole('button', { name: /validate and publish form/i }));
+    view.rerender(
+      <MemoryRouter>
+        <ActionButtons
+          hasUnsavedChanges
+          isValidating={false}
+          onFormValidation={vi.fn()}
+          schema={schema}
+          schemaErrors={[]}
+          setPublishedWithErrors={vi.fn()}
+          setValidationComplete={vi.fn()}
+          setValidationResponse={vi.fn()}
+          t={((key: string, fallback: string) => fallback) as React.ComponentProps<typeof ActionButtons>['t']}
+        />
+      </MemoryRouter>,
+    );
+    finishValidation([[], []] as ValidationResult);
+
+    await waitFor(() =>
+      expect(mockShowSnackbar).toHaveBeenCalledWith(
+        expect.objectContaining({ kind: 'warning', subtitle: 'Save the form before publishing it' }),
+      ),
+    );
+    expect(mockPublishForm).not.toHaveBeenCalled();
+  });
 });

@@ -116,4 +116,27 @@ describe('FormEditor', () => {
       expect.anything(),
     );
   });
+  it('treats an emptied editor as unsaved, but not a reformatted one', async () => {
+    render(<FormEditor />);
+    await waitFor(() => expect(state.actionButtons?.schema).toBeDefined());
+
+    act(() => state.schemaEditor.onSchemaChange(JSON.stringify(savedSchema)));
+    await waitFor(() => expect(state.actionButtons.schema).toBeDefined());
+    expect(state.actionButtons.hasUnsavedChanges).toBe(false);
+
+    act(() => state.schemaEditor.onSchemaChange(''));
+    await waitFor(() => expect(state.actionButtons.schema).toBeUndefined());
+    expect(state.actionButtons.hasUnsavedChanges).toBe(true);
+  });
+
+  it('rejects JSON that is not an object as a schema', async () => {
+    render(<FormEditor />);
+    await waitFor(() => expect(state.actionButtons?.schema).toBeDefined());
+
+    act(() => state.schemaEditor.onSchemaChange('"hello"'));
+
+    await waitFor(() => expect(state.actionButtons.schema).toBeUndefined());
+    expect(screen.getByText(/must be a JSON object/i)).toBeInTheDocument();
+    expect(state.actionButtons.hasUnsavedChanges).toBe(true);
+  });
 });
