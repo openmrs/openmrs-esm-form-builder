@@ -32,7 +32,7 @@ import TranslationBuilder from '../translation-builder/translation-builder.compo
 import SchemaEditor from '../schema-editor/schema-editor.component';
 import ValidationMessage from '../validation-info/validation-info.component';
 import { handleFormValidation } from '@resources/form-validator.resource';
-import { getDraftSchemaKey } from '../../utils/draft-schema';
+import { getDraftSchema, getDraftSchemaKey } from '../../utils/draft-schema';
 import { mergeTranslatedSchema } from '../../utils/translationSchemaUtils';
 import { unretireForm } from '@resources/forms.resource';
 import { useClobdata } from '@hooks/useClobdata';
@@ -188,7 +188,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
         !isLoadingClobdata &&
         clobdata === undefined &&
         promptedDraftKey.current !== draftKey &&
-        localStorage.getItem(draftKey)
+        getDraftSchema(formUuid)
       ) {
         promptedDraftKey.current = draftKey;
         launchRestoreDraftSchemaModal();

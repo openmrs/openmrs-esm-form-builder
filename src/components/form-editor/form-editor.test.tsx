@@ -107,4 +107,23 @@ describe('FormEditor', () => {
     await waitFor(() => expect(state.builder).not.toBeNull());
     expect(mockShowModal).not.toHaveBeenCalled();
   });
+  it('offers a draft saved under the old shared key when it belongs to this form', async () => {
+    localStorage.setItem('formJSON', JSON.stringify({ name: 'Old draft', uuid: 'form-a', pages: [] }));
+
+    render(<FormEditor />);
+
+    await waitFor(() => expect(mockShowModal).toHaveBeenCalledTimes(1));
+    expect(localStorage.getItem('formJSON:form-a')).toContain('Old draft');
+    expect(localStorage.getItem('formJSON')).toBeNull();
+  });
+
+  it('ignores a draft under the old shared key that belongs to another form', async () => {
+    localStorage.setItem('formJSON', JSON.stringify({ name: 'Other draft', uuid: 'form-z', pages: [] }));
+
+    render(<FormEditor />);
+
+    await waitFor(() => expect(state.builder).not.toBeNull());
+    expect(mockShowModal).not.toHaveBeenCalled();
+    expect(localStorage.getItem('formJSON')).toContain('Other draft');
+  });
 });
