@@ -48,6 +48,8 @@ function ActionButtons({
 }: ActionButtonsProps) {
   const { formUuid } = useParams<{ formUuid?: string }>();
   const { form, mutate } = useForm(formUuid);
+  // Publishing marks the saved form as published, so it needs a saved schema, not just one in the editor.
+  const hasSavedSchema = form?.resources?.some(({ name }) => name === 'JSON schema');
   const [status, setStatus] = useState<Status>('idle');
   const [isSavingForm, setIsSavingForm] = useState(false);
   const disposeSaveModal = useRef<ReturnType<typeof showModal>>();
@@ -160,7 +162,7 @@ function ActionButtons({
             <Button
               kind="secondary"
               onClick={handleValidateAndPublish}
-              disabled={!schema || status === 'validateBeforePublishing' || schemaErrors.length > 0}
+              disabled={!hasSavedSchema || status === 'validateBeforePublishing' || schemaErrors.length > 0}
             >
               {status === 'validateBeforePublishing' ? (
                 <InlineLoading className={styles.spinner} description={t('validating', 'Validating') + '...'} />
@@ -172,7 +174,7 @@ function ActionButtons({
             <Button
               kind="secondary"
               onClick={handlePublish}
-              disabled={!schema || status === 'publishing' || schemaErrors.length > 0}
+              disabled={!hasSavedSchema || status === 'publishing' || schemaErrors.length > 0}
             >
               {status === 'publishing' && !form?.published ? (
                 <InlineLoading className={styles.spinner} description={t('publishing', 'Publishing') + '...'} />

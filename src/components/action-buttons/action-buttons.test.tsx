@@ -1,10 +1,10 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect } from 'vitest';
 import { useConfig } from '@openmrs/esm-framework';
 import { useForm } from '@hooks/useForm';
-import type { Schema } from '@types';
+import type { Form, Schema } from '@types';
 import ActionButtons from './action-buttons.component';
 
 vi.mock('@hooks/useForm');
@@ -13,9 +13,22 @@ vi.mock('@resources/forms.resource');
 const mockUseConfig = vi.mocked(useConfig);
 
 const schema = { name: 'Nutrition', pages: [] } as unknown as Schema;
-const form = { uuid: 'form-uuid', name: 'Nutrition', published: false } as ReturnType<typeof useForm>['form'];
+const schemaResource = {
+  uuid: 'resource-uuid',
+  name: 'JSON schema',
+  dataType: 'AmpathJsonSchema',
+  valueReference: 'clob-uuid',
+};
 
-function renderActionButtons(props: Partial<React.ComponentProps<typeof ActionButtons>> = {}) {
+function renderActionButtons(form: Partial<Form>, props: Partial<React.ComponentProps<typeof ActionButtons>> = {}) {
+  vi.mocked(useForm).mockReturnValue({
+    form: { uuid: 'form-uuid', name: 'Nutrition', published: false, ...form } as Form,
+    formError: undefined,
+    isLoadingForm: false,
+    isValidatingForm: false,
+    mutate: vi.fn(),
+  });
+
   return render(
     <MemoryRouter>
       <ActionButtons
@@ -34,27 +47,18 @@ function renderActionButtons(props: Partial<React.ComponentProps<typeof ActionBu
 }
 
 describe('ActionButtons', () => {
-  beforeEach(() => {
-    vi.mocked(useForm).mockReturnValue({
-      form,
-      formError: undefined,
-      isLoadingForm: false,
-      isValidatingForm: false,
-      mutate: vi.fn(),
-    });
-  });
-
   it.each([
     { enableFormValidation: true, buttonName: 'Validate and publish form' },
     { enableFormValidation: false, buttonName: 'Publish form' },
-  ])('only enables $buttonName when there is a schema to publish', ({ enableFormValidation, buttonName }) => {
+  ])('only enables $buttonName once the form has a saved schema', ({ enableFormValidation, buttonName }) => {
     mockUseConfig.mockReturnValue({ enableFormValidation, dataTypeToRenderingMap: {} });
 
-    const { unmount } = renderActionButtons({ schema: undefined });
+    // A schema in the editor, such as a restored draft, isn't saved to the form yet.
+    const { unmount } = renderActionButtons({ resources: [] });
     expect(screen.getByRole('button', { name: buttonName })).toBeDisabled();
     unmount();
 
-    renderActionButtons();
+    renderActionButtons({ resources: [schemaResource] });
     expect(screen.getByRole('button', { name: buttonName })).toBeEnabled();
   });
 });
