@@ -160,7 +160,7 @@ function ActionButtons({
             <Button
               kind="secondary"
               onClick={handleValidateAndPublish}
-              disabled={status === 'validateBeforePublishing' || schemaErrors.length > 0}
+              disabled={!schema || status === 'validateBeforePublishing' || schemaErrors.length > 0}
             >
               {status === 'validateBeforePublishing' ? (
                 <InlineLoading className={styles.spinner} description={t('validating', 'Validating') + '...'} />
@@ -172,7 +172,7 @@ function ActionButtons({
             <Button
               kind="secondary"
               onClick={handlePublish}
-              disabled={status === 'publishing' || schemaErrors.length > 0}
+              disabled={!schema || status === 'publishing' || schemaErrors.length > 0}
             >
               {status === 'publishing' && !form?.published ? (
                 <InlineLoading className={styles.spinner} description={t('publishing', 'Publishing') + '...'} />
