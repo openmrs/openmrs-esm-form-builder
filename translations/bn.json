@@ -160,6 +160,7 @@
   "name": "Name",
   "namePlaceholder": "What the form is called in the system",
   "no": "No",
+  "noEncounterType": "None",
   "noFormsAvailable": "No Forms Available",
   "noFormsToDisplay": "There are no forms to display.",
   "noMatchingConcepts": "No concepts were found that match",

@@ -160,6 +160,7 @@
   "name": "Nom",
   "namePlaceholder": "Nom du formulaire dans le système",
   "no": "Non",
+  "noEncounterType": "None",
   "noFormsAvailable": "Pas de formulaire disponible",
   "noFormsToDisplay": "Aucun formulaire à afficher.",
   "noMatchingConcepts": "Aucun formulaire correspondant à afficher",
