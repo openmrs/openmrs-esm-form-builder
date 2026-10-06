@@ -3,9 +3,9 @@ import { vi, describe, it, expect } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Question from './question.component';
-import { FormFieldProvider } from '../../form-field-context';
+import { FormFieldProvider, useFormField } from '../../form-field-context';
 import type { FormField } from '@openmrs/esm-form-engine-lib';
-import { renderingTypes } from '@constants';
+import { obsRenderingTypes } from '@constants';
 
 const initialFormField: FormField = {
   id: 'testId',
@@ -17,6 +17,15 @@ const initialFormField: FormField = {
 };
 
 const checkIfQuestionIdExists = vi.fn(() => false);
+
+// Exposes the context's form field so tests can assert on parts of it that the
+// question form doesn't render, such as nested questions.
+const FormFieldProbe: React.FC = () => {
+  const { formField } = useFormField();
+  return <div data-testid="formField">{JSON.stringify(formField)}</div>;
+};
+
+const getFormField = (): FormField => JSON.parse(screen.getByTestId('formField').textContent) as FormField;
 
 const renderWithFormFieldProvider = (
   component: React.ReactElement,
@@ -293,7 +302,7 @@ describe('Question Component', () => {
     expect(options[0]).toHaveTextContent('select');
   });
 
-  it('should show all rendering types for obs question type', async () => {
+  it('should show all non-wrapper rendering types for obs question type', async () => {
     renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
       formField: { ...initialFormField, type: 'obs' },
     });
@@ -306,13 +315,83 @@ describe('Question Component', () => {
       (option) => option.value && option.value !== '',
     );
 
-    expect(options).toHaveLength(renderingTypes.length);
+    expect(options).toHaveLength(obsRenderingTypes.length);
 
     const optionTexts = options.map((option) => option.textContent);
 
-    renderingTypes.forEach((renderType) => {
+    obsRenderingTypes.forEach((renderType) => {
       expect(optionTexts).toContain(renderType);
     });
+  });
+
+  it('should not offer group or repeating rendering types for obs question type', () => {
+    renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
+      formField: { ...initialFormField, type: 'obs' },
+    });
+
+    const renderingTypeSelect = screen.getByLabelText(/rendering type/i);
+    const optionValues = (within(renderingTypeSelect).getAllByRole('option') as HTMLOptionElement[]).map(
+      (option) => option.value,
+    );
+
+    expect(optionValues).not.toContain('group');
+    expect(optionValues).not.toContain('repeating');
+  });
+
+  it('should drop nested questions when switching from obsGroup to a type that cannot group them', async () => {
+    const user = userEvent.setup();
+    renderWithFormFieldProvider(
+      <>
+        <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
+        <FormFieldProbe />
+      </>,
+      {
+        formField: {
+          ...initialFormField,
+          type: 'obsGroup',
+          questionOptions: { rendering: 'group' },
+          questions: [{ id: 'childQuestion', type: 'obs', questionOptions: { rendering: 'text' } }],
+        },
+      },
+    );
+
+    expect(getFormField().questions).toHaveLength(1);
+
+    await user.selectOptions(screen.getByLabelText(/question type/i), 'obs');
+
+    expect(getFormField()).not.toHaveProperty('questions');
+  });
+
+  it('should keep nested questions when the new question type can still group them', async () => {
+    const user = userEvent.setup();
+    const questions: Array<FormField> = [{ id: 'childQuestion', type: 'obs', questionOptions: { rendering: 'text' } }];
+    renderWithFormFieldProvider(
+      <>
+        <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
+        <FormFieldProbe />
+      </>,
+      {
+        formField: { ...initialFormField, type: 'obsGroup', questionOptions: { rendering: 'group' }, questions },
+      },
+    );
+
+    await user.selectOptions(screen.getByLabelText(/question type/i), 'obsGroup');
+
+    expect(getFormField().questions).toEqual(questions);
+  });
+
+  it('should clear the rendering type when switching from obsGroup with repeating to obs', async () => {
+    const user = userEvent.setup();
+    renderWithFormFieldProvider(<Question checkIfQuestionIdExists={checkIfQuestionIdExists} />, {
+      formField: { ...initialFormField, type: 'obsGroup', questionOptions: { rendering: 'repeating' } },
+    });
+
+    expect(screen.getByLabelText(/rendering type/i)).toHaveValue('repeating');
+
+    await user.selectOptions(screen.getByLabelText(/question type/i), 'obs');
+
+    expect(screen.getByLabelText(/question type/i)).toHaveValue('obs');
+    expect(screen.getByLabelText(/rendering type/i)).toHaveValue('');
   });
 
   it('should load question info from the form field object', () => {
