@@ -187,7 +187,7 @@ function ActionButtons({
 
       <>
         {form && enableFormValidation && (
-          <Button kind="tertiary" onClick={onFormValidation} disabled={isValidating}>
+          <Button kind="tertiary" onClick={onFormValidation} disabled={!schema || isValidating}>
             {isValidating ? (
               <InlineLoading className={styles.spinner} description={t('validating', 'Validating') + '...'} />
             ) : (

@@ -75,6 +75,13 @@ describe('ActionButtons', () => {
     );
   });
 
+  it('disables validation while there is no schema to validate', () => {
+    mockUseConfig.mockReturnValue({ enableFormValidation: true, dataTypeToRenderingMap: {} });
+    renderActionButtons({ schema: undefined });
+
+    expect(screen.getByRole('button', { name: 'Validate form' })).toBeDisabled();
+  });
+
   it('reports a validation failure instead of leaving the button in its validating state', async () => {
     const user = userEvent.setup();
     mockUseConfig.mockReturnValue({ enableFormValidation: true, dataTypeToRenderingMap: {} });

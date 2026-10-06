@@ -91,13 +91,13 @@ describe('FormEditor', () => {
     act(() => state.schemaEditor.onSchemaChange('{ "name": "Form A", '));
 
     await waitFor(() => expect(state.actionButtons.schema).toBeUndefined());
-    expect(screen.getByText(/not valid JSON/i)).toBeInTheDocument();
+    expect(screen.getByText(/schema is not valid/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /render changes/i })).toBeDisabled();
 
     act(() => state.schemaEditor.onSchemaChange(JSON.stringify(savedSchema, null, 2)));
 
     await waitFor(() => expect(state.actionButtons.schema).toBeDefined());
-    expect(screen.queryByText(/not valid JSON/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/schema is not valid/i)).not.toBeInTheDocument();
   });
   it('validates the schema as it reads in the editor, not the last rendered one', async () => {
     vi.mocked(handleFormValidation).mockResolvedValue([[], []]);
@@ -136,7 +136,9 @@ describe('FormEditor', () => {
     act(() => state.schemaEditor.onSchemaChange('"hello"'));
 
     await waitFor(() => expect(state.actionButtons.schema).toBeUndefined());
+    expect(screen.getByText(/schema is not valid/i)).toBeInTheDocument();
     expect(screen.getByText(/must be a JSON object/i)).toBeInTheDocument();
+    expect(screen.queryByText(/not valid JSON/i)).not.toBeInTheDocument();
     expect(state.actionButtons.hasUnsavedChanges).toBe(true);
   });
 });

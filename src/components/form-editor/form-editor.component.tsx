@@ -220,9 +220,6 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
 
   // Validate what Save would persist: the schema as it reads in the editor.
   const onValidateForm = async () => {
-    if (!editorSchema) {
-      return;
-    }
     setIsValidating(true);
     try {
       const [errorsArray] = await handleFormValidation(editorSchema, dataTypeToRenderingMap, t);
@@ -504,7 +501,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                 kind="error"
                 lowContrast
                 hideCloseButton
-                title={t('invalidSchemaJson', 'The schema is not valid JSON, so it cannot be rendered or saved')}
+                title={t('invalidSchema', 'The schema is not valid, so it cannot be rendered or saved')}
                 subtitle={editorJsonError}
               />
             ) : null}

@@ -137,7 +137,7 @@
   "invalidAnswerConcept": "Invalid Answer Concept Detected",
   "invalidMinMax": "Min value cannot be greater than max",
   "invalidPersonAttributeType": "Invalid person attribute type",
-  "invalidSchemaJson": "The schema is not valid JSON, so it cannot be rendered or saved",
+  "invalidSchema": "The schema is not valid, so it cannot be rendered or saved",
   "invalidVersionWarning": "Version can only start with with a number",
   "isQuestionInfoProvided": "Would you like to provide additional details about the question?",
   "isQuestionRequiredOrOptional": "Is this question a required or optional field? Required fields must be answered before the form can be submitted.",
