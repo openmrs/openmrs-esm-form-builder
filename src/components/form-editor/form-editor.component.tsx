@@ -116,6 +116,10 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
     }
   }, [hasSchemaContent, stringifiedSchema, t]);
 
+  // Serialized once per loaded schema. The interactive builder edits the schema in place, and those
+  // edits can reach clobdata, so serializing it again later would compare the edits with themselves.
+  const savedSchemaString = useMemo(() => (clobdata ? JSON.stringify(clobdata) : ''), [clobdata]);
+
   // Unsaved changes are judged on the parsed schema, so reformatting the JSON alone doesn't count,
   // while an emptied or unparseable editor does when a saved schema exists.
   const isDirty = useMemo(() => {
@@ -125,8 +129,8 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
     if (!editorSchema) {
       return true;
     }
-    return JSON.stringify(editorSchema) !== JSON.stringify(clobdata);
-  }, [clobdata, editorSchema, hasSchemaContent]);
+    return JSON.stringify(editorSchema) !== savedSchemaString;
+  }, [clobdata, editorSchema, hasSchemaContent, savedSchemaString]);
 
   useEffect(() => {
     if (!isDirty) return;

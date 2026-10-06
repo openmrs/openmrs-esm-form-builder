@@ -12,11 +12,13 @@ type ActionButtonsProps = {
   onFormValidation: () => Promise<void>;
 };
 type SchemaEditorProps = { stringifiedSchema: string; onSchemaChange: (schema: string) => void };
+type InteractiveBuilderProps = { schema: Schema; onSchemaChange: (schema: Schema) => void };
 
 const state = vi.hoisted(() => ({
   clobdata: undefined as Schema | undefined,
   actionButtons: null as ActionButtonsProps | null,
   schemaEditor: null as SchemaEditorProps | null,
+  interactiveBuilder: null as InteractiveBuilderProps | null,
 }));
 
 vi.mock('@resources/form-validator.resource', () => ({ handleFormValidation: vi.fn() }));
@@ -46,7 +48,12 @@ vi.mock('../schema-editor/schema-editor.component', () => ({
     return null;
   },
 }));
-vi.mock('../interactive-builder/interactive-builder.component', () => ({ default: () => null }));
+vi.mock('../interactive-builder/interactive-builder.component', () => ({
+  default: (props: InteractiveBuilderProps) => {
+    state.interactiveBuilder = props;
+    return null;
+  },
+}));
 vi.mock('../form-renderer/form-renderer.component', () => ({ default: () => null }));
 vi.mock('../translation-builder/translation-builder.component', () => ({ default: () => null }));
 vi.mock('../audit-details/audit-details.component', () => ({ default: () => null }));
@@ -69,6 +76,7 @@ describe('FormEditor', () => {
     state.clobdata = savedSchema;
     state.actionButtons = null;
     state.schemaEditor = null;
+    state.interactiveBuilder = null;
     vi.mocked(useConfig).mockReturnValue({ blockRenderingWithErrors: false, dataTypeToRenderingMap: {} });
   });
 
@@ -139,6 +147,24 @@ describe('FormEditor', () => {
     expect(screen.getByText(/schema is not valid/i)).toBeInTheDocument();
     expect(screen.getByText(/must be a JSON object/i)).toBeInTheDocument();
     expect(screen.queryByText(/not valid JSON/i)).not.toBeInTheDocument();
+    expect(state.actionButtons.hasUnsavedChanges).toBe(true);
+  });
+
+  it('treats an edit the interactive builder makes in place as unsaved', async () => {
+    // The builder edits the loaded schema in place, so give this test its own copy to change
+    state.clobdata = structuredClone(savedSchema);
+    render(<FormEditor />);
+    await waitFor(() => expect(state.interactiveBuilder?.schema?.pages[0].label).toBe('Original'));
+    expect(state.actionButtons.hasUnsavedChanges).toBe(false);
+
+    // Same as renaming a page: change the schema in place, then hand back a shallow copy
+    act(() => {
+      const { schema, onSchemaChange } = state.interactiveBuilder;
+      schema.pages[0].label = 'Renamed in the interactive builder';
+      onSchemaChange({ ...schema });
+    });
+
+    await waitFor(() => expect(state.actionButtons.schema?.pages[0].label).toBe('Renamed in the interactive builder'));
     expect(state.actionButtons.hasUnsavedChanges).toBe(true);
   });
 });
