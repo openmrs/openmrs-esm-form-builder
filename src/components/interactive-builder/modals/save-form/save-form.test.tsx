@@ -141,6 +141,7 @@ describe('save form modal', () => {
         return (
           <MemoryRouter>
             <ActionButtons
+              hasUnsavedChanges={false}
               schema={schema}
               t={t}
               isValidating={false}

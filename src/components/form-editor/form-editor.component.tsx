@@ -96,10 +96,41 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
-  const savedSchemaString = useMemo(() => (clobdata ? JSON.stringify(clobdata, null, 2) : ''), [clobdata]);
   const hasSchemaContent =
     Boolean(stringifiedSchema) && stringifiedSchema !== 'undefined' && stringifiedSchema !== 'null';
-  const isDirty = hasSchemaContent && stringifiedSchema !== savedSchemaString;
+
+  // The schema as it currently reads in the editor, including edits that haven't been rendered yet.
+  // While the editor text isn't valid JSON, or isn't a JSON object, there is no schema, only the error.
+  const { schema: editorSchema, error: editorJsonError } = useMemo<{ schema?: Schema; error?: string }>(() => {
+    if (!hasSchemaContent) {
+      return {};
+    }
+    try {
+      const parsed: unknown = JSON.parse(stringifiedSchema);
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+        return { error: t('schemaMustBeObject', 'The schema must be a JSON object') };
+      }
+      return { schema: parsed as Schema };
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : String(e) };
+    }
+  }, [hasSchemaContent, stringifiedSchema, t]);
+
+  // Serialized once per loaded schema. The interactive builder edits the schema in place, and those
+  // edits can reach clobdata, so serializing it again later would compare the edits with themselves.
+  const savedSchemaString = useMemo(() => (clobdata ? JSON.stringify(clobdata) : ''), [clobdata]);
+
+  // Unsaved changes are judged on the parsed schema, so reformatting the JSON alone doesn't count,
+  // while an emptied or unparseable editor does when a saved schema exists.
+  const isDirty = useMemo(() => {
+    if (!clobdata) {
+      return hasSchemaContent;
+    }
+    if (!editorSchema) {
+      return true;
+    }
+    return JSON.stringify(editorSchema) !== savedSchemaString;
+  }, [clobdata, editorSchema, hasSchemaContent, savedSchemaString]);
 
   useEffect(() => {
     if (!isDirty) return;
@@ -191,10 +222,11 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
     setStringifiedSchema(JSON.stringify(schema, null, 2));
   }, [schema]);
 
+  // Validate what Save would persist: the schema as it reads in the editor.
   const onValidateForm = async () => {
     setIsValidating(true);
     try {
-      const [errorsArray] = await handleFormValidation(schema, dataTypeToRenderingMap, t);
+      const [errorsArray] = await handleFormValidation(editorSchema, dataTypeToRenderingMap, t);
       setValidationResponse(errorsArray);
       setValidationComplete(true);
     } catch (error) {
@@ -423,7 +455,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                   size="sm"
                   renderIcon={Renew}
                   onClick={handleRenderSchemaChanges}
-                  disabled={!!invalidJsonErrorMessage}
+                  disabled={!!invalidJsonErrorMessage || !!editorJsonError}
                 >
                   {t('renderChanges', 'Render changes')}
                 </Button>
@@ -467,6 +499,16 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
             {clobdataError ? (
               <ErrorNotification error={clobdataError} title={t('schemaLoadError', 'Error loading schema')} />
             ) : null}
+            {editorJsonError ? (
+              <InlineNotification
+                className={styles.errorNotification}
+                kind="error"
+                lowContrast
+                hideCloseButton
+                title={t('invalidSchema', 'The schema is not valid, so it cannot be rendered or saved')}
+                subtitle={editorJsonError}
+              />
+            ) : null}
             <div className={styles.editorContainer}>
               <SchemaEditor
                 errors={errors}
@@ -482,7 +524,8 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
         </Column>
         <Column lg={8} md={8} sm={4} className={styles.column}>
           <ActionButtons
-            schema={schema}
+            schema={editorSchema}
+            hasUnsavedChanges={isDirty}
             t={t}
             schemaErrors={errors}
             setPublishedWithErrors={setPublishedWithErrors}

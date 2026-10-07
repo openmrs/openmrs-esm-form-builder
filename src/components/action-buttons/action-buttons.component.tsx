@@ -12,6 +12,7 @@ import type { Schema } from '@types';
 import styles from './action-buttons.scss';
 
 interface ActionButtonsProps {
+  hasUnsavedChanges: boolean;
   isValidating: boolean;
   onFormValidation: () => Promise<void>;
   schema: Schema;
@@ -37,6 +38,7 @@ type Status =
   | 'validated';
 
 function ActionButtons({
+  hasUnsavedChanges,
   isValidating,
   onFormValidation,
   schema,
@@ -53,8 +55,26 @@ function ActionButtons({
   const disposeSaveModal = useRef<ReturnType<typeof showModal>>();
   useEffect(() => () => disposeSaveModal.current?.(), []);
   const { dataTypeToRenderingMap, enableFormValidation } = useConfig<ConfigObject>();
+  // Validation is asynchronous, so the publish step re-reads the latest dirty state rather than the one
+  // captured when the click happened.
+  const hasUnsavedChangesRef = useRef(hasUnsavedChanges);
+  hasUnsavedChangesRef.current = hasUnsavedChanges;
+
+  function warnAboutUnsavedChanges() {
+    showSnackbar({
+      title: t('unsavedChanges', 'Unsaved changes'),
+      kind: 'warning',
+      isLowContrast: true,
+      subtitle: t('saveBeforePublishing', 'Save the form before publishing it'),
+    });
+  }
 
   async function handlePublish() {
+    if (hasUnsavedChanges) {
+      warnAboutUnsavedChanges();
+      return;
+    }
+
     try {
       setStatus('publishing');
       await publishForm(form.uuid);
@@ -80,13 +100,33 @@ function ActionButtons({
   }
 
   async function handleValidateAndPublish() {
+    if (hasUnsavedChanges) {
+      warnAboutUnsavedChanges();
+      return;
+    }
+
     setStatus('validateBeforePublishing');
-    const [errorsArray] = await handleFormValidation(schema, dataTypeToRenderingMap, t);
-    setValidationResponse(errorsArray);
-    if (errorsArray.length) {
-      setStatus('validated');
-      setValidationComplete(true);
-      setPublishedWithErrors(true);
+    try {
+      const [errorsArray] = await handleFormValidation(schema, dataTypeToRenderingMap, t);
+      setValidationResponse(errorsArray);
+      if (errorsArray.length) {
+        setStatus('validated');
+        setValidationComplete(true);
+        setPublishedWithErrors(true);
+        return;
+      }
+    } catch (error) {
+      showSnackbar({
+        title: t('errorValidatingForm', 'Error validating form'),
+        kind: 'error',
+        subtitle: error instanceof Error ? error.message : String(error),
+      });
+      setStatus('error');
+      return;
+    }
+    if (hasUnsavedChangesRef.current) {
+      setStatus('idle');
+      warnAboutUnsavedChanges();
       return;
     }
     await handlePublish();
@@ -147,7 +187,7 @@ function ActionButtons({
 
       <>
         {form && enableFormValidation && (
-          <Button kind="tertiary" onClick={onFormValidation} disabled={isValidating}>
+          <Button kind="tertiary" onClick={onFormValidation} disabled={!schema || isValidating}>
             {isValidating ? (
               <InlineLoading className={styles.spinner} description={t('validating', 'Validating') + '...'} />
             ) : (
