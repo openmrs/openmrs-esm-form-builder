@@ -32,6 +32,13 @@ const concepts: Array<Concept> = [
     datatype: { uuid: '456', name: 'Date' },
     mappings: [{ display: 'CIEL:1656', conceptMapType: { display: 'SAME-AS' } }],
   },
+  {
+    uuid: '789',
+    display: 'Retired concept',
+    datatype: { uuid: '456', name: 'Text' },
+    mappings: [{ display: 'CIEL:1706', conceptMapType: { display: 'SAME-AS' } }],
+    retired: true,
+  },
 ];
 const mockUseConceptLookup = vi.mocked(useConceptLookup);
 vi.mock('@hooks/useConceptLookup', async () => ({
@@ -87,6 +94,41 @@ describe('Concept search component', () => {
     });
     expect(conceptMenuItem).toBeInTheDocument();
     expect(searchInput).toHaveDisplayValue(/concept 1/i);
+  });
+
+  it('flags retired concepts in the search results but keeps them selectable', async () => {
+    const user = userEvent.setup();
+    renderComponent();
+
+    const searchInput = screen.getByRole('searchbox', { name: /search for a backing concept/i });
+    await user.click(searchInput);
+    await user.type(searchInput, 'Retired concept');
+
+    const retiredConceptMenuItem = await screen.findByRole('menuitem', {
+      name: /retired concept/i,
+    });
+    expect(retiredConceptMenuItem).toBeInTheDocument();
+    const retiredTag = screen.getByText(/^retired$/i);
+    expect(retiredConceptMenuItem).toContainElement(retiredTag);
+
+    const activeConceptMenuItem = screen.getByRole('menuitem', { name: /concept 1/i });
+    expect(activeConceptMenuItem).not.toContainElement(retiredTag);
+
+    await user.click(retiredConceptMenuItem);
+    expect(onSelectConcept).toHaveBeenCalledWith(concepts[2]);
+    expect(searchInput).toHaveDisplayValue(/\(Retired\)$/);
+  });
+
+  it('marks a pre-loaded retired backing concept in the search box', () => {
+    const { rerender } = render(<ConceptSearch onSelectConcept={onSelectConcept} defaultConcept="789" />);
+    mockUseConceptId.mockReturnValue({
+      concept: concepts[2],
+      conceptName: concepts[2].display,
+      conceptNameLookupError: null,
+      isLoadingConcept: false,
+    });
+    rerender(<ConceptSearch onSelectConcept={onSelectConcept} defaultConcept="789" />);
+    expect(screen.getByRole('searchbox', { name: /search for a backing concept/i })).toHaveDisplayValue(/\(Retired\)$/);
   });
 
   it('shows loading spinner when concept is loading', async () => {

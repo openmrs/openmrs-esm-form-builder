@@ -70,6 +70,7 @@ export interface Concept {
   conceptClass?: { display?: string };
   answers?: Array<ConceptAnswer>;
   allowDecimal?: boolean;
+  retired?: boolean;
 }
 
 export interface ConceptAnswer {
