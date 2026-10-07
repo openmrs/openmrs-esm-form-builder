@@ -160,7 +160,7 @@
   "name": "Название",
   "namePlaceholder": "Как форма называется в системе",
   "no": "Нет",
-  "noEncounterType": "None",
+  "noEncounterType": "Отсутствует",
   "noFormsAvailable": "Нет доступных форм",
   "noFormsToDisplay": "Нет форм для отображения.",
   "noMatchingConcepts": "Элементы справочника, соответствующие запросу, не найдены",
