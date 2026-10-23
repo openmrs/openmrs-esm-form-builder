@@ -50,26 +50,22 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       const newQuestionType = event.target.value;
       setFormField((prevFormField) => {
-        const hasPreviousRenderingType = prevFormField?.questionOptions?.rendering;
-        if (hasPreviousRenderingType) {
-          const isQuestionTypeObs = newQuestionType === 'obs' ? true : false;
-          if (!isQuestionTypeObs) {
-            const isRenderingTypeValidForQuestionType =
-              questionTypes.includes(newQuestionType as keyof typeof renderTypeOptions) &&
-              renderTypeOptions[newQuestionType]?.includes(prevFormField.questionOptions.rendering as RenderType);
-            if (!isRenderingTypeValidForQuestionType) {
-              return {
-                ...prevFormField,
-                questionOptions: { ...prevFormField.questionOptions, rendering: null },
-                type: newQuestionType,
-              };
-            }
+        // Nested questions stay in the draft even if the new type can't group them, so
+        // switching back (e.g. obsGroup -> obs -> obsGroup) doesn't lose them. They are
+        // dropped on save instead; see `withoutOrphanedQuestions`.
+        const updatedFormField: FormField = { ...prevFormField, type: newQuestionType };
+
+        const previousRenderingType = prevFormField?.questionOptions?.rendering;
+        if (previousRenderingType) {
+          const isRenderingTypeValidForQuestionType =
+            questionTypes.includes(newQuestionType as keyof typeof renderTypeOptions) &&
+            renderTypeOptions[newQuestionType]?.includes(previousRenderingType as RenderType);
+          if (!isRenderingTypeValidForQuestionType) {
+            updatedFormField.questionOptions = { ...prevFormField.questionOptions, rendering: null };
           }
         }
-        return {
-          ...prevFormField,
-          type: newQuestionType,
-        };
+
+        return updatedFormField;
       });
     },
     [setFormField],
@@ -162,9 +158,7 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
         {!formField.questionOptions?.rendering && (
           <SelectItem text={t('chooseRenderingType', 'Choose a rendering type')} value="" />
         )}
-        {formField.type &&
-        formField.type !== 'obs' &&
-        questionTypes.includes(formField.type as keyof typeof renderTypeOptions)
+        {formField.type && questionTypes.includes(formField.type as keyof typeof renderTypeOptions)
           ? renderTypeOptions[formField?.type].map((type, key) => (
               <SelectItem key={`${type}-${key}`} text={type} value={type} />
             ))
