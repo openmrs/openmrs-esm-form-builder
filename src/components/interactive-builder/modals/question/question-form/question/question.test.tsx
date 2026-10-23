@@ -338,28 +338,27 @@ describe('Question Component', () => {
     expect(optionValues).not.toContain('repeating');
   });
 
-  it('should drop nested questions when switching from obsGroup to a type that cannot group them', async () => {
+  it('should keep nested questions in the draft when switching away from obsGroup and back', async () => {
     const user = userEvent.setup();
+    const questions: Array<FormField> = [{ id: 'childQuestion', type: 'obs', questionOptions: { rendering: 'text' } }];
     renderWithFormFieldProvider(
       <>
         <Question checkIfQuestionIdExists={checkIfQuestionIdExists} />
         <FormFieldProbe />
       </>,
       {
-        formField: {
-          ...initialFormField,
-          type: 'obsGroup',
-          questionOptions: { rendering: 'group' },
-          questions: [{ id: 'childQuestion', type: 'obs', questionOptions: { rendering: 'text' } }],
-        },
+        formField: { ...initialFormField, type: 'obsGroup', questionOptions: { rendering: 'group' }, questions },
       },
     );
 
-    expect(getFormField().questions).toHaveLength(1);
-
+    // Children are only dropped on save (see withoutOrphanedQuestions), so an accidental
+    // type change doesn't lose them.
     await user.selectOptions(screen.getByLabelText(/question type/i), 'obs');
+    expect(getFormField().questions).toEqual(questions);
 
-    expect(getFormField()).not.toHaveProperty('questions');
+    await user.selectOptions(screen.getByLabelText(/question type/i), 'obsGroup');
+    expect(getFormField().type).toBe('obsGroup');
+    expect(getFormField().questions).toEqual(questions);
   });
 
   it('should keep nested questions when the new question type can still group them', async () => {

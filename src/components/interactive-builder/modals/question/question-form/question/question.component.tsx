@@ -6,8 +6,7 @@ import QuestionTypeComponent from '../question-types/question-type.component';
 import RequiredLabel from '../common/required-label/required-label.component';
 import { useFormField } from '../../form-field-context';
 import type { FormField, RenderType } from '@openmrs/esm-form-engine-lib';
-import { nestableQuestionTypes, questionTypes, renderTypeOptions, renderingTypes } from '@constants';
-import type { QuestionType } from '@constants';
+import { questionTypes, renderTypeOptions, renderingTypes } from '@constants';
 import styles from './question.scss';
 
 interface QuestionProps {
@@ -51,15 +50,10 @@ const Question: React.FC<QuestionProps> = ({ checkIfQuestionIdExists }) => {
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       const newQuestionType = event.target.value;
       setFormField((prevFormField) => {
-        // Nested questions belong only to question types that can group them, so they are
-        // dropped when switching to a type that cannot. Otherwise the saved schema keeps
-        // orphaned children, e.g. an `obs` carrying the questions of a former `obsGroup`.
-        const { questions, ...fieldWithoutNestedQuestions } = prevFormField;
-        const canKeepNestedQuestions = nestableQuestionTypes.includes(newQuestionType as QuestionType);
-        const updatedFormField: FormField = {
-          ...(canKeepNestedQuestions ? prevFormField : fieldWithoutNestedQuestions),
-          type: newQuestionType,
-        };
+        // Nested questions stay in the draft even if the new type can't group them, so
+        // switching back (e.g. obsGroup -> obs -> obsGroup) doesn't lose them. They are
+        // dropped on save instead; see `withoutOrphanedQuestions`.
+        const updatedFormField: FormField = { ...prevFormField, type: newQuestionType };
 
         const previousRenderingType = prevFormField?.questionOptions?.rendering;
         if (previousRenderingType) {

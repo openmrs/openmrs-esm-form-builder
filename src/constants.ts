@@ -58,9 +58,9 @@ export const obsRenderingTypes: Array<RenderType> = renderingTypes.filter(
 
 /**
  * Question types that can hold nested questions. Children belong only to these, so they
- * are dropped when a question is switched to any other type.
+ * are dropped when a question of any other type is saved.
  */
-export const nestableQuestionTypes: Array<QuestionType> = ['obsGroup'];
+export const nestableQuestionTypes: Array<QuestionType> = ['obsGroup', 'testOrder'];
 
 export const renderTypeOptions: Record<QuestionType, Array<RenderType>> = {
   control: ['text', 'markdown'],
