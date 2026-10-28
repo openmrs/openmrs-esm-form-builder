@@ -19,6 +19,7 @@ interface TranslationBuilderProps {
 const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onUpdateSchema }) => {
   const { t } = useTranslation();
   const languageOptions = useLanguageOptions();
+  const [localTranslations, setLocalTranslations] = useState<Record<string, Record<string, string>>>({});
   const [selectedLanguageCode, setSelectedLanguageCode] = useState(() => languageOptions[0]?.code ?? 'en');
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -29,6 +30,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
   const { formUuid } = useParams<{ formUuid?: string }>();
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedQuery(searchQuery);
@@ -42,10 +44,42 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     return formSchema ? extractTranslatableStrings(formSchema) : {};
   }, [formSchema]);
 
+  useEffect(() => {
+    if (!formSchema) return;
+
+    const fallback = fallbackStrings;
+    const current = translations;
+
+    const updated: Record<string, string> = {};
+    Object.keys(fallback).forEach((key) => {
+      updated[key] = current[key] ?? fallback[key] ?? '';
+    });
+
+    const changed =
+      Object.keys(updated).length !== Object.keys(current).length ||
+      Object.keys(updated).some((k) => updated[k] !== current[k]);
+
+    if (changed) {
+      setTranslations(updated);
+      setLocalTranslations((prev) => ({
+        ...prev,
+        [selectedLanguageCode]: updated,
+      }));
+
+      // Removed the onUpdateSchema call from here
+      // The schema should only be updated on user-initiated actions
+    }
+  }, [formSchema, fallbackStrings, selectedLanguageCode, translations]);
+
   const handleUpdateValue = useCallback(
     (key: string, newValue: string) => {
       const updatedTranslations = { ...translations, [key]: newValue };
       setTranslations(updatedTranslations);
+      setLocalTranslations((prev) => ({
+        ...prev,
+        [langCode]: updatedTranslations,
+      }));
+
       if (formSchema) {
         const updatedSchema = { ...formSchema };
         if (!updatedSchema.translations) {
@@ -108,22 +142,49 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     [fallbackStrings],
   );
 
-  useEffect(() => {
-    if (selectedLanguageCode === 'en' && formSchema) {
-      setTranslations(fallbackStrings);
-    }
-  }, [selectedLanguageCode, formSchema, fallbackStrings]);
+  function mergeTranslations(
+    local: Record<string, string> = {},
+    backend: Record<string, string> = {},
+    fallback: Record<string, string> = {},
+  ): Record<string, string> {
+    const merged: Record<string, string> = {};
+    const allKeys = new Set([...Object.keys(fallback), ...Object.keys(backend), ...Object.keys(local)]);
+    allKeys.forEach((key) => {
+      if (local[key] !== undefined) {
+        merged[key] = local[key];
+      } else if (backend[key] !== undefined) {
+        merged[key] = backend[key];
+      } else {
+        merged[key] = fallback[key] ?? '';
+      }
+    });
+    return merged;
+  }
 
   const languageChanger = async (newLangCode: string) => {
     setSelectedLanguageCode(newLangCode);
-    if (!formSchema || newLangCode === 'en') {
-      setTranslations(fallbackStrings);
+
+    if (!formSchema) {
+      setTranslations({});
+      return;
+    }
+    if (localTranslations[newLangCode]) {
+      setTranslations(localTranslations[newLangCode]);
       return;
     }
 
     setLoading(true);
     try {
-      const merged = await fetchBackendTranslations(formUuid, newLangCode, fallbackStrings);
+      let backend = await fetchBackendTranslations(formUuid, newLangCode, fallbackStrings);
+      let schemaTranslations = formSchema.translations?.[newLangCode] || {};
+
+      const merged = mergeTranslations(schemaTranslations, backend || {}, fallbackStrings);
+
+      setLocalTranslations((prev) => ({
+        ...prev,
+        [newLangCode]: merged,
+      }));
+
       setTranslations(merged);
 
       const updatedSchema = {
@@ -133,7 +194,6 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
           [newLangCode]: merged,
         },
       };
-
       onUpdateSchema(updatedSchema);
     } catch (err) {
       setError('Failed to load backend translations.');
