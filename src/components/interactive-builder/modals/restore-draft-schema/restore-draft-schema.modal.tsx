@@ -5,22 +5,23 @@ import { type Schema } from '@types';
 
 interface RestoreDraftSchemaModalProps {
   closeModal: () => void;
+  draftKey: string;
   onSchemaChange: (schema: Schema) => void;
 }
 
-const RestoreDraftSchemaModal: React.FC<RestoreDraftSchemaModalProps> = ({ closeModal, onSchemaChange }) => {
+const RestoreDraftSchemaModal: React.FC<RestoreDraftSchemaModalProps> = ({ closeModal, draftKey, onSchemaChange }) => {
   const { t } = useTranslation();
 
   const handleRestoreDraftSchema = useCallback(() => {
     try {
-      const draftSchema = localStorage.getItem('formJSON');
+      const draftSchema = localStorage.getItem(draftKey);
       if (draftSchema) {
         onSchemaChange(JSON.parse(draftSchema) as Schema);
       }
     } catch (e) {
       console.error('Error fetching draft schema from localStorage: ', e?.message);
     }
-  }, [onSchemaChange]);
+  }, [draftKey, onSchemaChange]);
 
   return (
     <>
