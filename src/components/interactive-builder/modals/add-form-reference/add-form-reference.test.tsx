@@ -3,7 +3,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import AddFormReferenceModal from './add-form-reference.modal';
 import { Form, type Schema } from '@types';
-import { renderWithSwr, waitForLoadingToFinish } from '@tools/test-helpers';
+import { fetchAllPagesWithMockedOpenmrsFetch, renderWithSwr, waitForLoadingToFinish } from '@tools/test-helpers';
 import { type FetchResponse, openmrsFetch } from '@openmrs/esm-framework';
 import userEvent from '@testing-library/user-event';
 
@@ -128,6 +128,7 @@ const schema: Schema = {
 
 describe('AddFormReferenceModal', () => {
   beforeEach(() => {
+    fetchAllPagesWithMockedOpenmrsFetch();
     mockedOpenmrsFetch.mockImplementation((url: string): OpenmrsFetchResponse => {
       if (url.includes('/form')) {
         return Promise.resolve({
