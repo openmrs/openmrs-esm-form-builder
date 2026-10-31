@@ -52,7 +52,6 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema, formUuid, c
   const { mutate } = useForm(formUuid);
   const [description, setDescription] = useState('');
   const [encounterType, setEncounterType] = useState('');
-  const [isInvalidVersion, setIsInvalidVersion] = useState(false);
   const [isSavingForm, setIsSavingForm] = useState(false);
   const [name, setName] = useState('');
   const [saveState, setSaveState] = useState<'update' | 'newVersion' | null>(formUuid ? null : 'newVersion');
@@ -69,11 +68,7 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema, formUuid, c
     }
   }, [schema]);
 
-  const checkVersionValidity = (version: string) => {
-    if (!version) return setIsInvalidVersion(false);
-
-    setIsInvalidVersion(!/^[0-9]/.test(version));
-  };
+  const isInvalidVersion = Boolean(version) && !/^[0-9]/.test(version);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -252,13 +247,7 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema, formUuid, c
                 id="version"
                 labelText={t('version', 'Version')}
                 placeholder={t('versionPlaceholder', 'e.g. 1.0')}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                  checkVersionValidity(event.target.value);
-
-                  if (!isInvalidVersion) {
-                    setVersion(event.target.value);
-                  }
-                }}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setVersion(event.target.value)}
                 invalid={isInvalidVersion}
                 invalidText={t('invalidVersionWarning', 'Version can only start with with a number')}
                 required
