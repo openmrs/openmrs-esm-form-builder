@@ -231,7 +231,12 @@ const QuestionModal: React.FC<QuestionModalProps> = (props) => {
   return (
     <>
       <FormFieldProvider
-        initialFormField={props.formField ?? { type: 'control', questionOptions: { rendering: 'text' }, id: '' }}
+        // Edit a copy so that changes (including clearing nested options) only reach the schema on save.
+        initialFormField={
+          props.formField
+            ? (JSON.parse(JSON.stringify(props.formField)) as FormField)
+            : { type: 'control', questionOptions: { rendering: 'text' }, id: '' }
+        }
       >
         <QuestionModalContent {...props} />
       </FormFieldProvider>
