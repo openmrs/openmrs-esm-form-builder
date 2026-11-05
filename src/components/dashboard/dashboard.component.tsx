@@ -23,7 +23,7 @@ import {
   Tile,
 } from '@carbon/react';
 import { Add, DocumentImport, Download, Edit, TrashCan, Undo } from '@carbon/react/icons';
-import { type KeyedMutator, preload } from 'swr';
+import { preload } from 'swr';
 import {
   ConfigurableLink,
   navigate,
@@ -46,11 +46,7 @@ import type { ConfigObject } from '../../config-schema';
 import type { Form as TypedForm } from '@types';
 import styles from './dashboard.scss';
 
-type Mutator = KeyedMutator<{
-  data: {
-    results: Array<TypedForm>;
-  };
-}>;
+type Mutator = ReturnType<typeof useForms>['mutate'];
 
 interface ActionButtonsProps {
   form: TypedForm;
