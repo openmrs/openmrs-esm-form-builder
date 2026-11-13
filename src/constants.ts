@@ -50,7 +50,7 @@ export const renderTypeOptions: Record<QuestionType, Array<RenderType>> = {
   encounterLocation: ['ui-select-extended'],
   encounterProvider: ['ui-select-extended'],
   encounterRole: ['ui-select-extended'],
-  obs: renderingTypes,
+  obs: renderingTypes.filter((renderingType) => renderingType !== 'group' && renderingType !== 'repeating'),
   obsGroup: ['group', 'repeating'],
   personAttribute: ['text', 'select', 'date', 'radio', 'checkbox', 'textarea', 'toggle', 'ui-select-extended'],
   testOrder: ['group', 'repeating'],
