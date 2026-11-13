@@ -160,6 +160,12 @@ export const configSchema = {
     _description: 'Whether to block form rendering when there are validation errors',
     _default: false,
   },
+  enableRDESection: {
+    _type: Type.Boolean,
+    _default: false,
+    _description:
+      'Whether to add an Encounter Details section for retrospective data entry, which includes encounter date/time and provider fields',
+  },
 };
 
 export interface ConfigObject {
@@ -169,4 +175,5 @@ export interface ConfigObject {
   dataTypeToRenderingMap: Record<string, Array<string>>;
   enableFormValidation: boolean;
   blockRenderingWithErrors: boolean;
+  enableRDESection: boolean;
 }
