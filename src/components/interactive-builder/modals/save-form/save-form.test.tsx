@@ -112,6 +112,30 @@ describe('save form modal', () => {
     expect(deleteResource).not.toHaveBeenCalled();
   });
 
+  it('validates the version as it is typed and saves the corrected version', async () => {
+    const user = userEvent.setup();
+    render(<SaveFormModal schema={schema} form={undefined} closeModal={vi.fn()} />);
+    const versionInput = screen.getByRole('textbox', { name: 'Version' });
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+
+    await user.clear(versionInput);
+    await user.type(versionInput, 'v1');
+    expect(versionInput).toHaveValue('v1');
+    expect(screen.getByText('Version can only start with with a number')).toBeInTheDocument();
+    expect(saveButton).toBeDisabled();
+
+    await user.clear(versionInput);
+    await user.type(versionInput, '2.0');
+    expect(versionInput).toHaveValue('2.0');
+    expect(screen.queryByText('Version can only start with with a number')).not.toBeInTheDocument();
+    expect(saveButton).toBeEnabled();
+
+    await user.click(saveButton);
+    await waitFor(() =>
+      expect(saveNewForm).toHaveBeenCalledWith('Nutrition', '2.0', false, 'Nutrition form', 'encounter-type'),
+    );
+  });
+
   it('keeps failed saves open and cancellation does not save', async () => {
     const user = userEvent.setup();
     const closeModal = vi.fn();
