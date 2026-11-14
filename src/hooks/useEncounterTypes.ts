@@ -1,17 +1,13 @@
-import useSWRImmutable from 'swr/immutable';
-import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { restBaseUrl, useOpenmrsFetchAll } from '@openmrs/esm-framework';
 import type { EncounterType } from '@types';
 
 export const useEncounterTypes = () => {
   const url = `${restBaseUrl}/encountertype?v=custom:(uuid,name)`;
 
-  const { data, error, isLoading } = useSWRImmutable<{ data: { results: Array<EncounterType> } }, Error>(
-    url,
-    openmrsFetch,
-  );
+  const { data, error, isLoading } = useOpenmrsFetchAll<EncounterType>(url, { immutable: true });
 
   return {
-    encounterTypes: data?.data?.results ?? [],
+    encounterTypes: data ?? [],
     encounterTypesError: error,
     isEncounterTypesLoading: isLoading,
   };

@@ -1,10 +1,10 @@
 import React from 'react';
-import { vi, describe, it, expect } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type FetchResponse, navigate, openmrsFetch, showModal } from '@openmrs/esm-framework';
 import Dashboard from './dashboard.component';
-import { renderWithSwr, waitForLoadingToFinish } from '@tools/test-helpers';
+import { fetchAllPagesWithMockedOpenmrsFetch, renderWithSwr, waitForLoadingToFinish } from '@tools/test-helpers';
 import { deleteForm } from '@resources/forms.resource';
 
 type OpenmrsFetchResponse = Promise<
@@ -46,6 +46,11 @@ vi.mock('@resources/forms.resource', () => ({
 global.window.URL.createObjectURL = vi.fn();
 
 describe('Dashboard', () => {
+  beforeEach(() => {
+    mockedOpenmrsFetch.mockReset();
+    fetchAllPagesWithMockedOpenmrsFetch();
+  });
+
   it('renders an empty state view if no forms are available', async () => {
     mockedOpenmrsFetch.mockReturnValueOnce({ data: { results: [] } } as unknown as OpenmrsFetchResponse);
 
@@ -126,6 +131,39 @@ describe('Dashboard', () => {
     expect(screen.getByRole('searchbox', { name: /filter table/i })).toBeInTheDocument();
     expect(screen.getByRole('table')).toBeInTheDocument();
     expect(screen.getByText(formsResponse[0].name)).toBeInTheDocument();
+  });
+
+  it('renders forms from every page of the paginated forms response', async () => {
+    const secondPageForm = {
+      ...formsResponse[0],
+      uuid: '5c1d7a3e-8f2b-4b6a-9d0e-1f2a3b4c5d6e',
+      name: 'Test Form 2',
+    };
+
+    mockedOpenmrsFetch.mockImplementation((url: string) => {
+      if (url.includes('startIndex=1')) {
+        return Promise.resolve({ data: { results: [secondPageForm] } }) as unknown as OpenmrsFetchResponse;
+      }
+
+      if (url.includes('/form?')) {
+        return Promise.resolve({
+          data: {
+            results: formsResponse,
+            links: [{ rel: 'next', uri: 'http://localhost/openmrs/ws/rest/v1/form?startIndex=1' }],
+          },
+        }) as unknown as OpenmrsFetchResponse;
+      }
+
+      return Promise.resolve({ data: {} }) as unknown as OpenmrsFetchResponse;
+    });
+
+    renderDashboard();
+
+    await waitForLoadingToFinish();
+
+    expect(mockedOpenmrsFetch).toHaveBeenCalledWith(expect.stringContaining('startIndex=1'));
+    expect(screen.getByText(formsResponse[0].name)).toBeInTheDocument();
+    expect(screen.getByText(secondPageForm.name)).toBeInTheDocument();
   });
 
   it('clicking on "create a new form" button navigates to the "create form" page', async () => {
