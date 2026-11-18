@@ -2896,7 +2896,7 @@ __metadata:
     openmrs: "npm:next"
     prettier: "npm:^3.3.3"
     react: "npm:^18.3.1"
-    react-ace: "npm:^11.0.1"
+    react-ace: "npm:^15.0.0"
     react-dom: "npm:^18.3.1"
     react-error-boundary: "npm:^4.0.13"
     react-i18next: "npm:^16.0.0"
@@ -5458,10 +5458,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ace-builds@npm:^1.32.8":
-  version: 1.36.3
-  resolution: "ace-builds@npm:1.36.3"
-  checksum: 10/26cdcde414b528f73b4549e56be5bf071f01f89e4249518d389444bd9b4af1ce0956adf308e0f5d05d7ec7d1137ce0a75c0396baae02160108956e3d3154193a
+"ace-builds@npm:^1.36.3":
+  version: 1.45.2
+  resolution: "ace-builds@npm:1.45.2"
+  checksum: 10/5629c7faddc2ab22b61f098822bcc536ef5b32ba3d9d14cb02224bb02817f478ac1e932ceb26f618a1fd0b55594d66c60529e4e2d78db23b6ed01c6489780961
   languageName: node
   linkType: hard
 
@@ -8899,6 +8899,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fast-equals@npm:^5.3.3":
+  version: 5.4.5
+  resolution: "fast-equals@npm:5.4.5"
+  checksum: 10/9c86bbe33face56187636cca987afea7be61d1e9b8c64c201bfc0e614699bd41a3447f6933d3eb4426b6ef8e62ef92e0ad0076db960bbf5cf11e2b24018df3b3
+  languageName: node
+  linkType: hard
+
 "fast-fifo@npm:^1.3.2":
   version: 1.3.2
   resolution: "fast-fifo@npm:1.3.2"
@@ -11490,20 +11497,6 @@ __metadata:
   version: 4.18.1
   resolution: "lodash-es@npm:4.18.1"
   checksum: 10/8bfad225ef09ef42b04283cdaf7830efcc2ba29ae41b56501c74422155ee1ccaa1f0f6e8319def3451a1fe54dec501c8e4bee622bae2b2d98ac993731e0a5cce
-  languageName: node
-  linkType: hard
-
-"lodash.get@npm:^4.4.2":
-  version: 4.4.2
-  resolution: "lodash.get@npm:4.4.2"
-  checksum: 10/2a4925f6e89bc2c010a77a802d1ba357e17ed1ea03c2ddf6a146429f2856a216663e694a6aa3549a318cbbba3fd8b7decb392db457e6ac0b83dc745ed0a17380
-  languageName: node
-  linkType: hard
-
-"lodash.isequal@npm:^4.5.0":
-  version: 4.5.0
-  resolution: "lodash.isequal@npm:4.5.0"
-  checksum: 10/82fc58a83a1555f8df34ca9a2cd300995ff94018ac12cc47c349655f0ae1d4d92ba346db4c19bbfc90510764e0c00ddcc985a358bdcd4b3b965abf8f2a48a214
   languageName: node
   linkType: hard
 
@@ -14196,19 +14189,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-ace@npm:^11.0.1":
-  version: 11.0.1
-  resolution: "react-ace@npm:11.0.1"
+"react-ace@npm:^15.0.0":
+  version: 15.0.0
+  resolution: "react-ace@npm:15.0.0"
   dependencies:
-    ace-builds: "npm:^1.32.8"
+    ace-builds: "npm:^1.36.3"
     diff-match-patch: "npm:^1.0.5"
-    lodash.get: "npm:^4.4.2"
-    lodash.isequal: "npm:^4.5.0"
+    fast-equals: "npm:^5.3.3"
     prop-types: "npm:^15.8.1"
   peerDependencies:
-    react: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0
-  checksum: 10/96de372cbc9e9c5f0f84a01050f93ba8dae01c016b0e92f5ccb4f809a6e690fceb07c5c285903d9440d65628ca1b4a1a2aac9c7c141e91ef8f87bda0d31e71b4
+    react: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10/a15434aa773869688287be40cd340c9aa3c82b657e6e39f1463e09d1b4b3fca2c8c9836118aafda40c1a5ef527b1e0371c8c256510665e7bdd442ba822d7e391
   languageName: node
   linkType: hard
 
