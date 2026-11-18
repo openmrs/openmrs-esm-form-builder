@@ -27,6 +27,7 @@ import {
   uploadSchema,
 } from '@resources/forms.resource';
 import type { EncounterType, Resource, Schema } from '@types';
+import { getDraftSchemaKey } from '../../../../utils/draft-schema';
 import styles from './save-form.scss';
 
 interface FormGroupData {
@@ -58,7 +59,7 @@ const SaveFormModal: React.FC<SaveFormModalProps> = ({ form, schema, formUuid, c
   const [saveState, setSaveState] = useState<'update' | 'newVersion' | null>(formUuid ? null : 'newVersion');
   const [version, setVersion] = useState('');
 
-  const clearDraftFormSchema = useCallback(() => localStorage.removeItem('formJSON'), []);
+  const clearDraftFormSchema = useCallback(() => localStorage.removeItem(getDraftSchemaKey(formUuid)), [formUuid]);
 
   useEffect(() => {
     if (schema) {
