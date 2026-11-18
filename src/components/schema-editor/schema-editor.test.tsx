@@ -55,13 +55,7 @@ function renderSchemaEditor(props: Partial<React.ComponentProps<typeof SchemaEdi
 }
 
 // Wires the editor to real state, the way the form editor does, so edits and validation round-trip through props.
-function StatefulSchemaEditor({
-  initialSchema,
-  validationOn = false,
-}: {
-  initialSchema: string;
-  validationOn?: boolean;
-}) {
+function StatefulSchemaEditor({ initialSchema }: { initialSchema: string }) {
   const [stringifiedSchema, setStringifiedSchema] = useState(initialSchema);
   const [errors, setErrors] = useState<Array<Marker>>([]);
 
@@ -73,7 +67,7 @@ function StatefulSchemaEditor({
         setErrors={setErrors}
         setValidationOn={() => {}}
         stringifiedSchema={stringifiedSchema}
-        validationOn={validationOn}
+        validationOn={false}
       />
       <output data-testid="schema">{stringifiedSchema}</output>
     </>
