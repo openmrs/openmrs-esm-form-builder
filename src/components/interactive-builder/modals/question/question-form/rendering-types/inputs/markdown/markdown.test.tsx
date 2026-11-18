@@ -47,12 +47,26 @@ describe('MarkdownQuestion', () => {
     await user.click(screen.getByRole('tab', { name: /preview/i }));
 
     expect(screen.queryByRole('textbox', { name: /markdown content/i })).not.toBeInTheDocument();
-    expect(screen.getByText('Some **bold** text')).toBeInTheDocument();
+    expect(screen.getByRole('paragraph')).toHaveTextContent(/^Some bold text$/);
+    expect(screen.getByText('bold').tagName).toBe('STRONG');
 
     await user.click(screen.getByRole('tab', { name: /write/i }));
 
     expect(screen.getByRole('textbox', { name: /markdown content/i })).toHaveValue('Some **bold** text');
     expect(screen.getByTestId('saved-value')).toHaveTextContent(JSON.stringify('Some **bold** text'));
+  });
+
+  it('previews each line of an array value as its own block', async () => {
+    const user = userEvent.setup();
+    renderMarkdownQuestion(['## Heading', 'First line', 'Some **bold** text']);
+
+    await user.click(screen.getByRole('tab', { name: /preview/i }));
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Heading' })).toBeInTheDocument();
+    expect(screen.getAllByRole('paragraph').map((paragraph) => paragraph.textContent)).toEqual([
+      'First line',
+      'Some bold text',
+    ]);
   });
 
   it('tells the user when there is nothing to preview', async () => {
