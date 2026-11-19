@@ -5,7 +5,7 @@ import type { EditorState } from '@codemirror/state';
 type SyntaxNode = ReturnType<ReturnType<typeof syntaxTree>['resolveInner']>;
 
 /** The parts of a JSON Schema that completion reads. */
-export interface JsonSchema {
+interface JsonSchema {
   $ref?: string;
   type?: string | Array<string>;
   description?: string;
@@ -117,6 +117,8 @@ function completeKey(context: CompletionContext, root: JsonSchema, object: Synta
   if (!word || (word.from === word.to && !context.explicit)) {
     return null;
   }
+  // A chosen key replaces the whole word, including any of it after the cursor
+  const wordEnd = context.pos + /^[\w$]*/.exec(context.state.sliceDoc(context.pos))[0].length;
 
   const path = pathTo(context.state, object);
   if (!path) {
@@ -126,7 +128,7 @@ function completeKey(context: CompletionContext, root: JsonSchema, object: Synta
   const existingKeys = new Set(
     object
       .getChildren('Property')
-      .filter((property) => property.to < word.from || property.from > word.to)
+      .filter((property) => property.to < word.from || property.from > wordEnd)
       .map((property) => propertyNameOf(context.state, property)),
   );
   const quoted = context.state.sliceDoc(word.from - 1, word.from) === '"';
@@ -147,7 +149,7 @@ function completeKey(context: CompletionContext, root: JsonSchema, object: Synta
     }
   }
 
-  return options.size ? { from: word.from, options: [...options.values()], validFor: /^[\w$]*$/ } : null;
+  return options.size ? { from: word.from, to: wordEnd, options: [...options.values()], validFor: /^[\w$]*$/ } : null;
 }
 
 /** Suggests the values the reference schema lists in an `enum` for the string around the cursor. */

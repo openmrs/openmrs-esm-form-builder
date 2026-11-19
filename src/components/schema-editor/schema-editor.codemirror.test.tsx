@@ -261,6 +261,16 @@ describe('SchemaEditor (CodeMirror)', () => {
     expect(getView().state.doc.line(9).text.trim()).toBe('"questionOptions": { "rendering": "radio" }');
   });
 
+  it('replaces the whole key when one is chosen with the cursor inside it', async () => {
+    renderSchemaEditor('{\n  "nam": "Nutrition"\n}');
+
+    const completions = await getCompletionsAt(2, 4);
+    expect(completions.map((completion) => completion.label)).toEqual(['name']);
+    await acceptFirstCompletion();
+
+    expect(getView().state.doc.line(2).text).toBe('  "name": "Nutrition"');
+  });
+
   it('quotes a key chosen where no quote has been typed', async () => {
     renderSchemaEditor('{\n  enc\n}');
 
