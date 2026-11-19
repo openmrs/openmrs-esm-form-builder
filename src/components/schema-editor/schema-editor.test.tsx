@@ -91,9 +91,7 @@ function StatefulSchemaEditor({ initialSchema, outsideSchema }: { initialSchema:
 }
 
 function clickNextError() {
-  // The pagination chevrons are icons with no role or accessible name, either side of the "n/total" counter.
-  // eslint-disable-next-line testing-library/no-node-access
-  fireEvent.click(screen.getByText(/^\d+\/\d+$/).nextElementSibling);
+  fireEvent.click(screen.getByRole('button', { name: 'Next error' }));
 }
 
 describe('SchemaEditor', () => {
@@ -311,5 +309,61 @@ describe('SchemaEditor', () => {
 
     expect(await getErrorMarkerLines()).toEqual([]);
     expect(screen.queryByText(/error on line/i)).not.toBeInTheDocument();
+  });
+
+  it('moves the cursor to the error the notification shows', async () => {
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema="{}" />);
+    setEditorText(schemaWithErrors);
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: 'Render changes' }));
+    await getErrorMarkerLines();
+    const lineStart = (line: number) =>
+      schemaWithErrors
+        .split('\n')
+        .slice(0, line - 1)
+        .join('\n').length + 1;
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next error' }));
+    expect(getCursorOffset()).toBe(lineStart(4));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next error' }));
+    expect(getCursorOffset()).toBe(lineStart(6));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Previous error' }));
+    expect(getCursorOffset()).toBe(lineStart(4));
+    expect(screen.getByText('2/3')).toBeInTheDocument();
+  });
+
+  it('moves the cursor to the error and focuses the editor when the line is clicked', async () => {
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema="{}" />);
+    setEditorText(schemaWithErrors);
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: 'Render changes' }));
+    await getErrorMarkerLines();
+
+    fireEvent.click(screen.getByRole('button', { name: /error on line 2/i }));
+
+    expect(getCursorOffset()).toBe(schemaWithErrors.indexOf('\n') + 1);
+    expect(screen.getByRole('textbox', { name: /schema editor/i })).toHaveFocus();
+  });
+
+  it('disables the previous and next error buttons at the first and last error', async () => {
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema="{}" />);
+    setEditorText(schemaWithErrors);
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: 'Render changes' }));
+    await getErrorMarkerLines();
+
+    expect(screen.getByRole('button', { name: 'Previous error' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Next error' })).toBeEnabled();
+
+    clickNextError();
+    clickNextError();
+
+    expect(screen.getByRole('button', { name: 'Previous error' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Next error' })).toBeDisabled();
   });
 });
