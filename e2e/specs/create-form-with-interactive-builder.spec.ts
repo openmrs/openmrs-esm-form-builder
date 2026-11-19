@@ -96,7 +96,7 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
     await formBuilderPage.createFormButton().click();
     await expect(formBuilderPage.page.getByText(/form created/i)).toBeVisible();
     await expect(formBuilderPage.schemaEditorContent()).toHaveText(/^{/, { timeout: 5000 });
-    const schemaText = await formBuilderPage.schemaEditorContent().textContent();
+    const schemaText = await formBuilderPage.readSchema();
     expect(JSON.parse(schemaText!)).toEqual({ ...formDetails, pages: [] });
   });
 
@@ -114,7 +114,7 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
     await formBuilderPage.saveButton().click();
     await expect(formBuilderPage.page.getByText(/new page created/i)).toBeVisible();
     await expect(formBuilderPage.schemaEditorContent()).toHaveText(/^{/, { timeout: 5000 });
-    const schemaText = await formBuilderPage.schemaEditorContent().textContent();
+    const schemaText = await formBuilderPage.readSchema();
     expect(JSON.parse(schemaText!)).toEqual({
       ...formDetails,
       pages: [
@@ -139,7 +139,7 @@ test('Create a form using the interactive builder', async ({ page, context }) =>
     await formBuilderPage.saveButton().click();
     await expect(formBuilderPage.page.getByText(/new section created/i)).toBeVisible();
     await expect(formBuilderPage.schemaEditorContent()).toHaveText(/^{/, { timeout: 5000 });
-    const schemaText = await formBuilderPage.schemaEditorContent().textContent();
+    const schemaText = await formBuilderPage.readSchema();
     expect(JSON.parse(schemaText!)).toEqual({
       ...formDetails,
       pages: [
