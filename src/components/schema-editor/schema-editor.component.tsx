@@ -320,8 +320,13 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
         changes: { from: 0, to: view.state.doc.length, insert: text },
         annotations: loadSchema.of(true),
       });
+
+      // Errors shown for the old text may no longer apply, for example after a fix in the interactive builder
+      if (view.state.field(schemaErrorsField).length) {
+        debouncedValidateSchema(text, schema);
+      }
     }
-  }, [stringifiedSchema]);
+  }, [stringifiedSchema, schema, debouncedValidateSchema]);
 
   // Shows the schema errors as diagnostics in the editor
   useEffect(() => {

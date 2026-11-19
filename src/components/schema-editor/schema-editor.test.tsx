@@ -65,7 +65,7 @@ function renderSchemaEditor(props: Partial<React.ComponentProps<typeof SchemaEdi
 
 // Wires the editor to real state the way the form editor does, including turning validation on from
 // "Render changes", so edits and validation round-trip through props.
-function StatefulSchemaEditor({ initialSchema }: { initialSchema: string }) {
+function StatefulSchemaEditor({ initialSchema, outsideSchema }: { initialSchema: string; outsideSchema?: string }) {
   const [stringifiedSchema, setStringifiedSchema] = useState(initialSchema);
   const [errors, setErrors] = useState<SchemaErrors>([]);
   const [validationOn, setValidationOn] = useState(false);
@@ -73,6 +73,8 @@ function StatefulSchemaEditor({ initialSchema }: { initialSchema: string }) {
   return (
     <>
       <button onClick={() => setValidationOn(true)}>Render changes</button>
+      {/* Replaces the schema without typing in the editor, the way an edit in the interactive builder does */}
+      <button onClick={() => setStringifiedSchema(outsideSchema)}>Change outside the editor</button>
       <SchemaEditor
         errors={errors}
         onSchemaChange={setStringifiedSchema}
@@ -245,6 +247,32 @@ describe('SchemaEditor', () => {
     setEditorText(schemaWithErrors.replace('"pages"', '"pages'));
     act(() => vi.advanceTimersByTime(300));
 
+    expect(screen.getByTestId('error-count')).toHaveTextContent('0');
+  });
+
+  it('re-checks the errors when the schema is changed outside the editor', async () => {
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema="{}" outsideSchema={validSchema} />);
+    setEditorText(schemaWithErrors);
+    act(() => vi.advanceTimersByTime(300));
+    expect(screen.getByTestId('error-count')).toHaveTextContent('3');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Change outside the editor' }));
+    act(() => vi.advanceTimersByTime(300));
+
+    expect(getEditorText()).toBe(validSchema);
+    expect(screen.getByTestId('error-count')).toHaveTextContent('0');
+    expect(await getErrorMarkerLines()).toEqual([]);
+  });
+
+  it('does not check a schema changed outside the editor while no errors are showing', () => {
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema={validSchema} outsideSchema={schemaWithErrors} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Change outside the editor' }));
+    act(() => vi.advanceTimersByTime(300));
+
+    expect(getEditorText()).toBe(schemaWithErrors);
     expect(screen.getByTestId('error-count')).toHaveTextContent('0');
   });
 
