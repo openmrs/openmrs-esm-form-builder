@@ -227,6 +227,8 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
           return { line, message };
         });
 
+        // The previous errors may have been fewer, so the list starts over at the first error
+        setCurrentIndex(0);
         setErrors(schemaErrors);
       } else {
         setErrors([]);

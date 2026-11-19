@@ -265,6 +265,28 @@ describe('SchemaEditor', () => {
     expect(await getErrorMarkerLines()).toEqual([]);
   });
 
+  it('starts the error list over when a change outside the editor leaves fewer errors', async () => {
+    vi.useFakeTimers();
+    const schemaWithTwoErrors = JSON.stringify(
+      { name: 42, encounter: 'Consultation', pages: 'none', processor: 'EncounterFormProcessor', version: '1' },
+      null,
+      2,
+    );
+    render(<StatefulSchemaEditor initialSchema="{}" outsideSchema={schemaWithTwoErrors} />);
+    setEditorText(schemaWithErrors);
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: 'Render changes' }));
+    clickNextError();
+    clickNextError();
+    expect(screen.getByText('3/3')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Change outside the editor' }));
+    act(() => vi.advanceTimersByTime(300));
+
+    expect(screen.getByText('1/2')).toBeInTheDocument();
+    expect(screen.getByText(/error on line 2/i)).toBeInTheDocument();
+  });
+
   it('does not check a schema changed outside the editor while no errors are showing', () => {
     vi.useFakeTimers();
     render(<StatefulSchemaEditor initialSchema={validSchema} outsideSchema={schemaWithErrors} />);
