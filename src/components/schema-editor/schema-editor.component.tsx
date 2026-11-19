@@ -231,6 +231,9 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
         setErrors([]);
       }
     } catch (error) {
+      // Errors from the last valid text would point at text that has since changed. The editor flags the JSON
+      // syntax error itself.
+      setErrors([]);
       console.error('Error parsing or validating JSON:', error);
     }
   };

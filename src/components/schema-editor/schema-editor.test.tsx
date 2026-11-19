@@ -82,6 +82,8 @@ function StatefulSchemaEditor({ initialSchema }: { initialSchema: string }) {
         validationOn={validationOn}
       />
       <output data-testid="schema">{stringifiedSchema}</output>
+      {/* The form editor draws the red outline while this is above 0 */}
+      <output data-testid="error-count">{errors.length}</output>
     </>
   );
 }
@@ -228,6 +230,22 @@ describe('SchemaEditor', () => {
 
     expect(await getErrorMarkerLines()).toEqual([6]);
     expect(screen.getByText(/error on line 6/i)).toBeInTheDocument();
+  });
+
+  it('drops the schema errors while the JSON does not parse', async () => {
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema="{}" />);
+    setEditorText(schemaWithErrors);
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: 'Render changes' }));
+    expect(await getErrorMarkerLines()).toEqual([2, 4, 6]);
+
+    expect(screen.getByTestId('error-count')).toHaveTextContent('3');
+
+    setEditorText(schemaWithErrors.replace('"pages"', '"pages'));
+    act(() => vi.advanceTimersByTime(300));
+
+    expect(screen.getByTestId('error-count')).toHaveTextContent('0');
   });
 
   it('clears the error marks and messages once an edit fixes the schema', async () => {
