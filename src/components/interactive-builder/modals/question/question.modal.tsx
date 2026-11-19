@@ -15,6 +15,7 @@ import {
 import { showSnackbar } from '@openmrs/esm-framework';
 import Question from './question-form/question/question.component';
 import { FormFieldProvider, useFormField } from './form-field-context';
+import { withoutOrphanedQuestions } from './nested-questions';
 import type { FormField, FormSchema } from '@openmrs/esm-form-engine-lib';
 import styles from './question.scss';
 
@@ -111,15 +112,16 @@ const QuestionModalContent: React.FC<QuestionModalProps> = ({
 
   const saveQuestion = () => {
     try {
+      const fieldToSave = withoutOrphanedQuestions(formField);
       if (formFieldProp) {
         if (subQuestionIndex !== undefined && subQuestionIndex !== null) {
           schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex].questions[subQuestionIndex] =
-            formField;
+            fieldToSave;
         } else {
-          schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] = formField;
+          schema.pages[pageIndex].sections[sectionIndex].questions[questionIndex] = fieldToSave;
         }
       } else {
-        schema.pages[pageIndex]?.sections?.[sectionIndex]?.questions?.push(formField);
+        schema.pages[pageIndex]?.sections?.[sectionIndex]?.questions?.push(fieldToSave);
       }
 
       onSchemaChange({ ...schema });
