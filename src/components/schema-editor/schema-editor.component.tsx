@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { basicSetup } from 'codemirror';
-import type { CompletionContext, CompletionResult } from '@codemirror/autocomplete';
+import type { CompletionContext } from '@codemirror/autocomplete';
 import { indentWithTab } from '@codemirror/commands';
 import { json, jsonLanguage, jsonParseLinter } from '@codemirror/lang-json';
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
@@ -17,6 +17,7 @@ import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
 import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
 import type { SchemaError } from '@types';
+import { completeFromSchema } from './schema-completions';
 import { createInstanceLineFinder } from './schema-error-line';
 import styles from './schema-editor.scss';
 
@@ -28,12 +29,6 @@ interface SchemaEditorProps {
   errors: Array<SchemaError>;
   setErrors: (errors: Array<SchemaError>) => void;
   setValidationOn: (validationStatus: boolean) => void;
-}
-
-interface AutocompleteSuggestion {
-  name: string;
-  type: string;
-  path: string;
 }
 
 /** Marks the transactions that load the `stringifiedSchema` prop, so they aren't reported back as edits. */
@@ -118,28 +113,6 @@ function toDiagnostics(state: EditorState, errors: Array<SchemaError>): Array<Di
   });
 }
 
-/** Suggests property names from the reference form schema for the word before the cursor. */
-function completeSchemaProperty(
-  context: CompletionContext,
-  suggestions: Array<AutocompleteSuggestion>,
-): CompletionResult | null {
-  const word = context.matchBefore(/[\w$]*/);
-  if (!word || (word.from === word.to && !context.explicit)) {
-    return null;
-  }
-
-  return {
-    from: word.from,
-    options: suggestions.map(({ name, type, path }) => ({
-      label: name,
-      type: 'property',
-      detail: type,
-      info: `Path: ${path}`,
-    })),
-    validFor: /^[\w$]*$/,
-  };
-}
-
 /** Puts the cursor at the start of a line and scrolls it into the middle of the editor. */
 function goToLine(view: EditorView, line: number) {
   const { from } = view.state.doc.line(Math.min(Math.max(line, 1), view.state.doc.lines));
@@ -154,51 +127,11 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   validationOn,
   setValidationOn,
 }) => {
-  const { schema, schemaProperties } = useStandardFormSchema();
+  const { schema } = useStandardFormSchema();
   const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
-
-  // Enable autocompletion in the schema
-  const autocompleteSuggestions = useMemo(() => {
-    const suggestions: Array<AutocompleteSuggestion> = [];
-
-    const traverseSchema = (schemaProps: unknown, path: string) => {
-      if (schemaProps) {
-        if (schemaProps && typeof schemaProps === 'object') {
-          Object.entries(schemaProps).forEach(([propertyName, property]) => {
-            if (propertyName === '$schema') {
-              return;
-            }
-
-            const currentPath = path ? `${path}.${propertyName}` : propertyName;
-            const typedProperty = property as {
-              type?: string;
-              properties?: Array<{ type: string }>;
-              items?: { type?: string; properties?: Array<{ type: string }> };
-              oneOf?: Array<{ type: string }>;
-            };
-
-            if (typeof property === 'object') {
-              if (typedProperty.type === 'array' && typedProperty.items && typedProperty.items.properties) {
-                traverseSchema(typedProperty.items.properties, currentPath);
-              } else if (typedProperty.properties) {
-                traverseSchema(typedProperty.properties, currentPath);
-              } else if (typedProperty.oneOf) {
-                const types = typedProperty?.oneOf?.map((item: { type: string }) => item.type).join(' | ');
-                suggestions.push({ name: propertyName, type: types || 'any', path: currentPath });
-              }
-            }
-
-            suggestions.push({ name: propertyName, type: typedProperty.type || 'any', path: currentPath });
-          });
-        }
-      }
-    };
-    traverseSchema(schemaProperties, '');
-    return suggestions;
-  }, [schemaProperties]);
 
   // Validate JSON schema
   const validateSchema = (content: string, schema) => {
@@ -257,12 +190,12 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   // The editor is created once, so its extensions reach the latest props and callbacks through these refs.
   const validateSchemaRef = useRef(validateSchema);
   const handleChangeRef = useRef(handleChange);
-  const autocompleteSuggestionsRef = useRef(autocompleteSuggestions);
+  const schemaRef = useRef(schema);
 
   useEffect(() => {
     validateSchemaRef.current = validateSchema;
     handleChangeRef.current = handleChange;
-    autocompleteSuggestionsRef.current = autocompleteSuggestions;
+    schemaRef.current = schema;
   });
 
   const debouncedValidateSchema = useMemo(
@@ -288,8 +221,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
           }),
           json(),
           jsonLanguage.data.of({
-            autocomplete: (context: CompletionContext) =>
-              completeSchemaProperty(context, autocompleteSuggestionsRef.current),
+            autocomplete: (context: CompletionContext) => completeFromSchema(context, schemaRef.current),
           }),
           schemaErrorsField,
           linter(
