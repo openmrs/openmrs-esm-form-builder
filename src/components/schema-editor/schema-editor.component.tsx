@@ -11,7 +11,7 @@ import { EditorView, keymap } from '@codemirror/view';
 import { tags } from '@lezer/highlight';
 import { indentationMarkers } from '@replit/codemirror-indentation-markers';
 import { useTranslation } from 'react-i18next';
-import { ActionableNotification } from '@carbon/react';
+import { ActionableNotification, IconButton } from '@carbon/react';
 import { useStandardFormSchema } from '@hooks/useStandardFormSchema';
 import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
@@ -138,6 +138,12 @@ function completeSchemaProperty(
     })),
     validFor: /^[\w$]*$/,
   };
+}
+
+/** Puts the cursor at the start of a line and scrolls it into the middle of the editor. */
+function goToLine(view: EditorView, line: number) {
+  const { from } = view.state.doc.line(Math.min(Math.max(line, 1), view.state.doc.lines));
+  view.dispatch({ selection: { anchor: from }, effects: EditorView.scrollIntoView(from, { y: 'center' }) });
 }
 
 const SchemaEditor: React.FC<SchemaEditorProps> = ({
@@ -367,51 +373,71 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     }
   }, [errors]);
 
-  // Schema Validation Errors
-  const ErrorNotification = ({ text, line }) => (
-    <ActionableNotification
-      subtitle={text}
-      inline
-      title={t('errorOnLine', 'Error on line') + ` ${line}: `}
-      kind="error"
-      lowContrast
-      actionButtonLabel={t('referenceSchema', 'Reference schema')}
-      onActionButtonClick={() =>
-        window.open('https://json.openmrs.org/form.schema.json', '_blank', 'noopener,noreferrer')
-      }
-    />
-  );
-
-  const onPreviousErrorClick = () => {
-    setCurrentIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+  const goToError = (index: number) => {
+    setCurrentIndex(index);
+    if (viewRef.current && errors[index]) {
+      goToLine(viewRef.current, errors[index].line);
+    }
   };
 
-  const onNextErrorClick = () => {
-    setCurrentIndex((prevIndex) => Math.min(prevIndex + 1, errors.length - 1));
-  };
-
-  const ErrorMessages = () => (
-    <div className={styles.validationErrorsContainer}>
-      <ErrorNotification text={errors[currentIndex]?.message} line={errors[currentIndex]?.line} />
-      <div className={styles.pagination}>
-        <ChevronLeft
-          onClick={onPreviousErrorClick}
-          className={currentIndex === 0 ? styles.disabledIcon : styles.paginationIcon}
-        />
-        <div>
-          {currentIndex + 1}/{errors.length}
-        </div>
-        <ChevronRight
-          onClick={onNextErrorClick}
-          className={currentIndex === errors.length - 1 ? styles.disabledIcon : styles.paginationIcon}
-        />
-      </div>
-    </div>
-  );
+  const currentError = errors[currentIndex];
 
   return (
     <div>
-      {errors.length && validationOn ? <ErrorMessages /> : null}
+      {errors.length && validationOn ? (
+        <div className={styles.validationErrorsContainer}>
+          <ActionableNotification
+            subtitle={
+              <>
+                <button
+                  type="button"
+                  className={styles.errorLine}
+                  onClick={() => {
+                    goToError(currentIndex);
+                    viewRef.current?.focus();
+                  }}
+                >
+                  {`${t('errorOnLine', 'Error on line')} ${currentError?.line}:`}
+                </button>{' '}
+                {currentError?.message}
+              </>
+            }
+            inline
+            kind="error"
+            lowContrast
+            // The default alertdialog role traps focus in the notification and takes it back on every render, which
+            // would keep keyboard users from the previous and next error buttons
+            role="status"
+            actionButtonLabel={t('referenceSchema', 'Reference schema')}
+            onActionButtonClick={() =>
+              window.open('https://json.openmrs.org/form.schema.json', '_blank', 'noopener,noreferrer')
+            }
+          />
+          <div className={styles.pagination}>
+            <IconButton
+              kind="ghost"
+              size="sm"
+              label={t('previousError', 'Previous error')}
+              disabled={currentIndex === 0}
+              onClick={() => goToError(Math.max(currentIndex - 1, 0))}
+            >
+              <ChevronLeft />
+            </IconButton>
+            <div>
+              {currentIndex + 1}/{errors.length}
+            </div>
+            <IconButton
+              kind="ghost"
+              size="sm"
+              label={t('nextError', 'Next error')}
+              disabled={currentIndex === errors.length - 1}
+              onClick={() => goToError(Math.min(currentIndex + 1, errors.length - 1))}
+            >
+              <ChevronRight />
+            </IconButton>
+          </div>
+        </div>
+      ) : null}
       <div
         id="schemaEditor"
         className={classNames(styles.editor, { [styles.hasErrors]: errors.length })}
