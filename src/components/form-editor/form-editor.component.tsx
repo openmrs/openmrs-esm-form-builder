@@ -37,9 +37,8 @@ import { unretireForm } from '@resources/forms.resource';
 import { useClobdata } from '@hooks/useClobdata';
 import { useForm } from '@hooks/useForm';
 import { useLanguageOptions } from '@hooks/getLanguageOptionsFromSession';
-import type { IMarker } from 'react-ace';
 import type { FormSchema } from '@openmrs/esm-form-engine-lib';
-import type { Schema } from '@types';
+import type { Schema, SchemaError } from '@types';
 import type { ConfigObject } from '../../config-schema';
 import styles from './form-editor.scss';
 
@@ -50,10 +49,6 @@ interface ErrorProps {
 
 interface TranslationFnProps {
   t: TFunction;
-}
-
-interface MarkerProps extends IMarker {
-  text: string;
 }
 
 type Status = 'idle' | 'formLoaded' | 'schemaLoaded';
@@ -86,7 +81,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   const [isValidating, setIsValidating] = useState(false);
   const [validationComplete, setValidationComplete] = useState(false);
   const [publishedWithErrors, setPublishedWithErrors] = useState(false);
-  const [errors, setErrors] = useState<Array<MarkerProps>>([]);
+  const [errors, setErrors] = useState<Array<SchemaError>>([]);
   const [validationOn, setValidationOn] = useState(false);
   const [invalidJsonErrorMessage, setInvalidJsonErrorMessage] = useState('');
   const languageOptions = useLanguageOptions();

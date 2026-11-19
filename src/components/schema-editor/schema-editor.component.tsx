@@ -1,28 +1,143 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import AceEditor from 'react-ace';
-import 'ace-builds/webpack-resolver';
-import { addCompleter } from 'ace-builds/src-noconflict/ext-language_tools';
-import type { IMarker } from 'react-ace';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import classNames from 'classnames';
+import { basicSetup } from 'codemirror';
+import type { CompletionContext, CompletionResult } from '@codemirror/autocomplete';
+import { indentWithTab } from '@codemirror/commands';
+import { json, jsonLanguage, jsonParseLinter } from '@codemirror/lang-json';
+import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
+import { type Diagnostic, forceLinting, linter, lintGutter } from '@codemirror/lint';
+import { Annotation, EditorState, StateEffect, StateField } from '@codemirror/state';
+import { EditorView, keymap } from '@codemirror/view';
+import { tags } from '@lezer/highlight';
+import { indentationMarkers } from '@replit/codemirror-indentation-markers';
 import { useTranslation } from 'react-i18next';
 import { ActionableNotification } from '@carbon/react';
 import { useStandardFormSchema } from '@hooks/useStandardFormSchema';
 import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
 import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
+import type { SchemaError } from '@types';
+import { createInstanceLineFinder } from './schema-error-line';
 import styles from './schema-editor.scss';
-
-interface MarkerProps extends IMarker {
-  text: string;
-}
 
 interface SchemaEditorProps {
   isLoading?: boolean;
   validationOn: boolean;
   onSchemaChange: (stringifiedSchema: string) => void;
   stringifiedSchema: string;
-  errors: Array<MarkerProps>;
-  setErrors: (errors: Array<MarkerProps>) => void;
+  errors: Array<SchemaError>;
+  setErrors: (errors: Array<SchemaError>) => void;
   setValidationOn: (validationStatus: boolean) => void;
+}
+
+interface AutocompleteSuggestion {
+  name: string;
+  type: string;
+  path: string;
+}
+
+/** Marks the transactions that load the `stringifiedSchema` prop, so they aren't reported back as edits. */
+const loadSchema = Annotation.define<boolean>();
+
+/** Replaces the schema errors the editor shows as diagnostics. */
+const setSchemaErrors = StateEffect.define<Array<SchemaError>>();
+
+const schemaErrorsField = StateField.define<Array<SchemaError>>({
+  create: () => [],
+  update: (schemaErrors, transaction) =>
+    transaction.effects.reduce((value, effect) => (effect.is(setSchemaErrors) ? effect.value : value), schemaErrors),
+});
+
+// Carbon's support-error red, written out because the lint icons are data URLs, which can't read CSS custom properties.
+const errorRed = '#da1e28';
+
+function svgDataUrl(content: string, attributes = 'viewBox="0 0 40 40"') {
+  return `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" ${attributes}>${encodeURIComponent(content)}</svg>')`;
+}
+
+/**
+ * Follows the surrounding Carbon theme through its CSS custom properties, falling back to the white theme's values
+ * because the app shell doesn't define the properties globally.
+ */
+const carbonTheme = EditorView.theme({
+  '&': {
+    backgroundColor: 'var(--cds-background, #ffffff)',
+    color: 'var(--cds-text-primary, #161616)',
+    fontSize: '0.9375rem',
+  },
+  // Carbon's monospace stack, from @carbon/type.
+  '.cm-scroller': {
+    fontFamily: "'IBM Plex Mono', 'Menlo', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', Courier, monospace",
+  },
+  '.cm-content': { caretColor: 'var(--cds-text-primary, #161616)' },
+  '.cm-cursor, .cm-dropCursor': { borderLeftColor: 'var(--cds-text-primary, #161616)' },
+  '.cm-gutters': {
+    backgroundColor: 'var(--cds-layer-01, #f4f4f4)',
+    color: 'var(--cds-text-secondary, #525252)',
+    borderRight: '1px solid var(--cds-border-subtle-01, #c6c6c6)',
+  },
+  '.cm-activeLine': { backgroundColor: 'var(--cds-layer-hover-01, #e8e8e8)' },
+  '.cm-activeLineGutter': { backgroundColor: 'var(--cds-layer-hover-01, #e8e8e8)' },
+  '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, ::selection': {
+    backgroundColor: 'var(--cds-highlight, #d0e2ff)',
+  },
+  '.cm-tooltip': {
+    backgroundColor: 'var(--cds-layer-01, #f4f4f4)',
+    color: 'var(--cds-text-primary, #161616)',
+    border: '1px solid var(--cds-border-subtle-01, #c6c6c6)',
+  },
+  '.cm-tooltip-autocomplete ul li[aria-selected]': {
+    backgroundColor: 'var(--cds-layer-selected-01, #e0e0e0)',
+    color: 'var(--cds-text-primary, #161616)',
+  },
+  // CodeMirror's default lint reds drop below 3:1 contrast on the gutter and the active line.
+  '.cm-lintRange-error': {
+    backgroundImage: svgDataUrl(
+      `<path d="m0 2.5 l2 -1.5 l1 0 l2 1.5 l1 0" stroke="${errorRed}" fill="none" stroke-width="1"/>`,
+      'width="6" height="3"',
+    ),
+  },
+  '.cm-lint-marker-error': {
+    content: svgDataUrl(`<circle cx="20" cy="20" r="15" fill="${errorRed}"/>`),
+  },
+  '.cm-diagnostic-error': { borderLeftColor: `var(--cds-support-error, ${errorRed})` },
+});
+
+const jsonHighlighting = HighlightStyle.define([
+  { tag: tags.propertyName, class: styles.property },
+  { tag: tags.string, class: styles.string },
+  { tag: [tags.number, tags.bool, tags.null], class: styles.literal },
+  { tag: [tags.brace, tags.squareBracket, tags.separator, tags.punctuation], class: styles.punctuation },
+]);
+
+/** Places each schema error on its line, kept within the document in case it has since got shorter. */
+function toDiagnostics(state: EditorState, errors: Array<SchemaError>): Array<Diagnostic> {
+  return errors.map(({ line, message }) => {
+    const { from, to } = state.doc.line(Math.min(Math.max(line, 1), state.doc.lines));
+    return { from, to, severity: 'error', message };
+  });
+}
+
+/** Suggests property names from the reference form schema for the word before the cursor. */
+function completeSchemaProperty(
+  context: CompletionContext,
+  suggestions: Array<AutocompleteSuggestion>,
+): CompletionResult | null {
+  const word = context.matchBefore(/[\w$]*/);
+  if (!word || (word.from === word.to && !context.explicit)) {
+    return null;
+  }
+
+  return {
+    from: word.from,
+    options: suggestions.map(({ name, type, path }) => ({
+      label: name,
+      type: 'property',
+      detail: type,
+      info: `Path: ${path}`,
+    })),
+    validFor: /^[\w$]*$/,
+  };
 }
 
 const SchemaEditor: React.FC<SchemaEditorProps> = ({
@@ -35,14 +150,13 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
 }) => {
   const { schema, schemaProperties } = useStandardFormSchema();
   const { t } = useTranslation();
-  const [autocompleteSuggestions, setAutocompleteSuggestions] = useState<
-    Array<{ name: string; type: string; path: string }>
-  >([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const viewRef = useRef<EditorView | null>(null);
 
   // Enable autocompletion in the schema
-  const generateAutocompleteSuggestions = useCallback(() => {
-    const suggestions: Array<{ name: string; type: string; path: string }> = [];
+  const autocompleteSuggestions = useMemo(() => {
+    const suggestions: Array<AutocompleteSuggestion> = [];
 
     const traverseSchema = (schemaProps: unknown, path: string) => {
       if (schemaProps) {
@@ -80,30 +194,6 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     return suggestions;
   }, [schemaProperties]);
 
-  useEffect(() => {
-    // Generate autocomplete suggestions when schema changes
-    const suggestions = generateAutocompleteSuggestions();
-    setAutocompleteSuggestions(suggestions.flat());
-  }, [schemaProperties, generateAutocompleteSuggestions]);
-
-  useEffect(() => {
-    addCompleter({
-      getCompletions: function (editor, session, pos, prefix, callback) {
-        callback(
-          null,
-          autocompleteSuggestions.map(function (word) {
-            return {
-              caption: word.name,
-              value: word.name,
-              meta: word.type,
-              docText: `Path: ${word.path}`,
-            };
-          }),
-        );
-      },
-    });
-  }, [autocompleteSuggestions]);
-
   // Validate JSON schema
   const validateSchema = (content: string, schema) => {
     try {
@@ -119,29 +209,14 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
       const validate = ajv.compile(schema);
       const parsedContent = JSON.parse(content);
       const isValid = validate(parsedContent);
-      const jsonLines = content.split('\n');
-
-      const traverse = (schemaPath) => {
-        const pathSegments = schemaPath.split('/').filter((segment) => segment !== '' || segment !== 'type');
-        let lineNumber = -1;
-
-        for (const segment of pathSegments) {
-          if (segment === 'properties' || segment === 'items') continue; // Skip 'properties' and 'items'
-          const match = segment.match(/^([^[\]]+)/); // Extract property key
-          if (match) {
-            const propertyName: string = pathSegments[pathSegments.length - 2]; // Get property key
-            lineNumber = jsonLines.findIndex((line) => line.includes(propertyName));
-          }
-          if (lineNumber !== -1) break;
-        }
-
-        return lineNumber;
-      };
 
       if (!isValid) {
-        const errorMarkers = validate.errors.map((error) => {
-          const schemaPath = error.schemaPath.replace(/^#\//, ''); // Remove leading '#/'
-          const lineNumber = traverse(schemaPath);
+        const findLine = createInstanceLineFinder(content);
+        const schemaErrors = validate.errors.map((error) => {
+          const line = findLine(
+            error.instancePath,
+            error.keyword === 'additionalProperties' ? error.params.additionalProperty : undefined,
+          );
           const pathSegments = error.instancePath.split('.'); // Split the path into segments
           const errorPropertyName = pathSegments[pathSegments.length - 1];
           const message =
@@ -149,27 +224,22 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
               ? `${errorPropertyName.charAt(0).toUpperCase() + errorPropertyName.slice(1)} ${error.message}`
               : `${error.message.charAt(0).toUpperCase() + error.message.slice(1)}`;
 
-          return {
-            startRow: lineNumber,
-            startCol: 0,
-            endRow: lineNumber,
-            endCol: 1,
-            className: 'error',
-            text: message,
-            type: 'text' as const,
-          };
+          return { line, message };
         });
 
-        setErrors(errorMarkers);
+        // The previous errors may have been fewer, so the list starts over at the first error
+        setCurrentIndex(0);
+        setErrors(schemaErrors);
       } else {
         setErrors([]);
       }
     } catch (error) {
+      // Errors from the last valid text would point at text that has since changed. The editor flags the JSON
+      // syntax error itself.
+      setErrors([]);
       console.error('Error parsing or validating JSON:', error);
     }
   };
-
-  const debouncedValidateSchema = debounce(validateSchema, 300);
 
   const handleChange = (newValue: string) => {
     setValidationOn(false);
@@ -178,12 +248,110 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     debouncedValidateSchema(newValue, schema);
   };
 
+  // The editor is created once, so its extensions reach the latest props and callbacks through these refs.
+  const validateSchemaRef = useRef(validateSchema);
+  const handleChangeRef = useRef(handleChange);
+  const autocompleteSuggestionsRef = useRef(autocompleteSuggestions);
+
+  useEffect(() => {
+    validateSchemaRef.current = validateSchema;
+    handleChangeRef.current = handleChange;
+    autocompleteSuggestionsRef.current = autocompleteSuggestions;
+  });
+
+  const debouncedValidateSchema = useMemo(
+    () => debounce((content: string, schema) => validateSchemaRef.current(content, schema), 300),
+    [],
+  );
+
+  useEffect(() => () => debouncedValidateSchema.cancel(), [debouncedValidateSchema]);
+
+  useEffect(() => {
+    const view = new EditorView({
+      parent: containerRef.current,
+      state: EditorState.create({
+        doc: stringifiedSchema ?? '',
+        extensions: [
+          basicSetup,
+          keymap.of([indentWithTab]),
+          indentationMarkers({
+            colors: {
+              light: 'var(--cds-border-subtle-00, #e0e0e0)',
+              activeLight: 'var(--cds-border-strong-01, #8d8d8d)',
+            },
+          }),
+          json(),
+          jsonLanguage.data.of({
+            autocomplete: (context: CompletionContext) =>
+              completeSchemaProperty(context, autocompleteSuggestionsRef.current),
+          }),
+          schemaErrorsField,
+          linter(
+            (view) => [
+              ...(view.state.doc.toString().trim() ? jsonParseLinter()(view) : []),
+              ...toDiagnostics(view.state, view.state.field(schemaErrorsField)),
+            ],
+            {
+              needsRefresh: (update) =>
+                update.transactions.some((transaction) =>
+                  transaction.effects.some((effect) => effect.is(setSchemaErrors)),
+                ),
+            },
+          ),
+          lintGutter(),
+          syntaxHighlighting(jsonHighlighting),
+          carbonTheme,
+          EditorState.tabSize.of(2),
+          EditorView.contentAttributes.of({ 'aria-label': t('schemaEditor', 'Schema editor') }),
+          EditorView.updateListener.of((update) => {
+            if (update.docChanged && !update.transactions.some((transaction) => transaction.annotation(loadSchema))) {
+              handleChangeRef.current(update.state.doc.toString());
+            }
+          }),
+        ],
+      }),
+    });
+    viewRef.current = view;
+
+    return () => {
+      view.destroy();
+      viewRef.current = null;
+    };
+    // The editor owns its document after creation. Later schema changes are loaded by the effect below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const view = viewRef.current;
+    const text = stringifiedSchema ?? '';
+    if (view && text !== view.state.doc.toString()) {
+      view.dispatch({
+        changes: { from: 0, to: view.state.doc.length, insert: text },
+        annotations: loadSchema.of(true),
+      });
+
+      // Errors shown for the old text may no longer apply, for example after a fix in the interactive builder
+      if (view.state.field(schemaErrorsField).length) {
+        debouncedValidateSchema(text, schema);
+      }
+    }
+  }, [stringifiedSchema, schema, debouncedValidateSchema]);
+
+  // Shows the schema errors as diagnostics in the editor
+  useEffect(() => {
+    const view = viewRef.current;
+    if (view) {
+      view.dispatch({ effects: setSchemaErrors.of(errors) });
+      forceLinting(view);
+    }
+  }, [errors]);
+
   // Schema Validation Errors
   const ErrorNotification = ({ text, line }) => (
     <ActionableNotification
       subtitle={text}
       inline
-      title={t('errorOnLine', 'Error on line') + ` ${line + 1}: `}
+      title={t('errorOnLine', 'Error on line') + ` ${line}: `}
       kind="error"
       lowContrast
       actionButtonLabel={t('referenceSchema', 'Reference schema')}
@@ -203,7 +371,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
 
   const ErrorMessages = () => (
     <div className={styles.validationErrorsContainer}>
-      <ErrorNotification text={errors[currentIndex]?.text} line={errors[currentIndex]?.startRow} />
+      <ErrorNotification text={errors[currentIndex]?.message} line={errors[currentIndex]?.line} />
       <div className={styles.pagination}>
         <ChevronLeft
           onClick={onPreviousErrorClick}
@@ -223,26 +391,10 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   return (
     <div>
       {errors.length && validationOn ? <ErrorMessages /> : null}
-      <AceEditor
-        style={{ height: '100vh', width: '100%', border: errors.length ? '3px solid #DA1E28' : 'none' }}
-        mode="json"
-        theme="textmate"
-        name="schemaEditor"
-        onChange={handleChange}
-        fontSize={15}
-        showPrintMargin={false}
-        showGutter={true}
-        highlightActiveLine={true}
-        value={stringifiedSchema}
-        setOptions={{
-          enableBasicAutocompletion: true,
-          enableLiveAutocompletion: true,
-          displayIndentGuides: true,
-          enableSnippets: true,
-          showLineNumbers: true,
-          tabSize: 2,
-        }}
-        markers={errors}
+      <div
+        id="schemaEditor"
+        className={classNames(styles.editor, { [styles.hasErrors]: errors.length })}
+        ref={containerRef}
       />
     </div>
   );

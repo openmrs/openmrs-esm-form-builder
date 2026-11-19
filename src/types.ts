@@ -8,6 +8,13 @@ export interface FormBuilderSchema extends FormSchema {
   description?: string;
 }
 
+/** An error from validating the schema text against the reference form schema. */
+export interface SchemaError {
+  /** The one-based line of the property or array element the error is about. */
+  line: number;
+  message: string;
+}
+
 export interface Form {
   uuid: string;
   name: string;
