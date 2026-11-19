@@ -10,7 +10,7 @@ export interface FormBuilderSchema extends FormSchema {
 
 /** An error from validating the schema text against the reference form schema. */
 export interface SchemaError {
-  /** The one-based line the error was found on, or 0 when it couldn't be placed on a line. */
+  /** The one-based line of the property or array element the error is about. */
   line: number;
   message: string;
 }

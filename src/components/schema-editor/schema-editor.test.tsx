@@ -207,6 +207,29 @@ describe('SchemaEditor', () => {
     expect(screen.getByText('Version must be string')).toBeInTheDocument();
   });
 
+  it('marks an error on the property it is about, not on an earlier line that mentions its name', async () => {
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema="{}" />);
+    const schema = JSON.stringify(
+      {
+        name: 'Nutrition',
+        encounter: 'Bump the version before publishing',
+        pages: [],
+        processor: 'EncounterFormProcessor',
+        version: 2,
+      },
+      null,
+      2,
+    );
+
+    setEditorText(schema);
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: 'Render changes' }));
+
+    expect(await getErrorMarkerLines()).toEqual([6]);
+    expect(screen.getByText(/error on line 6/i)).toBeInTheDocument();
+  });
+
   it('clears the error marks and messages once an edit fixes the schema', async () => {
     vi.useFakeTimers();
     render(<StatefulSchemaEditor initialSchema="{}" />);

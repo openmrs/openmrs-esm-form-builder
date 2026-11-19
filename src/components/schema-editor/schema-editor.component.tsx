@@ -16,6 +16,7 @@ import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
 import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
 import type { SchemaError } from '@types';
+import { findInstanceLine } from './schema-error-line';
 import styles from './schema-editor.scss';
 
 interface SchemaEditorProps {
@@ -108,7 +109,7 @@ const jsonHighlighting = HighlightStyle.define([
   { tag: [tags.brace, tags.squareBracket, tags.separator, tags.punctuation], class: styles.punctuation },
 ]);
 
-/** Places each schema error on its line, or on the first line when it couldn't be placed. */
+/** Places each schema error on its line, kept within the document in case it has since got shorter. */
 function toDiagnostics(state: EditorState, errors: Array<SchemaError>): Array<Diagnostic> {
   return errors.map(({ line, message }) => {
     const { from, to } = state.doc.line(Math.min(Math.max(line, 1), state.doc.lines));
@@ -207,29 +208,14 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
       const validate = ajv.compile(schema);
       const parsedContent = JSON.parse(content);
       const isValid = validate(parsedContent);
-      const jsonLines = content.split('\n');
-
-      const traverse = (schemaPath) => {
-        const pathSegments = schemaPath.split('/').filter((segment) => segment !== '' || segment !== 'type');
-        let lineNumber = -1;
-
-        for (const segment of pathSegments) {
-          if (segment === 'properties' || segment === 'items') continue; // Skip 'properties' and 'items'
-          const match = segment.match(/^([^[\]]+)/); // Extract property key
-          if (match) {
-            const propertyName: string = pathSegments[pathSegments.length - 2]; // Get property key
-            lineNumber = jsonLines.findIndex((line) => line.includes(propertyName));
-          }
-          if (lineNumber !== -1) break;
-        }
-
-        return lineNumber;
-      };
 
       if (!isValid) {
         const schemaErrors = validate.errors.map((error) => {
-          const schemaPath = error.schemaPath.replace(/^#\//, ''); // Remove leading '#/'
-          const lineIndex = traverse(schemaPath);
+          const line = findInstanceLine(
+            content,
+            error.instancePath,
+            error.keyword === 'additionalProperties' ? error.params.additionalProperty : undefined,
+          );
           const pathSegments = error.instancePath.split('.'); // Split the path into segments
           const errorPropertyName = pathSegments[pathSegments.length - 1];
           const message =
@@ -237,7 +223,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
               ? `${errorPropertyName.charAt(0).toUpperCase() + errorPropertyName.slice(1)} ${error.message}`
               : `${error.message.charAt(0).toUpperCase() + error.message.slice(1)}`;
 
-          return { line: lineIndex + 1, message };
+          return { line, message };
         });
 
         setErrors(schemaErrors);
