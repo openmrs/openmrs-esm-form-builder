@@ -17,7 +17,7 @@ import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
 import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
 import type { SchemaError } from '@types';
-import { findInstanceLine } from './schema-error-line';
+import { createInstanceLineFinder } from './schema-error-line';
 import styles from './schema-editor.scss';
 
 interface SchemaEditorProps {
@@ -211,9 +211,9 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
       const isValid = validate(parsedContent);
 
       if (!isValid) {
+        const findLine = createInstanceLineFinder(content);
         const schemaErrors = validate.errors.map((error) => {
-          const line = findInstanceLine(
-            content,
+          const line = findLine(
             error.instancePath,
             error.keyword === 'additionalProperties' ? error.params.additionalProperty : undefined,
           );

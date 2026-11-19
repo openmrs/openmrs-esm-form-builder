@@ -1,4 +1,5 @@
 import { jsonLanguage } from '@codemirror/lang-json';
+import { Text } from '@codemirror/state';
 
 type SyntaxNode = ReturnType<typeof jsonLanguage.parser.parse>['topNode'];
 
@@ -25,41 +26,47 @@ function children(node: SyntaxNode) {
 }
 
 /**
- * Finds the one-based line of the value an Ajv error is about: the line its property name is on, or the line an
- * array element starts on. When the path can't be followed all the way, it returns the line of the deepest part
- * that was found, which is line 1 for errors about the whole schema.
+ * Returns a function that finds the one-based line of the value an Ajv error is about: the line its property name is
+ * on, or the line an array element starts on. When the path can't be followed all the way, it returns the line of the
+ * deepest part that was found, which is line 1 for errors about the whole schema. The content is parsed once, so one
+ * finder can place every error from a validation.
  */
-export function findInstanceLine(content: string, instancePath: string, extraPropertyName?: string): number {
-  const segments = parseInstancePath(instancePath);
-  if (extraPropertyName !== undefined) {
-    segments.push(extraPropertyName);
-  }
+export function createInstanceLineFinder(content: string) {
+  const root = jsonLanguage.parser.parse(content).topNode.firstChild;
+  const text = Text.of(content.split('\n'));
 
-  let node = jsonLanguage.parser.parse(content).topNode.firstChild;
-  let position = node?.from ?? 0;
-
-  for (const segment of segments) {
-    if (typeof segment === 'number' && node?.name === 'Array') {
-      const element = children(node).filter((child) => valueNodes.has(child.name))[segment];
-      if (!element) break;
-      node = element;
-      position = element.from;
-    } else if (typeof segment === 'string' && node?.name === 'Object') {
-      // The last property with the name wins, as it does in JSON.parse
-      const property = node
-        .getChildren('Property')
-        .filter((child) => {
-          const name = child.getChild('PropertyName');
-          return name && JSON.parse(content.slice(name.from, name.to)) === segment;
-        })
-        .at(-1);
-      if (!property) break;
-      node = children(property).find((child) => valueNodes.has(child.name)) ?? null;
-      position = property.from;
-    } else {
-      break;
+  return (instancePath: string, extraPropertyName?: string): number => {
+    const segments = parseInstancePath(instancePath);
+    if (extraPropertyName !== undefined) {
+      segments.push(extraPropertyName);
     }
-  }
 
-  return content.slice(0, position).split('\n').length;
+    let node = root;
+    let position = node?.from ?? 0;
+
+    for (const segment of segments) {
+      if (typeof segment === 'number' && node?.name === 'Array') {
+        const element = children(node).filter((child) => valueNodes.has(child.name))[segment];
+        if (!element) break;
+        node = element;
+        position = element.from;
+      } else if (typeof segment === 'string' && node?.name === 'Object') {
+        // The last property with the name wins, as it does in JSON.parse
+        const property = node
+          .getChildren('Property')
+          .filter((child) => {
+            const name = child.getChild('PropertyName');
+            return name && JSON.parse(content.slice(name.from, name.to)) === segment;
+          })
+          .at(-1);
+        if (!property) break;
+        node = children(property).find((child) => valueNodes.has(child.name)) ?? null;
+        position = property.from;
+      } else {
+        break;
+      }
+    }
+
+    return text.lineAt(position).number;
+  };
 }
