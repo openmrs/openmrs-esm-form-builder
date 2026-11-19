@@ -1,42 +1,52 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import ReactMde from 'react-mde';
+import { ContentSwitcher, Switch, TextArea } from '@carbon/react';
 import ReactMarkdown from 'react-markdown';
 import { useFormField } from '../../../../form-field-context';
 import styles from './markdown.scss';
 
+type EditorTab = 'write' | 'preview';
+
+// Schemas can store markdown as an array of lines, which the form engine renders as separate paragraphs.
+// The editor shows them the same way and writes a single string back once the content is edited.
+const toMarkdownString = (value: unknown): string => {
+  if (Array.isArray(value)) {
+    return value.join('\n\n');
+  }
+  return typeof value === 'string' ? value : '';
+};
+
 const MarkdownQuestion: React.FC = () => {
   const { t } = useTranslation();
   const { formField, setFormField } = useFormField();
-  const [selectedTab, setSelectedTab] = React.useState<'write' | 'preview'>('write');
-
-  const handleEditorChange = (newValue: string) => {
-    const updatedFormField = { ...formField, value: newValue };
-    setFormField(updatedFormField);
-  };
-
-  const handleTabChange = () => {
-    setSelectedTab((prevTab) => (prevTab === 'write' ? 'preview' : 'write'));
-  };
+  const [selectedTab, setSelectedTab] = useState<EditorTab>('write');
+  const markdown = toMarkdownString(formField.value);
 
   return (
     <div className={styles.container}>
-      <ReactMde
-        value={formField.value}
-        onChange={handleEditorChange}
-        selectedTab={selectedTab}
-        onTabChange={handleTabChange}
-        toolbarCommands={[['bold', 'italic']]}
-        generateMarkdownPreview={(markdown) =>
-          Promise.resolve(<ReactMarkdown children={Array.isArray(markdown) ? markdown.join('\n') : markdown} />)
-        }
-        childProps={{
-          writeButton: {
-            tabIndex: -1,
-          },
-        }}
-        loadingPreview={t('loadingPreview', 'Loading preview...')}
-      />
+      <ContentSwitcher
+        size="sm"
+        selectedIndex={selectedTab === 'write' ? 0 : 1}
+        onChange={({ name }) => setSelectedTab(name as EditorTab)}
+      >
+        <Switch name="write" text={t('write', 'Write')} />
+        <Switch name="preview" text={t('preview', 'Preview')} />
+      </ContentSwitcher>
+      {selectedTab === 'write' ? (
+        <TextArea
+          id="markdownContent"
+          labelText={t('markdownContent', 'Markdown content')}
+          rows={6}
+          value={markdown}
+          onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+            setFormField({ ...formField, value: event.target.value })
+          }
+        />
+      ) : (
+        <div className={styles.preview}>
+          {markdown ? <ReactMarkdown>{markdown}</ReactMarkdown> : t('nothingToPreview', 'Nothing to preview')}
+        </div>
+      )}
     </div>
   );
 };
