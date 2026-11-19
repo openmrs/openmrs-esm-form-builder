@@ -9,6 +9,7 @@ import { type Diagnostic, forceLinting, linter, lintGutter } from '@codemirror/l
 import { Annotation, EditorState, StateEffect, StateField } from '@codemirror/state';
 import { EditorView, keymap } from '@codemirror/view';
 import { tags } from '@lezer/highlight';
+import { indentationMarkers } from '@replit/codemirror-indentation-markers';
 import { useTranslation } from 'react-i18next';
 import { ActionableNotification } from '@carbon/react';
 import { useStandardFormSchema } from '@hooks/useStandardFormSchema';
@@ -271,6 +272,12 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
         extensions: [
           basicSetup,
           keymap.of([indentWithTab]),
+          indentationMarkers({
+            colors: {
+              light: 'var(--cds-border-subtle-00, #e0e0e0)',
+              activeLight: 'var(--cds-border-strong-01, #8d8d8d)',
+            },
+          }),
           json(),
           jsonLanguage.data.of({
             autocomplete: (context: CompletionContext) =>

@@ -154,6 +154,25 @@ describe('SchemaEditor (CodeMirror)', () => {
     expect(foldedRanges(view.state).size).toBeGreaterThan(0);
   });
 
+  it('draws indent guides on the lines inside objects and arrays', () => {
+    renderSchemaEditor('{\n  "pages": [\n    {\n      "label": "First"\n    }\n  ]\n}');
+
+    // The guides are line decorations, which have no role or text to query by.
+    // eslint-disable-next-line testing-library/no-node-access
+    const lines = Array.from(getView().contentDOM.querySelectorAll('.cm-line'), (line) => ({
+      text: line.textContent.trim(),
+      guided: line.classList.contains('cm-indent-markers'),
+    }));
+
+    expect(lines.filter(({ guided }) => guided).map(({ text }) => text)).toEqual([
+      '"pages": [',
+      '{',
+      '"label": "First"',
+      '}',
+      ']',
+    ]);
+  });
+
   it('creates the editor once and keeps it across prop changes and edits', async () => {
     const user = userEvent.setup();
     const { rerender, props } = renderSchemaEditor('{}');

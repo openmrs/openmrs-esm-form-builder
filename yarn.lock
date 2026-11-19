@@ -3021,6 +3021,7 @@ __metadata:
     "@openmrs/esm-framework": "npm:next"
     "@openmrs/esm-styleguide": "npm:next"
     "@playwright/test": "npm:^1.65.1"
+    "@replit/codemirror-indentation-markers": "npm:^6.5.3"
     "@swc/cli": "npm:^0.1.65"
     "@swc/core": "npm:^1.5.7"
     "@testing-library/dom": "npm:^10.4.1"
@@ -3673,6 +3674,17 @@ __metadata:
   version: 1.20.0
   resolution: "@remix-run/router@npm:1.20.0"
   checksum: 10/e1d2420db94a1855b97f1784898d0ae389cf3b77129b8f419e51d4833b77ca2c92ac09e2cb558015324d64580a138fd6faa31e52fcc3ba90e3cc382a1a324d4a
+  languageName: node
+  linkType: hard
+
+"@replit/codemirror-indentation-markers@npm:^6.5.3":
+  version: 6.5.3
+  resolution: "@replit/codemirror-indentation-markers@npm:6.5.3"
+  peerDependencies:
+    "@codemirror/language": ^6.0.0
+    "@codemirror/state": ^6.0.0
+    "@codemirror/view": ^6.0.0
+  checksum: 10/9292734a228038805bdf72ed2c6cdd70e7b7f87090d6d07bb64af4ac986ea277349409f4d52c2863128d4b481ea8a094c2486d7d677875d47336a52cb15fc4ed
   languageName: node
   linkType: hard
 

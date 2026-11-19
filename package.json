@@ -57,6 +57,7 @@
     "@codemirror/view": "^6.43.15",
     "@lezer/highlight": "^1.2.5",
     "@openmrs/esm-form-engine-lib": "next",
+    "@replit/codemirror-indentation-markers": "^6.5.3",
     "ajv": "^8.17.1",
     "codemirror": "^6.0.2",
     "dotenv": "^16.4.5",
