@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { basicSetup } from 'codemirror';
-import type { CompletionContext, CompletionResult } from '@codemirror/autocomplete';
+import type { CompletionContext } from '@codemirror/autocomplete';
 import { indentWithTab } from '@codemirror/commands';
 import { json, jsonLanguage, jsonParseLinter } from '@codemirror/lang-json';
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
@@ -11,12 +11,13 @@ import { EditorView, keymap } from '@codemirror/view';
 import { tags } from '@lezer/highlight';
 import { indentationMarkers } from '@replit/codemirror-indentation-markers';
 import { useTranslation } from 'react-i18next';
-import { ActionableNotification } from '@carbon/react';
+import { ActionableNotification, IconButton } from '@carbon/react';
 import { useStandardFormSchema } from '@hooks/useStandardFormSchema';
 import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
 import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
 import type { SchemaError } from '@types';
+import { completeFromSchema } from './schema-completions';
 import { createInstanceLineFinder } from './schema-error-line';
 import styles from './schema-editor.scss';
 
@@ -28,12 +29,6 @@ interface SchemaEditorProps {
   errors: Array<SchemaError>;
   setErrors: (errors: Array<SchemaError>) => void;
   setValidationOn: (validationStatus: boolean) => void;
-}
-
-interface AutocompleteSuggestion {
-  name: string;
-  type: string;
-  path: string;
 }
 
 /** Marks the transactions that load the `stringifiedSchema` prop, so they aren't reported back as edits. */
@@ -118,26 +113,10 @@ function toDiagnostics(state: EditorState, errors: Array<SchemaError>): Array<Di
   });
 }
 
-/** Suggests property names from the reference form schema for the word before the cursor. */
-function completeSchemaProperty(
-  context: CompletionContext,
-  suggestions: Array<AutocompleteSuggestion>,
-): CompletionResult | null {
-  const word = context.matchBefore(/[\w$]*/);
-  if (!word || (word.from === word.to && !context.explicit)) {
-    return null;
-  }
-
-  return {
-    from: word.from,
-    options: suggestions.map(({ name, type, path }) => ({
-      label: name,
-      type: 'property',
-      detail: type,
-      info: `Path: ${path}`,
-    })),
-    validFor: /^[\w$]*$/,
-  };
+/** Puts the cursor at the start of a line and scrolls it into the middle of the editor. */
+function goToLine(view: EditorView, line: number) {
+  const { from } = view.state.doc.line(Math.min(Math.max(line, 1), view.state.doc.lines));
+  view.dispatch({ selection: { anchor: from }, effects: EditorView.scrollIntoView(from, { y: 'center' }) });
 }
 
 const SchemaEditor: React.FC<SchemaEditorProps> = ({
@@ -148,51 +127,14 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   validationOn,
   setValidationOn,
 }) => {
-  const { schema, schemaProperties } = useStandardFormSchema();
+  const { schema } = useStandardFormSchema();
   const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
-
-  // Enable autocompletion in the schema
-  const autocompleteSuggestions = useMemo(() => {
-    const suggestions: Array<AutocompleteSuggestion> = [];
-
-    const traverseSchema = (schemaProps: unknown, path: string) => {
-      if (schemaProps) {
-        if (schemaProps && typeof schemaProps === 'object') {
-          Object.entries(schemaProps).forEach(([propertyName, property]) => {
-            if (propertyName === '$schema') {
-              return;
-            }
-
-            const currentPath = path ? `${path}.${propertyName}` : propertyName;
-            const typedProperty = property as {
-              type?: string;
-              properties?: Array<{ type: string }>;
-              items?: { type?: string; properties?: Array<{ type: string }> };
-              oneOf?: Array<{ type: string }>;
-            };
-
-            if (typeof property === 'object') {
-              if (typedProperty.type === 'array' && typedProperty.items && typedProperty.items.properties) {
-                traverseSchema(typedProperty.items.properties, currentPath);
-              } else if (typedProperty.properties) {
-                traverseSchema(typedProperty.properties, currentPath);
-              } else if (typedProperty.oneOf) {
-                const types = typedProperty?.oneOf?.map((item: { type: string }) => item.type).join(' | ');
-                suggestions.push({ name: propertyName, type: types || 'any', path: currentPath });
-              }
-            }
-
-            suggestions.push({ name: propertyName, type: typedProperty.type || 'any', path: currentPath });
-          });
-        }
-      }
-    };
-    traverseSchema(schemaProperties, '');
-    return suggestions;
-  }, [schemaProperties]);
+  const previousErrorButtonRef = useRef<HTMLButtonElement>(null);
+  const nextErrorButtonRef = useRef<HTMLButtonElement>(null);
+  const [focusTarget, setFocusTarget] = useState<'previous' | 'next' | null>(null);
 
   // Validate JSON schema
   const validateSchema = (content: string, schema) => {
@@ -251,12 +193,12 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   // The editor is created once, so its extensions reach the latest props and callbacks through these refs.
   const validateSchemaRef = useRef(validateSchema);
   const handleChangeRef = useRef(handleChange);
-  const autocompleteSuggestionsRef = useRef(autocompleteSuggestions);
+  const schemaRef = useRef(schema);
 
   useEffect(() => {
     validateSchemaRef.current = validateSchema;
     handleChangeRef.current = handleChange;
-    autocompleteSuggestionsRef.current = autocompleteSuggestions;
+    schemaRef.current = schema;
   });
 
   const debouncedValidateSchema = useMemo(
@@ -282,8 +224,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
           }),
           json(),
           jsonLanguage.data.of({
-            autocomplete: (context: CompletionContext) =>
-              completeSchemaProperty(context, autocompleteSuggestionsRef.current),
+            autocomplete: (context: CompletionContext) => completeFromSchema(context, schemaRef.current),
           }),
           schemaErrorsField,
           linter(
@@ -346,51 +287,98 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     }
   }, [errors]);
 
-  // Schema Validation Errors
-  const ErrorNotification = ({ text, line }) => (
-    <ActionableNotification
-      subtitle={text}
-      inline
-      title={t('errorOnLine', 'Error on line') + ` ${line}: `}
-      kind="error"
-      lowContrast
-      actionButtonLabel={t('referenceSchema', 'Reference schema')}
-      onActionButtonClick={() =>
-        window.open('https://json.openmrs.org/form.schema.json', '_blank', 'noopener,noreferrer')
-      }
-    />
-  );
-
-  const onPreviousErrorClick = () => {
-    setCurrentIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+  const goToError = (index: number) => {
+    setCurrentIndex(index);
+    if (viewRef.current && errors[index]) {
+      goToLine(viewRef.current, errors[index].line);
+    }
   };
 
-  const onNextErrorClick = () => {
-    setCurrentIndex((prevIndex) => Math.min(prevIndex + 1, errors.length - 1));
+  // A button that reaches the first or last error is disabled and loses focus, so focus moves to the other button
+  // once it's enabled, the way Carbon's Pagination does
+  useEffect(() => {
+    if (focusTarget) {
+      (focusTarget === 'previous' ? previousErrorButtonRef : nextErrorButtonRef).current?.focus();
+      setFocusTarget(null);
+    }
+  }, [focusTarget]);
+
+  const goToPreviousError = () => {
+    const index = Math.max(currentIndex - 1, 0);
+    goToError(index);
+    if (index === 0) {
+      setFocusTarget('next');
+    }
   };
 
-  const ErrorMessages = () => (
-    <div className={styles.validationErrorsContainer}>
-      <ErrorNotification text={errors[currentIndex]?.message} line={errors[currentIndex]?.line} />
-      <div className={styles.pagination}>
-        <ChevronLeft
-          onClick={onPreviousErrorClick}
-          className={currentIndex === 0 ? styles.disabledIcon : styles.paginationIcon}
-        />
-        <div>
-          {currentIndex + 1}/{errors.length}
-        </div>
-        <ChevronRight
-          onClick={onNextErrorClick}
-          className={currentIndex === errors.length - 1 ? styles.disabledIcon : styles.paginationIcon}
-        />
-      </div>
-    </div>
-  );
+  const goToNextError = () => {
+    const index = Math.min(currentIndex + 1, errors.length - 1);
+    goToError(index);
+    if (index === errors.length - 1) {
+      setFocusTarget('previous');
+    }
+  };
+
+  const currentError = errors[currentIndex];
 
   return (
     <div>
-      {errors.length && validationOn ? <ErrorMessages /> : null}
+      {errors.length && validationOn ? (
+        <div className={styles.validationErrorsContainer}>
+          <ActionableNotification
+            subtitle={
+              <>
+                <button
+                  type="button"
+                  className={styles.errorLine}
+                  onClick={() => {
+                    goToError(currentIndex);
+                    viewRef.current?.focus();
+                  }}
+                >
+                  {`${t('errorOnLine', 'Error on line')} ${currentError?.line}:`}
+                </button>{' '}
+                {currentError?.message}
+              </>
+            }
+            inline
+            kind="error"
+            lowContrast
+            // The default alertdialog role traps focus in the notification and takes it back on every render, which
+            // would keep keyboard users from the previous and next error buttons
+            role="status"
+            actionButtonLabel={t('referenceSchema', 'Reference schema')}
+            onActionButtonClick={() =>
+              window.open('https://json.openmrs.org/form.schema.json', '_blank', 'noopener,noreferrer')
+            }
+          />
+          <div className={styles.pagination}>
+            <IconButton
+              kind="ghost"
+              size="sm"
+              label={t('previousError', 'Previous error')}
+              disabled={currentIndex === 0}
+              onClick={goToPreviousError}
+              ref={previousErrorButtonRef}
+            >
+              <ChevronLeft />
+            </IconButton>
+            <div>
+              {currentIndex + 1}/{errors.length}
+            </div>
+            <IconButton
+              kind="ghost"
+              size="sm"
+              label={t('nextError', 'Next error')}
+              disabled={currentIndex === errors.length - 1}
+              onClick={goToNextError}
+              ref={nextErrorButtonRef}
+            >
+              <ChevronRight />
+            </IconButton>
+          </div>
+        </div>
+      ) : null}
       <div
         id="schemaEditor"
         className={classNames(styles.editor, { [styles.hasErrors]: errors.length })}
