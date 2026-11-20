@@ -134,6 +134,9 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   const viewRef = useRef<EditorView | null>(null);
   // Texts the editor has reported through onSchemaChange that haven't come back as stringifiedSchema yet
   const unconfirmedEditsRef = useRef<Array<string>>([]);
+  const previousErrorButtonRef = useRef<HTMLButtonElement>(null);
+  const nextErrorButtonRef = useRef<HTMLButtonElement>(null);
+  const [focusTarget, setFocusTarget] = useState<'previous' | 'next' | null>(null);
 
   // Validate JSON schema
   const validateSchema = (content: string, schema) => {
@@ -312,6 +315,31 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     }
   };
 
+  // A button that reaches the first or last error is disabled and loses focus, so focus moves to the other button
+  // once it's enabled, the way Carbon's Pagination does
+  useEffect(() => {
+    if (focusTarget) {
+      (focusTarget === 'previous' ? previousErrorButtonRef : nextErrorButtonRef).current?.focus();
+      setFocusTarget(null);
+    }
+  }, [focusTarget]);
+
+  const goToPreviousError = () => {
+    const index = Math.max(currentIndex - 1, 0);
+    goToError(index);
+    if (index === 0) {
+      setFocusTarget('next');
+    }
+  };
+
+  const goToNextError = () => {
+    const index = Math.min(currentIndex + 1, errors.length - 1);
+    goToError(index);
+    if (index === errors.length - 1) {
+      setFocusTarget('previous');
+    }
+  };
+
   const currentError = errors[currentIndex];
 
   return (
@@ -351,7 +379,8 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
               size="sm"
               label={t('previousError', 'Previous error')}
               disabled={currentIndex === 0}
-              onClick={() => goToError(Math.max(currentIndex - 1, 0))}
+              onClick={goToPreviousError}
+              ref={previousErrorButtonRef}
             >
               <ChevronLeft />
             </IconButton>
@@ -363,7 +392,8 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
               size="sm"
               label={t('nextError', 'Next error')}
               disabled={currentIndex === errors.length - 1}
-              onClick={() => goToError(Math.min(currentIndex + 1, errors.length - 1))}
+              onClick={goToNextError}
+              ref={nextErrorButtonRef}
             >
               <ChevronRight />
             </IconButton>
