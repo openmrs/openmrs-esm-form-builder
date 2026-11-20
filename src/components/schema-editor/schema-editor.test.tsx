@@ -366,4 +366,21 @@ describe('SchemaEditor', () => {
     expect(screen.getByRole('button', { name: 'Previous error' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Next error' })).toBeDisabled();
   });
+
+  it('moves focus to the other error button when one reaches the first or last error', async () => {
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema="{}" />);
+    setEditorText(schemaWithErrors);
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: 'Render changes' }));
+    await getErrorMarkerLines();
+
+    clickNextError();
+    clickNextError();
+    expect(screen.getByRole('button', { name: 'Previous error' })).toHaveFocus();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Previous error' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Previous error' }));
+    expect(screen.getByRole('button', { name: 'Next error' })).toHaveFocus();
+  });
 });
