@@ -10,7 +10,7 @@ const schema = JSON.stringify(
         label: 'showComment (attach a comment to an obs)',
         questions: [{ id: 'hivStatus', questionOptions: { showComment: 'true' } }],
       },
-      { label: 'Second page', 'odd-key': 1 },
+      { label: 'Second page', 'odd-key': 1, "Patient's weight": { units: 'kg' } },
     ],
   },
   null,
@@ -43,6 +43,11 @@ describe('createInstanceLineFinder', () => {
 
   it('finds keys that Ajv writes in single quotes', () => {
     expect(findLine(".pages[1]['odd-key']")).toBe(lineOf('"odd-key"'));
+  });
+
+  it('finds single-quoted keys that contain a single quote', () => {
+    expect(findLine(".pages[1]['Patient's weight']")).toBe(lineOf(`"Patient's weight"`));
+    expect(findLine(".pages[1]['Patient's weight'].units")).toBe(lineOf('"units"'));
   });
 
   it('finds the property that additionalProperties errors name', () => {
