@@ -6,7 +6,7 @@ import { indentWithTab } from '@codemirror/commands';
 import { json, jsonLanguage, jsonParseLinter } from '@codemirror/lang-json';
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { type Diagnostic, forceLinting, linter, lintGutter } from '@codemirror/lint';
-import { Annotation, EditorState, StateEffect, StateField } from '@codemirror/state';
+import { Annotation, EditorState, StateEffect, StateField, Text } from '@codemirror/state';
 import { EditorView, keymap } from '@codemirror/view';
 import { tags } from '@lezer/highlight';
 import { indentationMarkers } from '@replit/codemirror-indentation-markers';
@@ -325,8 +325,15 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     const view = viewRef.current;
     const text = stringifiedSchema ?? '';
     if (view && text !== view.state.doc.toString()) {
+      // Keeps the cursor on the same line and column, as far as the new text allows
+      const { head } = view.state.selection.main;
+      const cursorLine = view.state.doc.lineAt(head);
+      const newDoc = Text.of(text.split('\n'));
+      const newLine = newDoc.line(Math.min(cursorLine.number, newDoc.lines));
+
       view.dispatch({
         changes: { from: 0, to: view.state.doc.length, insert: text },
+        selection: { anchor: Math.min(newLine.from + head - cursorLine.from, newLine.to) },
         annotations: loadSchema.of(true),
       });
 

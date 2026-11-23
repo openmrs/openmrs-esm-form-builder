@@ -176,6 +176,23 @@ describe('SchemaEditor', () => {
     expect(screen.getByTestId('schema')).toHaveTextContent(validSchema, { normalizeWhitespace: false });
   });
 
+  it('keeps the cursor on the same line and column when the schema is changed outside the editor', async () => {
+    const user = userEvent.setup();
+    // The outside change makes line 2 longer, so the cursor's character offset moves but its line and column don't
+    const outsideSchema = validSchema.replace('"Nutrition"', '"Nutrition and growth"');
+    render(<StatefulSchemaEditor initialSchema={validSchema} outsideSchema={outsideSchema} />);
+    const versionLine = validSchema.split('\n').findIndex((line) => line.includes('"version"'));
+    const column = validSchema.split('\n')[versionLine].indexOf('"version"');
+    await typeInEditor(user, validSchema.indexOf('"version"'), ' ');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Change outside the editor' }));
+
+    const outsideLines = outsideSchema.split('\n');
+    const lineStart = outsideLines.slice(0, versionLine).join('\n').length + 1;
+    expect(getEditorText()).toBe(outsideSchema);
+    expect(getCursorOffset()).toBe(lineStart + column + 1);
+  });
+
   it('validates edits after a debounce and marks each error on its line', async () => {
     vi.useFakeTimers();
     render(<StatefulSchemaEditor initialSchema="{}" />);
