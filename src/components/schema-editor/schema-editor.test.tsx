@@ -148,6 +148,33 @@ describe('SchemaEditor', () => {
     expect(setValidationOn).toHaveBeenCalledWith(false);
   });
 
+  it('keeps newer edits when the parent passes back an older edit it has not caught up with', () => {
+    const { rerender, onSchemaChange, setErrors, setValidationOn } = renderSchemaEditor({ stringifiedSchema: '{}' });
+    const renderWith = (stringifiedSchema: string) =>
+      rerender(
+        <SchemaEditor
+          errors={[]}
+          onSchemaChange={onSchemaChange}
+          setErrors={setErrors}
+          setValidationOn={setValidationOn}
+          stringifiedSchema={stringifiedSchema}
+          validationOn={false}
+        />,
+      );
+
+    // Two edits arrive before the parent re-renders, then it passes them back one at a time
+    setEditorText('{"name": "N"}');
+    setEditorText('{"name": "Nu"}');
+    renderWith('{"name": "N"}');
+
+    expect(getEditorText()).toBe('{"name": "Nu"}');
+
+    renderWith('{"name": "Nu"}');
+
+    expect(getEditorText()).toBe('{"name": "Nu"}');
+    expect(onSchemaChange).toHaveBeenCalledTimes(2);
+  });
+
   it('changes only the edited line when a value is typed mid-document', async () => {
     const user = userEvent.setup();
     render(<StatefulSchemaEditor initialSchema={validSchema} />);

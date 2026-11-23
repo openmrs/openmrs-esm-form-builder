@@ -153,6 +153,8 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
+  // Texts the editor has reported through onSchemaChange that haven't come back as stringifiedSchema yet
+  const unconfirmedEditsRef = useRef<Array<string>>([]);
 
   // Enable autocompletion in the schema
   const autocompleteSuggestions = useMemo(() => {
@@ -305,7 +307,9 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
           EditorView.contentAttributes.of({ 'aria-label': t('schemaEditor', 'Schema editor') }),
           EditorView.updateListener.of((update) => {
             if (update.docChanged && !update.transactions.some((transaction) => transaction.annotation(loadSchema))) {
-              handleChangeRef.current(update.state.doc.toString());
+              const text = update.state.doc.toString();
+              unconfirmedEditsRef.current.push(text);
+              handleChangeRef.current(text);
             }
           }),
         ],
@@ -324,6 +328,16 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
   useEffect(() => {
     const view = viewRef.current;
     const text = stringifiedSchema ?? '';
+
+    // When edits arrive faster than the parent re-renders, it can pass back an edit the editor has since moved past.
+    // That isn't a change from outside, so the newer text stays.
+    const confirmed = unconfirmedEditsRef.current.indexOf(text);
+    if (confirmed !== -1) {
+      unconfirmedEditsRef.current = unconfirmedEditsRef.current.slice(confirmed + 1);
+      return;
+    }
+    unconfirmedEditsRef.current = [];
+
     if (view && text !== view.state.doc.toString()) {
       // Keeps the cursor on the same line and column, as far as the new text allows
       const { head } = view.state.selection.main;
