@@ -18,11 +18,10 @@ export function extractTranslatableStrings(form: any): Record<string, string> {
   return result;
 }
 
-export function mergeTranslatedSchema(schema: any, langCode: string): any {
-  if (!schema?.translations?.[langCode]) return schema;
+export function mergeTranslatedSchema(schema: any, translations?: Record<string, string>): any {
+  if (!schema || !translations) return schema;
 
   const merged = JSON.parse(JSON.stringify(schema));
-  const translations = schema.translations[langCode];
 
   if (merged.pages) {
     merged.pages = merged.pages.map((page: any) => {

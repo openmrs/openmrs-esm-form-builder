@@ -13,10 +13,10 @@ import styles from './translation-builder.module.scss';
 
 interface TranslationBuilderProps {
   formSchema: any;
-  onUpdateSchema: (updatedSchema: any) => void;
+  onTranslationsChange: (langCode: string, translations: Record<string, string>) => void;
 }
 
-const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onUpdateSchema }) => {
+const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onTranslationsChange }) => {
   const { t } = useTranslation();
   const languageOptions = useLanguageOptions();
   const [selectedLanguageCode, setSelectedLanguageCode] = useState(() => languageOptions[0]?.code ?? 'en');
@@ -46,16 +46,9 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     (key: string, newValue: string) => {
       const updatedTranslations = { ...translations, [key]: newValue };
       setTranslations(updatedTranslations);
-      if (formSchema) {
-        const updatedSchema = { ...formSchema };
-        if (!updatedSchema.translations) {
-          updatedSchema.translations = {};
-        }
-        updatedSchema.translations[langCode] = updatedTranslations;
-        onUpdateSchema(updatedSchema);
-      }
+      onTranslationsChange(langCode, updatedTranslations);
     },
-    [formSchema, langCode, onUpdateSchema, translations],
+    [langCode, onTranslationsChange, translations],
   );
 
   const handleEditClick = useCallback(
@@ -77,10 +70,9 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
 
   const downloadableTranslationResource = useMemo(() => {
     if (!formSchema) return null;
-    const schemaTranslations = formSchema.translations?.[langCode];
-    const translationsToExport = langCode === 'en' ? fallbackStrings : schemaTranslations;
+    const translationsToExport = langCode === 'en' ? fallbackStrings : translations;
 
-    if (!translationsToExport) return null;
+    if (!Object.keys(translationsToExport).length) return null;
 
     return new Blob(
       [
@@ -98,7 +90,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
       ],
       { type: 'application/json' },
     );
-  }, [formSchema, langCode, fallbackStrings]);
+  }, [formSchema, langCode, fallbackStrings, translations]);
 
   const isTranslated = useCallback(
     (key: string, value: string | undefined | null): boolean => {
@@ -125,16 +117,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     try {
       const merged = await fetchBackendTranslations(formUuid, newLangCode, fallbackStrings);
       setTranslations(merged);
-
-      const updatedSchema = {
-        ...formSchema,
-        translations: {
-          ...(formSchema.translations || {}),
-          [newLangCode]: merged,
-        },
-      };
-
-      onUpdateSchema(updatedSchema);
+      onTranslationsChange(newLangCode, merged);
     } catch (err) {
       setError('Failed to load backend translations.');
     } finally {
@@ -174,10 +157,9 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
   const handleUploadTranslationFromSchema = useCallback(async () => {
     if (!formSchema) return;
 
-    const schemaTranslations = formSchema.translations?.[langCode];
-    const translationsToUpload = langCode === 'en' ? fallbackStrings : schemaTranslations;
+    const translationsToUpload = langCode === 'en' ? fallbackStrings : translations;
 
-    if (!translationsToUpload) {
+    if (!Object.keys(translationsToUpload).length) {
       setError(t('noTranslationForLang', 'No translations found for selected language.'));
       showSnackbar({
         title: t('noTranslations', 'No translatable strings found.'),
@@ -205,7 +187,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
     } finally {
       setTranslationsUploading(false);
     }
-  }, [formSchema, langCode, fallbackStrings, formUuid, t]);
+  }, [formSchema, langCode, fallbackStrings, translations, formUuid, t]);
 
   return (
     <div className={styles.translationBuilderContainer}>

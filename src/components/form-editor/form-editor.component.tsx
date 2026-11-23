@@ -93,6 +93,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   const [selectedLanguageCode, setSelectedLanguageCode] = useState(() => languageOptions[0]?.code ?? 'en');
   const [shouldMergeTranslation, setShouldMergeTranslation] = useState(false);
   const [renderLangCode, setRenderLangCode] = useState<string | null>(null);
+  const [translationsByLanguage, setTranslationsByLanguage] = useState<Record<string, Record<string, string>>>({});
 
   const isLoadingFormOrSchema = Boolean(formUuid) && (isLoadingClobdata || isLoadingForm);
 
@@ -287,8 +288,12 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
   const translatedSchema = useMemo(() => {
     if (!schema) return null;
     if (!shouldMergeTranslation) return schema;
-    return mergeTranslatedSchema(schema, langCodeForPreview);
-  }, [schema, shouldMergeTranslation, langCodeForPreview]);
+    return mergeTranslatedSchema(schema, translationsByLanguage[langCodeForPreview]);
+  }, [schema, shouldMergeTranslation, langCodeForPreview, translationsByLanguage]);
+
+  const handleTranslationsChange = useCallback((langCode: string, translations: Record<string, string>) => {
+    setTranslationsByLanguage((previous) => ({ ...previous, [langCode]: translations }));
+  }, []);
 
   const handleRenderSchemaChanges = useCallback(() => {
     if (errors.length && blockRenderingWithErrors) {
@@ -518,7 +523,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                 />
               </TabPanel>
               <TabPanel>
-                <TranslationBuilder formSchema={schema} onUpdateSchema={updateSchema} />
+                <TranslationBuilder formSchema={schema} onTranslationsChange={handleTranslationsChange} />
               </TabPanel>
               <TabPanel>{form && <AuditDetails form={form} key={form.uuid} />}</TabPanel>
             </TabPanels>
