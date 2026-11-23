@@ -91,7 +91,7 @@ describe('TranslationBuilder', () => {
     await selectLanguage(user, 'French (fr)');
     await screen.findByText('Page un');
     await selectLanguage(user, 'Spanish (es)');
-    await user.click(screen.getByRole('button', { name: /upload translation/i }));
+    await user.click(screen.getByRole('button', { name: /^upload/i }));
 
     expect(mockUploadBackendTranslations).not.toHaveBeenCalled();
   });
