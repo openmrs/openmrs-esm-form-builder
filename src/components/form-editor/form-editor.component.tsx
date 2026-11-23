@@ -374,7 +374,7 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
               </h1>
             )}
           </div>
-          <div>
+          <div className={styles.schemaEditorPanel}>
             <div className={styles.heading}>
               <span className={styles.tabHeading}>{t('schemaEditor', 'Schema editor')}</span>
               <div className={styles.topBtns}>

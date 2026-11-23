@@ -65,6 +65,10 @@
   padding: 1rem;
 }
 
+.schemaEditorPanel {
+  container-type: inline-size;
+}
+
 .heading {
   display: flex;
   margin-right: 1rem;
@@ -79,6 +83,35 @@
   min-height: layout.$spacing-08;
   width: 100%;
   padding: layout.$spacing-04;
+  white-space: nowrap;
+}
+
+// Below this width the title, controls and icons don't fit on one row
+@container (max-width: 52rem) {
+  .heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: layout.$spacing-03;
+  }
+
+  .schemaIconActions {
+    grid-area: 1 / 2;
+  }
+
+  .topBtns {
+    grid-area: 2 / 1 / auto / -1;
+    flex-wrap: wrap;
+    padding-inline-start: layout.$spacing-04;
+
+    > :global(.cds--form-item) {
+      flex: none;
+    }
+
+    :global(.cds--label-description:empty),
+    :global(.cds--file-container:empty) {
+      margin: 0;
+    }
+  }
 }
 
 .backButton {
