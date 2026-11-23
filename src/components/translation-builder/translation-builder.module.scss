@@ -67,6 +67,11 @@
   .language {
     font-weight: 600;
   }
+
+  // The inline dropdown's wrapper is a grid with a column gap for its title, which this dropdown doesn't have
+  .languageDropdown {
+    column-gap: 0;
+  }
 }
 
 .downloadError {

@@ -222,6 +222,8 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
               titleText=""
               selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
               onChange={({ selectedItem }) => selectedItem && languageChanger(selectedItem.code)}
+              type="inline"
+              className={styles.languageDropdown}
             />
           </div>
 
