@@ -14,7 +14,7 @@
 
 .translationRow {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   margin-bottom: layout.$spacing-05;
   padding: layout.$spacing-03 0;
   border-bottom: 1px solid $ui-03;
@@ -41,6 +41,7 @@
 
 .translatedKey {
   font-size: 0.9rem;
+  overflow-wrap: break-word;
   margin-left: 20px;
   padding: layout.$spacing-05;
 }

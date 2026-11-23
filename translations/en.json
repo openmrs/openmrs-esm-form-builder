@@ -277,6 +277,7 @@
   "source": "Source",
   "startBuilding": "Start building",
   "success": "Success!",
+  "targetLanguage": "Target language",
   "timerOnly": "Timer only",
   "translated": "Translated",
   "translationBuilder": "Translation Builder",
