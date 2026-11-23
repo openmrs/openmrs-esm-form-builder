@@ -5,25 +5,20 @@ import { showModal, showSnackbar, useConfig } from '@openmrs/esm-framework';
 import { handleFormValidation } from '@resources/form-validator.resource';
 import { publishForm, unpublishForm } from '@resources/forms.resource';
 import { useForm } from '@hooks/useForm';
-import type { IMarker } from 'react-ace';
 import type { TFunction } from 'i18next';
 import type { ConfigObject } from '../../config-schema';
-import type { Schema } from '@types';
+import type { Schema, SchemaError } from '@types';
 import styles from './action-buttons.scss';
 
 interface ActionButtonsProps {
   isValidating: boolean;
   onFormValidation: () => Promise<void>;
   schema: Schema;
-  schemaErrors: Array<MarkerProps>;
+  schemaErrors: Array<SchemaError>;
   setPublishedWithErrors: (status: boolean) => void;
   setValidationComplete: (validationStatus: boolean) => void;
   setValidationResponse: (errors: Array<unknown>) => void;
   t: TFunction;
-}
-
-interface MarkerProps extends IMarker {
-  text: string;
 }
 
 type Status =
