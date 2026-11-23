@@ -1,5 +1,4 @@
 import { useSession } from '@openmrs/esm-framework';
-import { capitalize } from 'lodash-es';
 /**
  * Hook to get readable language options from OpenMRS session.
  * Example output: [{ label: "English (en)", code: "en" }, { label: "French (fr)", code: "fr" }]
@@ -23,7 +22,7 @@ export function useLanguageOptions(): { label: string; code: string }[] {
   return localeCodes.map((code) => {
     const label = displayNames.of(code) || code;
     return {
-      label: `${capitalize(label)} (${code})`,
+      label: `${label.charAt(0).toLocaleUpperCase(baseLocale)}${label.slice(1)} (${code})`,
       code,
     };
   });
