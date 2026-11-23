@@ -368,7 +368,7 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
             // The default alertdialog role traps focus in the notification and takes it back on every render, which
             // would keep keyboard users from the previous and next error buttons
             role="status"
-            actionButtonLabel={t('referenceSchema', 'Reference schema')}
+            actionButtonLabel={t('viewReferenceSchema', 'View reference schema')}
             onActionButtonClick={() =>
               window.open('https://json.openmrs.org/form.schema.json', '_blank', 'noopener,noreferrer')
             }

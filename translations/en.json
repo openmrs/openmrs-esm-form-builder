@@ -215,7 +215,6 @@
   "questionsUpdated": "Questions updated",
   "questionType": "Question type",
   "questionUpdated": "Question updated",
-  "referenceSchema": "Reference schema",
   "relationship": "Relationship",
   "removeOrder": "Remove order",
   "renderChanges": "Render changes",
@@ -311,6 +310,7 @@
   "version": "Version",
   "versionPlaceholder": "e.g. 1.0",
   "viewErrors": "View the errors in the interactive builder",
+  "viewReferenceSchema": "View reference schema",
   "welcomeExplainer": "Add pages, sections and questions to your form. The Preview tab automatically updates as you build your form. For a detailed explanation of what constitutes an OpenMRS form schema, please read through the ",
   "welcomeHeading": "Interactive schema builder",
   "yes": "Yes"
