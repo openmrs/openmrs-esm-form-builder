@@ -63,10 +63,9 @@ describe('FormEditor', () => {
     await waitFor(() => expect(state.builder?.schema?.pages[0].label).toBe('Original'));
 
     act(() => {
-      state.builder.onSchemaChange({
-        ...state.builder.schema,
-        pages: [{ ...state.builder.schema.pages[0], label: 'Edited' }],
-      });
+      // The builder edits the schema in place before passing it on
+      state.builder.schema.pages[0].label = 'Edited';
+      state.builder.onSchemaChange({ ...state.builder.schema });
     });
     await waitFor(() => expect(state.builder.schema.pages[0].label).toBe('Edited'));
 
