@@ -112,6 +112,10 @@
       margin: 0;
     }
   }
+
+  .heading + .errorNotification {
+    margin-block-start: layout.$spacing-03;
+  }
 }
 
 .backButton {
