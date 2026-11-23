@@ -41,6 +41,10 @@ describe('createInstanceLineFinder', () => {
     expect(findLine('.pages[1]["odd-key"]')).toBe(lineOf('"odd-key"'));
   });
 
+  it('finds keys that Ajv writes in single quotes', () => {
+    expect(findLine(".pages[1]['odd-key']")).toBe(lineOf('"odd-key"'));
+  });
+
   it('finds the property that additionalProperties errors name', () => {
     expect(findLine('.pages[1]', 'odd-key')).toBe(lineOf('"odd-key"'));
   });

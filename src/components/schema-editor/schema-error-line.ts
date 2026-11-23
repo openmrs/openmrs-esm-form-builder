@@ -3,17 +3,20 @@ import { Text } from '@codemirror/state';
 
 type SyntaxNode = ReturnType<typeof jsonLanguage.parser.parse>['topNode'];
 
-const pathSegment = /\.([A-Za-z_$][\w$]*)|\[(\d+)\]|\[("(?:[^"\\]|\\.)*")\]/g;
+const pathSegment = /\.([A-Za-z_$][\w$]*)|\[(\d+)\]|\[("(?:[^"\\]|\\.)*")\]|\['([^']*)'\]/g;
 const valueNodes = new Set(['Object', 'Array', 'String', 'Number', 'True', 'False', 'Null']);
 
 /**
  * Splits an Ajv instance path written with `jsPropertySyntax`, such as `.pages[0]["odd-key"]`, into object keys and
- * array indexes.
+ * array indexes. Ajv writes keys it only learns while validating, such as those under `additionalProperties`, in
+ * single quotes without escaping them: `.translations['en']`.
  */
 function parseInstancePath(instancePath: string): Array<string | number> {
   return Array.from(
     instancePath.matchAll(pathSegment),
-    ([, name, index, quotedName]) => name ?? (index !== undefined ? Number(index) : JSON.parse(quotedName)),
+    ([, name, index, quotedName, singleQuotedName]) =>
+      name ??
+      (index !== undefined ? Number(index) : quotedName !== undefined ? JSON.parse(quotedName) : singleQuotedName),
   );
 }
 
