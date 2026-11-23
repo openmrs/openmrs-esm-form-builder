@@ -196,7 +196,6 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
         setStatus('schemaLoaded');
         // Work on a copy so edits made in the builder never reach the cached server copy.
         setSchema(JSON.parse(JSON.stringify(clobdata)) as Schema);
-        localStorage.setItem(draftKey, JSON.stringify(clobdata));
       }
     }
   }, [
