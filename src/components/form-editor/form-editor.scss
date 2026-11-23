@@ -63,12 +63,6 @@
 
 .editorContainer {
   padding: 1rem;
-
-  :global(.ace_editor .ace_content .ace_layer .error) {
-    position: absolute;
-    background-color: colors.$red-60;
-    border-radius: 0;
-  }
 }
 
 .heading {

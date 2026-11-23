@@ -5,25 +5,20 @@ import { showModal, showSnackbar, useConfig } from '@openmrs/esm-framework';
 import { handleFormValidation } from '@resources/form-validator.resource';
 import { publishForm, unpublishForm } from '@resources/forms.resource';
 import { useForm } from '@hooks/useForm';
-import type { IMarker } from 'react-ace';
 import type { TFunction } from 'i18next';
 import type { ConfigObject } from '../../config-schema';
-import type { Schema } from '@types';
+import type { Schema, SchemaError } from '@types';
 import styles from './action-buttons.scss';
 
 interface ActionButtonsProps {
   isValidating: boolean;
   onFormValidation: () => Promise<void>;
   schema: Schema;
-  schemaErrors: Array<MarkerProps>;
+  schemaErrors: Array<SchemaError>;
   setPublishedWithErrors: (status: boolean) => void;
   setValidationComplete: (validationStatus: boolean) => void;
   setValidationResponse: (errors: Array<unknown>) => void;
   t: TFunction;
-}
-
-interface MarkerProps extends IMarker {
-  text: string;
 }
 
 type Status =
@@ -48,6 +43,8 @@ function ActionButtons({
 }: ActionButtonsProps) {
   const { formUuid } = useParams<{ formUuid?: string }>();
   const { form, mutate } = useForm(formUuid);
+  // Publishing marks the saved form as published, so it needs a saved schema, not just one in the editor.
+  const hasSavedSchema = form?.resources?.some(({ name }) => name === 'JSON schema');
   const [status, setStatus] = useState<Status>('idle');
   const [isSavingForm, setIsSavingForm] = useState(false);
   const disposeSaveModal = useRef<ReturnType<typeof showModal>>();
@@ -160,7 +157,7 @@ function ActionButtons({
             <Button
               kind="secondary"
               onClick={handleValidateAndPublish}
-              disabled={status === 'validateBeforePublishing' || schemaErrors.length > 0}
+              disabled={!hasSavedSchema || status === 'validateBeforePublishing' || schemaErrors.length > 0}
             >
               {status === 'validateBeforePublishing' ? (
                 <InlineLoading className={styles.spinner} description={t('validating', 'Validating') + '...'} />
@@ -172,7 +169,7 @@ function ActionButtons({
             <Button
               kind="secondary"
               onClick={handlePublish}
-              disabled={status === 'publishing' || schemaErrors.length > 0}
+              disabled={!hasSavedSchema || status === 'publishing' || schemaErrors.length > 0}
             >
               {status === 'publishing' && !form?.published ? (
                 <InlineLoading className={styles.spinner} description={t('publishing', 'Publishing') + '...'} />

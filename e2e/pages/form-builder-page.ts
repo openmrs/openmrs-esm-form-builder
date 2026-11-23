@@ -3,9 +3,9 @@ import type { Page } from '@playwright/test';
 export class FormBuilderPage {
   constructor(readonly page: Page) {}
 
-  readonly schemaEditorContent = () => this.page.locator('#schemaEditor div .ace_content');
+  readonly schemaEditorContent = () => this.page.locator('#schemaEditor .cm-content');
   readonly createNewFormButton = () => this.page.getByRole('button', { name: /create a new form/i });
-  readonly schemaInput = () => this.page.locator('.ace_text-input');
+  readonly schemaInput = () => this.page.getByRole('textbox', { name: /schema editor/i });
   readonly renderChangesButton = () => this.page.getByRole('button', { name: /render changes/i });
   readonly inputDummySchemaButton = () => this.page.getByRole('button', { name: /load sample schema/i });
   readonly saveFormButton = () => this.page.getByRole('button', { name: /save form/i });
@@ -76,5 +76,17 @@ export class FormBuilderPage {
 
   async searchForForm(formName: string) {
     await this.page.getByRole('searchbox').fill(formName);
+  }
+
+  /**
+   * Reads the whole schema from the editor through its own copy command. The editor only draws the lines on
+   * screen, so its DOM text can be missing lines.
+   */
+  async readSchema() {
+    await this.page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+    await this.schemaInput().click();
+    await this.page.keyboard.press('ControlOrMeta+A');
+    await this.page.keyboard.press('ControlOrMeta+C');
+    return this.page.evaluate(() => navigator.clipboard.readText());
   }
 }

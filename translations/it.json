@@ -160,6 +160,7 @@
   "name": "Nome",
   "namePlaceholder": "Nome con cui il modulo è identificato nel sistema",
   "no": "No",
+  "noEncounterType": "None",
   "noFormsAvailable": "Nessun modulo disponibile",
   "noFormsToDisplay": "Non ci sono moduli da visualizzare.",
   "noMatchingConcepts": "Nessun concetto corrispondente trovato",

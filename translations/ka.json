@@ -160,6 +160,7 @@
   "name": "სახელი",
   "namePlaceholder": "What the form is called in the system",
   "no": "არა",
+  "noEncounterType": "None",
   "noFormsAvailable": "ფორმები ხელმისაწვდომი არაა",
   "noFormsToDisplay": "There are no forms to display.",
   "noMatchingConcepts": "No concepts were found that match",

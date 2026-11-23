@@ -160,6 +160,7 @@
   "name": "Name",
   "namePlaceholder": "Wie das Formular im System heißt",
   "no": "Nein",
+  "noEncounterType": "None",
   "noFormsAvailable": "Keine Formulare verfügbar",
   "noFormsToDisplay": "Es gibt keine Formulare anzuzeigen.",
   "noMatchingConcepts": "Keine passenden Konzepte gefunden",

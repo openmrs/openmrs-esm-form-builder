@@ -160,6 +160,7 @@
   "name": "Nama",
   "namePlaceholder": "Nama formulir dalam sistem",
   "no": "Tidak",
+  "noEncounterType": "None",
   "noFormsAvailable": "Tidak Ada Formulir Tersedia",
   "noFormsToDisplay": "Tidak ada formulir untuk ditampilkan.",
   "noMatchingConcepts": "Tidak ditemukan konsep yang cocok",

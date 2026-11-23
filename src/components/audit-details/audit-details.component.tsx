@@ -52,7 +52,7 @@ interface FormGroupData {
   name: string;
   uuid: string;
   version: string;
-  encounterType: EncounterType;
+  encounterType: EncounterType | null;
   description: string;
   display?: string;
   published?: boolean;
@@ -88,7 +88,11 @@ const AuditDetails: React.FC<AuditDetailsProps> = ({ form }) => {
         <StructuredListRow>
           <StructuredListCell>{t('encounterType', 'Encounter Type')}</StructuredListCell>
           <StructuredListCell>
-            <CopyableValue value={form.encounterType.uuid} />
+            {form.encounterType?.uuid ? (
+              <CopyableValue value={form.encounterType.uuid} />
+            ) : (
+              t('noEncounterType', 'None')
+            )}
           </StructuredListCell>
         </StructuredListRow>
         <StructuredListRow>
@@ -103,7 +107,9 @@ const AuditDetails: React.FC<AuditDetailsProps> = ({ form }) => {
           <StructuredListCell>{t('lastEditedBy', 'Last Edited By')}</StructuredListCell>
           <StructuredListCell>
             {form?.auditInfo?.dateChanged ? (
-              `${form?.auditInfo?.changedBy.display} on ${formatDatetime(parseDate(form?.auditInfo?.dateChanged))}`
+              `${form?.auditInfo?.changedBy?.display ?? t('unknownUser', 'Unknown')} on ${formatDatetime(
+                parseDate(form?.auditInfo?.dateChanged),
+              )}`
             ) : (
               <span
                 aria-label={t('uneditedFormMsg', 'This form has never been edited')}

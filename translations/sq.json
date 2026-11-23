@@ -160,6 +160,7 @@
   "name": "Name",
   "namePlaceholder": "What the formular është called në the system",
   "no": "Jo",
+  "noEncounterType": "None",
   "noFormsAvailable": "Jo Formulare Available",
   "noFormsToDisplay": "Aty jeni jo formulare deri display.",
   "noMatchingConcepts": "Jo concepts ishin found atë match",
