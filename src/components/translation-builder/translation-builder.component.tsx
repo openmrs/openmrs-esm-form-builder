@@ -13,10 +13,15 @@ import styles from './translation-builder.module.scss';
 
 interface TranslationBuilderProps {
   formSchema: any;
+  translationsByLanguage: Record<string, Record<string, string>>;
   onTranslationsChange: (langCode: string, translations: Record<string, string>) => void;
 }
 
-const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onTranslationsChange }) => {
+const TranslationBuilder: React.FC<TranslationBuilderProps> = ({
+  formSchema,
+  translationsByLanguage,
+  onTranslationsChange,
+}) => {
   const { t } = useTranslation();
   const languageOptions = useLanguageOptions();
   const [selectedLanguageCode, setSelectedLanguageCode] = useState(() => languageOptions[0]?.code ?? 'en');
@@ -70,9 +75,9 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onT
 
   const downloadableTranslationResource = useMemo(() => {
     if (!formSchema) return null;
-    const translationsToExport = langCode === 'en' ? fallbackStrings : translations;
+    const translationsToExport = langCode === 'en' ? fallbackStrings : translationsByLanguage[langCode];
 
-    if (!Object.keys(translationsToExport).length) return null;
+    if (!translationsToExport) return null;
 
     return new Blob(
       [
@@ -90,7 +95,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onT
       ],
       { type: 'application/json' },
     );
-  }, [formSchema, langCode, fallbackStrings, translations]);
+  }, [formSchema, langCode, fallbackStrings, translationsByLanguage]);
 
   const isTranslated = useCallback(
     (key: string, value: string | undefined | null): boolean => {
@@ -157,9 +162,9 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onT
   const handleUploadTranslationFromSchema = useCallback(async () => {
     if (!formSchema) return;
 
-    const translationsToUpload = langCode === 'en' ? fallbackStrings : translations;
+    const translationsToUpload = langCode === 'en' ? fallbackStrings : translationsByLanguage[langCode];
 
-    if (!Object.keys(translationsToUpload).length) {
+    if (!translationsToUpload) {
       setError(t('noTranslationForLang', 'No translations found for selected language.'));
       showSnackbar({
         title: t('noTranslations', 'No translatable strings found.'),
@@ -187,7 +192,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onT
     } finally {
       setTranslationsUploading(false);
     }
-  }, [formSchema, langCode, fallbackStrings, translations, formUuid, t]);
+  }, [formSchema, langCode, fallbackStrings, translationsByLanguage, formUuid, t]);
 
   return (
     <div className={styles.translationBuilderContainer}>

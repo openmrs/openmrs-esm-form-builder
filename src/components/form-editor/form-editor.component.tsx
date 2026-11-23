@@ -523,7 +523,11 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
                 />
               </TabPanel>
               <TabPanel>
-                <TranslationBuilder formSchema={schema} onTranslationsChange={handleTranslationsChange} />
+                <TranslationBuilder
+                  formSchema={schema}
+                  translationsByLanguage={translationsByLanguage}
+                  onTranslationsChange={handleTranslationsChange}
+                />
               </TabPanel>
               <TabPanel>{form && <AuditDetails form={form} key={form.uuid} />}</TabPanel>
             </TabPanels>
