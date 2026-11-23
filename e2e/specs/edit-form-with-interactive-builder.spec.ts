@@ -87,7 +87,7 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   await test.step('Then I should get a success message and the form name should be renamed', async () => {
     await expect(formBuilderPage.page.getByText(/form renamed/i)).toBeVisible();
     await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited form/i })).toBeVisible();
-    const formTextContent = await formBuilderPage.schemaEditorContent().textContent();
+    const formTextContent = await formBuilderPage.readSchema();
     expect(JSON.parse(formTextContent)).toEqual(updatedForm);
   });
 
@@ -107,7 +107,7 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   await test.step('Then I should get a success message and the page name should be renamed', async () => {
     await expect(formBuilderPage.page.getByText(/page renamed/i)).toBeVisible();
     await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited page/i })).toBeVisible();
-    const formTextContent = await formBuilderPage.schemaEditorContent().textContent();
+    const formTextContent = await formBuilderPage.readSchema();
     expect(JSON.parse(formTextContent)).toEqual(updatedForm);
   });
 
@@ -144,7 +144,7 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   await test.step('Then I should get a success message and the section name should be renamed', async () => {
     await expect(formBuilderPage.page.getByText(/section edited/i)).toBeVisible();
     await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited section/i })).toBeVisible();
-    const formTextContent = await formBuilderPage.schemaEditorContent().textContent();
+    const formTextContent = await formBuilderPage.readSchema();
     expect(JSON.parse(formTextContent)).toEqual(updatedForm);
   });
 
@@ -177,7 +177,7 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   await test.step('Then I should get a success message and the question label should be renamed', async () => {
     await expect(formBuilderPage.page.getByText(/question updated/i)).toBeVisible();
     await expect(formBuilderPage.page.locator('p').getByText(/an edited question label/i)).toBeVisible();
-    const formTextContent = await formBuilderPage.schemaEditorContent().textContent();
+    const formTextContent = await formBuilderPage.readSchema();
     expect(JSON.parse(formTextContent)).toEqual(updatedForm);
   });
 
@@ -215,7 +215,7 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   await test.step('Then I should get a success message and a question should be deleted', async () => {
     await expect(formBuilderPage.page.getByText(/question deleted/i)).toBeVisible();
     await expect(formBuilderPage.page.locator('p').getByText(/an edited question label/i)).toHaveCount(1);
-    const formTextContent = await formBuilderPage.schemaEditorContent().textContent();
+    const formTextContent = await formBuilderPage.readSchema();
     expect(JSON.parse(formTextContent)).toEqual(updatedForm);
   });
 
@@ -234,7 +234,7 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   await test.step('Then I should get a success message and the section should be deleted', async () => {
     await expect(formBuilderPage.page.getByText(/section deleted/i)).toBeVisible();
     await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited section/i })).toHaveCount(0);
-    const formTextContent = await formBuilderPage.schemaEditorContent().textContent();
+    const formTextContent = await formBuilderPage.readSchema();
     expect(JSON.parse(formTextContent)).toEqual(updatedForm);
   });
 
@@ -253,8 +253,6 @@ test('Edit a form using the interactive builder', async ({ page, context }) => {
   await test.step('Then I should get a success message and the page should be deleted', async () => {
     await expect(formBuilderPage.page.getByText(/page deleted/i)).toBeVisible();
     await expect(formBuilderPage.page.getByRole('heading', { level: 1, name: /an edited page/i })).toHaveCount(0);
-    await expect
-      .poll(async () => JSON.parse(await formBuilderPage.schemaEditorContent().textContent()))
-      .toEqual(updatedForm);
+    await expect.poll(async () => JSON.parse(await formBuilderPage.readSchema())).toEqual(updatedForm);
   });
 });
