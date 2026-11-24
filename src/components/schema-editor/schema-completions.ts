@@ -180,7 +180,7 @@ function completeEnumValue(context: CompletionContext, root: JsonSchema, value: 
  * Completes property names and enum values from the reference form schema, using the JSON syntax tree to find which
  * object or value the cursor is in.
  */
-export function completeFromSchema(context: CompletionContext, root: JsonSchema | undefined): CompletionResult | null {
+export function completeFromSchema(context: CompletionContext, root: unknown): CompletionResult | null {
   if (!isSchema(root)) {
     return null;
   }
