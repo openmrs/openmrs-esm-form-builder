@@ -199,6 +199,33 @@ describe('SchemaEditor (CodeMirror)', () => {
     expect(diagnostics).toEqual([{ line: 3, message: expect.stringMatching(/JSON/) }]);
   });
 
+  it('warns about a key that a later key with the same name overrides', async () => {
+    vi.useFakeTimers();
+    renderSchemaEditor('{}');
+    const view = getView();
+
+    act(() =>
+      view.dispatch({
+        changes: { from: 0, to: view.state.doc.length, insert: questionSchema('"type": "obs", "type": "control"') },
+      }),
+    );
+    act(() => vi.advanceTimersByTime(1000));
+    await act(() => Promise.resolve());
+
+    const diagnostics = [];
+    forEachDiagnostic(view.state, (diagnostic, from, to) =>
+      diagnostics.push({
+        line: view.state.doc.lineAt(from).number,
+        text: view.state.sliceDoc(from, to),
+        severity: diagnostic.severity,
+        message: diagnostic.message,
+      }),
+    );
+    expect(diagnostics).toEqual([
+      { line: 9, text: '"type"', severity: 'warning', message: expect.stringMatching(/is set again on line/) },
+    ]);
+  });
+
   it('suggests only the keys the reference schema allows in the object at the cursor', async () => {
     renderSchemaEditor(questionSchema('""'));
 

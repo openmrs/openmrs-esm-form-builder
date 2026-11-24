@@ -60,6 +60,7 @@
   "download": "Download",
   "downloadSchema": "Download schema",
   "dragToReorder": "Drag to reorder",
+  "duplicateKey": "\"{{name}}\" is set again on line {{line}}, so this value is ignored",
   "duplicateQuestion": "Duplicate question",
   "editButton": "Edit {{elementType}}",
   "editForm": "Edit form",
