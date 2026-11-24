@@ -99,8 +99,6 @@ describe('SchemaEditor', () => {
     mockUseStandardFormSchema.mockReturnValue({
       schema: referenceSchema,
       schemaProperties: referenceSchema.properties,
-      error: undefined,
-      isLoading: false,
     });
   });
 

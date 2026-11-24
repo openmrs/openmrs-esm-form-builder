@@ -140,8 +140,6 @@ describe('SchemaEditor (CodeMirror)', () => {
     mockUseStandardFormSchema.mockReturnValue({
       schema: referenceSchema,
       schemaProperties: referenceSchema.properties,
-      error: undefined,
-      isLoading: false,
     });
   });
 
