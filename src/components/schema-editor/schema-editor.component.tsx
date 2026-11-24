@@ -11,7 +11,7 @@ import { EditorView, keymap } from '@codemirror/view';
 import { tags } from '@lezer/highlight';
 import { indentationMarkers } from '@replit/codemirror-indentation-markers';
 import { useTranslation } from 'react-i18next';
-import { ActionableNotification, IconButton } from '@carbon/react';
+import { ActionableNotification, FeatureFlags, IconButton } from '@carbon/react';
 import { useStandardFormSchema } from '@hooks/useStandardFormSchema';
 import Ajv from 'ajv';
 import debounce from 'lodash-es/debounce';
@@ -346,33 +346,37 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
     <div>
       {errors.length && validationOn ? (
         <div className={styles.validationErrorsContainer}>
-          <ActionableNotification
-            subtitle={
-              <>
-                <button
-                  type="button"
-                  className={styles.errorLine}
-                  onClick={() => {
-                    goToError(currentIndex);
-                    viewRef.current?.focus();
-                  }}
-                >
-                  {`${t('errorOnLine', 'Error on line')} ${currentError?.line}:`}
-                </button>{' '}
-                {currentError?.message}
-              </>
-            }
-            inline
-            kind="error"
-            lowContrast
-            // The default alertdialog role traps focus in the notification and takes it back on every render, which
-            // would keep keyboard users from the previous and next error buttons
-            role="status"
-            actionButtonLabel={t('viewReferenceSchema', 'View reference schema')}
-            onActionButtonClick={() =>
-              window.open('https://json.openmrs.org/form.schema.json', '_blank', 'noopener,noreferrer')
-            }
-          />
+          {/* Without this flag, Carbon adds two tabbable "Focus sentinel" links to the notification for a focus
+              trap that role="status" turns off */}
+          <FeatureFlags enableExperimentalFocusWrapWithoutSentinels>
+            <ActionableNotification
+              subtitle={
+                <>
+                  <button
+                    type="button"
+                    className={styles.errorLine}
+                    onClick={() => {
+                      goToError(currentIndex);
+                      viewRef.current?.focus();
+                    }}
+                  >
+                    {`${t('errorOnLine', 'Error on line')} ${currentError?.line}:`}
+                  </button>{' '}
+                  {currentError?.message}
+                </>
+              }
+              inline
+              kind="error"
+              lowContrast
+              // The default alertdialog role traps focus in the notification and takes it back on every render, which
+              // would keep keyboard users from the previous and next error buttons
+              role="status"
+              actionButtonLabel={t('viewReferenceSchema', 'View reference schema')}
+              onActionButtonClick={() =>
+                window.open('https://json.openmrs.org/form.schema.json', '_blank', 'noopener,noreferrer')
+              }
+            />
+          </FeatureFlags>
           <div className={styles.pagination}>
             <IconButton
               kind="ghost"

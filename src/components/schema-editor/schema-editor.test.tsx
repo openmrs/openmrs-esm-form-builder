@@ -411,6 +411,22 @@ describe('SchemaEditor', () => {
     expect(screen.getByRole('button', { name: 'Next error' })).toBeDisabled();
   });
 
+  it('tabs from the notification straight to the error buttons', async () => {
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema="{}" />);
+    setEditorText(schemaWithErrors);
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: 'Render changes' }));
+    await getErrorMarkerLines();
+    vi.useRealTimers();
+    const user = userEvent.setup();
+
+    act(() => screen.getByRole('button', { name: /close/i }).focus());
+    await user.tab();
+
+    expect(screen.getByRole('button', { name: 'Next error' })).toHaveFocus();
+  });
+
   it('moves focus to the other error button when one reaches the first or last error', async () => {
     vi.useFakeTimers();
     render(<StatefulSchemaEditor initialSchema="{}" />);
