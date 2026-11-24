@@ -228,6 +228,46 @@ describe('SchemaEditor', () => {
     expect(await getErrorMarkerLines()).toEqual([2, 4, 6]);
   });
 
+  it('lists the allowed values when a value is not one of them', async () => {
+    const schemaWithEnum = {
+      type: 'object',
+      properties: { processor: { type: 'string', enum: ['EncounterFormProcessor', 'ProgramEnrollmentProcessor'] } },
+    };
+    mockUseStandardFormSchema.mockReturnValue({ schema: schemaWithEnum, schemaProperties: schemaWithEnum.properties });
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema="{}" />);
+    setEditorText('{\n  "processor": ""\n}');
+    act(() => vi.advanceTimersByTime(300));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Render changes' }));
+    await getErrorMarkerLines();
+
+    expect(
+      screen.getByText('Processor must be one of: "EncounterFormProcessor", "ProgramEnrollmentProcessor"'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows one error that lists the types when a value has none of the types a field accepts', async () => {
+    const schemaWithAlternatives = {
+      type: 'object',
+      properties: { showComment: { oneOf: [{ type: 'boolean' }, { type: 'string' }] } },
+    };
+    mockUseStandardFormSchema.mockReturnValue({
+      schema: schemaWithAlternatives,
+      schemaProperties: schemaWithAlternatives.properties,
+    });
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema="{}" />);
+    setEditorText('{\n  "showComment": 5\n}');
+    act(() => vi.advanceTimersByTime(300));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Render changes' }));
+
+    expect(await getErrorMarkerLines()).toEqual([2]);
+    expect(screen.getByText('1/1')).toBeInTheDocument();
+    expect(screen.getByText('ShowComment must be boolean or string')).toBeInTheDocument();
+  });
+
   it('shows each validation error with the line it is marked on once validation is turned on', async () => {
     vi.useFakeTimers();
     render(<StatefulSchemaEditor initialSchema="{}" />);
