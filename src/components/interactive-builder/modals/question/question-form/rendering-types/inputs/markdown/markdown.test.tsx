@@ -69,6 +69,16 @@ describe('MarkdownQuestion', () => {
     ]);
   });
 
+  it('previews links and images the way the form renders them', async () => {
+    const user = userEvent.setup();
+    renderMarkdownQuestion('See the [guide](https://example.com/guide) ![logo](https://example.com/logo.png)');
+
+    await user.click(screen.getByRole('tab', { name: /preview/i }));
+
+    expect(screen.getByRole('link', { name: 'guide' })).toHaveAttribute('target', '_blank');
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
+
   it('tells the user when there is nothing to preview', async () => {
     const user = userEvent.setup();
     renderMarkdownQuestion('');

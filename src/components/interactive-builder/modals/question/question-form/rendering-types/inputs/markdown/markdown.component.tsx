@@ -1,11 +1,37 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ContentSwitcher, Switch, TextArea } from '@carbon/react';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, { type Components } from 'react-markdown';
 import { useFormField } from '../../../../form-field-context';
 import styles from './markdown.scss';
 
 type EditorTab = 'write' | 'preview';
+
+// The preview renders markdown the way the form engine's markdown input does, so it shows what the form will show.
+const previewElements = [
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'p',
+  'strong',
+  'em',
+  'code',
+  'pre',
+  'ul',
+  'ol',
+  'li',
+  'a',
+  'blockquote',
+  'hr',
+  'br',
+];
+
+const previewComponents: Components = {
+  a: ({ node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" />,
+};
 
 // Schemas can store markdown as an array of lines, which the form engine renders as separate paragraphs.
 // The editor shows them the same way and writes a single string back once the content is edited.
@@ -44,7 +70,13 @@ const MarkdownQuestion: React.FC = () => {
         />
       ) : (
         <div className={styles.preview}>
-          {markdown ? <ReactMarkdown>{markdown}</ReactMarkdown> : t('nothingToPreview', 'Nothing to preview')}
+          {markdown ? (
+            <ReactMarkdown allowedElements={previewElements} components={previewComponents} unwrapDisallowed>
+              {markdown}
+            </ReactMarkdown>
+          ) : (
+            t('nothingToPreview', 'Nothing to preview')
+          )}
         </div>
       )}
     </div>

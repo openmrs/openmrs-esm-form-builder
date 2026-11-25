@@ -1,6 +1,5 @@
 @use '@carbon/colors';
 @use '@carbon/layout';
-@use '@carbon/type';
 
 .container {
   display: flex;
@@ -8,26 +7,13 @@
   gap: layout.$spacing-03;
 }
 
+// Typography follows the form engine's markdown input, so the preview matches the rendered form.
 .preview {
-  @include type.type-style('body-01');
-  min-height: 8rem;
-  padding: layout.$spacing-05;
-  background: colors.$gray-10;
+  // The form renders markdown at the page's base size, not the modal's smaller body text.
+  font-size: 1rem;
+  line-height: 1;
+  padding-block: layout.$spacing-05;
   border-bottom: 1px solid colors.$gray-50;
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    margin: layout.$spacing-03 0;
-    font-weight: 600;
-  }
-
-  p {
-    margin-bottom: layout.$spacing-03;
-  }
 
   ul,
   ol {
@@ -42,20 +28,46 @@
     list-style: decimal;
   }
 
+  li {
+    margin-bottom: layout.$spacing-02;
+  }
+
+  blockquote {
+    margin: layout.$spacing-03 0;
+    padding: layout.$spacing-02 layout.$spacing-04;
+    border-left: 3px solid colors.$gray-30;
+    color: colors.$gray-70;
+  }
+
+  pre {
+    margin: layout.$spacing-03 0;
+    padding: layout.$spacing-03;
+    background: colors.$gray-10;
+    border-radius: 4px;
+    overflow-x: auto;
+
+    code {
+      background: none;
+      padding: 0;
+    }
+  }
+
   code {
-    background: colors.$gray-20;
+    background: colors.$gray-10;
     padding: 0 layout.$spacing-02;
     border-radius: 2px;
     font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 0.875em;
   }
 
+  hr {
+    margin: layout.$spacing-04 0;
+    border: 0;
+    border-top: 1px solid colors.$gray-30;
+  }
+
   a {
     color: colors.$blue-60;
     text-decoration: underline;
-  }
-
-  > :last-child {
-    margin-bottom: 0;
   }
 }
