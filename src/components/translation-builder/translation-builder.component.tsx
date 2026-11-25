@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { InlineLoading, InlineNotification, IconButton, Tabs, Tab, TabList, Dropdown } from '@carbon/react';
+import { InlineLoading, InlineNotification, IconButton, Search, Tabs, Tab, TabList, Dropdown } from '@carbon/react';
 import { Download, Edit, ArrowRight, Upload } from '@carbon/react/icons';
 import { useParams } from 'react-router-dom';
 import { showModal, showSnackbar } from '@openmrs/esm-framework';
@@ -215,19 +215,22 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
             <span className={styles.language}>English (en)</span>
             <ArrowRight className={styles.arrow} />
             <Dropdown
-              id="target-language"
+              id="translation-builder-target-language"
               items={languageOptions}
               itemToString={(item) => item?.label ?? ''}
               label=""
-              titleText=""
+              titleText={t('targetLanguage', 'Target language')}
+              hideLabel
               selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
               onChange={({ selectedItem }) => selectedItem && languageChanger(selectedItem.code)}
+              type="inline"
+              className={styles.languageDropdown}
             />
           </div>
 
           <div className={styles.translationActions}>
             <button className={styles.linkButton} onClick={handleDownloadTranslation}>
-              {t('downloadTranslation', 'Download translation')}
+              {t('download', 'Download')}
               <Download size={16} />
             </button>
             <button
@@ -235,7 +238,7 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
               onClick={handleUploadTranslationFromSchema}
               disabled={translationsUploading}
             >
-              {t('uploadTranslation', 'Upload translation')}
+              {t('upload', 'Upload')}
               {!translationsUploading ? <Upload size={16} /> : <InlineLoading />}
             </button>
           </div>
@@ -276,10 +279,11 @@ const TranslationBuilder: React.FC<TranslationBuilderProps> = ({ formSchema, onU
           )}
 
           <div className={styles.searchBox}>
-            <input
-              type="text"
-              placeholder={t('searchTranslationKeys', 'Search Translation Keys...')}
-              className={styles.searchInput}
+            <Search
+              id="translation-builder-search"
+              labelText={t('searchTranslationKeys', 'Search translation keys')}
+              placeholder={t('searchTranslationKeys', 'Search translation keys')}
+              size="md"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />

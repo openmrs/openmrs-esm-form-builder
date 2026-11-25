@@ -91,9 +91,7 @@ function StatefulSchemaEditor({ initialSchema, outsideSchema }: { initialSchema:
 }
 
 function clickNextError() {
-  // The pagination chevrons are icons with no role or accessible name, either side of the "n/total" counter.
-  // eslint-disable-next-line testing-library/no-node-access
-  fireEvent.click(screen.getByText(/^\d+\/\d+$/).nextElementSibling);
+  fireEvent.click(screen.getByRole('button', { name: 'Next error' }));
 }
 
 describe('SchemaEditor', () => {
@@ -101,8 +99,6 @@ describe('SchemaEditor', () => {
     mockUseStandardFormSchema.mockReturnValue({
       schema: referenceSchema,
       schemaProperties: referenceSchema.properties,
-      error: undefined,
-      isLoading: false,
     });
   });
 
@@ -232,6 +228,46 @@ describe('SchemaEditor', () => {
     expect(await getErrorMarkerLines()).toEqual([2, 4, 6]);
   });
 
+  it('lists the allowed values when a value is not one of them', async () => {
+    const schemaWithEnum = {
+      type: 'object',
+      properties: { processor: { type: 'string', enum: ['EncounterFormProcessor', 'ProgramEnrollmentProcessor'] } },
+    };
+    mockUseStandardFormSchema.mockReturnValue({ schema: schemaWithEnum, schemaProperties: schemaWithEnum.properties });
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema="{}" />);
+    setEditorText('{\n  "processor": ""\n}');
+    act(() => vi.advanceTimersByTime(300));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Render changes' }));
+    await getErrorMarkerLines();
+
+    expect(
+      screen.getByText('Processor must be one of: "EncounterFormProcessor", "ProgramEnrollmentProcessor"'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows one error that lists the types when a value has none of the types a field accepts', async () => {
+    const schemaWithAlternatives = {
+      type: 'object',
+      properties: { showComment: { oneOf: [{ type: 'boolean' }, { type: 'string' }] } },
+    };
+    mockUseStandardFormSchema.mockReturnValue({
+      schema: schemaWithAlternatives,
+      schemaProperties: schemaWithAlternatives.properties,
+    });
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema="{}" />);
+    setEditorText('{\n  "showComment": 5\n}');
+    act(() => vi.advanceTimersByTime(300));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Render changes' }));
+
+    expect(await getErrorMarkerLines()).toEqual([2]);
+    expect(screen.getByText('1/1')).toBeInTheDocument();
+    expect(screen.getByText('ShowComment must be boolean or string')).toBeInTheDocument();
+  });
+
   it('shows each validation error with the line it is marked on once validation is turned on', async () => {
     vi.useFakeTimers();
     render(<StatefulSchemaEditor initialSchema="{}" />);
@@ -355,5 +391,94 @@ describe('SchemaEditor', () => {
 
     expect(await getErrorMarkerLines()).toEqual([]);
     expect(screen.queryByText(/error on line/i)).not.toBeInTheDocument();
+  });
+
+  it('moves the cursor to the error the notification shows', async () => {
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema="{}" />);
+    setEditorText(schemaWithErrors);
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: 'Render changes' }));
+    await getErrorMarkerLines();
+    const lineStart = (line: number) =>
+      schemaWithErrors
+        .split('\n')
+        .slice(0, line - 1)
+        .join('\n').length + 1;
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next error' }));
+    expect(getCursorOffset()).toBe(lineStart(4));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next error' }));
+    expect(getCursorOffset()).toBe(lineStart(6));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Previous error' }));
+    expect(getCursorOffset()).toBe(lineStart(4));
+    expect(screen.getByText('2/3')).toBeInTheDocument();
+  });
+
+  it('moves the cursor to the error and focuses the editor when the line is clicked', async () => {
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema="{}" />);
+    setEditorText(schemaWithErrors);
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: 'Render changes' }));
+    await getErrorMarkerLines();
+
+    fireEvent.click(screen.getByRole('button', { name: /error on line 2/i }));
+
+    expect(getCursorOffset()).toBe(schemaWithErrors.indexOf('\n') + 1);
+    expect(screen.getByRole('textbox', { name: /schema editor/i })).toHaveFocus();
+  });
+
+  it('disables the previous and next error buttons at the first and last error', async () => {
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema="{}" />);
+    setEditorText(schemaWithErrors);
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: 'Render changes' }));
+    await getErrorMarkerLines();
+
+    expect(screen.getByRole('button', { name: 'Previous error' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Next error' })).toBeEnabled();
+
+    clickNextError();
+    clickNextError();
+
+    expect(screen.getByRole('button', { name: 'Previous error' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Next error' })).toBeDisabled();
+  });
+
+  it('tabs from the notification straight to the error buttons', async () => {
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema="{}" />);
+    setEditorText(schemaWithErrors);
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: 'Render changes' }));
+    await getErrorMarkerLines();
+    vi.useRealTimers();
+    const user = userEvent.setup();
+
+    act(() => screen.getByRole('button', { name: /close/i }).focus());
+    await user.tab();
+
+    expect(screen.getByRole('button', { name: 'Next error' })).toHaveFocus();
+  });
+
+  it('moves focus to the other error button when one reaches the first or last error', async () => {
+    vi.useFakeTimers();
+    render(<StatefulSchemaEditor initialSchema="{}" />);
+    setEditorText(schemaWithErrors);
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.click(screen.getByRole('button', { name: 'Render changes' }));
+    await getErrorMarkerLines();
+
+    clickNextError();
+    clickNextError();
+    expect(screen.getByRole('button', { name: 'Previous error' })).toHaveFocus();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Previous error' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Previous error' }));
+    expect(screen.getByRole('button', { name: 'Next error' })).toHaveFocus();
   });
 });

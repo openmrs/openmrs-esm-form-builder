@@ -19,15 +19,24 @@
   align-items: center;
   gap: layout.$spacing-05;
   font-size: 0.875rem;
+}
 
-  .paginationIcon {
-    fill: colors.$blue-50;
-    cursor: pointer;
+// Styled as the notification's title, coloured as a link because it moves the cursor to the error
+.errorLine {
+  @include type.type-style('heading-compact-01');
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--cds-link-primary, #{colors.$blue-60});
+  cursor: pointer;
+  text-align: start;
+
+  &:hover {
+    text-decoration: underline;
   }
 
-  .disabledIcon {
-    fill: colors.$gray-40;
-    cursor: not-allowed;
+  &:focus {
+    outline: 2px solid var(--cds-focus, #{colors.$blue-60});
   }
 }
 
