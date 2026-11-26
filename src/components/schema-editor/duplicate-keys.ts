@@ -34,7 +34,7 @@ export function findDuplicateKeys(state: EditorState): Array<DuplicateKey> {
         }
         let key: string;
         try {
-          // Escapes such as "a" name the same key as "a", as they do for JSON.parse
+          // Escapes such as "a\u0062" name the same key as "ab", as they do for JSON.parse
           key = JSON.parse(state.sliceDoc(propertyName.from, propertyName.to));
         } catch {
           continue;
