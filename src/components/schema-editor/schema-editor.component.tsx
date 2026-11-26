@@ -20,6 +20,7 @@ import type { SchemaError } from '@types';
 import { completeFromSchema } from './schema-completions';
 import { findDuplicateKeys } from './duplicate-keys';
 import { createInstanceLineFinder } from './schema-error-line';
+import { combineAlternativeErrors } from './schema-errors';
 import styles from './schema-editor.scss';
 
 interface SchemaEditorProps {
@@ -173,17 +174,21 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
 
       if (!isValid) {
         const findLine = createInstanceLineFinder(content);
-        const schemaErrors = validate.errors.map((error) => {
+        const schemaErrors = combineAlternativeErrors(validate.errors).map((error) => {
           const line = findLine(
             error.instancePath,
             error.keyword === 'additionalProperties' ? error.params.additionalProperty : undefined,
           );
           const pathSegments = error.instancePath.split('.'); // Split the path into segments
           const errorPropertyName = pathSegments[pathSegments.length - 1];
+          const propertyName = errorPropertyName.charAt(0).toUpperCase() + errorPropertyName.slice(1);
           const message =
-            error.keyword === 'type' || error.keyword === 'enum'
-              ? `${errorPropertyName.charAt(0).toUpperCase() + errorPropertyName.slice(1)} ${error.message}`
-              : `${error.message.charAt(0).toUpperCase() + error.message.slice(1)}`;
+            error.keyword === 'enum'
+              ? // Ajv's own message doesn't say which values are allowed
+                `${propertyName} must be one of: ${error.params.allowedValues.map((value) => JSON.stringify(value)).join(', ')}`
+              : error.keyword === 'type'
+                ? `${propertyName} ${error.message}`
+                : `${error.message.charAt(0).toUpperCase() + error.message.slice(1)}`;
 
           return { line, message };
         });

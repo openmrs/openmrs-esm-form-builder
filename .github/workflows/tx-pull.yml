@@ -1,50 +1,24 @@
+name: "Scheduled Transifex Update"
+
 on:
-  workflow_dispatch:
   schedule:
     # every day at 8:05 PM UTC
     - cron: "5 20 * * *"
-
-name: "Scheduled Transifex Update"
+  workflow_dispatch:
 
 jobs:
-  pull-translations-from-transifex:
-    name: pull-translations-from-transifex
-
-    runs-on: ubuntu-latest
+  pull-translations:
+    uses: openmrs/openmrs-contrib-gha-workflows/.github/workflows/tx-pull.yml@main
     permissions:
       contents: write
       pull-requests: write
+    with:
+      pr_body: |
+        # OpenMRS Translation Updates
 
-    steps:
-      - uses: actions/checkout@v6
-      - name: 🌐 Pull translations using transifex client
-        uses: transifex/cli-action@v2
-        with:
-          token: ${{ secrets.TRANSIFEX_TOKEN }}
-          args: pull --force --all
-      - name: 🔄 Create PR if necessary
-        id: cpr
-        uses: peter-evans/create-pull-request@v7
-        with:
-          commit-message: '(chore) Update translations from Transifex'
-          title: '(chore) Update translations from Transifex'
-          body: |
-            # OpenMRS Translation Updates
+        This PR contains updates to the translations pulled from Transifex
 
-            This PR contains updates to the translations pulled from Transifex
-
-            > This PR was automatically generated and will be automatically merged if checks pass.
-          branch: 'chore/update-transifex'
-          author: 'OpenMRS Bot <infrastructure@openmrs.org>'
-          token: ${{ secrets.OMRS_BOT_GH_TOKEN }}
-      # Step 4: Auto-approve the PR if created or updated
-      - name: ✅ Auto approve PR
-        if: steps.cpr.outputs.pull-request-operation == 'created' || steps.cpr.outputs.pull-request-operation == 'updated'
-        run: gh pr review --approve "${{ steps.cpr.outputs.pull-request-number }}"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: 🔀 Automerge PR
-        if: steps.cpr.outputs.pull-request-operation == 'created' || steps.cpr.outputs.pull-request-operation == 'updated'
-        run: gh pr merge --auto --squash "${{ steps.cpr.outputs.pull-request-number }}"
-        env:
-          GH_TOKEN: ${{ secrets.OMRS_BOT_GH_TOKEN }}
+        > This PR was automatically generated and will be automatically merged if checks pass.
+    secrets:
+      TRANSIFEX_TOKEN: ${{ secrets.TRANSIFEX_TOKEN }}
+      BOT_GH_TOKEN: ${{ secrets.OMRS_BOT_GH_TOKEN }}
