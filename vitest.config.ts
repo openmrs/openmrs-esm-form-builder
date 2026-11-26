@@ -33,7 +33,6 @@ export default defineConfig({
       { find: '@openmrs/esm-framework/src/internal', replacement: '@openmrs/esm-framework/mock' },
       { find: '@openmrs/esm-framework', replacement: '@openmrs/esm-framework/mock' },
       { find: 'react-i18next', replacement: r('./__mocks__/react-i18next.js') },
-      { find: 'react-markdown', replacement: r('./__mocks__/react-markdown.tsx') },
       { find: /^@resources\/(.*)$/, replacement: r('./src/resources/') + '$1' },
       { find: /^@hooks\/(.*)$/, replacement: r('./src/hooks/') + '$1' },
       { find: '@types', replacement: r('./src/types.ts') },

@@ -1,14 +1,11 @@
-import useSWRImmutable from 'swr/immutable';
-import { openmrsFetch } from '@openmrs/esm-framework';
+import type { SchemaObject } from 'ajv';
+import formSchema from '../form.schema.json';
 
-export function useStandardFormSchema() {
-  const url = 'https://json.openmrs.org/form.schema.json';
-  const { data, error, isLoading } = useSWRImmutable<{ data }, Error>(url, openmrsFetch);
-
+// Bundled rather than fetched from https://json.openmrs.org/form.schema.json, because OpenMRS must work without
+// internet access and the reference application's Content Security Policy blocks requests to other origins.
+export function useStandardFormSchema(): { schema: SchemaObject; schemaProperties: Record<string, unknown> } {
   return {
-    schema: data?.data,
-    schemaProperties: data?.data.properties,
-    error,
-    isLoading,
+    schema: formSchema,
+    schemaProperties: formSchema.properties,
   };
 }

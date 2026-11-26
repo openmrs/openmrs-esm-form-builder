@@ -14,7 +14,7 @@
 
 .translationRow {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   margin-bottom: layout.$spacing-05;
   padding: layout.$spacing-03 0;
   border-bottom: 1px solid $ui-03;
@@ -40,7 +40,8 @@
 }
 
 .translatedKey {
-  color: $color-blue-60-2;
+  font-size: 0.9rem;
+  overflow-wrap: break-word;
   margin-left: 20px;
   padding: layout.$spacing-05;
 }
@@ -54,8 +55,10 @@
 
 .languageTools {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: layout.$spacing-03 layout.$spacing-05;
   white-space: nowrap;
 }
 
@@ -67,6 +70,11 @@
   .language {
     font-weight: 600;
   }
+
+  // The inline dropdown's wrapper is a grid with a column gap for its title, which this dropdown doesn't have
+  .languageDropdown {
+    column-gap: 0;
+  }
 }
 
 .downloadError {
@@ -76,13 +84,6 @@
 .searchBox {
   margin-top: layout.$spacing-05;
   display: flex;
-}
-
-.searchInput {
-  width: 100%;
-  padding: 0.5rem 1rem;
-  border: 1px solid $color-gray-30;
-  font-size: 0.875rem;
 }
 
 .translationActions {

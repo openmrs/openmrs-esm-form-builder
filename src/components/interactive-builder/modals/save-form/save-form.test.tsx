@@ -39,14 +39,6 @@ const form = {
 const mutate = vi.fn();
 
 beforeEach(() => {
-  vi.stubGlobal(
-    'ResizeObserver',
-    class {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
-    },
-  );
   vi.mocked(useForm).mockReturnValue({
     mutate,
     form: undefined,
