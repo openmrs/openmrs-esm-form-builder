@@ -18,6 +18,7 @@ import debounce from 'lodash-es/debounce';
 import { ChevronRight, ChevronLeft } from '@carbon/react/icons';
 import type { SchemaError } from '@types';
 import { completeFromSchema } from './schema-completions';
+import { findDuplicateKeys } from './duplicate-keys';
 import { createInstanceLineFinder } from './schema-error-line';
 import { combineAlternativeErrors } from './schema-errors';
 import styles from './schema-editor.scss';
@@ -46,6 +47,9 @@ const schemaErrorsField = StateField.define<Array<SchemaError>>({
 
 // Carbon's support-error red, written out because the lint icons are data URLs, which can't read CSS custom properties.
 const errorRed = '#da1e28';
+// Carbon's support-warning yellow, and its yellow 60, which keeps at least 3:1 contrast where yellow 30 can't.
+const warningYellow = '#f1c21b';
+const warningYellowDark = '#8e6a00';
 
 function svgDataUrl(content: string, attributes = 'viewBox="0 0 40 40"') {
   return `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" ${attributes}>${encodeURIComponent(content)}</svg>')`;
@@ -97,6 +101,19 @@ const carbonTheme = EditorView.theme({
     content: svgDataUrl(`<circle cx="20" cy="20" r="15" fill="${errorRed}"/>`),
   },
   '.cm-diagnostic-error': { borderLeftColor: `var(--cds-support-error, ${errorRed})` },
+  // CodeMirror's default lint orange is below 2:1 contrast on the background.
+  '.cm-lintRange-warning': {
+    backgroundImage: svgDataUrl(
+      `<path d="m0 2.5 l2 -1.5 l1 0 l2 1.5 l1 0" stroke="${warningYellowDark}" fill="none" stroke-width="1"/>`,
+      'width="6" height="3"',
+    ),
+  },
+  '.cm-lint-marker-warning': {
+    content: svgDataUrl(
+      `<path d="M20 6L37 35L3 35Z" fill="${warningYellow}" stroke="${warningYellowDark}" stroke-width="4" stroke-linejoin="round"/>`,
+    ),
+  },
+  '.cm-diagnostic-warning': { borderLeftColor: `var(--cds-support-warning, ${warningYellow})` },
 });
 
 const jsonHighlighting = HighlightStyle.define([
@@ -238,6 +255,18 @@ const SchemaEditor: React.FC<SchemaEditorProps> = ({
             (view) => [
               ...(view.state.doc.toString().trim() ? jsonParseLinter()(view) : []),
               ...toDiagnostics(view.state, view.state.field(schemaErrorsField)),
+              ...findDuplicateKeys(view.state).map(
+                ({ from, to, name, lineOfLast }): Diagnostic => ({
+                  from,
+                  to,
+                  severity: 'warning',
+                  message: t('duplicateKey', '"{{name}}" is set again on line {{line}}, so this value is ignored', {
+                    name,
+                    line: lineOfLast,
+                    interpolation: { escapeValue: false },
+                  }),
+                }),
+              ),
             ],
             {
               needsRefresh: (update) =>
