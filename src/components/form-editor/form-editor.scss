@@ -65,57 +65,35 @@
   padding: 1rem;
 }
 
-.schemaEditorPanel {
-  container-type: inline-size;
-}
-
 .heading {
   display: flex;
   margin-right: 1rem;
-  align-items: center;
+  align-items: flex-start;
   gap: layout.$spacing-05;
+}
+
+// The controls wrap below the title when they don't fit beside it, so the icons stay on the first row
+.titleAndControls {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: layout.$spacing-05;
+  row-gap: layout.$spacing-03;
+  min-width: 0;
 }
 
 .tabHeading {
   display: flex;
+  flex: 1 0 auto;
   align-items: center;
   @include type.type-style('heading-compact-01');
   min-height: layout.$spacing-08;
-  width: 100%;
   padding: layout.$spacing-04;
-  white-space: nowrap;
 }
 
-// Below this width the title, controls and icons don't fit on one row
-@container (max-width: 52rem) {
-  .heading {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    row-gap: layout.$spacing-03;
-  }
-
-  .schemaIconActions {
-    grid-area: 1 / 2;
-  }
-
-  .topBtns {
-    grid-area: 2 / 1 / auto / -1;
-    flex-wrap: wrap;
-    padding-inline-start: layout.$spacing-04;
-
-    > :global(.cds--form-item) {
-      flex: none;
-    }
-
-    :global(.cds--label-description:empty),
-    :global(.cds--file-container:empty) {
-      margin: 0;
-    }
-  }
-
-  .heading + .errorNotification {
-    margin-block-start: layout.$spacing-05;
-  }
+.heading + .errorNotification {
+  margin-block-start: layout.$spacing-05;
 }
 
 .backButton {
@@ -144,8 +122,19 @@
 
 .topBtns {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: layout.$spacing-05;
+  padding-inline-start: layout.$spacing-04;
+
+  > :global(.cds--form-item) {
+    flex: none;
+  }
+
+  :global(.cds--label-description:empty),
+  :global(.cds--file-container:empty) {
+    margin: 0;
+  }
 }
 
 .schemaIconActions {
