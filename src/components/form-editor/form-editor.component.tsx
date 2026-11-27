@@ -376,52 +376,54 @@ const FormEditorContent: React.FC<TranslationFnProps> = ({ t }) => {
           </div>
           <div>
             <div className={styles.heading}>
-              <span className={styles.tabHeading}>{t('schemaEditor', 'Schema editor')}</span>
-              <div className={styles.topBtns}>
-                {!schema ? (
-                  <FileUploader
-                    onChange={handleSchemaImport}
-                    labelTitle=""
-                    labelDescription=""
-                    buttonLabel={t('importSchema', 'Import schema')}
-                    buttonKind="ghost"
-                    size="lg"
-                    filenameStatus="edit"
-                    accept={['.json']}
-                    multiple={false}
-                    disabled={false}
-                    iconDescription={t('importSchema', 'Import schema')}
-                    name="form-import"
+              <div className={styles.titleAndControls}>
+                <span className={styles.tabHeading}>{t('schemaEditor', 'Schema editor')}</span>
+                <div className={styles.topBtns}>
+                  {!schema ? (
+                    <FileUploader
+                      onChange={handleSchemaImport}
+                      labelTitle=""
+                      labelDescription=""
+                      buttonLabel={t('importSchema', 'Import schema')}
+                      buttonKind="ghost"
+                      size="lg"
+                      filenameStatus="edit"
+                      accept={['.json']}
+                      multiple={false}
+                      disabled={false}
+                      iconDescription={t('importSchema', 'Import schema')}
+                      name="form-import"
+                    />
+                  ) : null}
+                  {isNewSchema && !schema ? (
+                    <Button kind="ghost" onClick={inputDummySchema}>
+                      {t('inputDummySchema', 'Load sample schema')}
+                    </Button>
+                  ) : null}
+                  <Dropdown
+                    id="target-language"
+                    items={languageOptions}
+                    itemToString={(item) => item?.label ?? ''}
+                    label={t('selectLanguage', 'Select language')}
+                    onChange={({ selectedItem }) => {
+                      if (selectedItem) setSelectedLanguageCode(selectedItem.code);
+                    }}
+                    titleText={t('previewFormIn', 'Preview form in')}
+                    selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
+                    type="inline"
+                    className={styles.dropdown}
                   />
-                ) : null}
-                {isNewSchema && !schema ? (
-                  <Button kind="ghost" onClick={inputDummySchema}>
-                    {t('inputDummySchema', 'Load sample schema')}
-                  </Button>
-                ) : null}
-                <Dropdown
-                  id="target-language"
-                  items={languageOptions}
-                  itemToString={(item) => item?.label ?? ''}
-                  label={t('selectLanguage', 'Select language')}
-                  onChange={({ selectedItem }) => {
-                    if (selectedItem) setSelectedLanguageCode(selectedItem.code);
-                  }}
-                  titleText={t('previewFormIn', 'Preview form in')}
-                  selectedItem={languageOptions.find((opt) => opt.code === selectedLanguageCode)}
-                  type="inline"
-                  className={styles.dropdown}
-                />
 
-                <Button
-                  kind="tertiary"
-                  size="sm"
-                  renderIcon={Renew}
-                  onClick={handleRenderSchemaChanges}
-                  disabled={!!invalidJsonErrorMessage}
-                >
-                  {t('renderChanges', 'Render changes')}
-                </Button>
+                  <Button
+                    kind="tertiary"
+                    size="sm"
+                    renderIcon={Renew}
+                    onClick={handleRenderSchemaChanges}
+                    disabled={!!invalidJsonErrorMessage}
+                  >
+                    {t('renderChanges', 'Render changes')}
+                  </Button>
+                </div>
               </div>
               {schema ? (
                 <div className={styles.schemaIconActions}>

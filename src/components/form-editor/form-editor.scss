@@ -68,17 +68,32 @@
 .heading {
   display: flex;
   margin-right: 1rem;
-  align-items: center;
+  align-items: flex-start;
   gap: layout.$spacing-05;
+}
+
+// The controls wrap below the title when they don't fit beside it, so the icons stay on the first row
+.titleAndControls {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: layout.$spacing-05;
+  row-gap: layout.$spacing-03;
+  min-width: 0;
 }
 
 .tabHeading {
   display: flex;
+  flex: 1 0 auto;
   align-items: center;
   @include type.type-style('heading-compact-01');
   min-height: layout.$spacing-08;
-  width: 100%;
   padding: layout.$spacing-04;
+}
+
+.heading + .errorNotification {
+  margin-block-start: layout.$spacing-05;
 }
 
 .backButton {
@@ -107,8 +122,19 @@
 
 .topBtns {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: layout.$spacing-05;
+  padding-inline-start: layout.$spacing-04;
+
+  > :global(.cds--form-item) {
+    flex: none;
+  }
+
+  :global(.cds--label-description:empty),
+  :global(.cds--file-container:empty) {
+    margin: 0;
+  }
 }
 
 .schemaIconActions {
