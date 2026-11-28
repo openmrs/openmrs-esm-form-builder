@@ -25,7 +25,7 @@ const Date: React.FC = () => {
   );
 
   return (
-    <RadioButtonGroup name="datePickerType" legendText={t('datePickerType', 'The type of date picker to show ')}>
+    <RadioButtonGroup name="datePickerType" defaultSelected="both" legendText={t('datePickerType', 'The type of date picker to show ')}>
       {Object.values(datePickerTypeOptions)
         .flat()
         .map((type) => (
